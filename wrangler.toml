@@ -1,3 +1,8 @@
 name = "bright-quest"
 compatibility_date = "2026-05-14"
 pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "DB"
+database_name = "bright-quest-db"
+database_id = "1122d594-27f3-488e-aaa3-584bafb1f473"
