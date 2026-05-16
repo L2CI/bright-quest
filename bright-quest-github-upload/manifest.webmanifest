@@ -1,0 +1,9 @@
+{
+  "name": "Bright Quest",
+  "short_name": "BrightQuest",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4fbf7",
+  "theme_color": "#1f6f68",
+  "icons": []
+}
