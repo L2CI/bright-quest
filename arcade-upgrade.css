@@ -1,0 +1,224 @@
+.game-stage {
+  border-radius: 22px;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255, 191, 63, 0.32), transparent 28%),
+    radial-gradient(circle at 80% 18%, rgba(13, 166, 213, 0.34), transparent 30%),
+    linear-gradient(180deg, rgba(18, 35, 63, 0.98), rgba(11, 111, 143, 0.9)),
+    var(--navy);
+}
+
+.game-stage::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 34%;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.1)),
+    repeating-linear-gradient(90deg, transparent 0 11%, rgba(255,255,255,0.12) 11% 11.4%, transparent 11.4% 22%);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.game-stage.meteor {
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 117, 92, 0.35), transparent 24%),
+    linear-gradient(180deg, #201245, #0b6f8f);
+}
+
+.game-stage.rainbow {
+  background:
+    linear-gradient(135deg, rgba(255, 191, 63, 0.34), transparent 22%),
+    linear-gradient(225deg, rgba(13, 166, 213, 0.34), transparent 24%),
+    linear-gradient(180deg, #0e3150, #7c5cff);
+}
+
+.game-stage.number {
+  background:
+    linear-gradient(90deg, rgba(169, 230, 80, 0.18) 0 3px, transparent 3px 16%),
+    linear-gradient(180deg, #14351f, #0b6f8f);
+}
+
+.game-stage.comet {
+  background:
+    radial-gradient(circle at 72% 18%, rgba(255, 191, 63, 0.32), transparent 25%),
+    linear-gradient(180deg, #36164d, #12233f);
+}
+
+.game-stage.treasure {
+  background:
+    radial-gradient(circle at 25% 12%, rgba(255, 236, 153, 0.36), transparent 24%),
+    linear-gradient(180deg, #513515, #0b6f8f);
+}
+
+.game-stage.cosmic {
+  background:
+    radial-gradient(circle at 55% 16%, rgba(255, 255, 255, 0.22), transparent 18%),
+    linear-gradient(180deg, #101329, #7c5cff);
+}
+
+.game-stage.final {
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 191, 63, 0.36), transparent 22%),
+    linear-gradient(180deg, #111827, #c92a2a);
+}
+
+.game-stage.drift .player-ship,
+.game-stage.meteor .player-ship,
+.game-stage.number .player-ship,
+.game-stage.treasure .player-ship {
+  height: 46px;
+  width: 108px;
+  border-radius: 22px 22px 12px 12px;
+  background:
+    radial-gradient(circle at 22% 100%, #111827 0 13%, transparent 14%),
+    radial-gradient(circle at 78% 100%, #111827 0 13%, transparent 14%),
+    linear-gradient(90deg, transparent 0 14%, rgba(255,255,255,0.95) 14% 30%, transparent 30% 70%, rgba(255,255,255,0.95) 70% 86%, transparent 86%),
+    linear-gradient(135deg, var(--coral), var(--sun));
+  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.26), 0 0 32px rgba(255, 191, 63, 0.58);
+}
+
+.game-stage.drift .player-ship::before,
+.game-stage.meteor .player-ship::before,
+.game-stage.number .player-ship::before,
+.game-stage.treasure .player-ship::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: -10px;
+  height: 20px;
+  border-radius: 20px 20px 8px 8px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(13, 166, 213, 0.72));
+}
+
+.game-stage.star .player-ship {
+  height: 30px;
+  width: 126px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.9), transparent 18% 82%, rgba(255,255,255,0.9)),
+    linear-gradient(135deg, var(--sun), var(--teal));
+}
+
+.game-hud {
+  z-index: 4;
+  display: flex;
+  gap: 12px;
+  border-radius: 16px;
+  padding: 10px 12px;
+}
+
+.game-hud div {
+  min-width: 58px;
+}
+
+.player-ship {
+  z-index: 4;
+  transition: transform 120ms ease;
+}
+
+.falling-star {
+  z-index: 3;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  user-select: none;
+}
+
+.falling-star.bonus {
+  width: 50px;
+  height: 50px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #fff8b7, #40c057);
+  animation: pulseTarget 760ms ease-in-out infinite alternate;
+}
+
+.falling-star.hazard {
+  background: linear-gradient(135deg, #ff6b6b, #5f1f3d);
+  color: #fff;
+  box-shadow: 0 0 22px rgba(255, 107, 107, 0.8);
+}
+
+.burst-target {
+  cursor: pointer;
+  animation: balloonWobble 900ms ease-in-out infinite alternate;
+}
+
+.game-pop {
+  position: absolute;
+  z-index: 5;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--navy);
+  font-weight: 1000;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.18);
+  animation: popScore 620ms ease-out forwards;
+  pointer-events: none;
+}
+
+.game-pop.bonus {
+  background: linear-gradient(135deg, #fff8b7, #69db7c);
+}
+
+.game-pop.hazard {
+  background: linear-gradient(135deg, #ff8787, #ffd8d8);
+}
+
+.game-tile {
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 82% 12%, rgba(255, 191, 63, 0.26), transparent 24%),
+    rgba(255, 250, 242, 0.9);
+}
+
+.game-tile.meteor,
+.game-tile.comet,
+.game-tile.cosmic {
+  background:
+    radial-gradient(circle at 82% 12%, rgba(124, 92, 255, 0.24), transparent 24%),
+    rgba(242, 250, 255, 0.92);
+}
+
+.game-tile.treasure,
+.game-tile.number {
+  background:
+    radial-gradient(circle at 82% 12%, rgba(64, 192, 87, 0.2), transparent 24%),
+    rgba(248, 255, 242, 0.92);
+}
+
+.game-tile-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--sun), var(--cyan));
+  color: var(--navy);
+  font-size: 1.5rem;
+  font-weight: 1000;
+  box-shadow: 0 12px 24px rgba(13, 166, 213, 0.2);
+}
+
+@keyframes pulseTarget {
+  to {
+    transform: scale(1.08) rotate(4deg);
+  }
+}
+
+@keyframes balloonWobble {
+  to {
+    transform: translateX(-50%) translateY(-5px) rotate(5deg);
+  }
+}
+
+@keyframes popScore {
+  to {
+    opacity: 0;
+    transform: translate(-50%, -92%) scale(1.26);
+  }
+}
