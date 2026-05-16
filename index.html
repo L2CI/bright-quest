@@ -7,6 +7,7 @@
     <title>Bright Quest</title>
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="arcade-upgrade.css" />
   </head>
   <body>
     <div class="ambient" aria-hidden="true">
@@ -252,11 +253,21 @@
         </header>
         <section class="game-stage" id="gameStage">
           <div class="game-hud">
-            <strong id="gameScore">0</strong>
-            <span>stars caught</span>
+            <div>
+              <strong id="gameScore">0</strong>
+              <span id="gameScoreLabel">score</span>
+            </div>
+            <div>
+              <strong id="gameCombo">x1</strong>
+              <span>combo</span>
+            </div>
+            <div>
+              <strong id="gameLives">3</strong>
+              <span>lives</span>
+            </div>
           </div>
           <div class="player-ship" id="playerShip" aria-hidden="true"></div>
-          <p class="game-help">Move the paddle with your finger or mouse. Catch the falling stars.</p>
+          <p class="game-help" id="gameHelp">Move with your finger. Collect the bright targets.</p>
         </section>
       </section>
 
@@ -307,5 +318,6 @@
     <script src="app-data.js"></script>
     <script src="final-test-data.js"></script>
     <script src="app.js"></script>
+    <script src="arcade-upgrade.js"></script>
   </body>
 </html>
