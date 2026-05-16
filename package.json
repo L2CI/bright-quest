@@ -1,0 +1,19 @@
+{
+  "name": "bright-quest",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "node serve-static.mjs",
+    "build:final-test": "node build-final-test-data.mjs",
+    "build:workbook": "node build-questionnaire-workbook.mjs",
+    "cf:dev": "wrangler pages dev . --compatibility-date=2026-05-14 --d1=DB",
+    "cf:d1:create": "wrangler d1 create bright-quest-db",
+    "cf:d1:migrate:local": "wrangler d1 migrations apply bright-quest-db --local",
+    "cf:d1:migrate:remote": "wrangler d1 migrations apply bright-quest-db --remote",
+    "cf:deploy": "wrangler pages deploy . --project-name bright-quest"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
