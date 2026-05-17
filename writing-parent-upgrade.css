@@ -1,0 +1,143 @@
+.writing-score-card,
+.attempt-review-card {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.parent-corner-actions {
+  top: clamp(8px, 1.4vw, 16px);
+  right: clamp(8px, 1.4vw, 16px);
+}
+
+#parentScreen .app-header {
+  padding-right: 172px;
+}
+
+.writing-score-card h4,
+.attempt-review-card h4 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+.writing-score-card p,
+.attempt-review-card p {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 780;
+  line-height: 1.45;
+}
+
+.attempt-review-list {
+  display: grid;
+  gap: 10px;
+}
+
+.attempt-review-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.attempt-review-card .button {
+  width: auto;
+}
+
+.full-review-panel {
+  margin-top: 12px;
+  border-radius: 16px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.84);
+}
+
+.full-review-panel.hidden {
+  display: none;
+}
+
+.answer-review-row {
+  display: grid;
+  gap: 8px;
+  border-bottom: 1px solid var(--line);
+  padding: 14px 0;
+}
+
+.answer-review-row:last-child {
+  border-bottom: 0;
+}
+
+.answer-review-row h5 {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.35;
+}
+
+.answer-review-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.answer-review-meta span {
+  border-radius: 999px;
+  padding: 6px 9px;
+  background: rgba(11, 111, 143, 0.1);
+  color: var(--blue);
+  font-size: 0.78rem;
+  font-weight: 1000;
+}
+
+.answer-review-row.correct {
+  background: linear-gradient(90deg, rgba(39, 211, 162, 0.08), transparent 35%);
+}
+
+.answer-review-row.missed {
+  background: linear-gradient(90deg, rgba(255, 107, 122, 0.08), transparent 35%);
+}
+
+.answer-review-row.writing {
+  background: linear-gradient(90deg, rgba(255, 191, 63, 0.12), transparent 35%);
+}
+
+.writing-rubric {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.writing-rubric div {
+  border-radius: 12px;
+  padding: 9px;
+  background: rgba(255, 250, 242, 0.9);
+  border: 1px solid var(--line);
+}
+
+.writing-rubric strong,
+.writing-rubric span {
+  display: block;
+}
+
+.writing-rubric span {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 850;
+}
+
+@media (max-width: 760px) {
+  #parentScreen .app-header {
+    padding-right: 0;
+    padding-top: 44px;
+  }
+
+  .parent-corner-actions {
+    left: auto;
+    right: 12px;
+  }
+
+  .attempt-review-card,
+  .writing-rubric {
+    grid-template-columns: 1fr;
+  }
+}
