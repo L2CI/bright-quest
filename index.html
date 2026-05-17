@@ -8,6 +8,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="arcade-upgrade.css" />
+    <link rel="stylesheet" href="writing-parent-upgrade.css" />
   </head>
   <body>
     <div class="ambient" aria-hidden="true">
@@ -74,7 +75,7 @@
       <section class="screen hidden" id="parentScreen">
         <div class="parent-corner-actions">
           <button class="button button-danger parent-corner-button" id="parentResetButton" type="button">Reset</button>
-          <button class="button button-soft parent-corner-button" id="parentExitButton" type="button">Switch</button>
+          <button class="button button-soft parent-corner-button" id="parentExitButton" type="button">Log out</button>
         </div>
         <header class="app-header">
           <div>
@@ -124,7 +125,7 @@
       </section>
 
       <section class="screen hidden" id="dashboardScreen">
-        <button class="button button-soft switch-corner" id="switchProfileButton" type="button">Switch</button>
+        <button class="button button-soft switch-corner" id="switchProfileButton" type="button">Log out</button>
         <header class="app-header">
           <div>
             <p class="eyebrow">Welcome back</p>
@@ -320,5 +321,6 @@
     <script src="app.js"></script>
     <script src="arcade-upgrade.js"></script>
     <script src="autosave-upgrade.js"></script>
+    <script src="writing-parent-upgrade.js"></script>
   </body>
 </html>
