@@ -6,6 +6,7 @@
   let lastCloudSaveAt = 0;
   let resuming = false;
   const resumedProfiles = new Set();
+  const resumeAllowedProfiles = new Set();
 
   const exitTestButton = document.querySelector("#exitTestButton");
   const optionsGrid = document.querySelector("#optionsGrid");
@@ -36,6 +37,7 @@
 
   activateProfile = function autosavedActivateProfile(name) {
     originalActivateProfile(name);
+    if (state.profile?.id) resumeAllowedProfiles.add(state.profile.id);
     setTimeout(maybeAutoResumeDraft, 120);
   };
 
@@ -68,7 +70,13 @@
     if (state.profile?.activeDraft) syncProfileToCloud(state.profile);
   });
 
-  setTimeout(maybeAutoResumeDraft, 800);
+  document.addEventListener("click", (event) => {
+    const profileButton = event.target.closest("[data-profile]");
+    if (profileButton?.dataset.profile) {
+      resumeAllowedProfiles.add(profileButton.dataset.profile);
+      setTimeout(maybeAutoResumeDraft, 180);
+    }
+  }, true);
 
   function createFreshDraft() {
     if (!state.profile || !state.activeLevel) return;
@@ -136,6 +144,7 @@
 
   function maybeAutoResumeDraft() {
     if (!state.profile?.activeDraft || resuming) return;
+    if (!resumeAllowedProfiles.has(state.profile.id)) return;
     if (resumedProfiles.has(state.profile.id)) return;
 
     resumedProfiles.add(state.profile.id);
