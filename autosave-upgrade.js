@@ -31,12 +31,12 @@
 
   renderDashboard = function autosavedRenderDashboard() {
     originalRenderDashboard();
-    maybeAutoResumeDraft();
+    setTimeout(maybeAutoResumeDraft, 80);
   };
 
   activateProfile = function autosavedActivateProfile(name) {
     originalActivateProfile(name);
-    maybeAutoResumeDraft();
+    setTimeout(maybeAutoResumeDraft, 120);
   };
 
   exitTestButton?.addEventListener("click", () => {
@@ -136,7 +136,6 @@
 
   function maybeAutoResumeDraft() {
     if (!state.profile?.activeDraft || resuming) return;
-    if (!screens.dashboard || screens.dashboard.classList.contains("hidden")) return;
     if (resumedProfiles.has(state.profile.id)) return;
 
     resumedProfiles.add(state.profile.id);
