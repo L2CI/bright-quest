@@ -329,9 +329,285 @@
         };
       }
 
+      const distinctAdvanced = level >= 4 ? distinctAdvancedQuestionBySkill(question.skill, level) : null;
+      if (distinctAdvanced) return { ...question, ...distinctAdvanced };
+
       const upgraded = harderQuestionBySkill(question.skill, level);
       return upgraded ? { ...question, ...upgraded } : question;
     });
+  }
+
+  function distinctAdvancedQuestionBySkill(skill, level) {
+    const index = level - 4;
+    const n = level + 4;
+    const variants = {
+      "Addition and subtraction": [
+        {
+          prompt: "A science fair printed 318 experiment cards, recycled 74 misprints, and then printed 129 more cards. How many usable cards were ready?",
+          options: makeOptions(318 - 74 + 129, [18, -27, 54]),
+          correct: 0,
+          explain: "Subtract the recycled cards, then add the extra printed cards."
+        },
+        {
+          prompt: "At a winter concert, 286 tickets sold online and 174 sold at the office. Then 39 tickets were refunded. How many tickets stayed sold?",
+          options: makeOptions(286 + 174 - 39, [30, -21, 48]),
+          correct: 0,
+          explain: "Add both ticket groups, then subtract the refunds."
+        },
+        {
+          prompt: "A sports shed had 462 training cones. Coaches borrowed 138 cones and returned 57. How many cones were in the shed afterwards?",
+          options: makeOptions(462 - 138 + 57, [25, -34, 62]),
+          correct: 0,
+          explain: "Borrowed cones leave the shed; returned cones come back."
+        },
+        {
+          prompt: "A robotics club saved 735 battery cells, used 268 during trials, and received a donation of 146. How many cells did it have then?",
+          options: makeOptions(735 - 268 + 146, [40, -55, 73]),
+          correct: 0,
+          explain: "Subtract the used cells, then add the donation."
+        }
+      ],
+      "Subtraction with regrouping": [
+        {
+          prompt: "A ferry could carry 920 passengers. If 347 seats were booked by families and 286 by school groups, how many seats were still free?",
+          options: makeOptions(920 - 347 - 286, [28, -36, 64]),
+          correct: 0,
+          explain: "Subtract both booked groups from the total capacity."
+        },
+        {
+          prompt: "A warehouse packed 1,040 art kits. It sent 415 to one campus and 296 to another. How many kits remained?",
+          options: makeOptions(1040 - 415 - 296, [31, -42, 70]),
+          correct: 0,
+          explain: "Take away each delivery from the original total."
+        },
+        {
+          prompt: "A theatre printed 1,260 programs. The matinee used 438 and the evening show used 507. How many programs were unused?",
+          options: makeOptions(1260 - 438 - 507, [36, -45, 81]),
+          correct: 0,
+          explain: "Subtract both show amounts from the printed total."
+        },
+        {
+          prompt: "A tournament prepared 1,485 name badges. Volunteers handed out 566 before lunch and 614 after lunch. How many badges were left?",
+          options: makeOptions(1485 - 566 - 614, [44, -52, 90]),
+          correct: 0,
+          explain: "Subtract the badges handed out in both sessions."
+        }
+      ],
+      "Multiplication facts": [
+        {
+          prompt: `A debating event has ${n} tables. Each table has ${n + 3} score sheets and 4 spare sheets. How many sheets are on the tables altogether?`,
+          options: makeOptions(n * (n + 7), [n, -n, 2 * n]),
+          correct: 0,
+          explain: "Find sheets per table, then multiply by the number of tables."
+        },
+        {
+          prompt: `A gallery hangs ${n + 1} rows of photos. Each row has ${n + 2} colour photos and 3 black-and-white photos. How many photos are hung?`,
+          options: makeOptions((n + 1) * (n + 5), [n + 1, -(n + 1), 12]),
+          correct: 0,
+          explain: "Add the two photo types in each row, then multiply."
+        },
+        {
+          prompt: `A coding club makes ${n + 2} project boards. Each board uses ${n + 1} stickers plus 5 labels. How many stickers and labels are used?`,
+          options: makeOptions((n + 2) * (n + 6), [n + 2, -8, 16]),
+          correct: 0,
+          explain: "Work out the items on one board, then multiply."
+        },
+        {
+          prompt: `A chess club sets up ${n + 3} boards. Each board needs ${n} pieces already placed and 6 spare pieces nearby. How many pieces are out?`,
+          options: makeOptions((n + 3) * (n + 6), [n + 3, -9, 18]),
+          correct: 0,
+          explain: "Add placed and spare pieces for one board, then multiply."
+        }
+      ],
+      "Division as sharing": [
+        {
+          prompt: `${(n + 5) * 9} quiz cards are sorted equally into 9 folders. Two extra challenge cards are put in each folder. How many cards are in each folder?`,
+          options: makeOptions(n + 7, [2, -3, 5]),
+          correct: 0,
+          explain: "Divide the cards into folders, then add the extras."
+        },
+        {
+          prompt: `${(n + 4) * 8} coloured tiles are shared between 8 tables. Each table then receives 6 border tiles. How many tiles does each table have?`,
+          options: makeOptions(n + 10, [4, -2, 8]),
+          correct: 0,
+          explain: "Share equally first, then add the border tiles."
+        },
+        {
+          prompt: `${(n + 6) * 7} library labels are divided into 7 trays. Four damaged labels are removed from each tray. How many good labels remain in each tray?`,
+          options: makeOptions(n + 2, [4, -3, 7]),
+          correct: 0,
+          explain: "Divide into trays, then subtract the damaged labels."
+        },
+        {
+          prompt: `${(n + 7) * 6} puzzle pieces are placed equally into 6 envelopes. Each envelope gets 5 instruction cards as well. How many items are in each envelope?`,
+          options: makeOptions(n + 12, [5, -4, 10]),
+          correct: 0,
+          explain: "Divide the puzzle pieces, then add the cards."
+        }
+      ],
+      "Number patterns": [
+        item("Continue the growing-jump pattern: 3, 6, 12, 21, 33, ___", ["48", "45", "51", "42"], 0, "The jumps are +3, +6, +9, +12, so the next jump is +15."),
+        item("Find the next term in this five-step increase: 4, 9, 19, 34, 54, ___", ["79", "74", "84", "69"], 0, "The jumps increase by 5 each time."),
+        item("Complete this triangular-jump sequence: 11, 14, 20, 29, 41, ___", ["56", "53", "59", "62"], 0, "The jumps are +3, +6, +9, +12, so add +15."),
+        item("Use the double-and-add rule to finish: 2, 5, 11, 23, 47, ___", ["95", "91", "99", "87"], 0, "Double the number and add 1 each time.")
+      ],
+      "Place value": [
+        item("In 48,306, what is the value of the digit 8?", ["8", "80", "8,000", "80,000"], 2, "The 8 is in the thousands place."),
+        item("In 72,549, which digit is in the hundreds place?", ["2", "5", "4", "7"], 1, "The hundreds digit is the third digit from the right."),
+        item("Which number has 6 in the ten-thousands place?", ["16,280", "61,280", "26,810", "12,680"], 1, "In 61,280, the 6 means 60,000."),
+        item("In 305,714, what does the digit 5 represent?", ["5", "50", "5,000", "500"], 2, "The 5 is in the thousands place.")
+      ],
+      "Fractions": [
+        item("Which fraction is the same as three sixths?", ["1/2", "1/3", "2/3", "3/4"], 0, "Three out of six equal parts simplifies to one half."),
+        item("A ribbon is split into 8 equal parts. Four parts are shaded. Which fraction is shaded?", ["1/4", "1/2", "3/4", "4/5"], 1, "Four eighths is equal to one half."),
+        item("Which is greater than 1/2?", ["2/5", "3/8", "5/8", "1/3"], 2, "Five eighths is more than half."),
+        item("A pizza has 12 equal slices. 3 slices are eaten. What fraction is eaten?", ["1/4", "1/3", "3/8", "1/2"], 0, "Three twelfths simplifies to one quarter.")
+      ],
+      "Time": [
+        {
+          prompt: "A rehearsal begins at 9:48 and runs for 37 minutes. After a 15-minute break, what time is it?",
+          options: ["10:40", "10:25", "10:35", "10:50"],
+          correct: 0,
+          explain: "9:48 plus 37 minutes is 10:25, then add 15 minutes."
+        },
+        {
+          prompt: "A train leaves at 2:17 and arrives 86 minutes later. What is the arrival time?",
+          options: ["3:43", "3:33", "4:03", "2:86"],
+          correct: 0,
+          explain: "Add 60 minutes to reach 3:17, then add 26 minutes."
+        },
+        {
+          prompt: "A science session starts at 11:55 and lasts 1 hour 28 minutes. What time does it end?",
+          options: ["1:23", "12:83", "1:13", "12:23"],
+          correct: 0,
+          explain: "Add one hour to 12:55, then add 28 minutes."
+        },
+        {
+          prompt: "A match begins at 4:36 and finishes at 6:05. How long did it last?",
+          options: ["1 hour 29 minutes", "1 hour 19 minutes", "89 hours", "2 hours 29 minutes"],
+          correct: 0,
+          explain: "From 4:36 to 5:36 is one hour, then 29 more minutes."
+        }
+      ],
+      "Money": [
+        item("Zara buys a notebook for $3.45 and a pen for $1.80. She pays with $10. How much change should she receive?", ["$4.75", "$5.25", "$4.65", "$6.55"], 0, "The items cost $5.25, so $10 - $5.25 = $4.75."),
+        item("Four bus tickets cost $2.35 each. About how much do they cost altogether?", ["$9.40", "$8.40", "$10.40", "$6.70"], 0, "Multiply $2.35 by 4."),
+        item("A game costs $7.60. It is reduced by $1.85. What is the new price?", ["$5.75", "$6.25", "$5.85", "$9.45"], 0, "Subtract the discount from the original price."),
+        item("Mason has three $2 coins, five 50c coins, and two 20c coins. How much money does he have?", ["$8.90", "$8.40", "$9.40", "$7.90"], 0, "Add $6.00, $2.50, and $0.40.")
+      ],
+      "Data": [
+        item("A tally shows library visits: Monday 46, Tuesday 58, Wednesday 39, Thursday 64. How many more visits were there on Thursday than Wednesday?", ["25", "19", "22", "103"], 0, "Subtract Wednesday's visits from Thursday's visits."),
+        item("A bar graph records goals: Red 17, Blue 29, Green 24, Gold 31. Which two teams together scored 46 goals?", ["Red and Blue", "Blue and Green", "Red and Gold", "Green and Gold"], 0, "17 + 29 = 46."),
+        item("Four classes collected cans: 3A 128, 3B 146, 3C 119, 3D 152. What is the range?", ["33", "24", "27", "271"], 0, "Range is highest minus lowest: 152 - 119."),
+        item("Survey results were: chess 18, art 25, coding 22, music 15. How many students chose art or coding?", ["47", "40", "43", "62"], 0, "Add the art and coding totals.")
+      ],
+      "Measurement": [
+        item("Which is the most sensible estimate for the mass of a full school bag?", ["4 kilograms", "4 grams", "40 tonnes", "400 milligrams"], 0, "A school bag is usually measured in kilograms."),
+        item("Which unit best measures the capacity of a water bottle?", ["litres", "kilometres", "grams", "degrees"], 0, "Capacity is measured in millilitres or litres."),
+        item("A desk is 120 centimetres long. How many metres is that?", ["1.2 metres", "12 metres", "120 metres", "0.12 metres"], 0, "100 centimetres make 1 metre."),
+        item("Which tool would most sensibly measure the temperature of a classroom?", ["thermometer", "ruler", "scales", "stopwatch"], 0, "A thermometer measures temperature.")
+      ],
+      "Multi-step word problem": [
+        {
+          prompt: "A reading team has 6 shelves with 18 books on each shelf. They donate 29 books and then buy 44 new books. How many books do they have?",
+          options: makeOptions(6 * 18 - 29 + 44, [11, -13, 22]),
+          correct: 0,
+          explain: "Multiply first, subtract the donation, then add new books."
+        },
+        {
+          prompt: "A camp packed 9 boxes with 16 cups in each. During lunch, 38 cups were used. The leaders unpacked 27 more cups. How many unused cups were available?",
+          options: makeOptions(9 * 16 - 38 + 27, [9, -16, 25]),
+          correct: 0,
+          explain: "Find the starting cups, subtract used cups, then add more."
+        },
+        {
+          prompt: "A fundraiser sold 7 bundles of 24 raffle tickets. Later, 35 tickets were returned and 19 extra tickets were sold. How many tickets stayed sold?",
+          options: makeOptions(7 * 24 - 35 + 19, [14, -21, 28]),
+          correct: 0,
+          explain: "Multiply bundles, subtract returns, then add extra sales."
+        },
+        {
+          prompt: "A puzzle club made 8 packs of 21 clues. They removed 26 unclear clues and wrote 33 replacement clues. How many clues were ready?",
+          options: makeOptions(8 * 21 - 26 + 33, [12, -18, 31]),
+          correct: 0,
+          explain: "Multiply packs, subtract removed clues, then add replacements."
+        }
+      ],
+      "Vocabulary": [
+        item("Choose the best word for the sentence: The instructions were ___, so everyone knew exactly what to do.", ["clear", "ancient", "damp", "silent"], 0, "Clear instructions are easy to understand."),
+        item("Choose the best word for the sentence: The runner felt ___ after finishing the long race.", ["exhausted", "transparent", "ordinary", "square"], 0, "Exhausted means very tired."),
+        item("Choose the best word for the sentence: The judge asked for ___ proof before making a decision.", ["reliable", "fragile", "noisy", "crooked"], 0, "Reliable proof can be trusted."),
+        item("Choose the best word for the sentence: The path was ___, so the hikers stepped carefully.", ["slippery", "delicious", "musical", "polite"], 0, "A slippery path needs careful walking.")
+      ],
+      "Spelling": [
+        item("Which word is spelled correctly in this sentence: The answer was completely ___?", ["surprising", "suprising", "surprizing", "suprissing"], 0, "Surprising keeps the r after sur-."),
+        item("Which word is spelled correctly in this sentence: The captain made a brave ___?", ["decision", "decission", "desicion", "decsion"], 0, "Decision is spelled d-e-c-i-s-i-o-n."),
+        item("Which word is spelled correctly in this sentence: The team showed great ___?", ["confidence", "confidense", "conffidence", "confadence"], 0, "Confidence ends with -ence."),
+        item("Which word is spelled correctly in this sentence: The machine needed careful ___?", ["maintenance", "maintainance", "maintenence", "mantenance"], 0, "Maintenance is the correct spelling.")
+      ],
+      "Grammar": [
+        item("Choose the sentence that handles neither correctly.", ["Neither of the answers is correct.", "Neither of the answers are correct.", "Neither answers correct is.", "Neither answer were correct."], 0, "Neither takes a singular verb here."),
+        item("Choose the sentence where the collective noun agrees with the verb.", ["The group of students was waiting quietly.", "The group of students were waiting quietly.", "The group waiting quietly were.", "The students group was quietly wait."], 0, "The subject is group, so use was."),
+        item("Choose the sentence with the correct conditional verb phrase.", ["If I had known earlier, I would have helped.", "If I knew earlier, I would of helped.", "If known earlier, I helped would.", "If I had knew earlier, I would help."], 0, "The first sentence uses the correct verb phrase."),
+        item("Choose the sentence that uses each correctly.", ["Each of the players has a numbered card.", "Each of the players have a numbered card.", "Each players has numbered card.", "Each of player have card."], 0, "Each takes has.")
+      ],
+      "Punctuation": [
+        item("Which option correctly places the comma after an opening time clause?", ["Before the bell rang, the class packed away their books.", "Before, the bell rang the class packed away their books.", "Before the bell rang the class, packed away their books.", "Before the bell rang the class packed away their books"], 0, "A comma can follow the opening clause."),
+        item("Which option punctuates direct speech correctly?", ["\"Please check your answer,\" said Amira.", "\"Please check your answer, said Amira.\"", "Please check your answer,\" said Amira.", "\"Please check your answer\" said Amira"], 0, "The spoken words and comma are inside quotation marks."),
+        item("Which option uses commas correctly in a list?", ["The team packed ropes, torches, maps, and gloves.", "The team packed ropes torches, maps and gloves.", "The team, packed ropes, torches maps and gloves.", "The team packed, ropes torches maps, and gloves."], 0, "Commas separate list items."),
+        item("Which option correctly separates the opening contrast clause?", ["Although the clue looked simple, it hid a second meaning.", "Although, the clue looked simple it hid a second meaning.", "Although the clue looked simple it hid, a second meaning.", "Although the clue looked simple it hid a second meaning"], 0, "A comma separates the opening dependent clause.")
+      ],
+      "Sentence logic": [
+        item("Which sentence clearly explains a result caused by a closed bridge?", ["Since the bridge was closed, the cyclists chose another route.", "The cyclists chose because bridge route closed.", "The bridge was another because cyclists closed.", "Since another route closed, the bridge chose cyclists."], 0, "The first sentence clearly links cause and result."),
+        item("Which sentence clearly contrasts difficulty with persistence?", ["Although the puzzle was difficult, Jai kept testing new ideas.", "The puzzle was although ideas kept difficult.", "Jai kept difficult although puzzle ideas.", "Testing was the puzzle although Jai."], 0, "Although shows a contrast that still makes sense."),
+        item("Which sentence gives the clearest reason for the recipe failing?", ["The recipe failed because the oven temperature was too low.", "The oven was recipe because failed low.", "Because failed low, recipe oven temperature.", "The recipe too because low failed oven."], 0, "The first sentence gives a clear reason."),
+        item("Which sentence puts the map-checking action in the clearest order?", ["Mila checked the map before she turned onto the narrow track.", "Before narrow checked track Mila onto map.", "The map turned before Mila checked narrow.", "Mila before the map checked track narrow."], 0, "Before shows a clear time order.")
+      ],
+      "Analogies": [
+        item("Thermometer is to temperature as ruler is to ___.", ["length", "sound", "weight", "speed"], 0, "A ruler measures length."),
+        item("Editor is to article as coach is to ___.", ["team", "planet", "recipe", "ladder"], 0, "An editor improves an article; a coach improves a team."),
+        item("Question is to answer as problem is to ___.", ["solution", "noise", "colour", "window"], 0, "A problem needs a solution."),
+        item("Compass is to north as calendar is to ___.", ["date", "music", "height", "fabric"], 0, "A calendar helps find dates.")
+      ],
+      "Odd one out": [
+        item("Which option is not a shape word?", ["triangle", "hexagon", "rectangle", "fraction"], 3, "The others are shapes."),
+        item("Which option is not a thinking action?", ["predict", "infer", "estimate", "blanket"], 3, "The others are thinking actions."),
+        item("Which option is not a measurement unit?", ["metre", "litre", "kilogram", "library"], 3, "The others are measurement units."),
+        item("Which option is not a linking word?", ["therefore", "however", "meanwhile", "calculator"], 3, "The others are linking words.")
+      ],
+      "Word groups": [
+        item("Which pair has the same relationship as lock/key?", ["password/account", "cloud/ruler", "chair/rain", "pencil/moon"], 0, "A key opens a lock; a password opens an account."),
+        item("Which pair shows tool and purpose?", ["microscope/observe", "blanket/calculate", "window/swim", "sandwich/measure"], 0, "A microscope is used to observe."),
+        item("Which pair shows part and whole?", ["chapter/book", "river/pencil", "glove/cloud", "planet/spoon"], 0, "A chapter is part of a book."),
+        item("Which pair shows cause and effect?", ["practice/improvement", "lamp/pillow", "garden/triangle", "whistle/notebook"], 0, "Practice can cause improvement.")
+      ],
+      "Code words": [
+        item("In a code, PLAN becomes QMBO. How is TREE written?", ["USFF", "TREE", "FSFU", "QMBO"], 0, "Each letter moves forward one place."),
+        item("In a code, MATH becomes PDWK. How is CODE written?", ["FRGH", "CODE", "DPEF", "ALBC"], 0, "Each letter moves forward three places."),
+        item("In a code, GAME becomes KCOG. How is NOTE written?", ["RSXI", "NOTE", "OPUF", "IQRC"], 0, "Each letter moves forward four places."),
+        item("In a code, BRIGHT becomes IYPNOA. How is SCHOOL written?", ["ZJOVVS", "SCHOOL", "TDIPPM", "OVVJZ"], 0, "Each letter moves forward seven places.")
+      ],
+      "Number sequences": [
+        item("Use the double-plus-one rule: 5, 11, 23, 47, ___", ["95", "94", "96", "91"], 0, "Double the number and add 1."),
+        item("Finish the alternating add-and-double sequence: 7, 10, 20, 23, 46, ___", ["49", "52", "92", "43"], 0, "The rule alternates +3 and x2."),
+        item("Complete the double-plus-two chain: 3, 8, 18, 38, 78, ___", ["158", "156", "148", "160"], 0, "Double the number and add 2."),
+        item("Continue the halve-then-add pattern: 96, 48, 52, 26, 30, ___", ["15", "34", "13", "60"], 0, "The rule alternates divide by 2 and add 4.")
+      ],
+      "Missing number": [
+        item("Find the missing number: 7 x ___ + 5 = 61", ["8", "7", "9", "6"], 0, "Subtract 5, then divide by 7."),
+        item("Find the missing number: (___ - 6) x 4 = 44", ["17", "15", "16", "20"], 0, "Divide by 4, then add 6."),
+        item("Find the missing number: 96 / ___ + 9 = 21", ["8", "6", "12", "4"], 0, "Subtract 9, then 96 divided by 12 gives 8."),
+        item("Find the missing number: 5 x ___ - 14 = 46", ["12", "10", "14", "11"], 0, "Add 14, then divide by 5.")
+      ],
+      "Shape pattern": [
+        item("Pattern: circle with 2 dots, triangle with 3 dots, square with 4 dots, pentagon with 5 dots. What comes next?", ["hexagon with 6 dots", "circle with 6 dots", "pentagon with 4 dots", "triangle with 5 dots"], 0, "The sides and dots both increase by one."),
+        item("Pattern: white star, striped moon, white star, striped moon, white star, ___. What comes next?", ["striped moon", "white moon", "striped star", "white star"], 0, "The two-item pattern repeats."),
+        item("Pattern: small shaded square, medium striped square, large dotted square, small shaded square, ___. What comes next?", ["medium striped square", "large dotted square", "small dotted square", "medium shaded square"], 0, "The size and texture cycle repeats."),
+        item("Pattern: arrow up with 1 line, arrow right with 2 lines, arrow down with 3 lines, arrow left with 4 lines. What comes next?", ["arrow up with 5 lines", "arrow right with 1 line", "arrow down with 5 lines", "arrow left with 5 lines"], 0, "The arrow rotates and the line count increases.")
+      ]
+    };
+
+    return variants[skill]?.[index] || null;
   }
 
   function harderQuestionBySkill(skill, level) {
