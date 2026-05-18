@@ -44,6 +44,16 @@
     button.textContent = isHidden ? "View full test answers" : "Hide full test answers";
   });
 
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-writing-review]");
+    if (!button) return;
+    const card = button.closest(".writing-score-card");
+    const panel = card?.querySelector(".writing-response-panel");
+    if (!panel) return;
+    const isHidden = panel.classList.toggle("hidden");
+    button.textContent = isHidden ? "Show writing assessment" : "Hide writing assessment";
+  });
+
   function renderWritingAndAttemptReview() {
     if (!state.parentProfileId || !state.profiles[state.parentProfileId]) return;
     const profile = state.profiles[state.parentProfileId];
@@ -59,31 +69,38 @@
     const writingHtml = writingScores.length
       ? writingScores.map(({ attempt, question, score }) => `
         <div class="writing-score-card">
-          <h4>${escapeHtml(attempt.levelName)} writing: ${score.total}/20</h4>
-          <p>${escapeHtml(score.band)}. ${escapeHtml(score.feedback)}</p>
-          <div class="writing-rubric">
-            ${rubricBox("Ideas", score.ideas)}
-            ${rubricBox("Structure", score.structure)}
-            ${rubricBox("Vocabulary", score.vocabulary)}
-            ${rubricBox("Accuracy", score.accuracy)}
+          <div class="writing-score-head">
+            <div>
+              <h4>${escapeHtml(attempt.levelName)} writing: ${score.total}/20</h4>
+              <p>${escapeHtml(score.band)}.</p>
+            </div>
+            <button class="button button-soft button-compact" type="button" data-writing-review>Show writing assessment</button>
           </div>
-          <p><strong>Next step:</strong> ${escapeHtml(score.nextStep)}</p>
-          <details>
-            <summary>Show writing response</summary>
+          <div class="writing-response-panel hidden">
+            <p>${escapeHtml(score.feedback)}</p>
+            <div class="writing-rubric">
+              ${rubricBox("Ideas", score.ideas)}
+              ${rubricBox("Structure", score.structure)}
+              ${rubricBox("Vocabulary", score.vocabulary)}
+              ${rubricBox("Accuracy", score.accuracy)}
+            </div>
+            <p><strong>Next step:</strong> ${escapeHtml(score.nextStep)}</p>
             <p>${escapeHtml(question.answerText || "No response saved.")}</p>
-          </details>
+          </div>
         </div>
       `).join("")
       : `<div class="empty-state">No writing responses scored yet. Future writing questions will be auto-scored here.</div>`;
 
-    parentTrainingTable.insertAdjacentHTML("beforeend", `
-      <div class="section-heading compact">
-        <div>
-          <p class="eyebrow">Writing score</p>
-          <h3>Auto-assessed writing</h3>
+    parentOverview.insertAdjacentHTML("beforeend", `
+      <div class="writing-assessment-summary">
+        <div class="section-heading compact">
+          <div>
+            <p class="eyebrow">Writing assessment</p>
+            <h3>Auto-assessed writing</h3>
+          </div>
         </div>
+        <div class="writing-score-list">${writingHtml}</div>
       </div>
-      <div class="parent-table">${writingHtml}</div>
     `);
 
     if (!attempts.length) return;
