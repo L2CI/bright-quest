@@ -1,0 +1,257 @@
+.parent-overview {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+.parent-visual-stat,
+.parent-chart-card,
+.parent-focus-card,
+.parent-layer-card,
+.parent-attempt-card {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 16px 32px rgba(11, 31, 51, 0.08);
+}
+
+.parent-visual-stat {
+  min-height: 112px;
+  padding: 16px;
+}
+
+.parent-visual-stat span,
+.parent-visual-stat small {
+  display: block;
+  color: var(--muted);
+  font-weight: 850;
+}
+
+.parent-visual-stat strong {
+  display: block;
+  margin: 8px 0;
+  font-size: 2.2rem;
+  line-height: 1;
+  color: var(--navy);
+}
+
+.parent-chart-card {
+  grid-column: span 2;
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+}
+
+.parent-chart-card.compact {
+  grid-column: span 1;
+}
+
+.parent-chart-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+}
+
+.parent-chart-head h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.parent-chart-head strong {
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: rgba(39, 211, 162, 0.18);
+  color: var(--navy);
+  font-size: 0.82rem;
+}
+
+.parent-trend-svg {
+  width: 100%;
+  min-height: 180px;
+}
+
+.parent-axis {
+  stroke: rgba(11, 31, 51, 0.18);
+  stroke-width: 2;
+}
+
+.parent-trend-line {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.parent-trend-dot {
+  fill: var(--yellow);
+  stroke: var(--navy);
+  stroke-width: 3;
+}
+
+.parent-trend-svg text {
+  fill: var(--navy);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.parent-focus-bar {
+  display: grid;
+  gap: 8px;
+}
+
+.parent-focus-bar div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.parent-focus-bar strong,
+.parent-focus-bar span {
+  display: block;
+}
+
+.parent-focus-bar span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.parent-focus-bar i {
+  position: relative;
+  overflow: hidden;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(11, 31, 51, 0.1);
+}
+
+.parent-focus-bar i::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--bar);
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--coral), var(--yellow));
+}
+
+.parent-writing-chip {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  border-radius: 14px;
+  padding: 10px;
+  background: rgba(255, 250, 242, 0.86);
+  font-weight: 850;
+}
+
+.parent-writing-chip span {
+  color: var(--blue);
+}
+
+.parent-focus-card,
+.parent-layer-card,
+.parent-attempt-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+}
+
+.parent-focus-card h4,
+.parent-layer-card h4,
+.parent-attempt-card h4 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+.parent-focus-card p,
+.parent-layer-card p,
+.parent-attempt-card p,
+.parent-evidence-row p {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 760;
+  line-height: 1.42;
+}
+
+.parent-focus-card .button,
+.parent-layer-card .button,
+.parent-attempt-card .button {
+  width: auto;
+}
+
+.parent-panel-body {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 10px;
+  border-radius: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.parent-panel-body.hidden {
+  display: none;
+}
+
+.parent-evidence-row {
+  display: grid;
+  gap: 5px;
+  border-bottom: 1px solid var(--line);
+  padding: 10px 0;
+}
+
+.parent-evidence-row:last-child {
+  border-bottom: 0;
+}
+
+.parent-evidence-row.missed strong {
+  color: var(--coral);
+}
+
+.parent-mini-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.parent-mini-grid span {
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: rgba(11, 31, 51, 0.08);
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.parent-mini-grid .done {
+  background: rgba(39, 211, 162, 0.18);
+  color: var(--navy);
+}
+
+@media (max-width: 980px) {
+  .parent-overview,
+  .parent-chart-card,
+  .parent-chart-card.compact {
+    grid-template-columns: 1fr;
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 620px) {
+  .parent-focus-card,
+  .parent-layer-card,
+  .parent-attempt-card,
+  .parent-chart-head,
+  .parent-focus-bar div {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+
+  .parent-focus-card .button,
+  .parent-layer-card .button,
+  .parent-attempt-card .button {
+    width: 100%;
+  }
+}
