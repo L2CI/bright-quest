@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="arcade-upgrade.css" />
     <link rel="stylesheet" href="writing-parent-upgrade.css" />
     <link rel="stylesheet" href="parent-dashboard-upgrade.css" />
+    <link rel="stylesheet" href="bright-quest-redesign.css" />
   </head>
   <body>
     <div class="ambient" aria-hidden="true">
@@ -142,6 +143,30 @@
           </div>
         </header>
 
+        <section class="academy-hero" aria-label="Bright Quest academy map">
+          <div class="academy-copy">
+            <p class="eyebrow">Training academy</p>
+            <h3>Pick today&apos;s power-up.</h3>
+            <p>Build test courage through quests, mini-lessons, world challenges, and reward games.</p>
+            <div class="academy-actions">
+              <button class="academy-zone maths" type="button" data-zone-level="1"><span aria-hidden="true">+</span><strong>Maths Mountain</strong><small>Number speed</small></button>
+              <button class="academy-zone english" type="button" id="academyGrammarButton"><span aria-hidden="true">G</span><strong>Grammar Gym</strong><small>Sentence power</small></button>
+              <button class="academy-zone reasoning" type="button" data-zone-level="4"><span aria-hidden="true">?</span><strong>Reasoning Lab</strong><small>Pattern moves</small></button>
+              <button class="academy-zone world" type="button" id="internationalTestsButton"><span aria-hidden="true">W</span><strong>International Tests</strong><small>World arena</small></button>
+              <button class="academy-zone arcade" type="button" id="academyGamesButton"><span aria-hidden="true">A</span><strong>Arcade Rewards</strong><small>Unlocked games</small></button>
+            </div>
+          </div>
+          <div class="academy-map-art" aria-hidden="true">
+            <span class="map-sun"></span>
+            <span class="map-path path-one"></span>
+            <span class="map-path path-two"></span>
+            <span class="map-pin pin-one">+</span>
+            <span class="map-pin pin-two">A</span>
+            <span class="map-pin pin-three">?</span>
+            <span class="map-pin pin-four">A</span>
+          </div>
+        </section>
+
         <section class="dashboard-grid">
           <article class="mission-control">
             <div class="section-heading">
@@ -188,6 +213,24 @@
             </div>
             <div id="trainingQueue" class="training-queue"></div>
           </article>
+        </section>
+      </section>
+
+      <section class="screen hidden" id="internationalScreen">
+        <header class="app-header">
+          <div>
+            <p class="eyebrow">World Challenge Arena</p>
+            <h2>International Tests</h2>
+          </div>
+          <button class="button button-soft" id="closeInternationalButton" type="button">Dashboard</button>
+        </header>
+        <section class="international-arena">
+          <div class="arena-hero-card">
+            <p class="eyebrow">Grade 5 entry preparation</p>
+            <h3>Three global-style practice missions.</h3>
+            <p>Each mission is 30 minutes, with maths, English, reasoning, and a writing task. Scores are saved under this profile like every other test.</p>
+          </div>
+          <div class="international-list" id="internationalList"></div>
         </section>
       </section>
 
@@ -273,6 +316,28 @@
         </section>
       </section>
 
+      <section class="screen hidden" id="internationalGameScreen">
+        <header class="app-header arcade-header">
+          <div>
+            <p class="eyebrow">International reward arcade</p>
+            <h2 id="internationalGameTitle">World Rally Drift</h2>
+          </div>
+          <div class="header-actions">
+            <div class="timer"><span id="internationalGameTimer">02:00</span><small>arena time</small></div>
+            <button class="button button-soft" id="exitInternationalGameButton" type="button">Finish</button>
+          </div>
+        </header>
+        <section class="international-game-shell" id="internationalGameShell">
+          <div class="international-game-hud">
+            <div><strong id="internationalGameScore">0</strong><span>score</span></div>
+            <div><strong id="internationalGameCombo">x1</strong><span>combo</span></div>
+            <div><strong id="internationalGameLives">3</strong><span>lives</span></div>
+          </div>
+          <canvas id="internationalGameCanvas" width="1180" height="620" aria-label="International reward game"></canvas>
+          <div class="international-game-help" id="internationalGameHelp">Move with your finger or arrow keys. Collect stars and avoid hazard blocks.</div>
+        </section>
+      </section>
+
       <section class="screen hidden" id="gamesListScreen">
         <header class="app-header">
           <div>
@@ -319,10 +384,15 @@
 
     <script src="app-data.js"></script>
     <script src="final-test-data.js"></script>
+    <script src="international-tests-data.js"></script>
     <script src="app.js"></script>
     <script src="arcade-upgrade.js"></script>
+    <script src="international-academy.js"></script>
+    <script src="international-arcade.js"></script>
     <script src="autosave-upgrade.js"></script>
     <script src="writing-parent-upgrade.js"></script>
     <script src="parent-dashboard-upgrade.js"></script>
   </body>
 </html>
+
+
