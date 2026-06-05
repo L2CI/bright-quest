@@ -101,8 +101,25 @@
 
       <div class="reference-layout">
         <section class="reference-panel adventure-panel">
-          <div class="reference-panel-title green"><span>1</span><strong>Adventure Map</strong><em>Explore • Choose • Conquer</em></div>
-          <div class="adventure-island">
+          <div class="reference-panel-title green"><span>1</span><strong>Adventure Map</strong><em>Explore • Choose • Conquer</em></div>          <div class="adventure-island">
+            <div class="archipelago-art" aria-hidden="true">
+              <span class="sea-ring ring-one"></span>
+              <span class="landmass land-north"></span>
+              <span class="landmass land-west"></span>
+              <span class="landmass land-east"></span>
+              <span class="landmass land-south"></span>
+              <span class="map-road road-main"></span>
+              <span class="map-road road-loop"></span>
+              <span class="map-bridge bridge-one"></span>
+              <span class="map-bridge bridge-two"></span>
+              <span class="map-prop mountain-prop"></span>
+              <span class="map-prop forest-prop"></span>
+              <span class="map-prop castle-prop"></span>
+              <span class="map-prop lab-prop"></span>
+              <span class="map-prop arena-prop"></span>
+              <span class="map-boat boat-one"></span>
+              <span class="map-boat boat-two"></span>
+            </div>
             <div class="student-badge">
               <span class="student-face" aria-hidden="true"></span>
               <div><strong>Hi, ${escapeHtml(stats.name)}!</strong><small>Level ${Math.max(1, stats.tests + 1)}</small><i><b style="width:${Math.min(100, 38 + stats.tests * 8)}%"></b></i></div>
@@ -249,3 +266,5 @@
 
   ensureReferenceDashboard();
 })();
+
+

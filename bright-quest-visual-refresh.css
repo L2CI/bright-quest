@@ -1899,3 +1899,255 @@ body {
 .label-maths span {
   font-size: 0.7rem !important;
 }
+
+/* Back-to-reference adventure map: real island cluster instead of a flat oval. */
+.adventure-island {
+  background:
+    radial-gradient(circle at 12% 24%, rgba(255,255,255,0.9) 0 24px, transparent 25px),
+    radial-gradient(circle at 22% 18%, rgba(255,255,255,0.55) 0 34px, transparent 35px),
+    linear-gradient(180deg, #58c9ff 0 40%, #38bffa 40% 62%, #11aedd 62% 100%) !important;
+}
+
+.adventure-island::before,
+.adventure-island::after {
+  display: none !important;
+}
+
+.archipelago-art {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.sea-ring {
+  position: absolute;
+  left: 38px;
+  right: 40px;
+  top: 86px;
+  bottom: 74px;
+  border-radius: 44% 56% 48% 52%;
+  background: rgba(0, 126, 179, 0.22);
+  box-shadow: inset 0 0 0 20px rgba(255,255,255,0.16);
+}
+
+.landmass {
+  position: absolute;
+  border: 8px solid rgba(255,255,255,0.9);
+  box-shadow: 0 13px 0 rgba(22, 80, 126, 0.12), inset 0 -18px 0 rgba(21, 139, 68, 0.08);
+}
+
+.landmass::before,
+.landmass::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(198, 239, 132, 0.85);
+  box-shadow: 0 0 10px rgba(58, 136, 49, 0.18);
+}
+
+.land-north {
+  left: 155px;
+  top: 112px;
+  width: 238px;
+  height: 192px;
+  border-radius: 52% 48% 44% 56%;
+  background: linear-gradient(135deg, #6ed46a 0 48%, #4cc269 49% 100%);
+}
+
+.land-north::before { left: 36px; top: 58px; width: 76px; height: 76px; }
+.land-north::after { right: 34px; top: 38px; width: 64px; height: 64px; }
+
+.land-west {
+  left: 70px;
+  top: 286px;
+  width: 236px;
+  height: 236px;
+  border-radius: 48% 52% 58% 42%;
+  background: linear-gradient(135deg, #76d66d 0 38%, #f3d86d 39% 48%, #49c26a 49% 100%);
+}
+
+.land-west::before { left: 34px; top: 48px; width: 86px; height: 86px; }
+.land-west::after { right: 44px; bottom: 34px; width: 70px; height: 70px; }
+
+.land-east {
+  right: 48px;
+  top: 292px;
+  width: 210px;
+  height: 230px;
+  border-radius: 57% 43% 42% 58%;
+  background: linear-gradient(140deg, #48c96b 0 52%, #f0d15e 53% 62%, #39b966 63% 100%);
+}
+
+.land-east::before { left: 54px; top: 46px; width: 74px; height: 74px; }
+.land-east::after { right: 26px; bottom: 34px; width: 84px; height: 84px; }
+
+.land-south {
+  left: 155px;
+  bottom: 78px;
+  width: 260px;
+  height: 188px;
+  border-radius: 50% 50% 44% 56%;
+  background: linear-gradient(135deg, #48c869 0 40%, #f1d15f 41% 51%, #37b861 52% 100%);
+}
+
+.land-south::before { left: 46px; top: 38px; width: 82px; height: 82px; }
+.land-south::after { right: 42px; top: 54px; width: 70px; height: 70px; }
+
+.map-road {
+  position: absolute;
+  z-index: 2;
+  border: 7px dotted rgba(255,255,255,0.86);
+  border-color: rgba(255,255,255,0.86) transparent transparent transparent;
+}
+
+.road-main {
+  left: 108px;
+  top: 240px;
+  width: 340px;
+  height: 380px;
+  border-radius: 50%;
+  transform: rotate(-23deg);
+}
+
+.road-loop {
+  left: 178px;
+  top: 158px;
+  width: 230px;
+  height: 190px;
+  border-radius: 50%;
+  transform: rotate(18deg);
+}
+
+.map-bridge {
+  position: absolute;
+  z-index: 3;
+  width: 80px;
+  height: 16px;
+  border-radius: 8px;
+  background: repeating-linear-gradient(90deg, #ba7a38 0 10px, #f0c46f 10px 18px);
+  border: 3px solid #fff3c8;
+  box-shadow: 0 6px 0 rgba(64, 60, 90, 0.12);
+}
+
+.bridge-one { left: 275px; top: 294px; transform: rotate(-22deg); }
+.bridge-two { left: 296px; bottom: 264px; transform: rotate(18deg); }
+
+.map-prop,
+.map-boat {
+  position: absolute;
+  z-index: 3;
+}
+
+.mountain-prop {
+  left: 130px;
+  top: 142px;
+  width: 114px;
+  height: 104px;
+  clip-path: polygon(0 100%, 34% 20%, 48% 54%, 66% 0, 100% 100%);
+  background: linear-gradient(135deg, #5650c8, #d6ecff);
+  filter: drop-shadow(0 10px 0 rgba(30, 50, 120, 0.12));
+}
+
+.forest-prop {
+  right: 126px;
+  top: 154px;
+  width: 84px;
+  height: 96px;
+  background: radial-gradient(circle at 50% 22%, #2aa95d 0 20px, transparent 21px), radial-gradient(circle at 28% 48%, #35be6e 0 22px, transparent 23px), radial-gradient(circle at 70% 50%, #269d57 0 24px, transparent 25px), linear-gradient(#8b5e34, #8b5e34) 48% 62% / 14px 38px no-repeat;
+}
+
+.castle-prop {
+  right: 70px;
+  bottom: 120px;
+  width: 98px;
+  height: 82px;
+  background: linear-gradient(#d9e4ff, #aab9df);
+  clip-path: polygon(0 100%, 0 32%, 12% 32%, 12% 12%, 25% 12%, 25% 32%, 42% 32%, 42% 10%, 58% 10%, 58% 32%, 75% 32%, 75% 12%, 88% 12%, 88% 32%, 100% 32%, 100% 100%);
+  box-shadow: inset 0 -12px 0 rgba(86, 92, 150, 0.18);
+}
+
+.lab-prop {
+  right: 116px;
+  top: 390px;
+  width: 58px;
+  height: 96px;
+  clip-path: polygon(36% 0, 64% 0, 64% 34%, 92% 100%, 8% 100%, 36% 34%);
+  background: linear-gradient(135deg, #d9fcff, #53cee6);
+  box-shadow: inset 0 -22px 0 rgba(8, 134, 160, 0.2);
+}
+
+.arena-prop {
+  left: 128px;
+  bottom: 106px;
+  width: 124px;
+  height: 74px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, #1d6df2 0 34%, #fff 35% 43%, #e45a4a 44% 56%, #fff 57% 65%, #26b56b 66% 100%);
+  box-shadow: 0 10px 0 rgba(20, 50, 120, 0.1);
+}
+
+.map-boat {
+  width: 34px;
+  height: 22px;
+  clip-path: polygon(0 45%, 100% 45%, 75% 100%, 20% 100%);
+  background: #d84d37;
+  box-shadow: 0 7px 0 rgba(10, 70, 120, 0.1);
+}
+
+.map-boat::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: -22px;
+  width: 18px;
+  height: 24px;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  background: #fff;
+}
+
+.boat-one { left: 62px; top: 184px; transform: rotate(-18deg); }
+.boat-two { right: 44px; bottom: 248px; transform: rotate(16deg); }
+
+/* Make the academy tile glyphs truly small, like icons rather than big boxes. */
+.academy-tile-ref {
+  min-height: 142px !important;
+  padding: 12px 12px 10px !important;
+  padding-right: 52px !important;
+}
+
+.academy-tile-ref span {
+  top: 46px !important;
+  right: 10px !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  height: 34px !important;
+  border-radius: 9px !important;
+  border-width: 2px !important;
+  font-size: 0.58rem !important;
+}
+
+.academy-tile-ref.maths span,
+.academy-tile-ref.reason span,
+.academy-tile-ref.world span,
+.academy-tile-ref.arcade span {
+  font-size: 0.6rem !important;
+}
+
+.academy-tile-ref strong {
+  font-size: 0.82rem !important;
+}
+
+.academy-tile-ref small {
+  font-size: 0.62rem !important;
+}
+
+.academy-tile-ref i {
+  height: 20px !important;
+  bottom: 9px !important;
+  font-size: 0.62rem !important;
+}
+
+@media (max-width: 760px) {
+  .archipelago-art { transform: scale(0.92); transform-origin: center; }
+}
