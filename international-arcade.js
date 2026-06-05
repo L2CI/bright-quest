@@ -130,6 +130,8 @@
     showToast(`${arcade.game.name} unlocked.`);
   }
 
+  window.startBrightQuestInternationalArcade = startInternationalArcade;
+
   function endInternationalArcade() {
     if (!arcade.active) return;
     arcade.active = false;
@@ -442,3 +444,4 @@
     ctx.closePath();
   }
 })();
+
