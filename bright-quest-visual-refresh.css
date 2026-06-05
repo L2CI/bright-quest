@@ -1778,3 +1778,124 @@ body {
     white-space: normal;
   }
 }
+
+/* Middle-column QA refinement: compact Training Academy tiles like the reference. */
+.academy-card-grid-ref {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  padding: 10px !important;
+}
+
+.academy-tile-ref {
+  min-height: 154px !important;
+  padding: 14px 14px 12px !important;
+  border-radius: 10px !important;
+}
+
+.academy-tile-ref span {
+  top: 54px !important;
+  right: 12px !important;
+  min-width: 52px !important;
+  width: 52px !important;
+  height: 48px !important;
+  border-width: 3px !important;
+  border-radius: 12px !important;
+  font-size: 0.96rem !important;
+}
+
+.academy-tile-ref strong {
+  max-width: 8ch !important;
+  font-size: 0.88rem !important;
+  line-height: 1.06 !important;
+}
+
+.academy-tile-ref small {
+  max-width: 10ch !important;
+  margin-top: 5px !important;
+  font-size: 0.68rem !important;
+  line-height: 1.12 !important;
+}
+
+.academy-tile-ref i {
+  left: 12px !important;
+  right: 12px !important;
+  bottom: 10px !important;
+  height: 22px !important;
+  padding: 4px 9px !important;
+  font-size: 0.68rem !important;
+}
+
+.academy-player-strip {
+  margin: 8px 10px !important;
+  padding: 10px 12px !important;
+}
+
+.resume-quest-ref {
+  margin: 8px 10px !important;
+  padding: 10px 14px !important;
+}
+
+.progress-dials-ref {
+  padding: 8px 10px 10px !important;
+  gap: 10px !important;
+}
+
+.dial-card {
+  min-height: 104px !important;
+}
+
+.dial-card span {
+  width: 54px !important;
+  height: 54px !important;
+  font-size: 0.86rem !important;
+}
+
+/* Middle-column icon refinement: smaller marks, no text overlap. */
+.academy-tile-ref {
+  display: grid !important;
+  align-content: start !important;
+  gap: 5px !important;
+  padding-right: 66px !important;
+}
+
+.academy-tile-ref span {
+  top: 48px !important;
+  right: 12px !important;
+  min-width: 42px !important;
+  width: 42px !important;
+  height: 42px !important;
+  border-width: 3px !important;
+  border-radius: 11px !important;
+  font-size: 0.72rem !important;
+  line-height: 1 !important;
+  opacity: 0.82 !important;
+}
+
+.academy-tile-ref.maths span,
+.academy-tile-ref.reason span,
+.academy-tile-ref.world span,
+.academy-tile-ref.arcade span {
+  font-size: 0.8rem !important;
+}
+
+.academy-tile-ref.english span,
+.academy-tile-ref.grammar span {
+  font-size: 0.68rem !important;
+}
+
+.academy-tile-ref strong,
+.academy-tile-ref small {
+  max-width: 100% !important;
+}
+
+.academy-tile-ref i {
+  right: 12px !important;
+}
+
+.island-label span {
+  font-size: 0.72rem !important;
+}
+
+.label-maths span {
+  font-size: 0.7rem !important;
+}
