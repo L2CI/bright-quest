@@ -2268,6 +2268,8 @@ body {
 }
 
 #parentScreen.parent-cockpit-redesign .app-header {
+  position: relative !important;
+  z-index: 100 !important;
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) auto !important;
   align-items: center !important;
@@ -2315,7 +2317,7 @@ body {
   position: absolute;
   right: 0;
   top: calc(100% + 8px);
-  z-index: 50;
+  z-index: 5000;
   display: grid;
   min-width: 210px;
   padding: 8px;
@@ -2342,6 +2344,8 @@ body {
 
 #parentScreen.parent-cockpit-redesign .parent-recommendation,
 #parentScreen.parent-cockpit-redesign .parent-card {
+  position: relative;
+  z-index: 1;
   border: 2px solid #d8ecff !important;
   border-radius: 20px !important;
   background: #fff !important;

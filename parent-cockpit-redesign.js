@@ -181,7 +181,6 @@
         </div>
         <div class="recommendation-actions">
           ${focus ? `<button class="button button-primary" type="button" data-cockpit-panel="focus-0" data-open-text="View evidence" data-close-text="Hide evidence">View evidence</button>` : ""}
-          <button class="button button-soft" type="button" data-parent-action="refresh">Refresh</button>
         </div>
         <span class="recommendation-orbit" aria-hidden="true"></span>
       </div>
