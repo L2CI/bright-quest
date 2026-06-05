@@ -108,15 +108,26 @@
               <span class="landmass land-west"></span>
               <span class="landmass land-east"></span>
               <span class="landmass land-south"></span>
+              <span class="landmass land-tiny-one"></span>
+              <span class="landmass land-tiny-two"></span>
+              <span class="coast-reef reef-one"></span>
+              <span class="coast-reef reef-two"></span>
+              <span class="coast-reef reef-three"></span>
               <span class="map-road road-main"></span>
               <span class="map-road road-loop"></span>
+              <span class="map-road road-south"></span>
               <span class="map-bridge bridge-one"></span>
               <span class="map-bridge bridge-two"></span>
+              <span class="map-bridge bridge-three"></span>
               <span class="map-prop mountain-prop"></span>
               <span class="map-prop forest-prop"></span>
               <span class="map-prop castle-prop"></span>
               <span class="map-prop lab-prop"></span>
               <span class="map-prop arena-prop"></span>
+              <span class="map-prop tower-prop"></span>
+              <span class="tree-cluster trees-one"></span>
+              <span class="tree-cluster trees-two"></span>
+              <span class="tree-cluster trees-three"></span>
               <span class="map-boat boat-one"></span>
               <span class="map-boat boat-two"></span>
             </div>
@@ -165,6 +176,10 @@
             <div><strong>Resume Your Quest</strong><small>${stats.tests ? 'Next mission is ready' : 'Start your first mission'}</small><i><b style="width:${Math.min(100, 22 + stats.tests * 9)}%"></b></i></div>
             <button class="button button-primary" type="button" data-ref-continue>Continue</button>
           </div>
+          <div class="core-tests-ref">
+            <div class="games-head-ref"><strong>Core timed tests</strong><span>Existing Bright Quest levels</span></div>
+            ${coreTestStrip(latest)}
+          </div>
           <div class="progress-dials-ref">
             ${dial('Overall', stats.avg || stats.latest || 0)}
             ${dial('Accuracy', stats.best || stats.avg || 0)}
@@ -192,10 +207,6 @@
             <div><b>Global Learner</b><i></i></div>
             <div><b>World Challenger</b><i></i></div>
             <div><b>Champion</b><i></i></div>
-          </div>
-          <div class="parent-preview-ref">
-            <div><strong>Parent cockpit preview</strong><small>See journey data at a glance</small></div>
-            <button class="button button-soft" type="button" data-parent-jump>View Full Dashboard</button>
           </div>
         </section>
       </div>
@@ -246,12 +257,21 @@
     return `<button class="game-card-ref game-${index + 1}" type="button" data-play-world="${escapeAttr(test.level)}" ${unlocked ? '' : 'disabled'}><span></span><strong>${names[index]}</strong><small>${unlocked ? 'Play now' : 'Complete test to unlock'}</small></button>`;
   }
 
+  function coreTestStrip(latest) {
+    const levels = (window.BrightQuestData?.levels || []).slice(0, 7);
+    return levels.map((level) => {
+      const attempt = latest[level.level];
+      return `<button class="core-test-chip-ref" type="button" data-core-level="${level.level}"><span>${level.level}</span><strong>${escapeHtml(level.name)}</strong><small>${attempt ? `${attempt.percent}%` : 'New'} / ${level.minutes} mins</small></button>`;
+    }).join('');
+  }
+
   function wireReferenceDashboard(ref) {
     ref.querySelectorAll('[data-ref-zone]').forEach((button) => button.addEventListener('click', () => startMapZone(button.dataset.refZone)));
     ref.querySelector('[data-ref-continue]')?.addEventListener('click', () => document.querySelector('#continueButton')?.click());
     ref.querySelectorAll('[data-start-world]').forEach((button) => button.addEventListener('click', () => window.startBrightQuestInternationalTest?.(button.dataset.startWorld)));
     ref.querySelectorAll('[data-play-world]').forEach((button) => button.addEventListener('click', () => window.startBrightQuestInternationalArcade?.(button.dataset.playWorld)));
     ref.querySelectorAll('[data-parent-jump]').forEach((button) => button.addEventListener('click', openParentPrompt));
+    ref.querySelectorAll('[data-core-level]').forEach((button) => button.addEventListener('click', () => startLevel(Number(button.dataset.coreLevel))));
   }
 
   const previousRenderDashboard = window.renderDashboard || renderDashboard;

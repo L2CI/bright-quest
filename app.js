@@ -1,16 +1,17 @@
 const data = window.BrightQuestData;
 const finalTest = window.BrightQuestFinalTest;
+const internationalTests = window.BrightQuestInternationalTests || [];
 const storageKey = "brightQuestProfilesV2";
 const apiBase = "/api";
 const gameCatalogue = [
-  { level: 1, name: "Star Dash", className: "star", mode: "catch", description: "Catch falling stars with a glowing paddle." },
-  { level: 2, name: "Meteor Drift", className: "meteor", mode: "drift", description: "Drift the rocket-car through falling meteors and collect sparks." },
-  { level: 3, name: "Balloon Burst", className: "rainbow", mode: "burst", description: "Tap the floating balloons before they escape." },
-  { level: 4, name: "Number Drift", className: "number", mode: "drift", description: "Slide through the number lane and collect the bright targets." },
-  { level: 5, name: "Comet Pop", className: "comet", mode: "burst", description: "Pop comet bubbles as they swirl across the sky." },
-  { level: 6, name: "Treasure Drift", className: "treasure", mode: "drift", description: "Drift through falling treasure coins after a pressure test." },
-  { level: 7, name: "Cosmic Burst", className: "cosmic", mode: "burst", description: "Burst bright cosmic crystals in a fast starfield." },
-  { level: 8, name: "Final Fireworks", className: "final", mode: "burst", description: "Pop blazing reward sparks after the final test." }
+  { level: 1, name: "Star Dash", className: "star", mode: "catch", icon: "*", targetLabel: "stars", description: "Sweep the glow board across the sky lane and catch star clusters.", help: "Move the glow board. Catch stars, dodge storm sparks." },
+  { level: 2, name: "Meteor Drift", className: "meteor", mode: "drift", icon: "o", targetLabel: "sparks", description: "Drift a rocket racer through meteor traffic and collect spark rings.", help: "Drag to drift. Collect spark rings and avoid hot meteors." },
+  { level: 3, name: "Balloon Burst", className: "rainbow", mode: "burst", icon: "+", targetLabel: "pops", description: "Tap floating balloons fast enough to build a rainbow combo.", help: "Tap balloons before they float away. Chain taps for combos." },
+  { level: 4, name: "Number Drift", className: "number", mode: "drift", icon: "#", targetLabel: "numbers", description: "Steer through neon number gates while avoiding red blockers.", help: "Slide through green number gates. Skip red blockers." },
+  { level: 5, name: "Comet Pop", className: "comet", mode: "burst", icon: ">", targetLabel: "comets", description: "Pop comet bubbles as they arc and swirl across deep space.", help: "Tap the comet bubbles. Fast chains make bigger bursts." },
+  { level: 6, name: "Treasure Drift", className: "treasure", mode: "drift", icon: "$", targetLabel: "coins", description: "Drift through treasure lanes, grab coins, and dodge rolling rocks.", help: "Collect coins in the bright lane. Rocks break the combo." },
+  { level: 7, name: "Cosmic Burst", className: "cosmic", mode: "burst", icon: "@", targetLabel: "crystals", description: "Smash cosmic crystals while the starfield accelerates around you.", help: "Tap crystals quickly. Golden crystals are worth extra." },
+  { level: 8, name: "Final Fireworks", className: "final", mode: "burst", icon: "!", targetLabel: "fireworks", description: "Launch a finale of fireworks after the full scholarship quest.", help: "Tap fireworks at peak glow. Keep the combo alive." }
 ];
 
 const screens = {
@@ -22,6 +23,7 @@ const screens = {
   game: document.querySelector("#gameScreen"),
   gamesList: document.querySelector("#gamesListScreen"),
   grammarGym: document.querySelector("#grammarGymScreen"),
+  international: document.querySelector("#internationalScreen"),
   training: document.querySelector("#trainingScreen"),
   parent: document.querySelector("#parentScreen")
 };
@@ -48,7 +50,15 @@ const state = {
   gameScore: 0,
   gameActive: false,
   gamePlayerX: 50,
-  activeGame: gameCatalogue[0]
+  activeGame: gameCatalogue[0],
+  gameObjects: [],
+  gameFrameId: null,
+  gameLastFrame: 0,
+  gameLastSpawn: 0,
+  gameSpawnEvery: 620,
+  gameCombo: 1,
+  gameLives: 3,
+  gameDriftTilt: 0
 };
 
 const roleScreen = document.querySelector("#roleScreen");
@@ -63,6 +73,11 @@ const starTotal = document.querySelector("#starTotal");
 const switchProfileButton = document.querySelector("#switchProfileButton");
 const grammarGymButton = document.querySelector("#grammarGymButton");
 const gamesListButton = document.querySelector("#gamesListButton");
+const internationalTestsButton = document.querySelector("#internationalTestsButton");
+const academyGrammarButton = document.querySelector("#academyGrammarButton");
+const academyGamesButton = document.querySelector("#academyGamesButton");
+const closeInternationalButton = document.querySelector("#closeInternationalButton");
+const internationalList = document.querySelector("#internationalList");
 const continueButton = document.querySelector("#continueButton");
 const levelMap = document.querySelector("#levelMap");
 const testsDone = document.querySelector("#testsDone");
@@ -103,6 +118,10 @@ const gameTitle = document.querySelector("#gameTitle");
 const playerShip = document.querySelector("#playerShip");
 const gameTimer = document.querySelector("#gameTimer");
 const gameScore = document.querySelector("#gameScore");
+const gameScoreLabel = document.querySelector("#gameScoreLabel");
+const gameCombo = document.querySelector("#gameCombo");
+const gameLives = document.querySelector("#gameLives");
+const gameHelp = document.querySelector("#gameHelp");
 const exitGameButton = document.querySelector("#exitGameButton");
 const gamesList = document.querySelector("#gamesList");
 const closeGamesListButton = document.querySelector("#closeGamesListButton");
@@ -158,6 +177,16 @@ switchProfileButton.addEventListener("click", () => {
 
 gamesListButton.addEventListener("click", openGamesList);
 grammarGymButton.addEventListener("click", openGrammarGym);
+internationalTestsButton.addEventListener("click", openInternationalArena);
+academyGrammarButton.addEventListener("click", openGrammarGym);
+academyGamesButton.addEventListener("click", openGamesList);
+closeInternationalButton.addEventListener("click", () => {
+  renderDashboard();
+  showScreen("dashboard");
+});
+document.querySelectorAll("[data-zone-level]").forEach((button) => {
+  button.addEventListener("click", () => startLevel(Number(button.dataset.zoneLevel)));
+});
 continueButton.addEventListener("click", () => startLevel(nextSuggestedLevel()));
 exitTestButton.addEventListener("click", () => {
   stopTimer();
@@ -180,7 +209,7 @@ reviewTrainingButton.addEventListener("click", () => {
   const skill = firstWeakSkill();
   if (skill) openTraining(skill);
 });
-playRewardButton.addEventListener("click", startRewardGame);
+playRewardButton.addEventListener("click", () => startRewardGame());
 closeGamesListButton.addEventListener("click", () => {
   renderDashboard();
   showScreen("dashboard");
@@ -352,9 +381,10 @@ function activateProfile(name) {
 function renderProfileScreen() {
   profileName.value = "";
   const profiles = Object.values(state.profiles);
+  profileForm.classList.toggle("hidden", profiles.length > 0);
   savedProfiles.innerHTML = profiles.length
-    ? `<p class="saved-label">Continue a journey</p>${profiles.map((profile) => `<button class="profile-chip" type="button" data-profile="${profile.id}">${escapeHtml(profile.name)}</button>`).join("")}`
-    : `<p class="saved-label">No profiles yet. Start with a first name.</p>`;
+    ? `<p class="saved-label">Continue a journey</p>${profiles.map((profile) => `<button class="profile-chip" type="button" data-profile="${profile.id}">${escapeHtml(profile.name)}</button>`).join("")}<p class="saved-label">New kid profiles are added from Parent Cockpit.</p>`
+    : `<p class="saved-label">No profiles yet. A parent can add the first kid profile from Parent Cockpit.</p>`;
 
   savedProfiles.querySelectorAll("[data-profile]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -369,6 +399,7 @@ function renderProfileScreen() {
 
 function renderDashboard() {
   welcomeName.textContent = `${state.profile.name}'s Quest`;
+  document.querySelector("#dashboardScreen").dataset.profileName = state.profile.name;
   starTotal.textContent = state.profile.stars;
   testsDone.textContent = state.profile.attempts.length;
   bestScore.textContent = `${bestAttemptScore()}%`;
@@ -660,16 +691,63 @@ function renderTrainingQueue() {
   });
 }
 
+function openInternationalArena() {
+  renderInternationalArena();
+  showScreen("international");
+}
+
+function renderInternationalArena() {
+  if (!internationalTests.length) {
+    internationalList.innerHTML = `<div class="empty-state">International tests are not loaded yet.</div>`;
+    return;
+  }
+
+  const latest = latestAttemptsByLevel();
+  internationalList.innerHTML = internationalTests.map((test, index) => {
+    const attempt = latest[test.level];
+    const status = attempt ? scoreLabel(attempt.percent) : "Not started";
+    const score = attempt ? `${attempt.percent}%` : "New";
+    const sections = [...new Set(test.questions.map((question) => question.section))].slice(0, 4).join(" / ");
+    return `
+      <article class="international-card card-${index + 1}">
+        <div class="world-orb" aria-hidden="true">${index === 0 ? "UK" : index === 1 ? "US" : "?"}</div>
+        <p class="eyebrow">${escapeHtml(test.challengeLabel || "International")}</p>
+        <h3>${escapeHtml(test.name)}</h3>
+        <p>${escapeHtml(test.theme)}</p>
+        <div class="international-meta">
+          <span>${test.minutes} min</span>
+          <span>${test.questions.length} questions</span>
+          <span>${escapeHtml(sections)}</span>
+        </div>
+        <div class="international-footer">
+          <strong>${score}<small>${status}</small></strong>
+          <button class="button button-primary" type="button" data-international-test="${escapeAttr(test.level)}">${attempt ? "Retry" : "Start"}</button>
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  internationalList.querySelectorAll("[data-international-test]").forEach((button) => {
+    button.addEventListener("click", () => startInternationalTest(button.dataset.internationalTest));
+  });
+}
+
+function startInternationalTest(testId) {
+  const test = internationalTests.find((item) => item.level === testId);
+  startQuest(test);
+}
+
 function openGamesList() {
   const completedLevels = new Set((state.profile.attempts || []).map((attempt) => attempt.level));
   gamesList.innerHTML = gameCatalogue.map((game) => {
     const unlocked = completedLevels.has(game.level);
     return `
-      <article class="game-tile">
-        <p class="eyebrow">Level ${game.level}</p>
+      <article class="game-tile ${game.className}">
+        <div class="game-tile-icon" aria-hidden="true">${escapeHtml(game.icon)}</div>
+        <p class="eyebrow">Level ${game.level} arcade</p>
         <strong>${escapeHtml(game.name)}</strong>
         <span>${escapeHtml(game.description)}</span>
-        <small>${unlocked ? "Unlocked" : "Complete this test to unlock"}</small>
+        <small>${unlocked ? `${game.mode === "burst" ? "Tap challenge" : game.mode === "drift" ? "Drift challenge" : "Catch challenge"} unlocked` : "Complete this test to unlock"}</small>
         ${unlocked ? `<button class="button button-primary" type="button" data-play-game="${game.level}">Play</button>` : ""}
       </article>
     `;
@@ -726,6 +804,10 @@ function openGrammarGym() {
 }
 
 function gameForLevel(level) {
+  if (typeof level === "string" && level.startsWith("intl-")) {
+    const index = Number(level.replace("intl-", "")) || 1;
+    return gameCatalogue[[1, 2, 6][index - 1] || 0] || gameCatalogue[0];
+  }
   return gameCatalogue.find((game) => game.level === level) || gameCatalogue[0];
 }
 
@@ -745,6 +827,14 @@ function renderCoachNote() {
 
 function startLevel(levelNumber) {
   const level = getAllLevels().find((item) => item.level === levelNumber);
+  startQuest(level);
+}
+
+function startQuest(level) {
+  if (!level) {
+    showToast("That quest is not ready yet.");
+    return;
+  }
   state.activeLevel = level;
   state.activeQuestion = 0;
   state.answers = level.questions.map(() => ({ selected: null, writing: "" }));
@@ -752,7 +842,9 @@ function startLevel(levelNumber) {
   state.questionStartedAt = Date.now();
   state.startedAt = Date.now();
   state.remainingSeconds = level.minutes * 60;
-  testLevelLabel.textContent = `Level ${level.level} / 7`;
+  testLevelLabel.textContent = level.family === "international"
+    ? `${level.challengeLabel || "International"} / World Challenge`
+    : `Level ${level.level} / ${getAllLevels().length}`;
   testName.textContent = level.name;
   renderQuestion();
   startTimer();
@@ -905,6 +997,8 @@ function finishTest(timedOut) {
     date: new Date().toISOString(),
     level: level.level,
     levelName: level.name,
+    levelFamily: level.family || "core",
+    challengeLabel: level.challengeLabel || "",
     correct,
     total: marked.length,
     percent,
@@ -1026,12 +1120,24 @@ function startRewardGame(game = gameForLevel(state.latestResult?.level || state.
   state.gameScore = 0;
   state.gameActive = true;
   state.gamePlayerX = 50;
+  state.gameObjects = [];
+  state.gameLastFrame = 0;
+  state.gameLastSpawn = 0;
+  state.gameSpawnEvery = game.mode === "burst" ? 520 : 580;
+  state.gameCombo = 1;
+  state.gameLives = game.mode === "burst" ? 5 : 3;
+  state.gameDriftTilt = 0;
   gameScore.textContent = "0";
+  gameScoreLabel.textContent = game.targetLabel || "score";
+  gameCombo.textContent = "x1";
+  gameLives.textContent = String(state.gameLives);
   gameTitle.textContent = game.name;
+  gameHelp.textContent = game.help;
   updateGameTimer();
-  gameStage.querySelectorAll(".falling-star").forEach((star) => star.remove());
-  gameStage.className = `game-stage ${game.className}`;
+  clearGameStage();
+  gameStage.className = `game-stage ${game.className} ${game.mode}`;
   playerShip.style.left = "50%";
+  playerShip.style.transform = "translateX(-50%)";
   showScreen("game");
 
   state.gameTimerId = setInterval(() => {
@@ -1039,25 +1145,28 @@ function startRewardGame(game = gameForLevel(state.latestResult?.level || state.
     updateGameTimer();
     if (state.gameRemainingSeconds <= 0) endRewardGame();
   }, 1000);
-  state.gameSpawnId = setInterval(spawnGameObject, game.mode === "burst" ? 560 : 620);
-  spawnGameObject();
+  spawnGameObject(performance.now());
+  state.gameFrameId = requestAnimationFrame(runGameFrame);
 }
 
 function stopRewardGameTimers() {
   if (state.gameTimerId) clearInterval(state.gameTimerId);
   if (state.gameSpawnId) clearInterval(state.gameSpawnId);
+  if (state.gameFrameId) cancelAnimationFrame(state.gameFrameId);
   state.gameTimerId = null;
   state.gameSpawnId = null;
+  state.gameFrameId = null;
 }
 
 function endRewardGame() {
   stopRewardGameTimers();
   if (!state.gameActive) return;
   state.gameActive = false;
-  state.profile.stars += Math.min(10, Math.ceil(state.gameScore / 3));
+  clearGameStage();
+  state.profile.stars += Math.min(18, Math.ceil(state.gameScore / 18));
   saveProfiles();
   syncProfileToCloud();
-  showToast(`Reward complete. ${state.gameScore} stars caught.`);
+  showToast(`Reward complete. ${state.gameScore} points scored.`);
   renderDashboard();
   showScreen("dashboard");
 }
@@ -1068,105 +1177,177 @@ function updateGameTimer() {
 }
 
 function movePlayer(event) {
+  if (!state.gameActive || state.activeGame.mode === "burst") return;
   const rect = gameStage.getBoundingClientRect();
   const x = Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100));
+  state.gameDriftTilt = Math.max(-16, Math.min(16, (x - state.gamePlayerX) * 0.7));
   state.gamePlayerX = x;
   playerShip.style.left = `${x}%`;
+  playerShip.style.transform = `translateX(-50%) rotate(${state.gameDriftTilt}deg)`;
 }
 
-function spawnGameObject() {
+function runGameFrame(now) {
+  if (!state.gameActive) return;
+  const last = state.gameLastFrame || now;
+  const delta = Math.min(34, now - last);
+  state.gameLastFrame = now;
+
+  if (now - state.gameLastSpawn > state.gameSpawnEvery) {
+    spawnGameObject(now);
+    state.gameLastSpawn = now;
+    state.gameSpawnEvery = Math.max(330, state.gameSpawnEvery - 6);
+  }
+
+  updateGameObjects(delta);
+  state.gameFrameId = requestAnimationFrame(runGameFrame);
+}
+
+function spawnGameObject(now = performance.now()) {
   if (state.activeGame.mode === "burst") {
-    spawnBurstTarget();
+    spawnBurstTarget(now);
     return;
   }
-  spawnFallingStar();
+  spawnFallingStar(now);
 }
 
-function spawnFallingStar() {
+function spawnFallingStar(now) {
   if (!state.gameActive) return;
-  const star = document.createElement("span");
-  star.className = "falling-star";
-  star.textContent = gameSymbol(state.activeGame.className);
+  const item = document.createElement("span");
+  const hazard = Math.random() < (state.activeGame.mode === "drift" ? 0.28 : 0.18);
+  const bonus = !hazard && Math.random() < 0.18;
+  item.className = `game-object falling-star ${hazard ? "hazard" : ""} ${bonus ? "bonus" : ""}`;
+  item.textContent = hazard ? "X" : gameSymbol(state.activeGame);
   const startX = 8 + Math.random() * 84;
-  let y = -40;
-  star.style.left = `${startX}%`;
-  star.style.top = `${y}px`;
-  gameStage.append(star);
-
-  const speed = state.activeGame.mode === "drift" ? 5 + Math.random() * 4 : 3 + Math.random() * 3;
-  const fallId = setInterval(() => {
-    if (!state.gameActive) {
-      clearInterval(fallId);
-      star.remove();
-      return;
-    }
-    y += speed;
-    star.style.top = `${y}px`;
-    const stageHeight = gameStage.clientHeight;
-    const playerDistance = Math.abs(startX - state.gamePlayerX);
-    if (y > stageHeight - 78 && playerDistance < (state.activeGame.mode === "drift" ? 7 : 9)) {
-      state.gameScore += 1;
-      gameScore.textContent = state.gameScore;
-      clearInterval(fallId);
-      star.remove();
-    } else if (y > stageHeight + 40) {
-      clearInterval(fallId);
-      star.remove();
-    }
-  }, 24);
+  const object = {
+    el: item,
+    kind: hazard ? "hazard" : "target",
+    bonus,
+    x: startX,
+    y: -42,
+    vx: state.activeGame.mode === "drift" ? (Math.random() - 0.5) * 0.025 : 0,
+    vy: state.activeGame.mode === "drift" ? 0.34 + Math.random() * 0.2 : 0.24 + Math.random() * 0.18,
+    born: now
+  };
+  placeObject(object);
+  gameStage.append(item);
+  state.gameObjects.push(object);
 }
 
-function spawnBurstTarget() {
+function spawnBurstTarget(now) {
   if (!state.gameActive) return;
   const target = document.createElement("button");
-  target.className = "falling-star burst-target";
+  const bonus = Math.random() < 0.2;
+  target.className = `game-object falling-star burst-target ${bonus ? "bonus" : ""}`;
   target.type = "button";
-  target.textContent = gameSymbol(state.activeGame.className);
+  target.textContent = gameSymbol(state.activeGame);
   const startX = 8 + Math.random() * 84;
-  let y = gameStage.clientHeight + 20;
-  target.style.left = `${startX}%`;
-  target.style.top = `${y}px`;
-  gameStage.append(target);
-
-  const pop = () => {
-    if (!state.gameActive) return;
-    state.gameScore += 1;
-    gameScore.textContent = state.gameScore;
-    target.remove();
+  const object = {
+    el: target,
+    kind: "target",
+    bonus,
+    x: startX,
+    y: gameStage.clientHeight + 22,
+    vx: (Math.random() - 0.5) * 0.035,
+    vy: -(0.22 + Math.random() * 0.18),
+    wobble: Math.random() * Math.PI * 2,
+    born: now
   };
-  target.addEventListener("pointerdown", pop, { once: true });
-
-  const drift = (Math.random() - 0.5) * 0.45;
-  const speed = 2.8 + Math.random() * 2.6;
-  const riseId = setInterval(() => {
-    if (!state.gameActive) {
-      clearInterval(riseId);
-      target.remove();
-      return;
-    }
-    y -= speed;
-    const currentLeft = Number.parseFloat(target.style.left) + drift;
-    target.style.left = `${Math.max(4, Math.min(92, currentLeft))}%`;
-    target.style.top = `${y}px`;
-    if (y < -50) {
-      clearInterval(riseId);
-      target.remove();
-    }
-  }, 24);
+  target.addEventListener("pointerdown", () => collectGameObject(object), { once: true });
+  placeObject(object);
+  gameStage.append(target);
+  state.gameObjects.push(object);
 }
 
-function gameSymbol(className) {
-  const symbols = {
-    star: "*",
-    meteor: "o",
-    rainbow: "+",
-    number: "#",
-    comet: ">",
-    treasure: "$",
-    cosmic: "@",
-    final: "!"
-  };
-  return symbols[className] || "*";
+function updateGameObjects(delta) {
+  const stageHeight = gameStage.clientHeight;
+  const catchLine = stageHeight - 82;
+  [...state.gameObjects].forEach((object) => {
+    object.x += object.vx * delta;
+    object.y += object.vy * delta;
+    if (object.wobble !== undefined) {
+      object.x += Math.sin((performance.now() - object.born) / 260 + object.wobble) * 0.045 * delta;
+    }
+    object.x = Math.max(5, Math.min(93, object.x));
+    placeObject(object);
+
+    if (state.activeGame.mode !== "burst" && object.y > catchLine) {
+      const distance = Math.abs(object.x - state.gamePlayerX);
+      if (distance < (state.activeGame.mode === "drift" ? 7.5 : 9.5)) {
+        if (object.kind === "hazard") {
+          loseGameLife(object);
+        } else {
+          collectGameObject(object);
+        }
+      }
+    }
+
+    if (object.y > stageHeight + 56 || object.y < -64) {
+      if (state.activeGame.mode === "burst" && object.kind === "target") resetGameCombo();
+      removeGameObject(object);
+    }
+  });
+}
+
+function placeObject(object) {
+  object.el.style.left = `${object.x}%`;
+  object.el.style.top = `${object.y}px`;
+}
+
+function collectGameObject(object) {
+  if (!state.gameActive || !state.gameObjects.includes(object)) return;
+  const points = object.bonus ? 18 : 10;
+  state.gameScore += points * state.gameCombo;
+  state.gameCombo = Math.min(9, state.gameCombo + 1);
+  updateGameHud();
+  popEffect(object.x, object.y, object.bonus ? "bonus" : "good");
+  removeGameObject(object);
+}
+
+function loseGameLife(object) {
+  if (!state.gameActive || !state.gameObjects.includes(object)) return;
+  state.gameLives -= 1;
+  resetGameCombo();
+  popEffect(object.x, object.y, "hazard");
+  removeGameObject(object);
+  if (state.gameLives <= 0) {
+    showToast("Game over. Great effort.");
+    endRewardGame();
+  }
+}
+
+function removeGameObject(object) {
+  state.gameObjects = state.gameObjects.filter((item) => item !== object);
+  object.el.remove();
+}
+
+function resetGameCombo() {
+  state.gameCombo = 1;
+  updateGameHud();
+}
+
+function updateGameHud() {
+  gameScore.textContent = String(state.gameScore);
+  gameCombo.textContent = `x${state.gameCombo}`;
+  gameLives.textContent = String(Math.max(0, state.gameLives));
+}
+
+function popEffect(x, y, type) {
+  const burst = document.createElement("span");
+  burst.className = `game-pop ${type}`;
+  burst.style.left = `${x}%`;
+  burst.style.top = `${y}px`;
+  burst.textContent = type === "hazard" ? "Ouch" : `+${type === "bonus" ? 18 : 10}`;
+  gameStage.append(burst);
+  setTimeout(() => burst.remove(), 620);
+}
+
+function clearGameStage() {
+  gameStage.querySelectorAll(".game-object, .game-pop").forEach((item) => item.remove());
+  state.gameObjects = [];
+}
+
+function gameSymbol(game) {
+  return game.icon || "*";
 }
 
 function latestAttemptsByLevel() {
@@ -1181,7 +1362,7 @@ function bestAttemptScore() {
 }
 
 function weakSkillCounts() {
-  return state.profile.attempts.flatMap((attempt) => attempt.wrong).reduce((acc, item) => {
+  return state.profile.attempts.flatMap((attempt) => attempt.wrong || []).reduce((acc, item) => {
     acc[item.skill] = (acc[item.skill] || 0) + 1;
     return acc;
   }, {});

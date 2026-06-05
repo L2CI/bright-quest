@@ -69,6 +69,14 @@ export async function onRequestDelete(context) {
     return json({ error: "D1 binding DB is missing. Check the Production D1 binding in Cloudflare Pages settings." }, 500);
   }
 
+  const url = new URL(context.request.url);
+  const profileId = String(url.searchParams.get("profileId") || "").trim();
+  if (profileId) {
+    await context.env.DB.prepare("DELETE FROM app_profiles WHERE app_id = ? AND profile_id = ?").bind(appId, profileId).run();
+    await context.env.DB.prepare("DELETE FROM app_events WHERE app_id = ? AND profile_id = ?").bind(appId, profileId).run();
+    return json({ ok: true, deletedProfileId: profileId });
+  }
+
   await context.env.DB.prepare("DELETE FROM app_events WHERE app_id = ?").bind(appId).run();
   await context.env.DB.prepare("DELETE FROM app_profiles WHERE app_id = ?").bind(appId).run();
   return json({ ok: true });
