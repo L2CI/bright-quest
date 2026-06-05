@@ -1,11 +1,17 @@
 (() => {
   const previousRenderParentDashboard = renderParentDashboard;
+  const previousRenderProfileScreen = renderProfileScreen;
   const optionState = { open: false };
 
   renderParentDashboard = function parentCockpitRedesign() {
     previousRenderParentDashboard();
     prepareAarinProfile(false);
     renderCockpit();
+  };
+
+  renderProfileScreen = function aarinOnlyProfileScreen() {
+    prepareAarinProfile(false);
+    previousRenderProfileScreen();
   };
 
   document.addEventListener("click", (event) => {
