@@ -40,6 +40,22 @@
     document.querySelector(selector)?.click();
   }
 
+  function openWorldArena() {
+    const open = () => {
+      if (window.openInternationalArena) {
+        window.openInternationalArena();
+      } else {
+        clickFirst('#internationalTestsButton');
+      }
+    };
+    open();
+    [0, 160].forEach((delay) => {
+      setTimeout(() => {
+        if (!document.querySelector('#internationalScreen:not(.hidden)')) open();
+      }, delay);
+    });
+  }
+
   function openParentPrompt() {
     document.querySelector('#switchProfileButton')?.click();
     setTimeout(() => {
@@ -55,7 +71,7 @@
       english: () => window.openGrammarGym ? window.openGrammarGym() : clickFirst('#grammarGymButton'),
       grammar: () => window.openGrammarGym ? window.openGrammarGym() : clickFirst('#academyGrammarButton'),
       reasoning: () => clickFirst('[data-zone-level="4"]'),
-      world: () => window.openInternationalArena ? window.openInternationalArena() : clickFirst('#internationalTestsButton'),
+      world: openWorldArena,
       arcade: () => window.openGamesList ? window.openGamesList() : clickFirst('#academyGamesButton')
     };
     actions[zone]?.();
@@ -266,7 +282,11 @@
   }
 
   function wireReferenceDashboard(ref) {
-    ref.querySelectorAll('[data-ref-zone]').forEach((button) => button.addEventListener('click', () => startMapZone(button.dataset.refZone)));
+    ref.querySelectorAll('[data-ref-zone]').forEach((button) => button.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      startMapZone(event.currentTarget.dataset.refZone);
+    }));
     ref.querySelector('[data-ref-continue]')?.addEventListener('click', () => document.querySelector('#continueButton')?.click());
     ref.querySelectorAll('[data-start-world]').forEach((button) => button.addEventListener('click', () => window.startBrightQuestInternationalTest?.(button.dataset.startWorld)));
     ref.querySelectorAll('[data-play-world]').forEach((button) => button.addEventListener('click', () => window.startBrightQuestInternationalArcade?.(button.dataset.playWorld)));

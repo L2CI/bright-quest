@@ -32,7 +32,8 @@
 
     const panelButton = event.target.closest("[data-cockpit-panel]");
     if (panelButton) {
-      const panel = document.querySelector(`[data-cockpit-panel-body="${panelButton.dataset.cockpitPanel}"]`);
+      const scope = panelButton.closest("[data-cockpit-panel-scope]") || document;
+      const panel = scope.querySelector(`[data-cockpit-panel-body="${panelButton.dataset.cockpitPanel}"]`);
       if (!panel) return;
       const hidden = panel.classList.toggle("hidden");
       panelButton.textContent = hidden ? panelButton.dataset.openText : panelButton.dataset.closeText;
@@ -111,7 +112,6 @@
           <div class="parent-options-menu hidden">
             <button type="button" data-parent-action="refresh">Refresh data</button>
             <button type="button" data-parent-action="add-profile">Add kid profile</button>
-            <button type="button" data-parent-action="prepare-aarin">Keep only Aarin</button>
             <button type="button" data-parent-action="reset">Reset all data</button>
             <button type="button" data-parent-action="logout">Log out</button>
           </div>
@@ -180,9 +180,10 @@
           <p>${escapeHtml(copy)}</p>
         </div>
         <div class="recommendation-actions">
-          ${focus ? `<button class="button button-primary" type="button" data-cockpit-panel="focus-0" data-open-text="View evidence" data-close-text="Hide evidence">View evidence</button>` : ""}
+          ${focus ? `<button class="button button-primary" type="button" data-cockpit-panel="recommendation-evidence" data-open-text="View evidence" data-close-text="Hide evidence">View evidence</button>` : ""}
         </div>
         <span class="recommendation-orbit" aria-hidden="true"></span>
+        ${focus ? `<div class="cockpit-panel-body recommendation-evidence-panel hidden" data-cockpit-panel-body="recommendation-evidence">${focus.questions.slice(0, 4).map((question) => renderQuestionEvidence(question)).join("")}</div>` : ""}
       </div>
     `;
   }
@@ -259,7 +260,7 @@
     return `
       <div class="focus-area-list">
         ${metrics.focus.map((focus, index) => `
-          <article class="focus-area-row">
+          <article class="focus-area-row" data-cockpit-panel-scope>
             <span class="severity-dot level-${Math.min(3, Math.max(1, focus.missed + 1))}"></span>
             <div><h4>${escapeHtml(focus.skill)}</h4><p>${escapeHtml(focus.section)} / ${focus.missed} missed / avg ${formatDuration(focus.averageSeconds)}</p></div>
             <button class="button button-soft" type="button" data-cockpit-panel="focus-${index}" data-open-text="View evidence" data-close-text="Hide evidence">View evidence</button>
@@ -432,16 +433,12 @@
     }
     if (action === "logout") parentExitButton.click();
     if (action === "reset") parentResetButton.click();
-    if (action === "prepare-aarin") {
-      prepareAarinProfile(true);
-      renderParentDashboard();
-    }
     if (action === "add-profile") {
       const name = window.prompt("New kid first name");
       if (!name?.trim()) return;
       const id = profileKey(name.trim());
       if (!state.profiles[id]) {
-        state.profiles[id] = { id, name: name.trim(), createdAt: new Date().toISOString(), stars: 0, attempts: [], trainingCompleted: {}, writingSamples: [] };
+        state.profiles[id] = { id, name: name.trim(), createdAt: new Date().toISOString(), createdByParent: true, stars: 0, attempts: [], trainingCompleted: {}, writingSamples: [] };
         normalizeProfiles();
         syncProfileToCloud(state.profiles[id]);
       }
@@ -464,6 +461,7 @@
 
     Object.values(state.profiles).forEach((profile) => {
       if (profile.id === "test") return;
+      if (profile.createdByParent) return;
       const hasData = (profile.attempts || []).length || Object.keys(profile.trainingCompleted || {}).length || (profile.writingSamples || []).length || (profile.stars || 0);
       if (hasData) return;
       delete state.profiles[profile.id];
