@@ -1,13 +1,13 @@
 (() => {
   const upgradedGames = [
-    { level: 1, name: "Star Skimmer Reef", className: "reef", mode: "catch", icon: "STAR", targetLabel: "stars", description: "Surf a glowing board between island reefs and catch falling starfish tokens.", help: "Slide the board. Catch yellow stars, dodge purple splash blocks." },
-    { level: 2, name: "Brick Rocket Rally", className: "brick-rally", mode: "drift", icon: "BOOST", targetLabel: "boosts", description: "Drift a brick-built rocket car through toy-city ramps and booster rings.", help: "Drag to drift through blue boosters. Red road blocks break the combo." },
-    { level: 3, name: "Sky Balloon Carnival", className: "balloon-carnival", mode: "burst", icon: "POP", targetLabel: "pops", description: "Tap cheerful balloons over a parade skyline and keep the combo floating.", help: "Tap balloons before they escape. Golden balloons are worth extra." },
-    { level: 4, name: "Number Ninja Gates", className: "ninja-gates", mode: "drift", icon: "GO", targetLabel: "gates", description: "Dash through glowing number gates in a training dojo full of moving pads.", help: "Slide through green gates. Avoid red danger tiles." },
-    { level: 5, name: "Comet Candy Pop", className: "candy-comet", mode: "burst", icon: "ZAP", targetLabel: "comets", description: "Pop comet candies as they swirl through a neon sweet-shop galaxy.", help: "Tap the comet candies. Chain quick taps for bigger bursts." },
-    { level: 6, name: "Treasure Kart Cove", className: "treasure-kart", mode: "drift", icon: "GEM", targetLabel: "gems", description: "Steer a tiny treasure kart over beach bridges, collecting gems and avoiding rocks.", help: "Collect gems in the bright lane. Rocks cost a life." },
-    { level: 7, name: "Portal Crystal Clash", className: "portal-clash", mode: "burst", icon: "ORB", targetLabel: "orbs", description: "Tap portal crystals before they overload a colourful science lab.", help: "Tap glowing orbs quickly. Bonus orbs boost the combo." },
-    { level: 8, name: "Firework Hero Finale", className: "hero-finale", mode: "burst", icon: "BOOM", targetLabel: "fireworks", description: "Launch a superhero-style firework finale across the Bright Quest skyline.", help: "Tap fireworks at peak glow. Keep the finale chain alive." }
+    { level: 1, name: "Star Skimmer Reef", className: "reef", mode: "catch", icon: "STAR", targetLabel: "stars", accent: "#22d3ee", danger: "#7c3aed", description: "Surf a glowing board between island reefs and catch falling starfish tokens.", help: "Slide the board. Catch yellow stars, dodge purple splash blocks." },
+    { level: 2, name: "Brick Rocket Rally", className: "brick-rally", mode: "drift", icon: "BOOST", targetLabel: "boosts", accent: "#2563eb", danger: "#ef4444", description: "Drift a brick-built rocket car through toy-city ramps and booster rings.", help: "Drag to drift through blue boosters. Red road blocks break the combo." },
+    { level: 3, name: "Sky Balloon Carnival", className: "balloon-carnival", mode: "burst", icon: "POP", targetLabel: "pops", accent: "#f6478f", danger: "#7c2d12", description: "Tap cheerful balloons over a parade skyline and keep the combo floating.", help: "Tap balloons before they escape. Golden balloons are worth extra." },
+    { level: 4, name: "Number Ninja Gates", className: "ninja-gates", mode: "drift", icon: "GO", targetLabel: "gates", accent: "#16a34a", danger: "#dc2626", description: "Dash through glowing number gates in a training dojo full of moving pads.", help: "Slide through green gates. Avoid red danger tiles." },
+    { level: 5, name: "Comet Candy Pop", className: "candy-comet", mode: "burst", icon: "ZAP", targetLabel: "comets", accent: "#fb7185", danger: "#581c87", description: "Pop comet candies as they swirl through a neon sweet-shop galaxy.", help: "Tap the comet candies. Chain quick taps for bigger bursts." },
+    { level: 6, name: "Treasure Kart Cove", className: "treasure-kart", mode: "drift", icon: "GEM", targetLabel: "gems", accent: "#f59e0b", danger: "#92400e", description: "Steer a tiny treasure kart over beach bridges, collecting gems and avoiding rocks.", help: "Collect gems in the bright lane. Rocks cost a life." },
+    { level: 7, name: "Portal Crystal Clash", className: "portal-clash", mode: "burst", icon: "ORB", targetLabel: "orbs", accent: "#8b5cf6", danger: "#fb7185", description: "Tap portal crystals before they overload a colourful science lab.", help: "Tap glowing orbs quickly. Bonus orbs boost the combo." },
+    { level: 8, name: "Firework Hero Finale", className: "hero-finale", mode: "burst", icon: "BOOM", targetLabel: "fireworks", accent: "#facc15", danger: "#ef4444", description: "Launch a superhero-style firework finale across the Bright Quest skyline.", help: "Tap fireworks at peak glow. Keep the finale chain alive." }
   ];
 
   const arcade = {
@@ -151,6 +151,9 @@
     updateTimer();
     clearStage();
     stage.className = `game-stage ${arcade.game.className} ${arcade.game.mode}`;
+    stage.style.setProperty("--game-accent", arcade.game.accent || "#22d3ee");
+    stage.style.setProperty("--game-danger", arcade.game.danger || "#ef4444");
+    renderStageChrome();
     ship.style.left = "50%";
     ship.style.transform = "translateX(-50%)";
     showScreen("game");
@@ -220,7 +223,7 @@
     const hazard = Math.random() < (arcade.game.mode === "drift" ? 0.28 : 0.18);
     const bonus = !hazard && Math.random() < 0.18;
     element.className = `game-object falling-star ${hazard ? "hazard" : ""} ${bonus ? "bonus" : ""}`;
-    element.textContent = hazard ? "X" : arcade.game.icon;
+    element.innerHTML = tokenMarkup(hazard ? "!" : bonus ? "x2" : arcade.game.icon);
 
     addObject({
       el: element,
@@ -251,9 +254,13 @@
     };
     target.className = `game-object falling-star burst-target ${bonus ? "bonus" : ""}`;
     target.type = "button";
-    target.textContent = arcade.game.icon;
+    target.innerHTML = tokenMarkup(bonus ? "x2" : arcade.game.icon);
     target.addEventListener("pointerdown", () => collectObject(object), { once: true });
     addObject(object);
+  }
+
+  function tokenMarkup(label) {
+    return `<span class="token-aura"></span><span class="token-core">${escapeHtml(label)}</span><span class="token-spark"></span>`;
   }
 
   function addObject(object) {
@@ -305,7 +312,9 @@
     arcade.score += points * arcade.combo;
     arcade.combo = Math.min(9, arcade.combo + 1);
     updateHud();
+    updateComboHeat();
     popEffect(object.x, object.y, object.bonus ? "bonus" : "good");
+    addTrailBurst(object.x, object.y, object.bonus);
     removeObject(object);
   }
 
@@ -313,6 +322,7 @@
     if (!arcade.active || !arcade.objects.includes(object)) return;
     arcade.lives -= 1;
     resetCombo();
+    updateComboHeat();
     popEffect(object.x, object.y, "hazard");
     removeObject(object);
     if (arcade.lives <= 0) {
@@ -358,7 +368,39 @@
   }
 
   function clearStage() {
-    stage.querySelectorAll(".game-object, .game-pop").forEach((item) => item.remove());
+    stage.querySelectorAll(".game-object, .game-pop, .arcade-trail, .arcade-stage-chrome").forEach((item) => item.remove());
     arcade.objects = [];
+  }
+
+  function renderStageChrome() {
+    const chrome = document.createElement("div");
+    chrome.className = "arcade-stage-chrome";
+    chrome.innerHTML = `
+      <span class="chrome-orbit orbit-one"></span>
+      <span class="chrome-orbit orbit-two"></span>
+      <span class="chrome-mesh"></span>
+      <span class="chrome-speedline line-one"></span>
+      <span class="chrome-speedline line-two"></span>
+      <span class="chrome-speedline line-three"></span>
+      <span class="chrome-badge">${escapeHtml(arcade.game.name.split(" ")[0])}</span>
+    `;
+    stage.prepend(chrome);
+  }
+
+  function addTrailBurst(x, y, bonus) {
+    for (let i = 0; i < (bonus ? 10 : 6); i += 1) {
+      const spark = document.createElement("span");
+      spark.className = `arcade-trail ${bonus ? "bonus" : ""}`;
+      spark.style.left = `${x + (Math.random() - 0.5) * 10}%`;
+      spark.style.top = `${y + (Math.random() - 0.5) * 34}px`;
+      spark.style.setProperty("--dx", `${(Math.random() - 0.5) * 90}px`);
+      spark.style.setProperty("--dy", `${-28 - Math.random() * 52}px`);
+      stage.append(spark);
+      setTimeout(() => spark.remove(), 780);
+    }
+  }
+
+  function updateComboHeat() {
+    stage.classList.toggle("combo-hot", arcade.combo >= 5);
   }
 })();

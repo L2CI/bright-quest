@@ -123,6 +123,7 @@
     arcade.particles = [];
     arcade.last = performance.now();
     arcade.spawnAt = 0;
+    seedOpeningObjects();
     title.textContent = arcade.game.name;
     help.textContent = arcade.game.help;
     screen.dataset.mode = arcade.game.mode;
@@ -238,6 +239,31 @@
     }));
   }
 
+  function seedOpeningObjects() {
+    const w = canvas.width || 1200;
+    const h = canvas.height || 620;
+    if (arcade.game.mode === "logic") {
+      arcade.objects.push(
+        makeObject({ kind: "gate", label: logicLabel(), x: w * 0.38, y: h * 0.34, vy: 2.4, size: 82, value: 16, seed: 101 }),
+        makeObject({ kind: "hazard", label: "GLITCH", x: w * 0.66, y: h * 0.2, vy: 2.7, size: 70, value: 0, seed: 202 })
+      );
+      return;
+    }
+    if (arcade.game.mode === "burst") {
+      arcade.objects.push(
+        makeObject({ kind: "star", label: randomGameLabel(), x: w * 0.24, y: h * 0.58, vy: -2.8, size: 68, value: 10, seed: 303 }),
+        makeObject({ kind: "bonus", label: "BOOST", x: w * 0.58, y: h * 0.72, vy: -3.2, size: 76, value: 22, seed: 404 }),
+        makeObject({ kind: "hazard", label: "!", x: w * 0.78, y: h * 0.5, vy: -2.5, size: 62, value: 0, seed: 505 })
+      );
+      return;
+    }
+    arcade.objects.push(
+      makeObject({ kind: "star", label: randomGameLabel(), x: w * 0.28, y: h * 0.26, vy: 3.3, size: 64, value: 10, seed: 606 }),
+      makeObject({ kind: "bonus", label: "BOOST", x: w * 0.58, y: h * 0.18, vy: 3.1, size: 76, value: 22, seed: 707 }),
+      makeObject({ kind: "hazard", label: "!", x: w * 0.78, y: h * 0.3, vy: 3.6, size: 62, value: 0, seed: 808 })
+    );
+  }
+
   function makeObject(base) {
     return {
       t: 0,
@@ -300,11 +326,12 @@
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, w, h);
     drawBackdrop(w, h, now);
+    drawDynamicLighting(w, h, now);
     drawModeTrack(w, h, now);
     arcade.objects.forEach(drawObject);
     drawHero(w, h, now);
     arcade.particles.forEach(drawParticle);
-    drawScanlines(w, h);
+    drawArcadeOverlay(w, h, now);
   }
 
   function drawBackdrop(w, h, now) {
@@ -392,8 +419,14 @@
     if (arcade.game.mode === "drift") {
       const roadY = h - 126;
       ctx.save();
-      ctx.fillStyle = "rgba(30,41,59,0.82)";
+      ctx.shadowColor = "rgba(15,23,42,0.24)";
+      ctx.shadowBlur = 18;
+      ctx.fillStyle = "rgba(30,41,59,0.86)";
       roundedRect(w * 0.18, roadY - 18, w * 0.64, 96, 38); ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = "rgba(255,255,255,0.32)";
+      ctx.lineWidth = 16;
+      ctx.beginPath(); ctx.moveTo(w * 0.2, roadY + 12); ctx.quadraticCurveTo(w * 0.5, roadY - 28, w * 0.8, roadY + 16); ctx.stroke();
       ctx.strokeStyle = "rgba(255,255,255,0.9)";
       ctx.lineWidth = 7;
       ctx.setLineDash([34, 28]);
@@ -407,8 +440,36 @@
       roundedRect(w * 0.12, h - 172, w * 0.76, 72, 22); ctx.fill();
       ctx.fillStyle = "rgba(34,211,238,0.28)";
       for (let i = 0; i < 9; i += 1) roundedRect(w * 0.14 + i * 92, h - 151, 42, 30, 10), ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.45)";
+      ctx.lineWidth = 4;
+      ctx.setLineDash([20, 18]);
+      ctx.lineDashOffset = -(now * 0.12) % 38;
+      ctx.beginPath(); ctx.moveTo(w * 0.16, h - 136); ctx.lineTo(w * 0.84, h - 136); ctx.stroke();
       ctx.restore();
     }
+  }
+
+  function drawDynamicLighting(w, h, now) {
+    ctx.save();
+    const shimmer = (Math.sin(now / 650) + 1) / 2;
+    const glow = ctx.createRadialGradient(w * (0.24 + shimmer * 0.12), h * 0.22, 20, w * 0.42, h * 0.28, w * 0.72);
+    glow.addColorStop(0, "rgba(255,255,255,0.46)");
+    glow.addColorStop(0.35, "rgba(255,255,255,0.18)");
+    glow.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.globalAlpha = 0.2;
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 5;
+    for (let i = 0; i < 5; i += 1) {
+      const x = ((i * 230 + now * 0.06) % (w + 260)) - 180;
+      ctx.beginPath();
+      ctx.moveTo(x, h * 0.08);
+      ctx.bezierCurveTo(x + 120, h * 0.3, x - 80, h * 0.58, x + 110, h * 0.86);
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
   function drawHero(w, h, now) {
@@ -420,14 +481,23 @@
     ctx.rotate(tilt * Math.PI / 180);
     ctx.shadowColor = "rgba(15,23,42,0.32)";
     ctx.shadowBlur = 18;
+    ctx.fillStyle = "rgba(255,255,255,0.52)";
+    roundedRect(-78, -46, 156, 92, 30); ctx.fill();
+    ctx.shadowBlur = 24;
+    ctx.shadowColor = arcade.game.accent;
     ctx.fillStyle = arcade.game.hero;
     if (arcade.game.mode === "drift") {
+      ctx.fillStyle = arcade.game.accent;
+      roundedRect(-88, 8, 44, 14, 8); ctx.fill();
+      roundedRect(-96, 24, 56, 12, 8); ctx.fill();
+      ctx.fillStyle = arcade.game.hero;
       roundedRect(-62, -34, 124, 70, 22); ctx.fill();
       ctx.fillStyle = "#111827"; roundedRect(-44, 30, 26, 22, 12); ctx.fill(); roundedRect(18, 30, 26, 22, 12); ctx.fill();
       ctx.fillStyle = "#ffffff"; roundedRect(-28, -22, 56, 24, 12); ctx.fill();
       ctx.fillStyle = arcade.game.accent; roundedRect(-62, -6, 22, 18, 8); ctx.fill();
       ctx.fillStyle = "#f43f5e"; roundedRect(46, -8, 20, 16, 8); ctx.fill();
     } else {
+      ctx.shadowBlur = 12;
       ctx.fillStyle = "#ffffff"; roundedRect(-38, -62, 76, 76, 22); ctx.fill();
       ctx.fillStyle = arcade.game.hero; roundedRect(-28, -54, 56, 56, 18); ctx.fill();
       ctx.fillStyle = "#111827"; roundedRect(-16, -30, 10, 10, 4); ctx.fill(); roundedRect(6, -30, 10, 10, 4); ctx.fill();
@@ -444,10 +514,15 @@
     ctx.shadowColor = "rgba(15,23,42,0.24)";
     ctx.shadowBlur = 14;
     if (object.kind === "hazard") {
+      ctx.shadowColor = arcade.game.hazard || "#fb7185";
+      ctx.shadowBlur = 22;
       ctx.fillStyle = arcade.game.hazard || "#fb7185";
       roundedRect(-object.size / 2, -object.size / 2, object.size, object.size, 16); ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.8)"; ctx.lineWidth = 4; roundedRect(-object.size / 2 + 4, -object.size / 2 + 4, object.size - 8, object.size - 8, 13); ctx.stroke();
       ctx.fillStyle = "#fff"; ctx.font = "900 28px system-ui"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(object.label, 0, 2);
     } else if (object.kind === "gate") {
+      ctx.shadowColor = "#facc15";
+      ctx.shadowBlur = 24;
       ctx.strokeStyle = "#facc15"; ctx.lineWidth = 10;
       roundedRect(-object.size, -object.size / 2, object.size * 2, object.size, 24); ctx.stroke();
       ctx.fillStyle = "rgba(255,255,255,0.92)"; roundedRect(-object.size + 12, -object.size / 2 + 12, object.size * 2 - 24, object.size - 24, 18); ctx.fill();
@@ -459,6 +534,8 @@
         ctx.fillStyle = "rgba(255,255,255,0.9)"; ctx.beginPath(); ctx.ellipse(-object.size * 0.13, -object.size * 0.22, object.size * 0.09, object.size * 0.16, -0.5, 0, Math.PI * 2); ctx.fill();
         ctx.strokeStyle = "rgba(255,255,255,0.72)"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, object.size * 0.42); ctx.lineTo(8, object.size * 0.72); ctx.stroke();
       } else {
+        ctx.shadowColor = object.kind === "bonus" ? "#facc15" : arcade.game.accent;
+        ctx.shadowBlur = 20;
         ctx.fillStyle = object.kind === "bonus" ? "#facc15" : "#ffffff";
         star(0, 0, object.size / 2, object.size / 4, 5); ctx.fill();
       }
@@ -471,16 +548,26 @@
     ctx.save();
     ctx.globalAlpha = Math.max(0, p.life / 800);
     ctx.fillStyle = p.color;
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur = 14;
     roundedRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size, 4);
     ctx.fill();
     ctx.restore();
   }
 
-  function drawScanlines(w, h) {
+  function drawArcadeOverlay(w, h, now) {
     ctx.save();
     ctx.globalAlpha = 0.08;
     ctx.fillStyle = "#fff";
     for (let y = 0; y < h; y += 28) ctx.fillRect(0, y, w, 2);
+    ctx.globalAlpha = 0.18;
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 18; i += 1) {
+      const x = (i * 97 + now * 0.09) % (w + 120) - 60;
+      const y = 30 + (i % 7) * 58;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 34, y - 16); ctx.stroke();
+    }
     ctx.restore();
   }
 
