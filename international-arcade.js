@@ -4,28 +4,37 @@
       id: "intl-1",
       name: "World Rally Drift",
       mode: "drift",
-      help: "Slide or use arrow keys to drift through star gates. Avoid red hazard blocks.",
-      sky: ["#0ea5e9", "#8b5cf6"],
-      ground: "#22c55e",
-      hero: "#facc15"
+      help: "Slide or use arrow keys to drift through glowing rally gates. Avoid red road blocks.",
+      sky: ["#65d9ff", "#5b7cfa"],
+      ground: "#2fc468",
+      hero: "#ffbf2f",
+      accent: "#1f5eff",
+      hazard: "#ef4444",
+      labels: ["RAMP", "STAR", "FLAG", "BOOST"]
     },
     "intl-2": {
       id: "intl-2",
       name: "Skyline Balloon Burst",
       mode: "burst",
-      help: "Tap bright balloons before they escape. Gold balloons build huge combo streaks.",
-      sky: ["#f472b6", "#38bdf8"],
-      ground: "#fb923c",
-      hero: "#22c55e"
+      help: "Tap balloons before they escape. Gold balloons build huge combo streaks.",
+      sky: ["#7dd3fc", "#f9a8d4"],
+      ground: "#34d399",
+      hero: "#22c55e",
+      accent: "#fb7185",
+      hazard: "#7c2d12",
+      labels: ["POP", "WOW", "STAR", "GO"]
     },
     "intl-3": {
       id: "intl-3",
       name: "Logic Lab Battle",
       mode: "logic",
       help: "Choose glowing logic gates and dodge glitch blocks. Fast correct gates boost your combo.",
-      sky: ["#312e81", "#2563eb"],
+      sky: ["#25115f", "#0ea5e9"],
       ground: "#8b5cf6",
-      hero: "#facc15"
+      hero: "#facc15",
+      accent: "#22d3ee",
+      hazard: "#fb7185",
+      labels: ["6+7", "4x3", "18/3", "A>B", "NEXT", "ODD", "PAIR", "HALF"]
     }
   };
 
@@ -219,7 +228,7 @@
     const bonus = !hazard && Math.random() < 0.22;
     arcade.objects.push(makeObject({
       kind: hazard ? "hazard" : bonus ? "bonus" : "star",
-      label: hazard ? "!" : bonus ? "BOOST" : mode === "burst" ? "POP" : "STAR",
+      label: hazard ? "!" : bonus ? "BOOST" : randomGameLabel(),
       x: 90 + Math.random() * (canvas.width - 180),
       y: mode === "burst" ? canvas.height + 70 : -70,
       vy: mode === "burst" ? -(2.7 + Math.random() * 1.5) : 3.4 + Math.random() * 1.6,
@@ -291,6 +300,7 @@
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, w, h);
     drawBackdrop(w, h, now);
+    drawModeTrack(w, h, now);
     arcade.objects.forEach(drawObject);
     drawHero(w, h, now);
     arcade.particles.forEach(drawParticle);
@@ -299,14 +309,7 @@
 
   function drawBackdrop(w, h, now) {
     ctx.save();
-    ctx.globalAlpha = 0.24;
-    ctx.fillStyle = "#ffffff";
-    for (let i = 0; i < 24; i += 1) {
-      const x = (i * 137 + now * 0.025) % (w + 160) - 80;
-      const y = 45 + (i % 6) * 56;
-      roundedRect(x, y, 42 + (i % 4) * 12, 18, 10);
-      ctx.fill();
-    }
+    drawCloudParade(w, h, now);
     ctx.restore();
 
     const baseY = h - 112;
@@ -320,14 +323,91 @@
     }
 
     ctx.fillStyle = "rgba(22,33,62,0.22)";
-    for (let i = 0; i < 9; i += 1) {
-      const x = i * 150 + 24;
-      const y = baseY - 80 - (i % 3) * 24;
-      roundedRect(x, y, 78, baseY - y, 10);
+    if (arcade.game.mode === "drift") drawLandmarks(w, h, baseY, now);
+    if (arcade.game.mode === "burst") drawBalloonCity(w, h, baseY, now);
+    if (arcade.game.mode === "logic") drawLogicLab(w, h, baseY, now);
+  }
+
+  function drawCloudParade(w, h, now) {
+    ctx.globalAlpha = 0.24;
+    ctx.fillStyle = "#ffffff";
+    for (let i = 0; i < 24; i += 1) {
+      const x = (i * 137 + now * 0.025) % (w + 160) - 80;
+      const y = 45 + (i % 6) * 56;
+      roundedRect(x, y, 42 + (i % 4) * 12, 18, 10);
       ctx.fill();
-      ctx.fillStyle = "rgba(255,255,255,0.34)";
-      for (let j = 0; j < 3; j += 1) roundedRect(x + 14 + j * 20, y + 18, 9, 14, 3), ctx.fill();
-      ctx.fillStyle = "rgba(22,33,62,0.22)";
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawLandmarks(w, h, baseY, now) {
+    const shift = (now * 0.04) % 220;
+    for (let i = -1; i < 7; i += 1) {
+      const x = i * 220 - shift + 48;
+      const y = baseY - 84 - (i % 2) * 18;
+      ctx.fillStyle = "rgba(30,64,175,0.26)";
+      roundedRect(x, y, 84, baseY - y, 12); ctx.fill();
+      ctx.fillStyle = "#fff7ad";
+      for (let j = 0; j < 3; j += 1) roundedRect(x + 14 + j * 21, y + 16, 10, 12, 3), ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,0.78)";
+      ctx.beginPath(); ctx.moveTo(x + 105, baseY); ctx.lineTo(x + 134, y + 18); ctx.lineTo(x + 164, baseY); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#ef4444"; roundedRect(x + 126, y + 30, 12, 24, 3); ctx.fill();
+    }
+  }
+
+  function drawBalloonCity(w, h, baseY, now) {
+    for (let i = 0; i < 10; i += 1) {
+      const x = (i * 128 + now * 0.018) % (w + 160) - 80;
+      const y = 70 + (i % 4) * 44;
+      ctx.fillStyle = ["#facc15", "#fb7185", "#38bdf8", "#a3e635"][i % 4];
+      ctx.beginPath(); ctx.ellipse(x, y, 22, 30, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.65)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y + 30); ctx.lineTo(x + 8, y + 66); ctx.stroke();
+    }
+    ctx.fillStyle = "rgba(14,116,144,0.24)";
+    for (let i = 0; i < 8; i += 1) {
+      const x = i * 160 + 20;
+      const y = baseY - 70 - (i % 3) * 20;
+      roundedRect(x, y, 92, baseY - y, 12); ctx.fill();
+    }
+  }
+
+  function drawLogicLab(w, h, baseY, now) {
+    ctx.save();
+    ctx.strokeStyle = "rgba(34,211,238,0.28)";
+    ctx.lineWidth = 4;
+    for (let x = -60; x < w + 80; x += 90) {
+      ctx.beginPath(); ctx.moveTo(x + (now * 0.03) % 90, 0); ctx.lineTo(x - 160 + (now * 0.03) % 90, h); ctx.stroke();
+    }
+    ctx.fillStyle = "rgba(255,255,255,0.14)";
+    for (let i = 0; i < 7; i += 1) {
+      const x = i * 178 + 36;
+      roundedRect(x, baseY - 118, 108, 96, 18); ctx.fill();
+      ctx.fillStyle = "rgba(34,211,238,0.34)"; roundedRect(x + 22, baseY - 92, 64, 20, 8); ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,0.14)";
+    }
+    ctx.restore();
+  }
+
+  function drawModeTrack(w, h, now) {
+    if (arcade.game.mode === "drift") {
+      const roadY = h - 126;
+      ctx.save();
+      ctx.fillStyle = "rgba(30,41,59,0.82)";
+      roundedRect(w * 0.18, roadY - 18, w * 0.64, 96, 38); ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.9)";
+      ctx.lineWidth = 7;
+      ctx.setLineDash([34, 28]);
+      ctx.lineDashOffset = -(now * 0.16) % 62;
+      ctx.beginPath(); ctx.moveTo(w * 0.24, roadY + 30); ctx.lineTo(w * 0.76, roadY + 30); ctx.stroke();
+      ctx.restore();
+    }
+    if (arcade.game.mode === "logic") {
+      ctx.save();
+      ctx.fillStyle = "rgba(15,23,42,0.24)";
+      roundedRect(w * 0.12, h - 172, w * 0.76, 72, 22); ctx.fill();
+      ctx.fillStyle = "rgba(34,211,238,0.28)";
+      for (let i = 0; i < 9; i += 1) roundedRect(w * 0.14 + i * 92, h - 151, 42, 30, 10), ctx.fill();
+      ctx.restore();
     }
   }
 
@@ -342,9 +422,10 @@
     ctx.shadowBlur = 18;
     ctx.fillStyle = arcade.game.hero;
     if (arcade.game.mode === "drift") {
-      roundedRect(-58, -34, 116, 70, 22); ctx.fill();
+      roundedRect(-62, -34, 124, 70, 22); ctx.fill();
       ctx.fillStyle = "#111827"; roundedRect(-44, 30, 26, 22, 12); ctx.fill(); roundedRect(18, 30, 26, 22, 12); ctx.fill();
       ctx.fillStyle = "#ffffff"; roundedRect(-28, -22, 56, 24, 12); ctx.fill();
+      ctx.fillStyle = arcade.game.accent; roundedRect(-62, -6, 22, 18, 8); ctx.fill();
       ctx.fillStyle = "#f43f5e"; roundedRect(46, -8, 20, 16, 8); ctx.fill();
     } else {
       ctx.fillStyle = "#ffffff"; roundedRect(-38, -62, 76, 76, 22); ctx.fill();
@@ -363,7 +444,7 @@
     ctx.shadowColor = "rgba(15,23,42,0.24)";
     ctx.shadowBlur = 14;
     if (object.kind === "hazard") {
-      ctx.fillStyle = "#fb7185";
+      ctx.fillStyle = arcade.game.hazard || "#fb7185";
       roundedRect(-object.size / 2, -object.size / 2, object.size, object.size, 16); ctx.fill();
       ctx.fillStyle = "#fff"; ctx.font = "900 28px system-ui"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(object.label, 0, 2);
     } else if (object.kind === "gate") {
@@ -372,8 +453,15 @@
       ctx.fillStyle = "rgba(255,255,255,0.92)"; roundedRect(-object.size + 12, -object.size / 2 + 12, object.size * 2 - 24, object.size - 24, 18); ctx.fill();
       ctx.fillStyle = "#1e3a8a"; ctx.font = "900 24px system-ui"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(object.label, 0, 0);
     } else {
-      ctx.fillStyle = object.kind === "bonus" ? "#facc15" : "#ffffff";
-      star(0, 0, object.size / 2, object.size / 4, 5); ctx.fill();
+      if (arcade.game.mode === "burst") {
+        ctx.fillStyle = object.kind === "bonus" ? "#facc15" : ["#fb7185", "#38bdf8", "#a3e635"][Math.floor(object.seed) % 3];
+        ctx.beginPath(); ctx.ellipse(0, -6, object.size * 0.42, object.size * 0.54, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "rgba(255,255,255,0.9)"; ctx.beginPath(); ctx.ellipse(-object.size * 0.13, -object.size * 0.22, object.size * 0.09, object.size * 0.16, -0.5, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = "rgba(255,255,255,0.72)"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, object.size * 0.42); ctx.lineTo(8, object.size * 0.72); ctx.stroke();
+      } else {
+        ctx.fillStyle = object.kind === "bonus" ? "#facc15" : "#ffffff";
+        star(0, 0, object.size / 2, object.size / 4, 5); ctx.fill();
+      }
       ctx.fillStyle = "#1e3a8a"; ctx.font = "900 15px system-ui"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(object.label, 0, 3);
     }
     ctx.restore();
@@ -417,7 +505,12 @@
   }
 
   function logicLabel() {
-    return ["6+7", "4x3", "18/3", "A>B", "NEXT", "ODD", "PAIR", "HALF"][Math.floor(Math.random() * 8)];
+    return randomGameLabel();
+  }
+
+  function randomGameLabel() {
+    const labels = arcade.game.labels || ["STAR", "GO", "POP"];
+    return labels[Math.floor(Math.random() * labels.length)];
   }
 
   function roundedRect(x, y, w, h, r) {

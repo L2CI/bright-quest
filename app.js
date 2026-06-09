@@ -4,14 +4,14 @@ const internationalTests = window.BrightQuestInternationalTests || [];
 const storageKey = "brightQuestProfilesV2";
 const apiBase = "/api";
 const gameCatalogue = [
-  { level: 1, name: "Star Dash", className: "star", mode: "catch", icon: "*", targetLabel: "stars", description: "Sweep the glow board across the sky lane and catch star clusters.", help: "Move the glow board. Catch stars, dodge storm sparks." },
-  { level: 2, name: "Meteor Drift", className: "meteor", mode: "drift", icon: "o", targetLabel: "sparks", description: "Drift a rocket racer through meteor traffic and collect spark rings.", help: "Drag to drift. Collect spark rings and avoid hot meteors." },
-  { level: 3, name: "Balloon Burst", className: "rainbow", mode: "burst", icon: "+", targetLabel: "pops", description: "Tap floating balloons fast enough to build a rainbow combo.", help: "Tap balloons before they float away. Chain taps for combos." },
-  { level: 4, name: "Number Drift", className: "number", mode: "drift", icon: "#", targetLabel: "numbers", description: "Steer through neon number gates while avoiding red blockers.", help: "Slide through green number gates. Skip red blockers." },
-  { level: 5, name: "Comet Pop", className: "comet", mode: "burst", icon: ">", targetLabel: "comets", description: "Pop comet bubbles as they arc and swirl across deep space.", help: "Tap the comet bubbles. Fast chains make bigger bursts." },
-  { level: 6, name: "Treasure Drift", className: "treasure", mode: "drift", icon: "$", targetLabel: "coins", description: "Drift through treasure lanes, grab coins, and dodge rolling rocks.", help: "Collect coins in the bright lane. Rocks break the combo." },
-  { level: 7, name: "Cosmic Burst", className: "cosmic", mode: "burst", icon: "@", targetLabel: "crystals", description: "Smash cosmic crystals while the starfield accelerates around you.", help: "Tap crystals quickly. Golden crystals are worth extra." },
-  { level: 8, name: "Final Fireworks", className: "final", mode: "burst", icon: "!", targetLabel: "fireworks", description: "Launch a finale of fireworks after the full scholarship quest.", help: "Tap fireworks at peak glow. Keep the combo alive." }
+  { level: 1, name: "Star Skimmer Reef", className: "reef", mode: "catch", icon: "STAR", targetLabel: "stars", description: "Surf a glowing board between island reefs and catch falling starfish tokens.", help: "Slide the board. Catch yellow stars, dodge purple splash blocks." },
+  { level: 2, name: "Brick Rocket Rally", className: "brick-rally", mode: "drift", icon: "BOOST", targetLabel: "boosts", description: "Drift a brick-built rocket car through toy-city ramps and booster rings.", help: "Drag to drift through blue boosters. Red road blocks break the combo." },
+  { level: 3, name: "Sky Balloon Carnival", className: "balloon-carnival", mode: "burst", icon: "POP", targetLabel: "pops", description: "Tap cheerful balloons over a parade skyline and keep the combo floating.", help: "Tap balloons before they escape. Golden balloons are worth extra." },
+  { level: 4, name: "Number Ninja Gates", className: "ninja-gates", mode: "drift", icon: "GO", targetLabel: "gates", description: "Dash through glowing number gates in a training dojo full of moving pads.", help: "Slide through green gates. Avoid red danger tiles." },
+  { level: 5, name: "Comet Candy Pop", className: "candy-comet", mode: "burst", icon: "ZAP", targetLabel: "comets", description: "Pop comet candies as they swirl through a neon sweet-shop galaxy.", help: "Tap the comet candies. Chain quick taps for bigger bursts." },
+  { level: 6, name: "Treasure Kart Cove", className: "treasure-kart", mode: "drift", icon: "GEM", targetLabel: "gems", description: "Steer a tiny treasure kart over beach bridges, collecting gems and avoiding rocks.", help: "Collect gems in the bright lane. Rocks cost a life." },
+  { level: 7, name: "Portal Crystal Clash", className: "portal-clash", mode: "burst", icon: "ORB", targetLabel: "orbs", description: "Tap portal crystals before they overload a colourful science lab.", help: "Tap glowing orbs quickly. Bonus orbs boost the combo." },
+  { level: 8, name: "Firework Hero Finale", className: "hero-finale", mode: "burst", icon: "BOOM", targetLabel: "fireworks", description: "Launch a superhero-style firework finale across the Bright Quest skyline.", help: "Tap fireworks at peak glow. Keep the finale chain alive." }
 ];
 
 const screens = {
@@ -739,19 +739,30 @@ function startInternationalTest(testId) {
 
 function openGamesList() {
   const completedLevels = new Set((state.profile.attempts || []).map((attempt) => attempt.level));
-  gamesList.innerHTML = gameCatalogue.map((game) => {
+  const unlockedCount = gameCatalogue.filter((game) => completedLevels.has(game.level)).length;
+  gamesList.innerHTML = `
+    <article class="game-gallery-hero">
+      <div>
+        <p class="eyebrow">Arcade vault</p>
+        <h3>Unlocked games and coming attractions</h3>
+        <p>${unlockedCount} of ${gameCatalogue.length} games unlocked. Finish tests to light up the rest of the arcade.</p>
+      </div>
+      <div class="gallery-mini-console" aria-hidden="true"><span></span><i></i><b></b></div>
+    </article>
+    ${gameCatalogue.map((game) => {
     const unlocked = completedLevels.has(game.level);
     return `
-      <article class="game-tile ${game.className}">
-        <div class="game-tile-icon" aria-hidden="true">${escapeHtml(game.icon)}</div>
+      <article class="game-tile ${game.className} ${unlocked ? "unlocked" : "locked"}">
+        ${gamePreviewArt(game)}
         <p class="eyebrow">Level ${game.level} arcade</p>
         <strong>${escapeHtml(game.name)}</strong>
         <span>${escapeHtml(game.description)}</span>
-        <small>${unlocked ? `${game.mode === "burst" ? "Tap challenge" : game.mode === "drift" ? "Drift challenge" : "Catch challenge"} unlocked` : "Complete this test to unlock"}</small>
+        <small>${unlocked ? `${game.mode === "burst" ? "Tap challenge" : game.mode === "drift" ? "Drift challenge" : "Catch challenge"} unlocked` : `Complete level ${game.level} to unlock`}</small>
         ${unlocked ? `<button class="button button-primary" type="button" data-play-game="${game.level}">Play</button>` : ""}
       </article>
     `;
-  }).join("");
+  }).join("")}
+  `;
 
   gamesList.querySelectorAll("[data-play-game]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -761,6 +772,20 @@ function openGamesList() {
   });
 
   showScreen("gamesList");
+}
+
+function gamePreviewArt(game) {
+  return `
+    <div class="game-preview ${escapeAttr(game.className)}" aria-hidden="true">
+      <span class="preview-sky"></span>
+      <span class="preview-land"></span>
+      <span class="preview-road"></span>
+      <span class="preview-hero">${escapeHtml(game.icon)}</span>
+      <span class="preview-token one"></span>
+      <span class="preview-token two"></span>
+      <span class="preview-token three"></span>
+    </div>
+  `;
 }
 
 function openGrammarGym() {

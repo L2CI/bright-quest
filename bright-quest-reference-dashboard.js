@@ -49,7 +49,7 @@
       }
     };
     open();
-    [0, 160].forEach((delay) => {
+    [0, 160, 480, 720].forEach((delay) => {
       setTimeout(() => {
         if (!document.querySelector('#internationalScreen:not(.hidden)')) open();
       }, delay);
@@ -110,7 +110,7 @@
           ${quickAction('star', 'Earn Stars')}
           ${quickAction('bolt', 'Build Streaks')}
           ${quickAction('shield', 'Unlock Badges')}
-          ${quickAction('gift', 'Play & Win')}
+          ${quickAction('gift', 'Play & Win', 'arcade')}
           ${quickAction('chart', 'Track Progress')}
         </div>
       </header>
@@ -230,8 +230,8 @@
     wireReferenceDashboard(ref);
   }
 
-  function quickAction(type, label) {
-    return `<button type="button" class="quick-action-ref ${type}"><span></span><small>${label}</small></button>`;
+  function quickAction(type, label, zone = "") {
+    return `<button type="button" class="quick-action-ref ${type}" ${zone ? `data-ref-zone="${zone}"` : ""}><span></span><small>${label}</small></button>`;
   }
 
   function scoreText(attempt) {
@@ -284,6 +284,7 @@
   function wireReferenceDashboard(ref) {
     ref.querySelectorAll('[data-ref-zone]').forEach((button) => button.addEventListener('click', (event) => {
       event.preventDefault();
+      event.stopImmediatePropagation();
       event.stopPropagation();
       startMapZone(event.currentTarget.dataset.refZone);
     }));
