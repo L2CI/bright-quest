@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#071523" />
+    <title>Bright Quest - Cave River Quest</title>
+    <link rel="stylesheet" href="cave-river-quest.css" />
+  </head>
+  <body>
+    <main class="quest-shell" aria-label="Cave River Quest 3D reward game">
+      <canvas id="questCanvas" aria-label="3D cave river game"></canvas>
+
+      <section class="hud-top" aria-label="Game status">
+        <a class="back-link" href="../" aria-label="Back to Bright Quest">Back</a>
+        <div class="quest-title">
+          <p>3D Reward Game</p>
+          <h1>Cave River Quest</h1>
+        </div>
+        <div class="status-pill">
+          <strong id="gateCount">0/5</strong>
+          <span>gates</span>
+        </div>
+      </section>
+
+      <section class="hint-chip" id="hintChip" aria-live="polite">
+        Row through the cave. Answer each gate to open the river.
+      </section>
+
+      <section class="question-panel hidden" id="questionPanel" aria-modal="true" role="dialog" aria-labelledby="questionTitle">
+        <div class="question-card">
+          <p class="eyebrow" id="questionType">Gate challenge</p>
+          <h2 id="questionTitle">Iron Gate</h2>
+          <p id="questionText"></p>
+          <div class="answer-grid" id="answerGrid"></div>
+          <p class="feedback" id="feedbackText" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="finale-panel hidden" id="finalePanel" aria-modal="true" role="dialog" aria-labelledby="finaleTitle">
+        <div class="finale-card">
+          <p class="eyebrow">Treasure vault</p>
+          <h2 id="finaleTitle">The relic is waking.</h2>
+          <p id="finaleCopy">Tap the chest to claim the Leadership Matrix.</p>
+          <button class="claim-button" id="claimButton" type="button">Open the chest</button>
+        </div>
+      </section>
+
+      <section class="guardian-panel hidden" id="guardianPanel" aria-live="polite">
+        <div class="guardian-mark" aria-hidden="true"></div>
+        <div>
+          <p>Guardian transmission</p>
+          <strong id="guardianLine">Young hero, you have awakened the Leadership Matrix.</strong>
+        </div>
+      </section>
+
+      <footer class="touch-controls" aria-label="Boat controls">
+        <button type="button" class="steer-button" id="leftButton" aria-label="Steer left"></button>
+        <button type="button" class="sound-button" id="soundButton">Sound on</button>
+        <button type="button" class="steer-button right" id="rightButton" aria-label="Steer right"></button>
+      </footer>
+
+      <div class="fallback hidden" id="fallbackNotice">
+        <strong>3D engine did not load.</strong>
+        <span>Please check your connection and reload the quest.</span>
+      </div>
+    </main>
+
+    <script type="module" src="cave-river-quest.js"></script>
+  </body>
+</html>

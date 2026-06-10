@@ -1,5 +1,5 @@
 (() => {
-  const treasureQuestUrl = "treasure-quest/";
+  const treasureQuestUrl = "cave-river-quest/";
 
   function openTreasureQuest() {
     window.location.href = treasureQuestUrl;
@@ -13,10 +13,10 @@
           <span class="treasure-mini-chest one"></span>
           <span class="treasure-mini-chest two"></span>
         </div>
-        <p class="eyebrow">Playable prototype</p>
-        <h3>Pirate Treasure Map</h3>
-        <p>Island quest with a real avatar, answer gates, chests, and touch arrows.</p>
-        <button class="button button-primary" type="button" data-open-treasure-quest>Play on this device</button>
+        <p class="eyebrow">3D playable quest</p>
+        <h3>Cave River Quest</h3>
+        <p>Row a boat through a twisting cave river, unlock iron gates with questions, and claim the Leadership Matrix.</p>
+        <button class="button button-primary" type="button" data-open-treasure-quest>Play 3D quest</button>
       </article>
     `;
   }
@@ -25,9 +25,9 @@
     return `
       <div class="treasure-parent-card" data-treasure-parent-card>
         <div>
-          <p class="eyebrow">Game prototype</p>
-          <h4>Pirate Treasure Map</h4>
-          <p>Open the new touch game from the cockpit. It is a reward-game prototype and does not change saved test results.</p>
+          <p class="eyebrow">3D reward game</p>
+          <h4>Cave River Quest</h4>
+          <p>Open the new cave-river learning game from the cockpit. It is a reward-game prototype and does not change saved test results.</p>
         </div>
         <button class="button button-soft" type="button" data-open-treasure-quest>Open game</button>
       </div>
