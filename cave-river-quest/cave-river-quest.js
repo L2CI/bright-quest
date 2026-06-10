@@ -97,6 +97,7 @@ let scene;
 let camera;
 let boat;
 let boy;
+let comicRider;
 let river;
 let chest;
 let relic;
@@ -320,6 +321,12 @@ function makeBoat() {
   makeRowingBoy(boy);
   boy.position.set(0, 0.2, -0.08);
   boat.add(boy);
+  boy.visible = false;
+
+  comicRider = makeComicRiderSprite();
+  comicRider.position.set(0, 1.12, -0.34);
+  comicRider.rotation.x = -0.08;
+  boat.add(comicRider);
 
   const oarMaterial = new THREE.MeshStandardMaterial({ color: 0xd9ad73, roughness: 0.5 });
   const bladeMaterial = new THREE.MeshStandardMaterial({ color: 0xf1d29b, roughness: 0.48 });
@@ -471,6 +478,211 @@ function makeRowingBoy(group) {
     shoe.castShadow = true;
     group.add(thigh, calf, shoe);
   });
+}
+
+function makeComicRiderSprite() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 1024;
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  const shadow = ctx.createRadialGradient(512, 830, 40, 512, 830, 360);
+  shadow.addColorStop(0, "rgba(0, 0, 0, 0.36)");
+  shadow.addColorStop(1, "rgba(0, 0, 0, 0)");
+  ctx.fillStyle = shadow;
+  ctx.beginPath();
+  ctx.ellipse(512, 828, 355, 82, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  const hull = ctx.createLinearGradient(0, 610, 0, 900);
+  hull.addColorStop(0, "#c47a35");
+  hull.addColorStop(0.52, "#8e4a24");
+  hull.addColorStop(1, "#3d2216");
+  ctx.fillStyle = hull;
+  ctx.strokeStyle = "#2a160e";
+  ctx.lineWidth = 18;
+  ctx.beginPath();
+  ctx.moveTo(150, 640);
+  ctx.bezierCurveTo(270, 560, 750, 560, 874, 640);
+  ctx.bezierCurveTo(805, 820, 650, 904, 512, 916);
+  ctx.bezierCurveTo(372, 904, 218, 820, 150, 640);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  const inside = ctx.createLinearGradient(0, 596, 0, 764);
+  inside.addColorStop(0, "#6b351c");
+  inside.addColorStop(1, "#27140d");
+  ctx.fillStyle = inside;
+  ctx.strokeStyle = "#f0bd65";
+  ctx.lineWidth = 12;
+  ctx.beginPath();
+  ctx.ellipse(512, 645, 325, 92, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(255, 224, 150, 0.72)";
+  ctx.lineWidth = 10;
+  for (let i = 0; i < 5; i += 1) {
+    const y = 690 + i * 34;
+    ctx.beginPath();
+    ctx.moveTo(270 + i * 22, y);
+    ctx.bezierCurveTo(392, y + 28, 632, y + 28, 754 - i * 22, y);
+    ctx.stroke();
+  }
+
+  drawOar(ctx, 240, 602, 84, 832, -1);
+  drawOar(ctx, 784, 602, 940, 832, 1);
+
+  const torso = ctx.createLinearGradient(0, 390, 0, 650);
+  torso.addColorStop(0, "#2f8cff");
+  torso.addColorStop(1, "#123f95");
+  ctx.fillStyle = torso;
+  ctx.strokeStyle = "#061b45";
+  ctx.lineWidth = 14;
+  ctx.beginPath();
+  ctx.moveTo(400, 430);
+  ctx.bezierCurveTo(452, 378, 575, 378, 628, 430);
+  ctx.lineTo(690, 630);
+  ctx.bezierCurveTo(612, 692, 416, 692, 336, 630);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  const vest = ctx.createLinearGradient(0, 420, 0, 660);
+  vest.addColorStop(0, "#ffe36d");
+  vest.addColorStop(0.55, "#ffb629");
+  vest.addColorStop(1, "#f47d20");
+  ctx.fillStyle = vest;
+  ctx.strokeStyle = "#8c4208";
+  ctx.lineWidth = 10;
+  roundedRect(ctx, 410, 438, 205, 222, 42);
+  ctx.fill();
+  ctx.stroke();
+  ctx.strokeStyle = "rgba(255,255,255,0.55)";
+  ctx.lineWidth = 8;
+  ctx.beginPath();
+  ctx.moveTo(512, 452);
+  ctx.lineTo(512, 650);
+  ctx.stroke();
+
+  drawArm(ctx, 395, 468, 262, 586, -1);
+  drawArm(ctx, 630, 468, 762, 586, 1);
+
+  const skin = ctx.createLinearGradient(0, 210, 0, 400);
+  skin.addColorStop(0, "#f0bc86");
+  skin.addColorStop(1, "#c97748");
+  ctx.fillStyle = skin;
+  ctx.strokeStyle = "#7f3f28";
+  ctx.lineWidth = 12;
+  ctx.beginPath();
+  ctx.ellipse(512, 312, 100, 118, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  const hair = ctx.createLinearGradient(0, 178, 0, 300);
+  hair.addColorStop(0, "#3a2417");
+  hair.addColorStop(1, "#140b07");
+  ctx.fillStyle = hair;
+  ctx.beginPath();
+  ctx.moveTo(410, 284);
+  ctx.bezierCurveTo(410, 176, 472, 136, 548, 162);
+  ctx.bezierCurveTo(622, 188, 622, 260, 596, 294);
+  ctx.bezierCurveTo(560, 250, 486, 242, 410, 284);
+  ctx.fill();
+
+  ctx.fillStyle = "#101820";
+  ctx.beginPath();
+  ctx.ellipse(476, 318, 12, 17, 0, 0, Math.PI * 2);
+  ctx.ellipse(548, 318, 12, 17, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = "#7a3827";
+  ctx.lineWidth = 7;
+  ctx.beginPath();
+  ctx.arc(512, 350, 42, 0.18 * Math.PI, 0.82 * Math.PI);
+  ctx.stroke();
+
+  ctx.fillStyle = "rgba(255, 142, 132, 0.4)";
+  ctx.beginPath();
+  ctx.ellipse(442, 350, 28, 15, -0.1, 0, Math.PI * 2);
+  ctx.ellipse(584, 350, 28, 15, 0.1, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(255,255,255,0.55)";
+  ctx.lineWidth = 8;
+  ctx.beginPath();
+  ctx.moveTo(426, 236);
+  ctx.bezierCurveTo(470, 176, 560, 174, 596, 235);
+  ctx.stroke();
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 4;
+  const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false });
+  const sprite = new THREE.Sprite(material);
+  sprite.scale.set(2.9, 2.9, 1);
+  sprite.userData.texture = texture;
+  return sprite;
+}
+
+function drawOar(ctx, x1, y1, x2, y2, side) {
+  ctx.strokeStyle = "#dca96a";
+  ctx.lineWidth = 18;
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+
+  const blade = ctx.createLinearGradient(0, y2 - 40, 0, y2 + 60);
+  blade.addColorStop(0, "#f6d39b");
+  blade.addColorStop(1, "#b56e34");
+  ctx.fillStyle = blade;
+  ctx.strokeStyle = "#6a3a1e";
+  ctx.lineWidth = 8;
+  ctx.beginPath();
+  ctx.ellipse(x2 + side * 6, y2 + 24, 38, 78, side * 0.18, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+}
+
+function drawArm(ctx, sx, sy, hx, hy, side) {
+  ctx.strokeStyle = "#1d5ab8";
+  ctx.lineWidth = 42;
+  ctx.beginPath();
+  ctx.moveTo(sx, sy);
+  ctx.bezierCurveTo(sx + side * 12, sy + 60, hx - side * 40, hy - 56, hx, hy);
+  ctx.stroke();
+  ctx.strokeStyle = "#d9905e";
+  ctx.lineWidth = 30;
+  ctx.beginPath();
+  ctx.moveTo(sx + side * 34, sy + 68);
+  ctx.bezierCurveTo(sx + side * 68, sy + 104, hx - side * 36, hy - 34, hx, hy);
+  ctx.stroke();
+  ctx.fillStyle = "#e1a06d";
+  ctx.strokeStyle = "#7f3f28";
+  ctx.lineWidth = 7;
+  ctx.beginPath();
+  ctx.ellipse(hx, hy, 30, 24, side * 0.3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+}
+
+function roundedRect(ctx, x, y, width, height, radius) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
 }
 
 function makeGates() {
@@ -752,6 +964,11 @@ function updateRowingRig(time) {
   if (boy) {
     boy.rotation.x = -0.05 + stroke * rowPower * 0.05;
     boy.position.y = 0.2 + Math.cos(time * 5.4) * rowPower * 0.012;
+  }
+  if (comicRider) {
+    comicRider.position.y = 1.12 + Math.cos(time * 5.4) * rowPower * 0.018;
+    comicRider.rotation.z = stroke * rowPower * 0.035;
+    comicRider.scale.set(2.9 + Math.abs(stroke) * rowPower * 0.035, 2.9, 1);
   }
 }
 
