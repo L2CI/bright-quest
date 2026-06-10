@@ -8,7 +8,6 @@ const GLTF_LOADER_URL = "./vendor/examples/jsm/loaders/GLTFLoader.js";
 
 const ASSET_URLS = {
   boat: "./assets/kenney/pirate/boat-row-small.glb",
-  character: "./assets/poly-pizza/boy-zsky-stylized-character.glb",
   paddle: "./assets/kenney/pirate/tool-paddle.glb",
   chest: "./assets/poly-pizza/chest-quaternius.glb",
   guardian: "./assets/poly-pizza/robot-quaternius-animated.glb",
@@ -137,8 +136,8 @@ let boatRig = {};
 let currentGate;
 let gateMeshes = [];
 let caveLights = [];
-let ripples = [];
 let foamTrails = [];
+let waterUniforms;
 let audioContext;
 let gltfLoader;
 let assetLibrary = {};
@@ -192,7 +191,7 @@ async function boot() {
 
 function initScene() {
   scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x3a7894, 0.008);
+  scene.fog = new THREE.FogExp2(0x5aa4b8, 0.005);
 
   camera = new THREE.PerspectiveCamera(58, window.innerWidth / window.innerHeight, 0.1, 140);
   camera.position.set(0, 7.2, 14);
@@ -205,12 +204,12 @@ function initScene() {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.2;
-  renderer.setClearColor(0x3a7894);
+  renderer.setClearColor(0x5aa4b8);
 
-  const ambient = new THREE.HemisphereLight(0xf4fdff, 0x45566a, 3.35);
+  const ambient = new THREE.HemisphereLight(0xffffff, 0x64778a, 4.2);
   scene.add(ambient);
 
-  const moon = new THREE.DirectionalLight(0xfff4d2, 3.15);
+  const moon = new THREE.DirectionalLight(0xfff4d2, 3.8);
   moon.position.set(-6, 9, 7);
   moon.castShadow = true;
   moon.shadow.mapSize.set(2048, 2048);
@@ -234,9 +233,9 @@ function initPostProcessing() {
   composer.addPass(renderPass);
 
   ssaoPass = new SSAOPass(scene, camera, window.innerWidth, window.innerHeight);
-  ssaoPass.kernelRadius = 8;
-  ssaoPass.minDistance = 0.006;
-  ssaoPass.maxDistance = 0.065;
+  ssaoPass.kernelRadius = 5;
+  ssaoPass.minDistance = 0.01;
+  ssaoPass.maxDistance = 0.045;
   composer.addPass(ssaoPass);
 
   bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.2, 0.4, 0.8);
@@ -245,7 +244,7 @@ function initPostProcessing() {
   bloomPass.radius = 0.4;
   composer.addPass(bloomPass);
 
-  filmPass = new FilmPass(0.08, 0.08, 648, false);
+  filmPass = new FilmPass(0.025, 0.03, 648, false);
   composer.addPass(filmPass);
 }
 
@@ -398,14 +397,17 @@ function makeCave() {
     const p = samplePath(t);
     const n = sampleNormal(t);
     const side = i % 2 ? -1 : 1;
-    const light = new THREE.PointLight(warm ? 0xffca75 : 0x65e7ff, warm ? 2.4 : 2.1, 14, 2);
-    light.position.set(p.x + n.x * side * (riverWidthAt(t) + 2.8), 2.15 + Math.random() * 0.6, p.z + n.z * side * (riverWidthAt(t) + 2.8));
+    const bankX = p.x + n.x * side * (riverWidthAt(t) + 2.65);
+    const bankZ = p.z + n.z * side * (riverWidthAt(t) + 2.65);
+    makeLantern(new THREE.Vector3(bankX, 0.02, bankZ), warm ? 0xffbd66 : 0x55e4ff);
+    const light = new THREE.PointLight(warm ? 0xffca75 : 0x65e7ff, warm ? 3.4 : 2.7, 16, 2);
+    light.position.set(bankX, 1.5, bankZ);
     scene.add(light);
     caveLights.push(light);
 
     const glow = new THREE.Mesh(
-      new THREE.SphereGeometry(0.26, 18, 18),
-      new THREE.MeshBasicMaterial({ color: warm ? 0xffbf61 : 0x53dfff })
+      new THREE.SphereGeometry(0.18, 18, 18),
+      new THREE.MeshBasicMaterial({ color: warm ? 0xffbf61 : 0x53dfff, transparent: true, opacity: 0.9 })
     );
     glow.position.copy(light.position);
     scene.add(glow);
@@ -430,6 +432,36 @@ function addKenneyCaveAssets() {
   }
 }
 
+function makeLantern(position, color = 0xffb85c) {
+  const group = new THREE.Group();
+  const metal = new THREE.MeshStandardMaterial({ color: 0x283441, roughness: 0.42, metalness: 0.7 });
+  const glass = new THREE.MeshStandardMaterial({
+    color,
+    emissive: color,
+    emissiveIntensity: 1.9,
+    roughness: 0.18,
+    metalness: 0.05,
+    transparent: true,
+    opacity: 0.86
+  });
+  const post = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 1.2, 10), metal);
+  post.position.y = 0.55;
+  const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.22, 18, 14), glass);
+  lamp.position.y = 1.18;
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.14, 0.08, 10), metal);
+  cap.position.y = 1.42;
+  group.add(post, lamp, cap);
+  group.position.copy(position);
+  group.traverse((node) => {
+    if (node.isMesh) {
+      node.castShadow = true;
+      node.receiveShadow = true;
+    }
+  });
+  scene.add(group);
+  return group;
+}
+
 function makeRiver() {
   const shape = new THREE.Shape();
   const left = [];
@@ -447,23 +479,58 @@ function makeRiver() {
   right.reverse().forEach((p) => shape.lineTo(p.x, p.y));
   shape.closePath();
 
-  const waterTexture = makeWaterTexture();
-  waterTexture.wrapS = THREE.RepeatWrapping;
-  waterTexture.wrapT = THREE.RepeatWrapping;
-  waterTexture.repeat.set(2, 8);
+  waterUniforms = {
+    time: { value: 0 },
+    deepColor: { value: new THREE.Color(0x075985) },
+    shallowColor: { value: new THREE.Color(0x16c7d9) },
+    foamColor: { value: new THREE.Color(0xd8fbff) }
+  };
   river = new THREE.Mesh(
     new THREE.ShapeGeometry(shape),
-    new THREE.MeshPhysicalMaterial({
-      color: 0x0b83a5,
-      map: waterTexture,
-      roughness: 0.18,
-      metalness: 0.05,
-      transmission: 0.12,
-      thickness: 0.4,
-      clearcoat: 0.55,
-      clearcoatRoughness: 0.16,
-      emissive: 0x052c42,
-      emissiveIntensity: 0.6
+    new THREE.ShaderMaterial({
+      uniforms: waterUniforms,
+      transparent: false,
+      vertexShader: `
+        varying vec2 vUv;
+        varying vec3 vWorldPosition;
+        uniform float time;
+        void main() {
+          vUv = uv;
+          vec3 transformed = position;
+          transformed.z += sin(position.x * 0.7 + time * 1.8) * 0.035;
+          transformed.z += sin(position.y * 1.4 - time * 1.2) * 0.025;
+          vec4 worldPosition = modelMatrix * vec4(transformed, 1.0);
+          vWorldPosition = worldPosition.xyz;
+          gl_Position = projectionMatrix * viewMatrix * worldPosition;
+        }
+      `,
+      fragmentShader: `
+        varying vec2 vUv;
+        varying vec3 vWorldPosition;
+        uniform float time;
+        uniform vec3 deepColor;
+        uniform vec3 shallowColor;
+        uniform vec3 foamColor;
+
+        float waveLine(vec2 p, float speed, float scale, float width) {
+          float v = sin(p.x * scale + sin(p.y * 2.3 + time * 0.6) * 0.7 + time * speed);
+          return smoothstep(1.0 - width, 1.0, v);
+        }
+
+        void main() {
+          vec2 flow = vUv;
+          flow.y -= time * 0.08;
+          float current = sin(flow.y * 34.0 + sin(flow.x * 9.0) * 1.4 + time * 2.2);
+          float small = sin((flow.x + flow.y) * 58.0 - time * 3.4) * 0.5 + 0.5;
+          float caustic = waveLine(flow, 2.4, 28.0, 0.045) * 0.45;
+          caustic += waveLine(flow.yx + vec2(0.18, 0.0), -1.8, 22.0, 0.035) * 0.35;
+          float channel = smoothstep(0.02, 0.45, vUv.x) * (1.0 - smoothstep(0.55, 0.98, vUv.x));
+          vec3 color = mix(deepColor, shallowColor, 0.32 + 0.16 * current + 0.08 * small);
+          color += foamColor * caustic * channel;
+          color += vec3(0.02, 0.18, 0.22) * sin(time + vWorldPosition.z * 0.16);
+          gl_FragColor = vec4(color, 1.0);
+        }
+      `
     })
   );
   river.rotation.x = -Math.PI / 2;
@@ -471,25 +538,9 @@ function makeRiver() {
   river.receiveShadow = true;
   scene.add(river);
 
-  for (let i = 0; i < 72; i += 1) {
-    const t = i / 72;
-    const p = samplePath(t);
-    const ripple = new THREE.Mesh(
-      new THREE.TorusGeometry(0.58 + Math.random() * 0.4, 0.018, 6, 28),
-      new THREE.MeshBasicMaterial({ color: 0x99f6ff, transparent: true, opacity: 0.34 })
-    );
-    ripple.rotation.x = Math.PI / 2;
-    ripple.position.set(p.x + (Math.random() - 0.5) * 4.5, 0.035, p.z + (Math.random() - 0.5) * 1.8);
-    ripple.scale.x = 1.5;
-    ripple.userData.phase = Math.random() * Math.PI * 2;
-    ripple.userData.baseY = ripple.position.y;
-    ripples.push(ripple);
-    scene.add(ripple);
-  }
-
-  const foamMaterial = new THREE.MeshBasicMaterial({ color: 0xd8fbff, transparent: true, opacity: 0.38 });
-  for (let i = 0; i < 26; i += 1) {
-    const foam = new THREE.Mesh(new THREE.PlaneGeometry(0.9 + Math.random() * 0.9, 0.08), foamMaterial.clone());
+  const foamMaterial = new THREE.MeshBasicMaterial({ color: 0xd8fbff, transparent: true, opacity: 0.3, depthWrite: false });
+  for (let i = 0; i < 18; i += 1) {
+    const foam = new THREE.Mesh(new THREE.PlaneGeometry(1.2 + Math.random() * 1.6, 0.055), foamMaterial.clone());
     foam.rotation.x = -Math.PI / 2;
     foam.position.y = 0.055;
     foam.visible = false;
@@ -545,8 +596,9 @@ function makeBoat() {
   boy.visible = false;
 
   comicRider = makeComicRiderSprite();
-  comicRider.position.set(0, 1.12, -0.34);
+  comicRider.position.set(0, 0.72, -0.3);
   comicRider.rotation.x = -0.08;
+  comicRider.scale.set(1.2, 1.2, 1);
   boat.add(comicRider);
 
   const oarMaterial = new THREE.MeshStandardMaterial({ color: 0xd9ad73, roughness: 0.5 });
@@ -596,6 +648,8 @@ function addKenneyBoatAssets() {
     tintAsset(trueCharacter, 0x2d82ff, 0.18);
     boat.add(trueCharacter);
     boatRig.characterModel = trueCharacter;
+  } else if (comicRider) {
+    comicRider.visible = true;
   }
 
   boatRig.oars = [];
@@ -1551,9 +1605,9 @@ function updateRowingRig(time) {
     boy.position.y = 0.2 + Math.cos(time * 5.4) * rowPower * 0.012;
   }
   if (comicRider) {
-    comicRider.position.y = 1.12 + Math.cos(time * 5.4) * rowPower * 0.018;
+    comicRider.position.y = 0.72 + Math.cos(time * 5.4) * rowPower * 0.012;
     comicRider.rotation.z = stroke * rowPower * 0.035;
-    comicRider.scale.set(2.9 + Math.abs(stroke) * rowPower * 0.035, 2.9, 1);
+    comicRider.scale.set(1.2 + Math.abs(stroke) * rowPower * 0.02, 1.2, 1);
   }
   if (boatRig.characterModel) {
     boatRig.characterModel.rotation.x = -0.28 + stroke * rowPower * 0.08;
@@ -1588,11 +1642,9 @@ function updateCaveAmbience(time) {
 }
 
 function updateWater(dt, time) {
-  ripples.forEach((ripple, index) => {
-    ripple.position.y = ripple.userData.baseY + Math.sin(time * 2.1 + ripple.userData.phase) * 0.018;
-    ripple.rotation.z += dt * (0.18 + (index % 3) * 0.05);
-    ripple.material.opacity = 0.22 + Math.sin(time * 1.7 + ripple.userData.phase) * 0.1;
-  });
+  if (waterUniforms) {
+    waterUniforms.time.value = time;
+  }
 
   const p = samplePath(state.progress);
   const tangent = sampleTangent(state.progress);
@@ -1608,7 +1660,7 @@ function updateWater(dt, time) {
     );
     foam.rotation.z = Math.atan2(tangent.x, tangent.z);
     foam.visible = Math.abs(state.rowVelocity) > 0.01 && state.mode === "rowing";
-    foam.material.opacity = (1 - age) * Math.min(0.42, Math.abs(state.rowVelocity) * 7);
+    foam.material.opacity = (1 - age) * Math.min(0.28, Math.abs(state.rowVelocity) * 5);
   });
 }
 
