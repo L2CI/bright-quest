@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bright Quest - Treasure Map Prototype</title>
+    <link rel="stylesheet" href="treasure-quest.css" />
+  </head>
+  <body>
+    <main class="game-shell">
+      <section class="stage" aria-label="Pirate treasure game prototype">
+        <img class="scene" src="assets/treasure-islands.png" alt="" />
+        <div class="hud">
+          <div>
+            <p>Reward Game</p>
+            <h1>Pirate Treasure Map</h1>
+          </div>
+          <div class="meter">
+            <span id="timeText">02:00</span>
+            <small>quest time</small>
+          </div>
+          <div class="meter">
+            <span id="chestText">0</span>
+            <small>chests</small>
+          </div>
+        </div>
+
+        <div class="quest-path" aria-hidden="true">
+          <span class="dot dot-a"></span>
+          <span class="dot dot-b"></span>
+          <span class="dot dot-c"></span>
+          <span class="dot dot-d"></span>
+        </div>
+
+        <button class="choice choice-left selected" type="button" data-choice="left">
+          <strong id="leftAnswer">24</strong>
+          <span id="leftLabel">Open gold chest</span>
+        </button>
+        <button class="choice choice-right" type="button" data-choice="right">
+          <strong id="rightAnswer">36</strong>
+          <span id="rightLabel">Whirlpool trap</span>
+        </button>
+
+        <div class="hero-card" id="heroCard">
+          <div class="avatar-crop">
+            <img src="assets/pirate-avatar.png" alt="Pirate explorer avatar" />
+          </div>
+          <div class="speech">
+            <strong id="promptTitle">Choose the gate!</strong>
+            <span id="questionText">6 x 4 = ?</span>
+          </div>
+        </div>
+
+        <div class="treasure chest-one" aria-hidden="true">&starf;</div>
+        <div class="treasure chest-two" aria-hidden="true">&diams;</div>
+        <div class="whirlpool" aria-hidden="true"></div>
+        <div class="toast" id="gameToast" role="status" aria-live="polite"></div>
+
+        <footer class="controls" aria-label="Game controls">
+          <button class="arrow-button left-arrow active" id="leftControl" type="button" data-move="left" aria-label="Sail left"></button>
+          <button class="primary" type="button" id="pickButton">Pick 24</button>
+          <button class="arrow-button right-arrow" id="rightControl" type="button" data-move="right" aria-label="Sail right"></button>
+        </footer>
+      </section>
+
+      <aside class="design-notes">
+        <h2>Game direction</h2>
+        <p>
+          First playable reward-game prototype: character-led quest, scenic world,
+          touch-sized controls, answer gates, chests, and gentle feedback.
+        </p>
+      </aside>
+    </main>
+    <script src="treasure-quest.js"></script>
+  </body>
+</html>
