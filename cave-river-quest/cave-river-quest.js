@@ -66,7 +66,9 @@ const state = {
   finalOpened: false,
   gateOpening: 0,
   wrongPulse: 0,
-  lastSwish: 0
+  lastSwish: 0,
+  lastDrip: 0,
+  gateSoundPlayed: false
 };
 
 const el = {
@@ -102,6 +104,7 @@ let river;
 let chest;
 let relic;
 let guardian;
+let guardianSprite;
 let boatRig = {};
 let currentGate;
 let gateMeshes = [];
@@ -158,10 +161,18 @@ function initScene() {
 }
 
 function makeCave() {
-  const wallMaterial = new THREE.MeshStandardMaterial({ color: 0x172234, roughness: 0.96, metalness: 0.08 });
-  const rockMaterial = new THREE.MeshStandardMaterial({ color: 0x263a4d, roughness: 0.94 });
-  const darkRock = new THREE.MeshStandardMaterial({ color: 0x101c2c, roughness: 1 });
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(38, 86), new THREE.MeshStandardMaterial({ color: 0x0b1421, roughness: 1 }));
+  const rockTexture = makeRockTexture();
+  rockTexture.wrapS = THREE.RepeatWrapping;
+  rockTexture.wrapT = THREE.RepeatWrapping;
+  rockTexture.repeat.set(3, 5);
+  const wallMaterial = new THREE.MeshStandardMaterial({ color: 0x1b2b3f, map: rockTexture, roughness: 0.96, metalness: 0.08 });
+  const rockMaterial = new THREE.MeshStandardMaterial({ color: 0x31475c, map: rockTexture, roughness: 0.94 });
+  const darkRock = new THREE.MeshStandardMaterial({ color: 0x142233, map: rockTexture, roughness: 1 });
+  const floorTexture = makeRockTexture(true);
+  floorTexture.wrapS = THREE.RepeatWrapping;
+  floorTexture.wrapT = THREE.RepeatWrapping;
+  floorTexture.repeat.set(5, 9);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(38, 86), new THREE.MeshStandardMaterial({ color: 0x0e1a2a, map: floorTexture, roughness: 1 }));
   floor.rotation.x = -Math.PI / 2;
   floor.position.y = -0.18;
   floor.receiveShadow = true;
@@ -231,10 +242,15 @@ function makeRiver() {
   right.reverse().forEach((p) => shape.lineTo(p.x, p.y));
   shape.closePath();
 
+  const waterTexture = makeWaterTexture();
+  waterTexture.wrapS = THREE.RepeatWrapping;
+  waterTexture.wrapT = THREE.RepeatWrapping;
+  waterTexture.repeat.set(2, 8);
   river = new THREE.Mesh(
     new THREE.ShapeGeometry(shape),
     new THREE.MeshPhysicalMaterial({
       color: 0x0b83a5,
+      map: waterTexture,
       roughness: 0.18,
       metalness: 0.05,
       transmission: 0.12,
@@ -685,9 +701,265 @@ function roundedRect(ctx, x, y, width, height, radius) {
   ctx.closePath();
 }
 
+function makeCanvasTexture(size, painter) {
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d");
+  painter(ctx, size);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 4;
+  return texture;
+}
+
+function makeRockTexture(darker = false) {
+  return makeCanvasTexture(512, (ctx, size) => {
+    const base = ctx.createLinearGradient(0, 0, size, size);
+    base.addColorStop(0, darker ? "#101725" : "#24344a");
+    base.addColorStop(0.55, darker ? "#182638" : "#31465d");
+    base.addColorStop(1, darker ? "#0a101a" : "#152233");
+    ctx.fillStyle = base;
+    ctx.fillRect(0, 0, size, size);
+
+    for (let i = 0; i < 80; i += 1) {
+      const x = Math.random() * size;
+      const y = Math.random() * size;
+      const r = 18 + Math.random() * 72;
+      ctx.fillStyle = `rgba(${darker ? 70 : 120}, ${darker ? 95 : 145}, ${darker ? 120 : 170}, ${0.04 + Math.random() * 0.08})`;
+      ctx.beginPath();
+      ctx.ellipse(x, y, r, r * (0.35 + Math.random() * 0.5), Math.random() * Math.PI, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 34; i += 1) {
+      ctx.strokeStyle = `rgba(0, 0, 0, ${0.12 + Math.random() * 0.18})`;
+      ctx.beginPath();
+      const y = Math.random() * size;
+      ctx.moveTo(-30, y);
+      for (let x = 0; x < size + 40; x += 52) {
+        ctx.lineTo(x, y + Math.sin(x * 0.035 + i) * (8 + Math.random() * 20));
+      }
+      ctx.stroke();
+    }
+
+    for (let i = 0; i < 22; i += 1) {
+      const x = Math.random() * size;
+      const y = Math.random() * size;
+      const color = i % 3 === 0 ? "rgba(72, 221, 255, 0.32)" : "rgba(255, 180, 92, 0.22)";
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(x, y - 16);
+      ctx.lineTo(x + 14, y + 8);
+      ctx.lineTo(x - 10, y + 16);
+      ctx.closePath();
+      ctx.fill();
+    }
+  });
+}
+
+function makeWaterTexture() {
+  return makeCanvasTexture(512, (ctx, size) => {
+    const base = ctx.createLinearGradient(0, 0, size, size);
+    base.addColorStop(0, "#0ec8e7");
+    base.addColorStop(0.45, "#087999");
+    base.addColorStop(1, "#043d68");
+    ctx.fillStyle = base;
+    ctx.fillRect(0, 0, size, size);
+
+    for (let i = 0; i < 38; i += 1) {
+      ctx.strokeStyle = `rgba(221, 255, 255, ${0.12 + Math.random() * 0.22})`;
+      ctx.lineWidth = 2 + Math.random() * 5;
+      ctx.beginPath();
+      const y = Math.random() * size;
+      ctx.moveTo(-20, y);
+      for (let x = 0; x < size + 40; x += 34) {
+        ctx.lineTo(x, y + Math.sin(x * 0.04 + i) * (8 + Math.random() * 14));
+      }
+      ctx.stroke();
+    }
+
+    const glow = ctx.createRadialGradient(size * 0.5, size * 0.45, 20, size * 0.5, size * 0.45, size * 0.55);
+    glow.addColorStop(0, "rgba(126, 249, 255, 0.32)");
+    glow.addColorStop(1, "rgba(126, 249, 255, 0)");
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, size, size);
+  });
+}
+
+function makeMetalTexture() {
+  return makeCanvasTexture(512, (ctx, size) => {
+    const base = ctx.createLinearGradient(0, 0, size, size);
+    base.addColorStop(0, "#9aa7b8");
+    base.addColorStop(0.42, "#4f5c6d");
+    base.addColorStop(1, "#1b232d");
+    ctx.fillStyle = base;
+    ctx.fillRect(0, 0, size, size);
+
+    for (let i = 0; i < 80; i += 1) {
+      ctx.strokeStyle = `rgba(255, 255, 255, ${0.05 + Math.random() * 0.16})`;
+      ctx.lineWidth = 1 + Math.random() * 2;
+      ctx.beginPath();
+      const x = Math.random() * size;
+      const y = Math.random() * size;
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + 30 + Math.random() * 120, y + Math.random() * 24 - 12);
+      ctx.stroke();
+    }
+
+    for (let i = 0; i < 28; i += 1) {
+      ctx.fillStyle = `rgba(0, 0, 0, ${0.08 + Math.random() * 0.14})`;
+      ctx.beginPath();
+      ctx.arc(Math.random() * size, Math.random() * size, 5 + Math.random() * 15, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+}
+
+function makeWoodTexture() {
+  return makeCanvasTexture(512, (ctx, size) => {
+    const base = ctx.createLinearGradient(0, 0, size, 0);
+    base.addColorStop(0, "#6b351c");
+    base.addColorStop(0.45, "#c47632");
+    base.addColorStop(1, "#4a2414");
+    ctx.fillStyle = base;
+    ctx.fillRect(0, 0, size, size);
+
+    for (let i = 0; i < 28; i += 1) {
+      ctx.strokeStyle = `rgba(55, 24, 10, ${0.16 + Math.random() * 0.22})`;
+      ctx.lineWidth = 3 + Math.random() * 7;
+      ctx.beginPath();
+      const y = (i / 28) * size + Math.random() * 12;
+      ctx.moveTo(0, y);
+      for (let x = 0; x <= size; x += 36) {
+        ctx.lineTo(x, y + Math.sin(x * 0.035 + i) * 12);
+      }
+      ctx.stroke();
+    }
+
+    for (let i = 0; i < 18; i += 1) {
+      ctx.strokeStyle = "rgba(255, 225, 155, 0.18)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      const y = Math.random() * size;
+      ctx.moveTo(0, y);
+      ctx.lineTo(size, y + Math.random() * 18 - 9);
+      ctx.stroke();
+    }
+  });
+}
+
+function makeGoldTexture() {
+  return makeCanvasTexture(512, (ctx, size) => {
+    const base = ctx.createLinearGradient(0, 0, size, size);
+    base.addColorStop(0, "#fff2a8");
+    base.addColorStop(0.28, "#ffd15c");
+    base.addColorStop(0.58, "#d4891f");
+    base.addColorStop(1, "#7a3c00");
+    ctx.fillStyle = base;
+    ctx.fillRect(0, 0, size, size);
+
+    for (let i = 0; i < 36; i += 1) {
+      ctx.strokeStyle = `rgba(255,255,255,${0.12 + Math.random() * 0.22})`;
+      ctx.lineWidth = 2 + Math.random() * 5;
+      ctx.beginPath();
+      const x = Math.random() * size;
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x + Math.random() * 90 - 45, size);
+      ctx.stroke();
+    }
+  });
+}
+
+function makeGuardianSprite() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 1024;
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, 1024, 1024);
+
+  const aura = ctx.createRadialGradient(512, 430, 40, 512, 430, 430);
+  aura.addColorStop(0, "rgba(126,249,255,0.45)");
+  aura.addColorStop(0.5, "rgba(40,119,255,0.18)");
+  aura.addColorStop(1, "rgba(40,119,255,0)");
+  ctx.fillStyle = aura;
+  ctx.fillRect(0, 0, 1024, 1024);
+
+  drawGuardianPart(ctx, "#b8c7d8", "#516273", [[392, 210], [632, 210], [680, 340], [620, 430], [404, 430], [344, 340]]);
+  drawGuardianPart(ctx, "#2d7cff", "#0b327a", [[310, 400], [505, 332], [505, 612], [285, 660], [230, 520]]);
+  drawGuardianPart(ctx, "#e94d5f", "#7a1d29", [[519, 332], [714, 400], [794, 520], [739, 660], [519, 612]]);
+  drawGuardianPart(ctx, "#dce8f6", "#6a7b8f", [[420, 180], [604, 180], [646, 250], [610, 336], [414, 336], [378, 250]]);
+
+  ctx.fillStyle = "#09101d";
+  ctx.beginPath();
+  ctx.moveTo(436, 260);
+  ctx.lineTo(494, 280);
+  ctx.lineTo(494, 304);
+  ctx.lineTo(436, 292);
+  ctx.closePath();
+  ctx.moveTo(588, 260);
+  ctx.lineTo(530, 280);
+  ctx.lineTo(530, 304);
+  ctx.lineTo(588, 292);
+  ctx.closePath();
+  ctx.fill();
+
+  const chestGlow = ctx.createRadialGradient(512, 486, 12, 512, 486, 90);
+  chestGlow.addColorStop(0, "#ffffff");
+  chestGlow.addColorStop(0.35, "#7df9ff");
+  chestGlow.addColorStop(1, "rgba(125,249,255,0)");
+  ctx.fillStyle = chestGlow;
+  ctx.fillRect(420, 394, 184, 184);
+  drawGuardianPart(ctx, "#ffd15c", "#8a4f08", [[512, 412], [590, 486], [512, 560], [434, 486]]);
+
+  drawGuardianPart(ctx, "#2d7cff", "#0b327a", [[230, 500], [330, 540], [295, 830], [190, 790]]);
+  drawGuardianPart(ctx, "#e94d5f", "#7a1d29", [[794, 500], [694, 540], [729, 830], [834, 790]]);
+  drawGuardianPart(ctx, "#b8c7d8", "#516273", [[385, 640], [492, 640], [470, 910], [340, 910]]);
+  drawGuardianPart(ctx, "#b8c7d8", "#516273", [[532, 640], [639, 640], [684, 910], [554, 910]]);
+
+  ctx.strokeStyle = "rgba(255,255,255,0.5)";
+  ctx.lineWidth = 10;
+  ctx.beginPath();
+  ctx.moveTo(390, 230);
+  ctx.lineTo(512, 170);
+  ctx.lineTo(634, 230);
+  ctx.stroke();
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 4;
+  const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false, opacity: 0.96 });
+  return new THREE.Sprite(material);
+}
+
+function drawGuardianPart(ctx, fillA, fillB, points) {
+  const grad = ctx.createLinearGradient(0, 0, 1024, 1024);
+  grad.addColorStop(0, fillA);
+  grad.addColorStop(1, fillB);
+  ctx.fillStyle = grad;
+  ctx.strokeStyle = "rgba(4, 10, 22, 0.85)";
+  ctx.lineWidth = 14;
+  ctx.beginPath();
+  points.forEach(([x, y], index) => {
+    if (index === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.strokeStyle = "rgba(255,255,255,0.28)";
+  ctx.lineWidth = 5;
+  ctx.stroke();
+}
+
 function makeGates() {
-  const metal = new THREE.MeshStandardMaterial({ color: 0x485466, roughness: 0.38, metalness: 0.86 });
-  const darkMetal = new THREE.MeshStandardMaterial({ color: 0x222a35, roughness: 0.5, metalness: 0.88 });
+  const metalTexture = makeMetalTexture();
+  metalTexture.wrapS = THREE.RepeatWrapping;
+  metalTexture.wrapT = THREE.RepeatWrapping;
+  metalTexture.repeat.set(2, 2);
+  const metal = new THREE.MeshStandardMaterial({ color: 0x667389, map: metalTexture, roughness: 0.34, metalness: 0.88 });
+  const darkMetal = new THREE.MeshStandardMaterial({ color: 0x2e3642, map: metalTexture, roughness: 0.46, metalness: 0.9 });
   const glow = new THREE.MeshStandardMaterial({ color: 0xffd15c, emissive: 0xff9900, emissiveIntensity: 1.1, roughness: 0.28 });
   gateProgress.forEach((t, index) => {
     const p = samplePath(t);
@@ -745,12 +1017,15 @@ function makeGates() {
 
 function makeTreasureVault() {
   const p = samplePath(0.93);
+  const stoneTexture = makeRockTexture(true);
+  const woodTexture = makeWoodTexture();
+  const goldTexture = makeGoldTexture();
   chest = new THREE.Group();
   chest.position.set(p.x, 0.34, p.z);
   chest.rotation.y = -0.3;
   const dais = new THREE.Mesh(
     new THREE.CylinderGeometry(2.6, 3.1, 0.5, 9),
-    new THREE.MeshStandardMaterial({ color: 0x2f4053, roughness: 0.72, metalness: 0.18 })
+    new THREE.MeshStandardMaterial({ color: 0x3d5166, map: stoneTexture, roughness: 0.72, metalness: 0.18 })
   );
   dais.position.set(p.x, 0.05, p.z);
   dais.castShadow = true;
@@ -759,11 +1034,11 @@ function makeTreasureVault() {
 
   const base = new THREE.Mesh(
     new THREE.BoxGeometry(2.1, 1, 1.35),
-    new THREE.MeshStandardMaterial({ color: 0xb46a25, roughness: 0.55 })
+    new THREE.MeshStandardMaterial({ color: 0xb46a25, map: woodTexture, roughness: 0.5, metalness: 0.04 })
   );
   const lid = new THREE.Mesh(
     new THREE.BoxGeometry(2.18, 0.46, 1.42),
-    new THREE.MeshStandardMaterial({ color: 0xffc247, roughness: 0.38, metalness: 0.2 })
+    new THREE.MeshStandardMaterial({ color: 0xffc247, map: goldTexture, roughness: 0.32, metalness: 0.38 })
   );
   lid.position.y = 0.7;
   base.castShadow = true;
@@ -793,6 +1068,10 @@ function makeTreasureVault() {
   guardian.position.set(p.x + 4.2, -2, p.z - 2.2);
   guardian.rotation.y = -0.45;
   makeGuardianBody(guardian);
+  guardianSprite = makeGuardianSprite();
+  guardianSprite.position.set(0, 2.75, -0.35);
+  guardianSprite.scale.set(4.2, 4.2, 1);
+  guardian.add(guardianSprite);
   scene.add(guardian);
 }
 
@@ -882,6 +1161,7 @@ function update(dt, time) {
     light.intensity = 1 + Math.sin(time * 2.2 + index) * 0.22;
   });
   updateWater(dt, time);
+  updateCaveAmbience(time);
 
   if (state.mode === "rowing") {
     const nextGate = gateProgress[state.questionIndex];
@@ -901,11 +1181,16 @@ function update(dt, time) {
   }
 
   if (state.mode === "gate-open" && currentGate) {
+    if (!state.gateSoundPlayed) {
+      state.gateSoundPlayed = true;
+      playGateOpeningSound();
+    }
     state.gateOpening += dt * 1.4;
     currentGate.position.y = easeOut(Math.min(state.gateOpening, 1)) * 3.8;
     if (state.gateOpening >= 1) {
       state.mode = "rowing";
       state.gateOpening = 0;
+      state.gateSoundPlayed = false;
       state.questionIndex += 1;
       currentGate = null;
       el.gateCount.textContent = `${state.questionIndex}/5`;
@@ -922,6 +1207,10 @@ function update(dt, time) {
     relic.rotation.y += dt * 2.6;
     guardian.position.y = Math.min(guardian.position.y + dt * 1.6, 0);
     guardian.rotation.y = -0.45 + Math.sin(time * 2) * 0.03;
+    if (guardianSprite) {
+      guardianSprite.position.y = 2.75 + Math.sin(time * 2.4) * 0.06;
+      guardianSprite.material.opacity = 0.94 + Math.sin(time * 3) * 0.06;
+    }
   }
 
   updateBoatTransform(time);
@@ -945,6 +1234,10 @@ function updateBoatTransform(time = 0) {
 
   if (river?.material) {
     river.material.emissiveIntensity = 0.6 + Math.sin(time * 1.8) * 0.12;
+    if (river.material.map) {
+      river.material.map.offset.y -= dt * 0.08;
+      river.material.map.offset.x = Math.sin(time * 0.25) * 0.02;
+    }
   }
 }
 
@@ -988,6 +1281,13 @@ function updateMovement(dt, time) {
   if ((Math.abs(state.rowVelocity) > 0.012 || Math.abs(state.steer) > 0.2) && time - state.lastSwish > 0.55) {
     state.lastSwish = time;
     playWaterSwish(Math.min(1, Math.abs(state.rowVelocity) * 18 + Math.abs(state.steer) * 0.25));
+  }
+}
+
+function updateCaveAmbience(time) {
+  if (time - state.lastDrip > 4.2 + Math.sin(time * 0.21) * 1.4) {
+    state.lastDrip = time;
+    playCaveDrip();
   }
 }
 
@@ -1043,12 +1343,11 @@ function answerQuestion(answer) {
   if (answer !== q.correct) {
     el.feedback.textContent = "Not that one. Try again, captain.";
     state.wrongPulse = 1;
-    playTone(110, 0.16, "square");
+    playWrongClank();
     return;
   }
   el.feedback.textContent = "Correct. Gate opening.";
-  playTone(523, 0.12, "sine");
-  playTone(784, 0.18, "triangle", 0.08);
+  playCorrectChime();
   setTimeout(() => {
     el.questionPanel.classList.add("hidden");
     el.hint.textContent = "Gate open. Keep rowing through the glowing river.";
@@ -1066,6 +1365,7 @@ function openFinalChest() {
   playTone(196, 0.18, "triangle");
   playTone(392, 0.22, "triangle", 0.12);
   playTone(659, 0.28, "sine", 0.24);
+  playRelicReveal();
   speakGuardian();
 }
 
@@ -1132,6 +1432,115 @@ function playWaterSwish(power = 0.5) {
   gain.connect(audioContext.destination);
   source.start();
   source.stop(audioContext.currentTime + duration);
+}
+
+function playCaveDrip() {
+  if (!state.sound) return;
+  primeAudio();
+  const now = audioContext.currentTime;
+  [720, 530].forEach((freq, index) => {
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(freq, now + index * 0.08);
+    oscillator.frequency.exponentialRampToValueAtTime(freq * 0.58, now + index * 0.08 + 0.26);
+    gain.gain.setValueAtTime(0.0001, now + index * 0.08);
+    gain.gain.exponentialRampToValueAtTime(index === 0 ? 0.035 : 0.022, now + index * 0.08 + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.08 + 0.34);
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+    oscillator.start(now + index * 0.08);
+    oscillator.stop(now + index * 0.08 + 0.36);
+  });
+}
+
+function playGateOpeningSound() {
+  if (!state.sound) return;
+  primeAudio();
+  const now = audioContext.currentTime;
+  const duration = 1.25;
+  const sampleRate = audioContext.sampleRate;
+  const buffer = audioContext.createBuffer(1, Math.floor(sampleRate * duration), sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < data.length; i += 1) {
+    const t = i / data.length;
+    data[i] = (Math.random() * 2 - 1) * (1 - t) * 0.7;
+  }
+  const source = audioContext.createBufferSource();
+  const filter = audioContext.createBiquadFilter();
+  const gain = audioContext.createGain();
+  source.buffer = buffer;
+  filter.type = "lowpass";
+  filter.frequency.setValueAtTime(260, now);
+  filter.frequency.linearRampToValueAtTime(880, now + duration);
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.16, now + 0.08);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+  source.connect(filter);
+  filter.connect(gain);
+  gain.connect(audioContext.destination);
+  source.start(now);
+  source.stop(now + duration);
+
+  [88, 132, 176].forEach((freq, index) => {
+    const oscillator = audioContext.createOscillator();
+    const toneGain = audioContext.createGain();
+    oscillator.type = "sawtooth";
+    oscillator.frequency.setValueAtTime(freq, now + index * 0.04);
+    oscillator.frequency.linearRampToValueAtTime(freq * 1.35, now + duration);
+    toneGain.gain.setValueAtTime(0.0001, now);
+    toneGain.gain.exponentialRampToValueAtTime(0.035, now + 0.12);
+    toneGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    oscillator.connect(toneGain);
+    toneGain.connect(audioContext.destination);
+    oscillator.start(now + index * 0.04);
+    oscillator.stop(now + duration);
+  });
+}
+
+function playWrongClank() {
+  if (!state.sound) return;
+  primeAudio();
+  const now = audioContext.currentTime;
+  [92, 137, 211].forEach((freq, index) => {
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    oscillator.type = "square";
+    oscillator.frequency.value = freq;
+    gain.gain.setValueAtTime(0.0001, now + index * 0.035);
+    gain.gain.exponentialRampToValueAtTime(0.08, now + index * 0.035 + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.035 + 0.18);
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+    oscillator.start(now + index * 0.035);
+    oscillator.stop(now + index * 0.035 + 0.2);
+  });
+}
+
+function playCorrectChime() {
+  playTone(523, 0.12, "sine");
+  playTone(784, 0.18, "triangle", 0.08);
+  playTone(1046, 0.16, "sine", 0.18);
+}
+
+function playRelicReveal() {
+  if (!state.sound) return;
+  primeAudio();
+  const now = audioContext.currentTime;
+  [196, 247, 392, 659].forEach((freq, index) => {
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    oscillator.type = index < 2 ? "triangle" : "sine";
+    oscillator.frequency.setValueAtTime(freq, now + index * 0.12);
+    oscillator.frequency.linearRampToValueAtTime(freq * 1.08, now + 2.6);
+    gain.gain.setValueAtTime(0.0001, now + index * 0.12);
+    gain.gain.exponentialRampToValueAtTime(index < 2 ? 0.055 : 0.035, now + index * 0.12 + 0.18);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.8);
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+    oscillator.start(now + index * 0.12);
+    oscillator.stop(now + 2.9);
+  });
 }
 
 function playBaritoneBed() {
