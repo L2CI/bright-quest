@@ -143,6 +143,7 @@ let foamTrails = [];
 let audioContext;
 let gltfLoader;
 let assetLibrary = {};
+const ASSET_LOAD_TIMEOUT_MS = 4500;
 
 async function boot() {
   try {
@@ -164,6 +165,7 @@ async function boot() {
     FilmPass = modules[5].FilmPass;
     GLTFLoader = modules[6].GLTFLoader;
     gltfLoader = new GLTFLoader();
+    gltfLoader.setCrossOrigin("anonymous");
     window.__caveQuestBoot.stage = "loading-assets";
     assetLibrary = await loadKenneyAssets();
     window.__caveQuestBoot.stage = "initializing-scene";
@@ -191,10 +193,10 @@ async function boot() {
 
 function initScene() {
   scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x123350, 0.024);
+  scene.fog = new THREE.FogExp2(0x1c4564, 0.014);
 
-  camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 120);
-  camera.position.set(0, 5.6, 11);
+  camera = new THREE.PerspectiveCamera(58, window.innerWidth / window.innerHeight, 0.1, 140);
+  camera.position.set(0, 7.2, 14);
 
   renderer = new THREE.WebGLRenderer({ canvas: el.canvas, antialias: true, alpha: false });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -204,12 +206,12 @@ function initScene() {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.2;
-  renderer.setClearColor(0x123350);
+  renderer.setClearColor(0x1c4564);
 
-  const ambient = new THREE.HemisphereLight(0xc7f7ff, 0x162b3d, 2.05);
+  const ambient = new THREE.HemisphereLight(0xe4fbff, 0x23394c, 2.75);
   scene.add(ambient);
 
-  const moon = new THREE.DirectionalLight(0xd8fbff, 2.2);
+  const moon = new THREE.DirectionalLight(0xecfdff, 2.85);
   moon.position.set(-6, 9, 7);
   moon.castShadow = true;
   moon.shadow.mapSize.set(2048, 2048);
@@ -233,9 +235,9 @@ function initPostProcessing() {
   composer.addPass(renderPass);
 
   ssaoPass = new SSAOPass(scene, camera, window.innerWidth, window.innerHeight);
-  ssaoPass.kernelRadius = 14;
-  ssaoPass.minDistance = 0.004;
-  ssaoPass.maxDistance = 0.12;
+  ssaoPass.kernelRadius = 8;
+  ssaoPass.minDistance = 0.006;
+  ssaoPass.maxDistance = 0.065;
   composer.addPass(ssaoPass);
 
   bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.2, 0.4, 0.8);
@@ -244,14 +246,14 @@ function initPostProcessing() {
   bloomPass.radius = 0.4;
   composer.addPass(bloomPass);
 
-  filmPass = new FilmPass(0.22, 0.18, 648, false);
+  filmPass = new FilmPass(0.08, 0.08, 648, false);
   composer.addPass(filmPass);
 }
 
 async function loadKenneyAssets() {
   const entries = await Promise.all(Object.entries(ASSET_URLS).map(async ([key, url]) => {
     try {
-      const gltf = await loadGltf(url);
+      const gltf = await withTimeout(loadGltf(url), ASSET_LOAD_TIMEOUT_MS, key);
       const root = gltf.scene;
       prepareAsset(root);
       return [key, root];
@@ -261,6 +263,14 @@ async function loadKenneyAssets() {
     }
   }));
   return Object.fromEntries(entries);
+}
+
+function withTimeout(promise, ms, label) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = window.setTimeout(() => reject(new Error(`Timed out loading asset: ${label}`)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => window.clearTimeout(timer));
 }
 
 function loadGltf(url) {
@@ -274,10 +284,11 @@ function prepareAsset(root) {
     if (node.isMesh) {
       node.castShadow = true;
       node.receiveShadow = true;
-      if (node.material) {
-        node.material.roughness = Math.min(node.material.roughness ?? 0.65, 0.72);
-        node.material.needsUpdate = true;
-      }
+      const materials = Array.isArray(node.material) ? node.material : [node.material];
+      materials.filter(Boolean).forEach((material) => {
+        if ("roughness" in material) material.roughness = Math.min(material.roughness ?? 0.65, 0.72);
+        material.needsUpdate = true;
+      });
     }
   });
 }
@@ -359,22 +370,27 @@ function makeCave() {
 
 function addKenneyCaveAssets() {
   const corridorKeys = ["corridor", "corridorCorner"];
-  for (let i = 0; i < 9; i += 1) {
-    const model = cloneAsset(corridorKeys[i % corridorKeys.length]);
-    if (!model) continue;
-    const t = 0.08 + i * 0.105;
-    const p = samplePath(t);
-    const tangent = sampleTangent(t);
-    model.position.set(p.x, -0.15, p.z);
-    model.rotation.y = Math.atan2(tangent.x, tangent.z);
-    model.scale.setScalar(2.25);
-    model.traverse((node) => {
-      if (node.isMesh && node.material) {
-        node.material.color?.lerp(new THREE.Color(0x5f7f96), 0.45);
-        node.material.needsUpdate = true;
-      }
+  for (let i = 0; i < 10; i += 1) {
+    [-1, 1].forEach((side) => {
+      const model = cloneAsset(corridorKeys[i % corridorKeys.length]);
+      if (!model) return;
+      const t = 0.06 + i * 0.092;
+      const p = samplePath(t);
+      const tangent = sampleTangent(t);
+      const normal = sampleNormal(t);
+      model.position.set(p.x + normal.x * side * 8.4, -0.55, p.z + normal.z * side * 8.4);
+      model.rotation.y = Math.atan2(tangent.x, tangent.z) + side * 0.5;
+      model.scale.setScalar(0.58);
+      model.traverse((node) => {
+        if (!node.isMesh) return;
+        const materials = Array.isArray(node.material) ? node.material : [node.material];
+        materials.filter(Boolean).forEach((material) => {
+          if (material.color) material.color.lerp(new THREE.Color(0x7897aa), 0.35);
+          material.needsUpdate = true;
+        });
+      });
+      scene.add(model);
     });
-    scene.add(model);
   }
 
   const rockKeys = ["rocksA", "rocksB", "rocksC"];
@@ -385,9 +401,9 @@ function addKenneyCaveAssets() {
     const p = samplePath(t);
     const n = sampleNormal(t);
     const side = i % 2 === 0 ? -1 : 1;
-    model.position.set(p.x + n.x * side * (4.2 + Math.random() * 1.8), 0.05, p.z + n.z * side * (4.2 + Math.random() * 1.8));
+    model.position.set(p.x + n.x * side * (5.6 + Math.random() * 2.1), -0.35, p.z + n.z * side * (5.6 + Math.random() * 2.1));
     model.rotation.y = Math.random() * Math.PI;
-    model.scale.setScalar(1.2 + Math.random() * 1.2);
+    model.scale.setScalar(0.42 + Math.random() * 0.28);
     scene.add(model);
   }
 }
@@ -544,17 +560,17 @@ function addKenneyBoatAssets() {
   });
 
   trueBoat.visible = true;
-  trueBoat.position.set(0, 0.32, 0);
+  trueBoat.position.set(0, 0.22, 0);
   trueBoat.rotation.y = Math.PI;
-  trueBoat.scale.setScalar(1.75);
+  trueBoat.scale.setScalar(1.08);
   boat.add(trueBoat);
 
   const trueCharacter = cloneAsset("character");
   if (trueCharacter) {
     trueCharacter.visible = true;
-    trueCharacter.position.set(0, 0.86, -0.18);
+    trueCharacter.position.set(0, 0.66, -0.12);
     trueCharacter.rotation.set(-0.28, Math.PI, 0);
-    trueCharacter.scale.setScalar(0.42);
+    trueCharacter.scale.setScalar(0.18);
     tintAsset(trueCharacter, 0x2d82ff, 0.18);
     boat.add(trueCharacter);
     boatRig.characterModel = trueCharacter;
@@ -565,9 +581,9 @@ function addKenneyBoatAssets() {
     const paddle = cloneAsset("paddle");
     if (!paddle) return;
     paddle.visible = true;
-    paddle.position.set(side * 0.45, 0.84, -0.04);
+    paddle.position.set(side * 0.5, 0.58, -0.04);
     paddle.rotation.set(0.08, side * 0.55, side * 0.9);
-    paddle.scale.setScalar(1.35);
+    paddle.scale.setScalar(0.52);
     boat.add(paddle);
     boatRig.oars.push({ group: paddle, side });
   });
@@ -576,9 +592,12 @@ function addKenneyBoatAssets() {
 function tintAsset(root, color, amount = 0.2) {
   const target = new THREE.Color(color);
   root.traverse((node) => {
-    if (node.isMesh && node.material?.color) {
-      node.material.color.lerp(target, amount);
-      node.material.needsUpdate = true;
+    if (node.isMesh) {
+      const materials = Array.isArray(node.material) ? node.material : [node.material];
+      materials.filter(Boolean).forEach((material) => {
+        if (material.color) material.color.lerp(target, amount);
+        material.needsUpdate = true;
+      });
     }
   });
 }
@@ -1231,9 +1250,9 @@ function makeGates() {
       group.children.forEach((child) => {
         if (child !== gateLight) child.visible = false;
       });
-      trueGate.position.set(0, 0.06, 0);
+      trueGate.position.set(0, -0.12, 0);
       trueGate.rotation.y = Math.PI;
-      trueGate.scale.setScalar(2.2);
+      trueGate.scale.setScalar(1.05);
       group.add(trueGate);
     }
 
@@ -1275,9 +1294,9 @@ function makeTreasureVault() {
   if (trueChest) {
     base.visible = false;
     lid.visible = false;
-    trueChest.position.set(0, -0.15, 0);
+    trueChest.position.set(0, -0.28, 0);
     trueChest.rotation.y = Math.PI;
-    trueChest.scale.setScalar(1.65);
+    trueChest.scale.setScalar(0.95);
     chest.add(trueChest);
   }
   scene.add(chest);
@@ -1463,10 +1482,10 @@ function updateBoatTransform(time = 0, dt = 0) {
   boat.rotation.x = state.rowVelocity * 1.3 + Math.sin(time * 3.8) * 0.018;
   updateRowingRig(time);
 
-  const camBack = window.innerWidth < 720 ? 8.2 : 9.5;
-  const camHeight = window.innerWidth < 720 ? 5.4 : 6.5;
-  camera.position.lerp(new THREE.Vector3(p.x - tangent.x * camBack + normal.x * sideOffset * 0.35, camHeight, p.z - tangent.z * camBack + normal.z * sideOffset * 0.35), 0.075);
-  camera.lookAt(p.x + normal.x * sideOffset * 0.35, 1.16, p.z + tangent.z * 1.2);
+  const camBack = window.innerWidth < 720 ? 10.2 : 12.8;
+  const camHeight = window.innerWidth < 720 ? 6.6 : 8.2;
+  camera.position.lerp(new THREE.Vector3(p.x - tangent.x * camBack + normal.x * sideOffset * 0.22, camHeight, p.z - tangent.z * camBack + normal.z * sideOffset * 0.22), 0.075);
+  camera.lookAt(p.x + normal.x * sideOffset * 0.22, 1.02, p.z + tangent.z * 4.4);
 
   if (river?.material) {
     river.material.emissiveIntensity = 0.6 + Math.sin(time * 1.8) * 0.12;
@@ -1484,7 +1503,7 @@ function updateRowingRig(time) {
     group.rotation.x = 0.16 + stroke * rowPower * 0.2;
     group.rotation.y = side * (0.1 + stroke * rowPower * 0.1);
     group.rotation.z = side * (0.42 + stroke * rowPower * 0.36);
-    group.position.y = 0.86 + Math.cos(time * 6.2) * rowPower * 0.025;
+    group.position.y = 0.62 + Math.cos(time * 6.2) * rowPower * 0.02;
   });
   boatRig.arms?.forEach(({ group, side }) => {
     group.rotation.z = side * (-0.58 + stroke * rowPower * 0.32);
@@ -1501,7 +1520,7 @@ function updateRowingRig(time) {
   }
   if (boatRig.characterModel) {
     boatRig.characterModel.rotation.x = -0.28 + stroke * rowPower * 0.08;
-    boatRig.characterModel.position.y = 0.86 + Math.cos(time * 5.4) * rowPower * 0.018;
+    boatRig.characterModel.position.y = 0.66 + Math.cos(time * 5.4) * rowPower * 0.014;
   }
 }
 
