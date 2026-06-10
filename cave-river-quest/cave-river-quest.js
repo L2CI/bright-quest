@@ -5,6 +5,7 @@ const BLOOM_PASS_URL = "./vendor/examples/jsm/postprocessing/UnrealBloomPass.js"
 const SSAO_PASS_URL = "./vendor/examples/jsm/postprocessing/SSAOPass.js";
 const FILM_PASS_URL = "./vendor/examples/jsm/postprocessing/FilmPass.js";
 const GLTF_LOADER_URL = "./vendor/examples/jsm/loaders/GLTFLoader.js";
+const BUILD_ID = "8f0f873-scale-fix";
 
 const ASSET_URLS = {
   character: "./assets/poly-pizza/boy-zsky-stylized-character.glb",
@@ -143,7 +144,7 @@ const ASSET_LOAD_TIMEOUT_MS = 4500;
 
 async function boot() {
   try {
-    window.__caveQuestBoot = { ok: false, stage: "loading-modules" };
+    window.__caveQuestBoot = { ok: false, stage: "loading-modules", build: BUILD_ID };
     const modules = await Promise.all([
       import(THREE_URL),
       import(EFFECT_COMPOSER_URL),
@@ -177,12 +178,13 @@ async function boot() {
         ssao: Boolean(ssaoPass),
         film: Boolean(filmPass)
       },
-      assets: Object.keys(assetLibrary).filter((key) => assetLibrary[key]).length
+      assets: Object.keys(assetLibrary).filter((key) => assetLibrary[key]).length,
+      build: BUILD_ID
     };
     requestAnimationFrame(loop);
   } catch (error) {
     console.error(error);
-    window.__caveQuestBoot = { ok: false, stage: "failed", message: error?.message || String(error) };
+    window.__caveQuestBoot = { ok: false, stage: "failed", message: error?.message || String(error), build: BUILD_ID };
     el.fallback.classList.remove("hidden");
   }
 }
