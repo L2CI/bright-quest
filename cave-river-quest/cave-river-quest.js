@@ -12,8 +12,6 @@ const ASSET_URLS = {
   paddle: "./assets/kenney/pirate/tool-paddle.glb",
   chest: "./assets/kenney/pirate/chest.glb",
   gate: "./assets/kenney/dungeon/gate-metal-bars.glb",
-  corridor: "./assets/kenney/dungeon/corridor-wide.glb",
-  corridorCorner: "./assets/kenney/dungeon/corridor-wide-corner.glb",
   rocksA: "./assets/kenney/pirate/rocks-a.glb",
   rocksB: "./assets/kenney/pirate/rocks-b.glb",
   rocksC: "./assets/kenney/pirate/rocks-c.glb"
@@ -193,7 +191,7 @@ async function boot() {
 
 function initScene() {
   scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x1c4564, 0.014);
+  scene.fog = new THREE.FogExp2(0x3a7894, 0.008);
 
   camera = new THREE.PerspectiveCamera(58, window.innerWidth / window.innerHeight, 0.1, 140);
   camera.position.set(0, 7.2, 14);
@@ -206,12 +204,12 @@ function initScene() {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.2;
-  renderer.setClearColor(0x1c4564);
+  renderer.setClearColor(0x3a7894);
 
-  const ambient = new THREE.HemisphereLight(0xe4fbff, 0x23394c, 2.75);
+  const ambient = new THREE.HemisphereLight(0xf4fdff, 0x45566a, 3.35);
   scene.add(ambient);
 
-  const moon = new THREE.DirectionalLight(0xecfdff, 2.85);
+  const moon = new THREE.DirectionalLight(0xfff4d2, 3.15);
   moon.position.set(-6, 9, 7);
   moon.castShadow = true;
   moon.shadow.mapSize.set(2048, 2048);
@@ -306,60 +304,91 @@ function makeCave() {
   rockTexture.wrapS = THREE.RepeatWrapping;
   rockTexture.wrapT = THREE.RepeatWrapping;
   rockTexture.repeat.set(3, 5);
-  const wallMaterial = new THREE.MeshStandardMaterial({ color: 0x1b2b3f, map: rockTexture, roughness: 0.96, metalness: 0.08 });
-  const rockMaterial = new THREE.MeshStandardMaterial({ color: 0x31475c, map: rockTexture, roughness: 0.94 });
-  const darkRock = new THREE.MeshStandardMaterial({ color: 0x142233, map: rockTexture, roughness: 1 });
+  const wallMaterial = new THREE.MeshStandardMaterial({
+    color: 0x54758a,
+    map: rockTexture,
+    roughness: 0.9,
+    metalness: 0.02,
+    emissive: 0x081827,
+    emissiveIntensity: 0.18
+  });
+  const rockMaterial = new THREE.MeshStandardMaterial({
+    color: 0x6d8799,
+    map: rockTexture,
+    roughness: 0.88,
+    metalness: 0.02
+  });
   const floorTexture = makeRockTexture(true);
   floorTexture.wrapS = THREE.RepeatWrapping;
   floorTexture.wrapT = THREE.RepeatWrapping;
   floorTexture.repeat.set(5, 9);
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(38, 86), new THREE.MeshStandardMaterial({ color: 0x1d3850, map: floorTexture, roughness: 0.92 }));
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(46, 98), new THREE.MeshStandardMaterial({ color: 0x3b6176, map: floorTexture, roughness: 0.9 }));
   floor.rotation.x = -Math.PI / 2;
-  floor.position.y = -0.18;
+  floor.position.y = -0.28;
   floor.receiveShadow = true;
   scene.add(floor);
 
-  for (let i = 0; i < 48; i += 1) {
+  const wallGeometry = new THREE.SphereGeometry(1, 18, 12);
+  for (let i = 0; i < 44; i += 1) {
+    const t = 0.02 + (i / 44) * 0.96;
+    const p = samplePath(t);
+    const n = sampleNormal(t);
     const side = i % 2 === 0 ? -1 : 1;
-    const z = 30 - i * 1.7;
-    const h = 3.6 + Math.sin(i * 1.9) * 0.8 + Math.random() * 1.4;
-    const rock = new THREE.Mesh(new THREE.ConeGeometry(1.5 + Math.random() * 1.2, h, 7), rockMaterial);
-    rock.position.set(side * (11.4 + Math.random() * 3.8), h * 0.5 - 0.2, z + Math.random() * 1.4);
-    rock.rotation.y = Math.random() * Math.PI;
+    const rock = new THREE.Mesh(wallGeometry, rockMaterial);
+    const distance = riverWidthAt(t) + 3.8 + Math.random() * 2.6;
+    const height = 1.8 + Math.random() * 1.8;
+    rock.position.set(p.x + n.x * side * distance, height * 0.45 - 0.18, p.z + n.z * side * distance);
+    rock.scale.set(2.6 + Math.random() * 2.2, height, 2.4 + Math.random() * 1.8);
+    rock.rotation.set(Math.random() * 0.25, Math.random() * Math.PI, Math.random() * 0.18);
     rock.castShadow = true;
     rock.receiveShadow = true;
     scene.add(rock);
   }
 
-  for (let i = 0; i < 36; i += 1) {
-    const side = i % 2 === 0 ? -1 : 1;
-    const tooth = new THREE.Mesh(new THREE.ConeGeometry(0.55 + Math.random() * 0.8, 2.2 + Math.random() * 2.8, 7), darkRock);
-    tooth.position.set(side * (3 + Math.random() * 8), 5.4 + Math.random() * 0.8, 30 - i * 2.25);
-    tooth.rotation.x = Math.PI;
-    tooth.castShadow = true;
-    scene.add(tooth);
-  }
-
-  const archGeometry = new THREE.TorusGeometry(14.2, 0.48, 9, 52, Math.PI);
-  for (let i = 0; i < 15; i += 1) {
+  const archGeometry = new THREE.TorusGeometry(15.8, 0.36, 14, 56, Math.PI);
+  for (let i = 0; i < 13; i += 1) {
     const arch = new THREE.Mesh(archGeometry, wallMaterial);
     arch.position.set(0, 1.2, 29 - i * 5.6);
     arch.rotation.set(Math.PI / 2, 0, Math.PI);
-    arch.scale.y = 0.7 + Math.sin(i) * 0.08;
+    arch.scale.set(1, 0.72 + Math.sin(i) * 0.06, 1);
     arch.castShadow = true;
+    arch.receiveShadow = true;
     scene.add(arch);
   }
 
-  for (let i = 0; i < 24; i += 1) {
+  const crystalMaterials = [
+    new THREE.MeshStandardMaterial({ color: 0x57e8ff, emissive: 0x16b9e8, emissiveIntensity: 1.5, roughness: 0.24, metalness: 0.05 }),
+    new THREE.MeshStandardMaterial({ color: 0xffd56e, emissive: 0xff9b2f, emissiveIntensity: 1.1, roughness: 0.34, metalness: 0.04 }),
+    new THREE.MeshStandardMaterial({ color: 0xb993ff, emissive: 0x784bff, emissiveIntensity: 1.0, roughness: 0.28, metalness: 0.04 })
+  ];
+  const crystalGeometry = new THREE.OctahedronGeometry(0.45, 1);
+  for (let i = 0; i < 28; i += 1) {
+    const t = 0.04 + (i / 28) * 0.9;
+    const p = samplePath(t);
+    const n = sampleNormal(t);
+    const side = i % 2 === 0 ? -1 : 1;
+    const crystal = new THREE.Mesh(crystalGeometry, crystalMaterials[i % crystalMaterials.length]);
+    crystal.position.set(p.x + n.x * side * (riverWidthAt(t) + 1.8 + Math.random() * 2.2), 0.28 + Math.random() * 1.4, p.z + n.z * side * (riverWidthAt(t) + 1.8 + Math.random() * 2.2));
+    crystal.scale.set(0.55 + Math.random() * 0.55, 0.9 + Math.random() * 1.0, 0.55 + Math.random() * 0.55);
+    crystal.rotation.set(Math.random() * 0.5, Math.random() * Math.PI, Math.random() * 0.5);
+    crystal.castShadow = true;
+    scene.add(crystal);
+  }
+
+  for (let i = 0; i < 22; i += 1) {
     const warm = i % 3 !== 0;
-    const light = new THREE.PointLight(warm ? 0xffc978 : 0x78e8ff, warm ? 1.8 : 2.0, 12, 2);
-    light.position.set((i % 2 ? -1 : 1) * (7.4 + Math.random() * 2.2), 2.2 + Math.random(), 28 - i * 3.1);
+    const t = 0.04 + (i / 22) * 0.92;
+    const p = samplePath(t);
+    const n = sampleNormal(t);
+    const side = i % 2 ? -1 : 1;
+    const light = new THREE.PointLight(warm ? 0xffca75 : 0x65e7ff, warm ? 2.4 : 2.1, 14, 2);
+    light.position.set(p.x + n.x * side * (riverWidthAt(t) + 2.8), 2.15 + Math.random() * 0.6, p.z + n.z * side * (riverWidthAt(t) + 2.8));
     scene.add(light);
     caveLights.push(light);
 
     const glow = new THREE.Mesh(
-      new THREE.SphereGeometry(0.2, 14, 14),
-      new THREE.MeshBasicMaterial({ color: warm ? 0xffb45c : 0x45d9ff })
+      new THREE.SphereGeometry(0.26, 18, 18),
+      new THREE.MeshBasicMaterial({ color: warm ? 0xffbf61 : 0x53dfff })
     );
     glow.position.copy(light.position);
     scene.add(glow);
@@ -369,41 +398,17 @@ function makeCave() {
 }
 
 function addKenneyCaveAssets() {
-  const corridorKeys = ["corridor", "corridorCorner"];
-  for (let i = 0; i < 10; i += 1) {
-    [-1, 1].forEach((side) => {
-      const model = cloneAsset(corridorKeys[i % corridorKeys.length]);
-      if (!model) return;
-      const t = 0.06 + i * 0.092;
-      const p = samplePath(t);
-      const tangent = sampleTangent(t);
-      const normal = sampleNormal(t);
-      model.position.set(p.x + normal.x * side * 8.4, -0.55, p.z + normal.z * side * 8.4);
-      model.rotation.y = Math.atan2(tangent.x, tangent.z) + side * 0.5;
-      model.scale.setScalar(0.58);
-      model.traverse((node) => {
-        if (!node.isMesh) return;
-        const materials = Array.isArray(node.material) ? node.material : [node.material];
-        materials.filter(Boolean).forEach((material) => {
-          if (material.color) material.color.lerp(new THREE.Color(0x7897aa), 0.35);
-          material.needsUpdate = true;
-        });
-      });
-      scene.add(model);
-    });
-  }
-
   const rockKeys = ["rocksA", "rocksB", "rocksC"];
-  for (let i = 0; i < 24; i += 1) {
+  for (let i = 0; i < 18; i += 1) {
     const model = cloneAsset(rockKeys[i % rockKeys.length]);
     if (!model) continue;
-    const t = 0.03 + (i / 24) * 0.94;
+    const t = 0.04 + (i / 18) * 0.9;
     const p = samplePath(t);
     const n = sampleNormal(t);
     const side = i % 2 === 0 ? -1 : 1;
-    model.position.set(p.x + n.x * side * (5.6 + Math.random() * 2.1), -0.35, p.z + n.z * side * (5.6 + Math.random() * 2.1));
+    model.position.set(p.x + n.x * side * (riverWidthAt(t) + 2.4 + Math.random() * 1.8), -0.4, p.z + n.z * side * (riverWidthAt(t) + 2.4 + Math.random() * 1.8));
     model.rotation.y = Math.random() * Math.PI;
-    model.scale.setScalar(0.42 + Math.random() * 0.28);
+    model.scale.setScalar(0.34 + Math.random() * 0.2);
     scene.add(model);
   }
 }
