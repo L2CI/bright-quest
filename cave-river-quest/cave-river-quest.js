@@ -101,6 +101,7 @@ let river;
 let chest;
 let relic;
 let guardian;
+let boatRig = {};
 let currentGate;
 let gateMeshes = [];
 let caveLights = [];
@@ -278,59 +279,198 @@ function makeRiver() {
 function makeBoat() {
   boat = new THREE.Group();
 
-  const hull = new THREE.Mesh(
-    new THREE.BoxGeometry(1.85, 0.46, 3.05),
-    new THREE.MeshStandardMaterial({ color: 0x8b4b2a, roughness: 0.62, metalness: 0.05 })
-  );
+  const hullMaterial = new THREE.MeshStandardMaterial({ color: 0x8b4b2a, roughness: 0.58, metalness: 0.04 });
+  const innerMaterial = new THREE.MeshStandardMaterial({ color: 0x5d321d, roughness: 0.72 });
+  const trimMaterial = new THREE.MeshStandardMaterial({ color: 0xf4c36b, roughness: 0.42, metalness: 0.18 });
+  const shadowMaterial = new THREE.MeshStandardMaterial({ color: 0x2e1b12, roughness: 0.9 });
+
+  const hull = new THREE.Mesh(makeBoatHullGeometry(), hullMaterial);
   hull.castShadow = true;
-  hull.position.y = 0.34;
+  hull.receiveShadow = true;
+  hull.position.y = 0.22;
   boat.add(hull);
 
-  const bow = new THREE.Mesh(
-    new THREE.ConeGeometry(0.94, 1.25, 4),
-    new THREE.MeshStandardMaterial({ color: 0xb66a35, roughness: 0.62, metalness: 0.06 })
-  );
-  bow.rotation.y = Math.PI / 4;
-  bow.rotation.x = Math.PI / 2;
-  bow.position.set(0, 0.35, -1.65);
-  bow.castShadow = true;
-  boat.add(bow);
+  const inner = new THREE.Mesh(new THREE.BoxGeometry(1.35, 0.18, 2.55), innerMaterial);
+  inner.position.set(0, 0.62, 0.02);
+  inner.castShadow = true;
+  boat.add(inner);
 
-  const trimMaterial = new THREE.MeshStandardMaterial({ color: 0xf4c36b, roughness: 0.42, metalness: 0.18 });
   [-1, 1].forEach((side) => {
-    const rail = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.16, 2.88), trimMaterial);
-    rail.position.set(side * 0.98, 0.72, 0.05);
+    const rail = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.16, 3.28), trimMaterial);
+    rail.position.set(side * 0.98, 0.78, 0);
     rail.castShadow = true;
     boat.add(rail);
   });
 
+  [-0.74, 0.12, 0.86].forEach((z) => {
+    const bench = new THREE.Mesh(new THREE.BoxGeometry(1.42, 0.13, 0.22), trimMaterial);
+    bench.position.set(0, 0.78, z);
+    bench.castShadow = true;
+    boat.add(bench);
+  });
+
+  for (let i = -2; i <= 2; i += 1) {
+    const rib = new THREE.Mesh(new THREE.BoxGeometry(1.42 - Math.abs(i) * 0.12, 0.08, 0.08), shadowMaterial);
+    rib.position.set(0, 0.56, i * 0.46);
+    rib.castShadow = true;
+    boat.add(rib);
+  }
+
   boy = new THREE.Group();
-  const skin = new THREE.MeshStandardMaterial({ color: 0xd79b65, roughness: 0.6 });
-  const shirt = new THREE.MeshStandardMaterial({ color: 0x2877ff, roughness: 0.62 });
-  const hair = new THREE.MeshStandardMaterial({ color: 0x2a1a12, roughness: 0.8 });
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.26, 18, 18), skin);
-  head.position.y = 1.14;
-  const cap = new THREE.Mesh(new THREE.SphereGeometry(0.28, 18, 8, 0, Math.PI * 2, 0, Math.PI / 2), hair);
-  cap.position.y = 1.2;
-  const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.23, 0.45, 8, 14), shirt);
-  body.position.y = 0.72;
-  const vest = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.28, 0.1), new THREE.MeshStandardMaterial({ color: 0xffd15c, roughness: 0.5 }));
-  vest.position.set(0, 0.8, -0.22);
-  boy.add(head, cap, body, vest);
-  boy.position.z = -0.1;
+  makeRowingBoy(boy);
+  boy.position.set(0, 0.2, -0.08);
   boat.add(boy);
 
-  const oarMaterial = new THREE.MeshStandardMaterial({ color: 0xf1d29b, roughness: 0.55 });
+  const oarMaterial = new THREE.MeshStandardMaterial({ color: 0xd9ad73, roughness: 0.5 });
+  const bladeMaterial = new THREE.MeshStandardMaterial({ color: 0xf1d29b, roughness: 0.48 });
+  boatRig.oars = [];
   [-1, 1].forEach((side) => {
-    const oar = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 2.6), oarMaterial);
-    oar.position.set(side * 0.92, 0.56, 0.15);
-    oar.rotation.y = side * 0.9;
+    const oar = new THREE.Group();
+    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 2.9, 10), oarMaterial);
+    shaft.rotation.z = Math.PI / 2;
+    const blade = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.08, 0.22), bladeMaterial);
+    blade.position.x = side * 1.48;
+    blade.scale.set(0.7, 1, 1.25);
+    blade.castShadow = true;
+    shaft.castShadow = true;
+    oar.add(shaft, blade);
+    oar.position.set(side * 0.22, 0.86, 0.02);
+    oar.rotation.set(0.16, 0, side * 0.42);
     oar.name = `oar-${side}`;
-    oar.castShadow = true;
     boat.add(oar);
+    boatRig.oars.push({ group: oar, side });
   });
 
   scene.add(boat);
+}
+
+function makeBoatHullGeometry() {
+  const vertices = new Float32Array([
+    0, 0.78, -1.85, -1.02, 0.62, -1.2, 1.02, 0.62, -1.2,
+    -1.02, 0.62, -1.2, -1.1, 0.52, 1.2, 1.1, 0.52, 1.2,
+    -1.02, 0.62, -1.2, 1.1, 0.52, 1.2, 1.02, 0.62, -1.2,
+    -1.1, 0.52, 1.2, 0, 0.7, 1.9, 1.1, 0.52, 1.2,
+    -0.58, 0.06, -1.05, 0.58, 0.06, -1.05, 0.7, 0.02, 1.05,
+    -0.58, 0.06, -1.05, 0.7, 0.02, 1.05, -0.7, 0.02, 1.05,
+    -1.02, 0.62, -1.2, -0.58, 0.06, -1.05, -0.7, 0.02, 1.05,
+    -1.02, 0.62, -1.2, -0.7, 0.02, 1.05, -1.1, 0.52, 1.2,
+    1.02, 0.62, -1.2, 1.1, 0.52, 1.2, 0.7, 0.02, 1.05,
+    1.02, 0.62, -1.2, 0.7, 0.02, 1.05, 0.58, 0.06, -1.05,
+    0, 0.78, -1.85, 1.02, 0.62, -1.2, 0.58, 0.06, -1.05,
+    0, 0.78, -1.85, 0.58, 0.06, -1.05, -0.58, 0.06, -1.05,
+    0, 0.78, -1.85, -0.58, 0.06, -1.05, -1.02, 0.62, -1.2,
+    -1.1, 0.52, 1.2, -0.7, 0.02, 1.05, 0.7, 0.02, 1.05,
+    -1.1, 0.52, 1.2, 0.7, 0.02, 1.05, 0, 0.7, 1.9,
+    0, 0.7, 1.9, 0.7, 0.02, 1.05, 1.1, 0.52, 1.2
+  ]);
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+function makeRowingBoy(group) {
+  const skin = new THREE.MeshStandardMaterial({ color: 0xd69a67, roughness: 0.62 });
+  const cheek = new THREE.MeshStandardMaterial({ color: 0xe8a176, roughness: 0.68 });
+  const shirt = new THREE.MeshStandardMaterial({ color: 0x2470d8, roughness: 0.58 });
+  const vestMat = new THREE.MeshStandardMaterial({ color: 0xffc83d, roughness: 0.5 });
+  const shorts = new THREE.MeshStandardMaterial({ color: 0x18345f, roughness: 0.66 });
+  const hair = new THREE.MeshStandardMaterial({ color: 0x2a1a12, roughness: 0.82 });
+  const eyeMat = new THREE.MeshBasicMaterial({ color: 0x101820 });
+  const shoeMat = new THREE.MeshStandardMaterial({ color: 0x1c2430, roughness: 0.7 });
+
+  const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.28, 0.56, 8, 18), shirt);
+  torso.position.set(0, 0.86, 0.02);
+  torso.scale.set(0.92, 1, 0.72);
+  torso.rotation.x = -0.18;
+  torso.castShadow = true;
+  group.add(torso);
+
+  const vest = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.48, 0.12), vestMat);
+  vest.position.set(0, 0.9, -0.22);
+  vest.rotation.x = -0.18;
+  vest.castShadow = true;
+  group.add(vest);
+
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.1, 0.16, 14), skin);
+  neck.position.set(0, 1.28, -0.01);
+  group.add(neck);
+
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.27, 28, 20), skin);
+  head.position.set(0, 1.52, -0.06);
+  head.scale.set(0.88, 1.08, 0.8);
+  head.castShadow = true;
+  group.add(head);
+
+  const hairCap = new THREE.Mesh(new THREE.SphereGeometry(0.275, 26, 10, 0, Math.PI * 2, 0, Math.PI / 2), hair);
+  hairCap.position.set(0, 1.61, -0.06);
+  hairCap.scale.set(0.94, 0.66, 0.86);
+  hairCap.castShadow = true;
+  group.add(hairCap);
+
+  const fringe = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.08, 0.08), hair);
+  fringe.position.set(0.02, 1.59, -0.27);
+  fringe.rotation.z = -0.18;
+  group.add(fringe);
+
+  [-1, 1].forEach((side) => {
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.026, 10, 8), eyeMat);
+    eye.position.set(side * 0.08, 1.53, -0.275);
+    eye.scale.set(1, 0.8, 0.45);
+    group.add(eye);
+
+    const ear = new THREE.Mesh(new THREE.SphereGeometry(0.042, 12, 8), skin);
+    ear.position.set(side * 0.235, 1.51, -0.05);
+    ear.scale.set(0.55, 0.85, 0.35);
+    group.add(ear);
+
+    const blush = new THREE.Mesh(new THREE.SphereGeometry(0.032, 10, 8), cheek);
+    blush.position.set(side * 0.12, 1.47, -0.285);
+    blush.scale.set(1.25, 0.5, 0.25);
+    group.add(blush);
+  });
+
+  const nose = new THREE.Mesh(new THREE.SphereGeometry(0.03, 10, 8), skin);
+  nose.position.set(0, 1.49, -0.3);
+  nose.scale.set(0.75, 1, 1.3);
+  group.add(nose);
+
+  const smile = new THREE.Mesh(new THREE.TorusGeometry(0.055, 0.006, 6, 18, Math.PI), new THREE.MeshBasicMaterial({ color: 0x7f3f2c }));
+  smile.position.set(0, 1.43, -0.292);
+  smile.rotation.set(Math.PI, 0, 0);
+  group.add(smile);
+
+  boatRig.arms = [];
+  [-1, 1].forEach((side) => {
+    const shoulder = new THREE.Group();
+    shoulder.position.set(side * 0.25, 1.02, -0.1);
+    shoulder.rotation.z = side * -0.58;
+    shoulder.rotation.x = -0.28;
+    const upper = new THREE.Mesh(new THREE.CapsuleGeometry(0.055, 0.34, 8, 12), shirt);
+    upper.position.y = -0.18;
+    upper.rotation.z = 0.05;
+    const forearm = new THREE.Mesh(new THREE.CapsuleGeometry(0.05, 0.34, 8, 12), skin);
+    forearm.position.set(side * 0.08, -0.45, -0.08);
+    forearm.rotation.z = side * 0.4;
+    const hand = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 10), skin);
+    hand.position.set(side * 0.16, -0.66, -0.12);
+    shoulder.add(upper, forearm, hand);
+    group.add(shoulder);
+    boatRig.arms.push({ group: shoulder, side });
+  });
+
+  [-1, 1].forEach((side) => {
+    const thigh = new THREE.Mesh(new THREE.CapsuleGeometry(0.075, 0.34, 8, 12), shorts);
+    thigh.position.set(side * 0.16, 0.5, 0.12);
+    thigh.rotation.set(1.05, 0, side * 0.12);
+    const calf = new THREE.Mesh(new THREE.CapsuleGeometry(0.06, 0.28, 8, 12), skin);
+    calf.position.set(side * 0.22, 0.42, -0.15);
+    calf.rotation.set(1.22, 0, side * 0.08);
+    const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.08, 0.24), shoeMat);
+    shoe.position.set(side * 0.24, 0.34, -0.36);
+    shoe.castShadow = true;
+    group.add(thigh, calf, shoe);
+  });
 }
 
 function makeGates() {
@@ -584,9 +724,7 @@ function updateBoatTransform(time = 0) {
   boat.rotation.y = Math.atan2(tangent.x, tangent.z) + state.steer * -0.16 + state.lateralVelocity * -0.08;
   boat.rotation.z = state.steer * -0.1 + Math.sin(time * 2.8) * 0.025;
   boat.rotation.x = state.rowVelocity * 1.3 + Math.sin(time * 3.8) * 0.018;
-  boat.children.forEach((child) => {
-    if (child.name && child.name.startsWith("oar")) child.rotation.x = Math.sin(time * 7.2) * (0.18 + Math.abs(state.rowVelocity) * 5.5);
-  });
+  updateRowingRig(time);
 
   const camBack = window.innerWidth < 720 ? 8.2 : 9.5;
   const camHeight = window.innerWidth < 720 ? 5.4 : 6.5;
@@ -595,6 +733,25 @@ function updateBoatTransform(time = 0) {
 
   if (river?.material) {
     river.material.emissiveIntensity = 0.6 + Math.sin(time * 1.8) * 0.12;
+  }
+}
+
+function updateRowingRig(time) {
+  const rowPower = Math.min(1, Math.abs(state.rowVelocity) * 20 + Math.abs(state.forwardInput) * 0.4);
+  const stroke = Math.sin(time * (4.4 + rowPower * 3.2));
+  boatRig.oars?.forEach(({ group, side }) => {
+    group.rotation.x = 0.16 + stroke * rowPower * 0.2;
+    group.rotation.y = side * (0.1 + stroke * rowPower * 0.1);
+    group.rotation.z = side * (0.42 + stroke * rowPower * 0.36);
+    group.position.y = 0.86 + Math.cos(time * 6.2) * rowPower * 0.025;
+  });
+  boatRig.arms?.forEach(({ group, side }) => {
+    group.rotation.z = side * (-0.58 + stroke * rowPower * 0.32);
+    group.rotation.x = -0.28 + Math.cos(time * 4.8) * rowPower * 0.16;
+  });
+  if (boy) {
+    boy.rotation.x = -0.05 + stroke * rowPower * 0.05;
+    boy.position.y = 0.2 + Math.cos(time * 5.4) * rowPower * 0.012;
   }
 }
 
