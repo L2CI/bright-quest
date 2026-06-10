@@ -4,6 +4,20 @@ const RENDER_PASS_URL = "./vendor/examples/jsm/postprocessing/RenderPass.js";
 const BLOOM_PASS_URL = "./vendor/examples/jsm/postprocessing/UnrealBloomPass.js";
 const SSAO_PASS_URL = "./vendor/examples/jsm/postprocessing/SSAOPass.js";
 const FILM_PASS_URL = "./vendor/examples/jsm/postprocessing/FilmPass.js";
+const GLTF_LOADER_URL = "./vendor/examples/jsm/loaders/GLTFLoader.js";
+
+const ASSET_URLS = {
+  boat: "./assets/kenney/pirate/boat-row-small.glb",
+  character: "./assets/kenney/blocky/character-a.glb",
+  paddle: "./assets/kenney/pirate/tool-paddle.glb",
+  chest: "./assets/kenney/pirate/chest.glb",
+  gate: "./assets/kenney/dungeon/gate-metal-bars.glb",
+  corridor: "./assets/kenney/dungeon/corridor-wide.glb",
+  corridorCorner: "./assets/kenney/dungeon/corridor-wide-corner.glb",
+  rocksA: "./assets/kenney/pirate/rocks-a.glb",
+  rocksB: "./assets/kenney/pirate/rocks-b.glb",
+  rocksC: "./assets/kenney/pirate/rocks-c.glb"
+};
 
 const questions = [
   {
@@ -104,6 +118,7 @@ let RenderPass;
 let UnrealBloomPass;
 let SSAOPass;
 let FilmPass;
+let GLTFLoader;
 let renderer;
 let composer;
 let bloomPass;
@@ -126,6 +141,8 @@ let caveLights = [];
 let ripples = [];
 let foamTrails = [];
 let audioContext;
+let gltfLoader;
+let assetLibrary = {};
 
 async function boot() {
   try {
@@ -136,7 +153,8 @@ async function boot() {
       import(RENDER_PASS_URL),
       import(BLOOM_PASS_URL),
       import(SSAO_PASS_URL),
-      import(FILM_PASS_URL)
+      import(FILM_PASS_URL),
+      import(GLTF_LOADER_URL)
     ]);
     THREE = modules[0];
     EffectComposer = modules[1].EffectComposer;
@@ -144,6 +162,10 @@ async function boot() {
     UnrealBloomPass = modules[3].UnrealBloomPass;
     SSAOPass = modules[4].SSAOPass;
     FilmPass = modules[5].FilmPass;
+    GLTFLoader = modules[6].GLTFLoader;
+    gltfLoader = new GLTFLoader();
+    window.__caveQuestBoot.stage = "loading-assets";
+    assetLibrary = await loadKenneyAssets();
     window.__caveQuestBoot.stage = "initializing-scene";
     initScene();
     bindInput();
@@ -156,7 +178,8 @@ async function boot() {
         bloom: Boolean(bloomPass),
         ssao: Boolean(ssaoPass),
         film: Boolean(filmPass)
-      }
+      },
+      assets: Object.keys(assetLibrary).filter((key) => assetLibrary[key]).length
     };
     requestAnimationFrame(loop);
   } catch (error) {
@@ -168,7 +191,7 @@ async function boot() {
 
 function initScene() {
   scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x06111e, 0.035);
+  scene.fog = new THREE.FogExp2(0x123350, 0.024);
 
   camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 120);
   camera.position.set(0, 5.6, 11);
@@ -181,12 +204,12 @@ function initScene() {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.2;
-  renderer.setClearColor(0x071523);
+  renderer.setClearColor(0x123350);
 
-  const ambient = new THREE.HemisphereLight(0x8fdfff, 0x090b13, 1.45);
+  const ambient = new THREE.HemisphereLight(0xc7f7ff, 0x162b3d, 2.05);
   scene.add(ambient);
 
-  const moon = new THREE.DirectionalLight(0xbbeeff, 1.85);
+  const moon = new THREE.DirectionalLight(0xd8fbff, 2.2);
   moon.position.set(-6, 9, 7);
   moon.castShadow = true;
   moon.shadow.mapSize.set(2048, 2048);
@@ -225,6 +248,48 @@ function initPostProcessing() {
   composer.addPass(filmPass);
 }
 
+async function loadKenneyAssets() {
+  const entries = await Promise.all(Object.entries(ASSET_URLS).map(async ([key, url]) => {
+    try {
+      const gltf = await loadGltf(url);
+      const root = gltf.scene;
+      prepareAsset(root);
+      return [key, root];
+    } catch (error) {
+      console.warn(`Kenney asset failed: ${key}`, error);
+      return [key, null];
+    }
+  }));
+  return Object.fromEntries(entries);
+}
+
+function loadGltf(url) {
+  return new Promise((resolve, reject) => {
+    gltfLoader.load(url, resolve, undefined, reject);
+  });
+}
+
+function prepareAsset(root) {
+  root.traverse((node) => {
+    if (node.isMesh) {
+      node.castShadow = true;
+      node.receiveShadow = true;
+      if (node.material) {
+        node.material.roughness = Math.min(node.material.roughness ?? 0.65, 0.72);
+        node.material.needsUpdate = true;
+      }
+    }
+  });
+}
+
+function cloneAsset(key) {
+  const asset = assetLibrary[key];
+  if (!asset) return null;
+  const clone = asset.clone(true);
+  prepareAsset(clone);
+  return clone;
+}
+
 function makeCave() {
   const rockTexture = makeRockTexture();
   rockTexture.wrapS = THREE.RepeatWrapping;
@@ -237,7 +302,7 @@ function makeCave() {
   floorTexture.wrapS = THREE.RepeatWrapping;
   floorTexture.wrapT = THREE.RepeatWrapping;
   floorTexture.repeat.set(5, 9);
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(38, 86), new THREE.MeshStandardMaterial({ color: 0x0e1a2a, map: floorTexture, roughness: 1 }));
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(38, 86), new THREE.MeshStandardMaterial({ color: 0x1d3850, map: floorTexture, roughness: 0.92 }));
   floor.rotation.x = -Math.PI / 2;
   floor.position.y = -0.18;
   floor.receiveShadow = true;
@@ -276,7 +341,7 @@ function makeCave() {
 
   for (let i = 0; i < 24; i += 1) {
     const warm = i % 3 !== 0;
-    const light = new THREE.PointLight(warm ? 0xffb45c : 0x45d9ff, warm ? 1.25 : 1.45, 9, 2);
+    const light = new THREE.PointLight(warm ? 0xffc978 : 0x78e8ff, warm ? 1.8 : 2.0, 12, 2);
     light.position.set((i % 2 ? -1 : 1) * (7.4 + Math.random() * 2.2), 2.2 + Math.random(), 28 - i * 3.1);
     scene.add(light);
     caveLights.push(light);
@@ -287,6 +352,43 @@ function makeCave() {
     );
     glow.position.copy(light.position);
     scene.add(glow);
+  }
+
+  addKenneyCaveAssets();
+}
+
+function addKenneyCaveAssets() {
+  const corridorKeys = ["corridor", "corridorCorner"];
+  for (let i = 0; i < 9; i += 1) {
+    const model = cloneAsset(corridorKeys[i % corridorKeys.length]);
+    if (!model) continue;
+    const t = 0.08 + i * 0.105;
+    const p = samplePath(t);
+    const tangent = sampleTangent(t);
+    model.position.set(p.x, -0.15, p.z);
+    model.rotation.y = Math.atan2(tangent.x, tangent.z);
+    model.scale.setScalar(2.25);
+    model.traverse((node) => {
+      if (node.isMesh && node.material) {
+        node.material.color?.lerp(new THREE.Color(0x5f7f96), 0.45);
+        node.material.needsUpdate = true;
+      }
+    });
+    scene.add(model);
+  }
+
+  const rockKeys = ["rocksA", "rocksB", "rocksC"];
+  for (let i = 0; i < 24; i += 1) {
+    const model = cloneAsset(rockKeys[i % rockKeys.length]);
+    if (!model) continue;
+    const t = 0.03 + (i / 24) * 0.94;
+    const p = samplePath(t);
+    const n = sampleNormal(t);
+    const side = i % 2 === 0 ? -1 : 1;
+    model.position.set(p.x + n.x * side * (4.2 + Math.random() * 1.8), 0.05, p.z + n.z * side * (4.2 + Math.random() * 1.8));
+    model.rotation.y = Math.random() * Math.PI;
+    model.scale.setScalar(1.2 + Math.random() * 1.2);
+    scene.add(model);
   }
 }
 
@@ -429,7 +531,56 @@ function makeBoat() {
     boatRig.oars.push({ group: oar, side });
   });
 
+  addKenneyBoatAssets();
   scene.add(boat);
+}
+
+function addKenneyBoatAssets() {
+  const trueBoat = cloneAsset("boat");
+  if (!trueBoat) return;
+
+  boat.children.forEach((child) => {
+    child.visible = false;
+  });
+
+  trueBoat.visible = true;
+  trueBoat.position.set(0, 0.32, 0);
+  trueBoat.rotation.y = Math.PI;
+  trueBoat.scale.setScalar(1.75);
+  boat.add(trueBoat);
+
+  const trueCharacter = cloneAsset("character");
+  if (trueCharacter) {
+    trueCharacter.visible = true;
+    trueCharacter.position.set(0, 0.86, -0.18);
+    trueCharacter.rotation.set(-0.28, Math.PI, 0);
+    trueCharacter.scale.setScalar(0.42);
+    tintAsset(trueCharacter, 0x2d82ff, 0.18);
+    boat.add(trueCharacter);
+    boatRig.characterModel = trueCharacter;
+  }
+
+  boatRig.oars = [];
+  [-1, 1].forEach((side) => {
+    const paddle = cloneAsset("paddle");
+    if (!paddle) return;
+    paddle.visible = true;
+    paddle.position.set(side * 0.45, 0.84, -0.04);
+    paddle.rotation.set(0.08, side * 0.55, side * 0.9);
+    paddle.scale.setScalar(1.35);
+    boat.add(paddle);
+    boatRig.oars.push({ group: paddle, side });
+  });
+}
+
+function tintAsset(root, color, amount = 0.2) {
+  const target = new THREE.Color(color);
+  root.traverse((node) => {
+    if (node.isMesh && node.material?.color) {
+      node.material.color.lerp(target, amount);
+      node.material.needsUpdate = true;
+    }
+  });
 }
 
 function makeBoatHullGeometry() {
@@ -1075,6 +1226,17 @@ function makeGates() {
     gateLight.position.set(0, 2.25, -0.65);
     group.add(gateLight);
 
+    const trueGate = cloneAsset("gate");
+    if (trueGate) {
+      group.children.forEach((child) => {
+        if (child !== gateLight) child.visible = false;
+      });
+      trueGate.position.set(0, 0.06, 0);
+      trueGate.rotation.y = Math.PI;
+      trueGate.scale.setScalar(2.2);
+      group.add(trueGate);
+    }
+
     scene.add(group);
     gateMeshes.push(group);
   });
@@ -1109,6 +1271,15 @@ function makeTreasureVault() {
   base.castShadow = true;
   lid.castShadow = true;
   chest.add(base, lid);
+  const trueChest = cloneAsset("chest");
+  if (trueChest) {
+    base.visible = false;
+    lid.visible = false;
+    trueChest.position.set(0, -0.15, 0);
+    trueChest.rotation.y = Math.PI;
+    trueChest.scale.setScalar(1.65);
+    chest.add(trueChest);
+  }
   scene.add(chest);
 
   const vaultLight = new THREE.PointLight(0x7df9ff, 2.2, 10, 2);
@@ -1328,6 +1499,10 @@ function updateRowingRig(time) {
     comicRider.rotation.z = stroke * rowPower * 0.035;
     comicRider.scale.set(2.9 + Math.abs(stroke) * rowPower * 0.035, 2.9, 1);
   }
+  if (boatRig.characterModel) {
+    boatRig.characterModel.rotation.x = -0.28 + stroke * rowPower * 0.08;
+    boatRig.characterModel.position.y = 0.86 + Math.cos(time * 5.4) * rowPower * 0.018;
+  }
 }
 
 function updateMovement(dt, time) {
@@ -1441,11 +1616,17 @@ function speakGuardian() {
   if (!state.sound || !("speechSynthesis" in window)) return;
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(line);
+  utterance.lang = "en-US";
   utterance.pitch = 0.38;
   utterance.rate = 0.64;
   utterance.volume = 1;
   const voices = window.speechSynthesis.getVoices();
-  utterance.voice = voices.find((voice) => /daniel|david|mark|george|male|english.*united kingdom|english.*australia/i.test(`${voice.name} ${voice.lang}`)) || voices[0] || null;
+  utterance.voice =
+    voices.find((voice) => /en-US/i.test(voice.lang) && /david|mark|guy|matthew|male|english/i.test(`${voice.name} ${voice.lang}`)) ||
+    voices.find((voice) => /en-US/i.test(voice.lang)) ||
+    voices.find((voice) => /david|mark|guy|matthew|male/i.test(voice.name)) ||
+    voices[0] ||
+    null;
   window.speechSynthesis.speak(utterance);
 }
 
