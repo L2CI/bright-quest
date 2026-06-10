@@ -268,59 +268,112 @@ a {
 .touch-controls {
   position: absolute;
   z-index: 12;
-  left: 50%;
+  right: max(18px, env(safe-area-inset-right));
   bottom: max(16px, env(safe-area-inset-bottom));
   display: grid;
-  grid-template-columns: 76px minmax(132px, 210px) 76px;
-  gap: 12px;
-  align-items: center;
-  padding: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 999px;
-  background: rgba(5, 15, 28, 0.58);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28);
-  transform: translateX(-50%);
-  backdrop-filter: blur(14px);
+  grid-template-columns: auto;
+  gap: 10px;
+  justify-items: center;
+  pointer-events: auto;
 }
 
 .touch-controls button {
-  min-height: 64px;
   border: 0;
   cursor: pointer;
 }
 
-.steer-button {
+.dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 64px);
+  grid-template-rows: repeat(3, 64px);
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 30px;
+  background:
+    linear-gradient(180deg, rgba(11, 31, 52, 0.72), rgba(5, 15, 28, 0.72)),
+    radial-gradient(circle at 50% 50%, rgba(53, 215, 255, 0.18), transparent 62%);
+  box-shadow: 0 22px 58px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+}
+
+.nav-button {
   position: relative;
   width: 64px;
+  min-height: 64px;
   border-radius: 999px;
   background:
     radial-gradient(circle at 30% 22%, rgba(255, 255, 255, 0.68), transparent 20%),
-    linear-gradient(135deg, #c9f6ff, var(--aqua) 60%, #2877ff);
+    linear-gradient(135deg, #e7fbff, var(--aqua) 56%, #2877ff);
   box-shadow: 0 16px 28px rgba(40, 119, 255, 0.3), inset 0 -5px 0 rgba(4, 35, 75, 0.24);
+  transition: transform 140ms ease, filter 140ms ease, box-shadow 140ms ease;
 }
 
-.steer-button::before {
+.nav-button::before {
   content: "";
   position: absolute;
-  left: 25px;
-  top: 21px;
+  left: 22px;
+  top: 22px;
   width: 18px;
   height: 18px;
   border-left: 7px solid #061322;
   border-bottom: 7px solid #061322;
+}
+
+.nav-button:active {
+  filter: brightness(1.08) saturate(1.1);
+  box-shadow: 0 10px 20px rgba(40, 119, 255, 0.24), inset 0 -3px 0 rgba(4, 35, 75, 0.24);
+}
+
+.nav-button.up {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.nav-button.left {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.nav-button.down {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.nav-button.right {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.nav-button.up::before {
+  transform: rotate(135deg);
+}
+
+.nav-button.left::before {
   transform: rotate(45deg);
 }
 
-.steer-button.right::before {
-  left: 19px;
+.nav-button.down::before {
+  transform: rotate(-45deg);
+}
+
+.nav-button.right::before {
+  left: 18px;
   transform: rotate(225deg);
 }
 
 .sound-button {
-  width: 100%;
-  min-height: 64px;
+  min-width: 148px;
+  min-height: 48px;
   padding: 0 18px;
   border-radius: 999px;
+  color: #061322;
+  background:
+    radial-gradient(circle at 24% 20%, rgba(255, 255, 255, 0.7), transparent 16%),
+    linear-gradient(135deg, #fff2a8, var(--gold) 52%, #ff9f43);
+  box-shadow: 0 16px 26px rgba(255, 177, 64, 0.22), inset 0 -5px 0 rgba(106, 66, 9, 0.18);
+  font-size: 0.94rem;
+  font-weight: 1000;
 }
 
 .fallback {
@@ -392,17 +445,40 @@ a {
   }
 
   .touch-controls {
-    width: calc(100vw - 18px);
-    grid-template-columns: 64px minmax(0, 1fr) 64px;
+    right: 10px;
+    bottom: max(10px, env(safe-area-inset-bottom));
     gap: 8px;
-    padding: 8px;
   }
 
-  .touch-controls button {
-    min-height: 58px;
+  .dpad {
+    grid-template-columns: repeat(3, 54px);
+    grid-template-rows: repeat(3, 54px);
+    gap: 6px;
+    padding: 9px;
+    border-radius: 24px;
   }
 
-  .steer-button {
-    width: 58px;
+  .nav-button {
+    width: 54px;
+    min-height: 54px;
+  }
+
+  .nav-button::before {
+    left: 18px;
+    top: 18px;
+    width: 16px;
+    height: 16px;
+    border-left-width: 6px;
+    border-bottom-width: 6px;
+  }
+
+  .nav-button.right::before {
+    left: 15px;
+  }
+
+  .sound-button {
+    min-width: 128px;
+    min-height: 44px;
+    font-size: 0.86rem;
   }
 }

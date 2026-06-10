@@ -39,29 +39,34 @@ const questions = [
 ];
 
 const pathPoints = [
-  { x: -9, z: 18 },
-  { x: -5, z: 12 },
-  { x: 4, z: 7 },
-  { x: 8, z: 0 },
-  { x: -3, z: -7 },
-  { x: -8, z: -14 },
-  { x: 0, z: -22 }
+  { x: -11, z: 28 },
+  { x: -6, z: 19 },
+  { x: 7, z: 11 },
+  { x: 11, z: 1 },
+  { x: -4, z: -10 },
+  { x: -11, z: -22 },
+  { x: 3, z: -34 },
+  { x: 10, z: -47 }
 ];
 
 const isFastQa = new URLSearchParams(window.location.search).get("qa") === "fast";
-const gateProgress = isFastQa ? [0.035, 0.07, 0.105, 0.14, 0.175] : [0.17, 0.32, 0.48, 0.64, 0.8];
+const gateProgress = isFastQa ? [0.035, 0.07, 0.105, 0.14, 0.175] : [0.13, 0.29, 0.46, 0.64, 0.81];
 
 const state = {
   progress: 0,
-  speed: isFastQa ? 0.18 : 0.032,
+  rowVelocity: 0,
+  forwardInput: 0,
   steer: 0,
+  lateralOffset: 0,
+  lateralVelocity: 0,
   questionIndex: 0,
   mode: "rowing",
   sound: true,
   lastTime: performance.now(),
   finalOpened: false,
   gateOpening: 0,
-  wrongPulse: 0
+  wrongPulse: 0,
+  lastSwish: 0
 };
 
 const el = {
@@ -80,6 +85,8 @@ const el = {
   guardianLine: document.querySelector("#guardianLine"),
   soundButton: document.querySelector("#soundButton"),
   fallback: document.querySelector("#fallbackNotice"),
+  forwardButton: document.querySelector("#forwardButton"),
+  backButton: document.querySelector("#backButton"),
   leftButton: document.querySelector("#leftButton"),
   rightButton: document.querySelector("#rightButton")
 };
@@ -97,6 +104,8 @@ let guardian;
 let currentGate;
 let gateMeshes = [];
 let caveLights = [];
+let ripples = [];
+let foamTrails = [];
 let audioContext;
 
 async function boot() {
@@ -123,14 +132,18 @@ function initScene() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.08;
   renderer.setClearColor(0x071523);
 
-  const ambient = new THREE.HemisphereLight(0x8fdfff, 0x090b13, 1.8);
+  const ambient = new THREE.HemisphereLight(0x8fdfff, 0x090b13, 1.45);
   scene.add(ambient);
 
-  const moon = new THREE.DirectionalLight(0xbbeeff, 1.5);
+  const moon = new THREE.DirectionalLight(0xbbeeff, 1.85);
   moon.position.set(-6, 9, 7);
   moon.castShadow = true;
+  moon.shadow.mapSize.set(2048, 2048);
   scene.add(moon);
 
   makeCave();
@@ -143,45 +156,56 @@ function initScene() {
 }
 
 function makeCave() {
-  const wallMaterial = new THREE.MeshStandardMaterial({ color: 0x172234, roughness: 0.95, metalness: 0.05 });
-  const rockMaterial = new THREE.MeshStandardMaterial({ color: 0x263a4d, roughness: 0.92 });
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(34, 54), new THREE.MeshStandardMaterial({ color: 0x0b1421, roughness: 1 }));
+  const wallMaterial = new THREE.MeshStandardMaterial({ color: 0x172234, roughness: 0.96, metalness: 0.08 });
+  const rockMaterial = new THREE.MeshStandardMaterial({ color: 0x263a4d, roughness: 0.94 });
+  const darkRock = new THREE.MeshStandardMaterial({ color: 0x101c2c, roughness: 1 });
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(38, 86), new THREE.MeshStandardMaterial({ color: 0x0b1421, roughness: 1 }));
   floor.rotation.x = -Math.PI / 2;
   floor.position.y = -0.18;
   floor.receiveShadow = true;
   scene.add(floor);
 
-  for (let i = 0; i < 28; i += 1) {
+  for (let i = 0; i < 48; i += 1) {
     const side = i % 2 === 0 ? -1 : 1;
-    const z = 20 - i * 1.7;
+    const z = 30 - i * 1.7;
     const h = 3.6 + Math.sin(i * 1.9) * 0.8 + Math.random() * 1.4;
     const rock = new THREE.Mesh(new THREE.ConeGeometry(1.5 + Math.random() * 1.2, h, 7), rockMaterial);
-    rock.position.set(side * (10.8 + Math.random() * 3), h * 0.5 - 0.2, z + Math.random() * 1.4);
+    rock.position.set(side * (11.4 + Math.random() * 3.8), h * 0.5 - 0.2, z + Math.random() * 1.4);
     rock.rotation.y = Math.random() * Math.PI;
     rock.castShadow = true;
     rock.receiveShadow = true;
     scene.add(rock);
   }
 
-  const archGeometry = new THREE.TorusGeometry(13.5, 0.42, 8, 42, Math.PI);
-  for (let i = 0; i < 9; i += 1) {
+  for (let i = 0; i < 36; i += 1) {
+    const side = i % 2 === 0 ? -1 : 1;
+    const tooth = new THREE.Mesh(new THREE.ConeGeometry(0.55 + Math.random() * 0.8, 2.2 + Math.random() * 2.8, 7), darkRock);
+    tooth.position.set(side * (3 + Math.random() * 8), 5.4 + Math.random() * 0.8, 30 - i * 2.25);
+    tooth.rotation.x = Math.PI;
+    tooth.castShadow = true;
+    scene.add(tooth);
+  }
+
+  const archGeometry = new THREE.TorusGeometry(14.2, 0.48, 9, 52, Math.PI);
+  for (let i = 0; i < 15; i += 1) {
     const arch = new THREE.Mesh(archGeometry, wallMaterial);
-    arch.position.set(0, 1.2, 18 - i * 5.2);
+    arch.position.set(0, 1.2, 29 - i * 5.6);
     arch.rotation.set(Math.PI / 2, 0, Math.PI);
     arch.scale.y = 0.7 + Math.sin(i) * 0.08;
     arch.castShadow = true;
     scene.add(arch);
   }
 
-  for (let i = 0; i < 16; i += 1) {
-    const light = new THREE.PointLight(i % 2 ? 0xffb45c : 0x45d9ff, 1.2, 8, 2);
-    light.position.set((i % 2 ? -1 : 1) * (7 + Math.random() * 2), 2.2 + Math.random(), 18 - i * 2.8);
+  for (let i = 0; i < 24; i += 1) {
+    const warm = i % 3 !== 0;
+    const light = new THREE.PointLight(warm ? 0xffb45c : 0x45d9ff, warm ? 1.25 : 1.45, 9, 2);
+    light.position.set((i % 2 ? -1 : 1) * (7.4 + Math.random() * 2.2), 2.2 + Math.random(), 28 - i * 3.1);
     scene.add(light);
     caveLights.push(light);
 
     const glow = new THREE.Mesh(
-      new THREE.SphereGeometry(0.16, 12, 12),
-      new THREE.MeshBasicMaterial({ color: i % 2 ? 0xffb45c : 0x45d9ff })
+      new THREE.SphereGeometry(0.2, 14, 14),
+      new THREE.MeshBasicMaterial({ color: warm ? 0xffb45c : 0x45d9ff })
     );
     glow.position.copy(light.position);
     scene.add(glow);
@@ -192,12 +216,13 @@ function makeRiver() {
   const shape = new THREE.Shape();
   const left = [];
   const right = [];
-  for (let i = 0; i <= 80; i += 1) {
-    const t = i / 80;
+  for (let i = 0; i <= 130; i += 1) {
+    const t = i / 130;
     const p = samplePath(t);
     const n = sampleNormal(t);
-    left.push(new THREE.Vector2(p.x + n.x * 3.2, -p.z - n.z * 3.2));
-    right.push(new THREE.Vector2(p.x - n.x * 3.2, -p.z + n.z * 3.2));
+    const width = riverWidthAt(t);
+    left.push(new THREE.Vector2(p.x + n.x * width, -p.z - n.z * width));
+    right.push(new THREE.Vector2(p.x - n.x * width, -p.z + n.z * width));
   }
   shape.moveTo(left[0].x, left[0].y);
   left.forEach((p) => shape.lineTo(p.x, p.y));
@@ -206,15 +231,25 @@ function makeRiver() {
 
   river = new THREE.Mesh(
     new THREE.ShapeGeometry(shape),
-    new THREE.MeshStandardMaterial({ color: 0x0b83a5, roughness: 0.28, metalness: 0.18, emissive: 0x052c42 })
+    new THREE.MeshPhysicalMaterial({
+      color: 0x0b83a5,
+      roughness: 0.18,
+      metalness: 0.05,
+      transmission: 0.12,
+      thickness: 0.4,
+      clearcoat: 0.55,
+      clearcoatRoughness: 0.16,
+      emissive: 0x052c42,
+      emissiveIntensity: 0.6
+    })
   );
   river.rotation.x = -Math.PI / 2;
   river.position.y = 0;
   river.receiveShadow = true;
   scene.add(river);
 
-  for (let i = 0; i < 42; i += 1) {
-    const t = i / 42;
+  for (let i = 0; i < 72; i += 1) {
+    const t = i / 72;
     const p = samplePath(t);
     const ripple = new THREE.Mesh(
       new THREE.TorusGeometry(0.58 + Math.random() * 0.4, 0.018, 6, 28),
@@ -223,7 +258,20 @@ function makeRiver() {
     ripple.rotation.x = Math.PI / 2;
     ripple.position.set(p.x + (Math.random() - 0.5) * 4.5, 0.035, p.z + (Math.random() - 0.5) * 1.8);
     ripple.scale.x = 1.5;
+    ripple.userData.phase = Math.random() * Math.PI * 2;
+    ripple.userData.baseY = ripple.position.y;
+    ripples.push(ripple);
     scene.add(ripple);
+  }
+
+  const foamMaterial = new THREE.MeshBasicMaterial({ color: 0xd8fbff, transparent: true, opacity: 0.38 });
+  for (let i = 0; i < 26; i += 1) {
+    const foam = new THREE.Mesh(new THREE.PlaneGeometry(0.9 + Math.random() * 0.9, 0.08), foamMaterial.clone());
+    foam.rotation.x = -Math.PI / 2;
+    foam.position.y = 0.055;
+    foam.visible = false;
+    foamTrails.push(foam);
+    scene.add(foam);
   }
 }
 
@@ -231,22 +279,30 @@ function makeBoat() {
   boat = new THREE.Group();
 
   const hull = new THREE.Mesh(
-    new THREE.BoxGeometry(1.75, 0.5, 2.7),
-    new THREE.MeshStandardMaterial({ color: 0x8b4b2a, roughness: 0.72 })
+    new THREE.BoxGeometry(1.85, 0.46, 3.05),
+    new THREE.MeshStandardMaterial({ color: 0x8b4b2a, roughness: 0.62, metalness: 0.05 })
   );
   hull.castShadow = true;
   hull.position.y = 0.34;
   boat.add(hull);
 
   const bow = new THREE.Mesh(
-    new THREE.ConeGeometry(0.88, 1.1, 4),
-    new THREE.MeshStandardMaterial({ color: 0xb66a35, roughness: 0.7 })
+    new THREE.ConeGeometry(0.94, 1.25, 4),
+    new THREE.MeshStandardMaterial({ color: 0xb66a35, roughness: 0.62, metalness: 0.06 })
   );
   bow.rotation.y = Math.PI / 4;
   bow.rotation.x = Math.PI / 2;
   bow.position.set(0, 0.35, -1.65);
   bow.castShadow = true;
   boat.add(bow);
+
+  const trimMaterial = new THREE.MeshStandardMaterial({ color: 0xf4c36b, roughness: 0.42, metalness: 0.18 });
+  [-1, 1].forEach((side) => {
+    const rail = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.16, 2.88), trimMaterial);
+    rail.position.set(side * 0.98, 0.72, 0.05);
+    rail.castShadow = true;
+    boat.add(rail);
+  });
 
   boy = new THREE.Group();
   const skin = new THREE.MeshStandardMaterial({ color: 0xd79b65, roughness: 0.6 });
@@ -258,7 +314,9 @@ function makeBoat() {
   cap.position.y = 1.2;
   const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.23, 0.45, 8, 14), shirt);
   body.position.y = 0.72;
-  boy.add(head, cap, body);
+  const vest = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.28, 0.1), new THREE.MeshStandardMaterial({ color: 0xffd15c, roughness: 0.5 }));
+  vest.position.set(0, 0.8, -0.22);
+  boy.add(head, cap, body, vest);
   boy.position.z = -0.1;
   boat.add(boy);
 
@@ -276,8 +334,9 @@ function makeBoat() {
 }
 
 function makeGates() {
-  const metal = new THREE.MeshStandardMaterial({ color: 0x596577, roughness: 0.5, metalness: 0.75 });
-  const glow = new THREE.MeshStandardMaterial({ color: 0xffd15c, emissive: 0x8a4f08, roughness: 0.32 });
+  const metal = new THREE.MeshStandardMaterial({ color: 0x485466, roughness: 0.38, metalness: 0.86 });
+  const darkMetal = new THREE.MeshStandardMaterial({ color: 0x222a35, roughness: 0.5, metalness: 0.88 });
+  const glow = new THREE.MeshStandardMaterial({ color: 0xffd15c, emissive: 0xff9900, emissiveIntensity: 1.1, roughness: 0.28 });
   gateProgress.forEach((t, index) => {
     const p = samplePath(t);
     const n = sampleNormal(t);
@@ -287,29 +346,45 @@ function makeGates() {
     group.position.set(p.x, 0, p.z);
     group.rotation.y = Math.atan2(n.x, n.z);
 
-    const top = new THREE.Mesh(new THREE.BoxGeometry(6.4, 0.38, 0.38), metal);
-    top.position.y = 2.72;
+    const arch = new THREE.Mesh(new THREE.TorusGeometry(3.2, 0.18, 8, 36, Math.PI), darkMetal);
+    arch.position.y = 2.16;
+    arch.rotation.z = Math.PI;
+    arch.castShadow = true;
+    group.add(arch);
+
+    const top = new THREE.Mesh(new THREE.BoxGeometry(6.7, 0.42, 0.48), metal);
+    top.position.y = 2.62;
     top.castShadow = true;
     group.add(top);
 
     [-2.8, 2.8].forEach((x) => {
-      const post = new THREE.Mesh(new THREE.BoxGeometry(0.42, 3.5, 0.42), metal);
+      const post = new THREE.Mesh(new THREE.BoxGeometry(0.48, 3.55, 0.52), metal);
       post.position.set(x, 1.35, 0);
       post.castShadow = true;
       group.add(post);
     });
 
-    for (let i = -2; i <= 2; i += 1) {
-      const bar = new THREE.Mesh(new THREE.BoxGeometry(0.18, 2.6, 0.18), metal);
-      bar.position.set(i * 0.85, 1.4, 0);
+    for (let i = -3; i <= 3; i += 1) {
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(0.16, 2.58, 0.18), i % 2 ? metal : darkMetal);
+      bar.position.set(i * 0.62, 1.34, 0);
       bar.castShadow = true;
       group.add(bar);
     }
 
-    const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.36), glow);
+    const sign = new THREE.Mesh(new THREE.BoxGeometry(1.45, 0.46, 0.14), glow);
+    sign.position.y = 2.06;
+    sign.position.z = -0.25;
+    sign.castShadow = true;
+    group.add(sign);
+
+    const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.4), glow);
     gem.position.y = 3.15;
     gem.castShadow = true;
     group.add(gem);
+
+    const gateLight = new THREE.PointLight(0xffb14d, 1.4, 7, 2);
+    gateLight.position.set(0, 2.25, -0.65);
+    group.add(gateLight);
 
     scene.add(group);
     gateMeshes.push(group);
@@ -321,6 +396,15 @@ function makeTreasureVault() {
   chest = new THREE.Group();
   chest.position.set(p.x, 0.34, p.z);
   chest.rotation.y = -0.3;
+  const dais = new THREE.Mesh(
+    new THREE.CylinderGeometry(2.6, 3.1, 0.5, 9),
+    new THREE.MeshStandardMaterial({ color: 0x2f4053, roughness: 0.72, metalness: 0.18 })
+  );
+  dais.position.set(p.x, 0.05, p.z);
+  dais.castShadow = true;
+  dais.receiveShadow = true;
+  scene.add(dais);
+
   const base = new THREE.Mesh(
     new THREE.BoxGeometry(2.1, 1, 1.35),
     new THREE.MeshStandardMaterial({ color: 0xb46a25, roughness: 0.55 })
@@ -334,6 +418,10 @@ function makeTreasureVault() {
   lid.castShadow = true;
   chest.add(base, lid);
   scene.add(chest);
+
+  const vaultLight = new THREE.PointLight(0x7df9ff, 2.2, 10, 2);
+  vaultLight.position.set(p.x, 2.1, p.z + 0.5);
+  scene.add(vaultLight);
 
   relic = new THREE.Group();
   const relicCore = new THREE.Mesh(
@@ -389,19 +477,37 @@ function makeGuardianBody(group) {
 }
 
 function bindInput() {
-  const setSteer = (value) => {
-    state.steer = value;
+  const hold = (button, onDown, onUp) => {
+    button.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      button.setPointerCapture?.(event.pointerId);
+      onDown();
+      primeAudio();
+    });
+    button.addEventListener("pointerup", onUp);
+    button.addEventListener("pointercancel", onUp);
+    button.addEventListener("pointerleave", onUp);
   };
 
-  el.leftButton.addEventListener("pointerdown", () => setSteer(-1));
-  el.rightButton.addEventListener("pointerdown", () => setSteer(1));
-  window.addEventListener("pointerup", () => setSteer(0));
+  hold(el.forwardButton, () => { state.forwardInput = 1; }, () => { if (state.forwardInput > 0) state.forwardInput = 0; });
+  hold(el.backButton, () => { state.forwardInput = -0.62; }, () => { if (state.forwardInput < 0) state.forwardInput = 0; });
+  hold(el.leftButton, () => { state.steer = -1; }, () => { if (state.steer < 0) state.steer = 0; });
+  hold(el.rightButton, () => { state.steer = 1; }, () => { if (state.steer > 0) state.steer = 0; });
+
   window.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowLeft" || event.key.toLowerCase() === "a") setSteer(-1);
-    if (event.key === "ArrowRight" || event.key.toLowerCase() === "d") setSteer(1);
+    const key = event.key.toLowerCase();
+    if (key === "arrowup" || key === "w") state.forwardInput = 1;
+    if (key === "arrowdown" || key === "s") state.forwardInput = -0.62;
+    if (key === "arrowleft" || key === "a") state.steer = -1;
+    if (key === "arrowright" || key === "d") state.steer = 1;
+    primeAudio();
   });
   window.addEventListener("keyup", (event) => {
-    if (["ArrowLeft", "ArrowRight", "a", "d"].includes(event.key)) setSteer(0);
+    const key = event.key.toLowerCase();
+    if (["arrowup", "w"].includes(key) && state.forwardInput > 0) state.forwardInput = 0;
+    if (["arrowdown", "s"].includes(key) && state.forwardInput < 0) state.forwardInput = 0;
+    if (["arrowleft", "a"].includes(key) && state.steer < 0) state.steer = 0;
+    if (["arrowright", "d"].includes(key) && state.steer > 0) state.steer = 0;
   });
   el.soundButton.addEventListener("click", () => {
     state.sound = !state.sound;
@@ -423,6 +529,7 @@ function update(dt, time) {
   caveLights.forEach((light, index) => {
     light.intensity = 1 + Math.sin(time * 2.2 + index) * 0.22;
   });
+  updateWater(dt, time);
 
   if (state.mode === "rowing") {
     const nextGate = gateProgress[state.questionIndex];
@@ -437,7 +544,7 @@ function update(dt, time) {
       el.hint.textContent = "The treasure vault is here. Tap the chest to claim the relic.";
       playTone(196, 0.16, "triangle");
     } else {
-      state.progress += dt * state.speed;
+      updateMovement(dt, time);
     }
   }
 
@@ -450,6 +557,11 @@ function update(dt, time) {
       state.questionIndex += 1;
       currentGate = null;
       el.gateCount.textContent = `${state.questionIndex}/5`;
+      state.rowVelocity = 0.018;
+      state.forwardInput = 0;
+      el.hint.textContent = state.questionIndex >= gateProgress.length
+        ? "The vault is ahead. Row forward into the treasure chamber."
+        : "Gate open. Row forward and steer through the next bend.";
     }
   }
 
@@ -467,25 +579,73 @@ function updateBoatTransform(time = 0) {
   const p = samplePath(state.progress);
   const tangent = sampleTangent(state.progress);
   const normal = sampleNormal(state.progress);
-  const sideOffset = state.steer * 0.72;
+  const sideOffset = state.lateralOffset;
   boat.position.set(p.x + normal.x * sideOffset, 0.18 + Math.sin(time * 3.1) * 0.05, p.z + normal.z * sideOffset);
-  boat.rotation.y = Math.atan2(tangent.x, tangent.z) + state.steer * -0.12;
-  boat.rotation.z = state.steer * -0.08 + Math.sin(time * 2.8) * 0.025;
+  boat.rotation.y = Math.atan2(tangent.x, tangent.z) + state.steer * -0.16 + state.lateralVelocity * -0.08;
+  boat.rotation.z = state.steer * -0.1 + Math.sin(time * 2.8) * 0.025;
+  boat.rotation.x = state.rowVelocity * 1.3 + Math.sin(time * 3.8) * 0.018;
   boat.children.forEach((child) => {
-    if (child.name && child.name.startsWith("oar")) child.rotation.x = Math.sin(time * 5.5) * 0.28;
+    if (child.name && child.name.startsWith("oar")) child.rotation.x = Math.sin(time * 7.2) * (0.18 + Math.abs(state.rowVelocity) * 5.5);
   });
 
-  const camBack = 8.4;
-  const camHeight = window.innerWidth < 720 ? 5.2 : 6.2;
-  camera.position.lerp(new THREE.Vector3(p.x - tangent.x * camBack, camHeight, p.z - tangent.z * camBack + 1.2), 0.075);
-  camera.lookAt(p.x, 1.1, p.z - 3);
+  const camBack = window.innerWidth < 720 ? 8.2 : 9.5;
+  const camHeight = window.innerWidth < 720 ? 5.4 : 6.5;
+  camera.position.lerp(new THREE.Vector3(p.x - tangent.x * camBack + normal.x * sideOffset * 0.35, camHeight, p.z - tangent.z * camBack + normal.z * sideOffset * 0.35), 0.075);
+  camera.lookAt(p.x + normal.x * sideOffset * 0.35, 1.16, p.z + tangent.z * 1.2);
 
   if (river?.material) {
     river.material.emissiveIntensity = 0.6 + Math.sin(time * 1.8) * 0.12;
   }
 }
 
+function updateMovement(dt, time) {
+  const targetVelocity = state.forwardInput * (isFastQa ? 0.2 : 0.055);
+  state.rowVelocity = lerp(state.rowVelocity, targetVelocity, 1 - Math.pow(0.001, dt));
+  if (Math.abs(state.forwardInput) < 0.01) {
+    state.rowVelocity = lerp(state.rowVelocity, 0, 1 - Math.pow(0.03, dt));
+  }
+  state.progress = Math.max(0, Math.min(0.94, state.progress + state.rowVelocity * dt));
+
+  const maxOffset = riverWidthAt(state.progress) - 1.25;
+  const targetLateral = state.steer * maxOffset;
+  state.lateralOffset = lerp(state.lateralOffset, targetLateral, 1 - Math.pow(0.015, dt));
+  state.lateralVelocity = lerp(state.lateralVelocity, state.steer, 1 - Math.pow(0.02, dt));
+
+  if ((Math.abs(state.rowVelocity) > 0.012 || Math.abs(state.steer) > 0.2) && time - state.lastSwish > 0.55) {
+    state.lastSwish = time;
+    playWaterSwish(Math.min(1, Math.abs(state.rowVelocity) * 18 + Math.abs(state.steer) * 0.25));
+  }
+}
+
+function updateWater(dt, time) {
+  ripples.forEach((ripple, index) => {
+    ripple.position.y = ripple.userData.baseY + Math.sin(time * 2.1 + ripple.userData.phase) * 0.018;
+    ripple.rotation.z += dt * (0.18 + (index % 3) * 0.05);
+    ripple.material.opacity = 0.22 + Math.sin(time * 1.7 + ripple.userData.phase) * 0.1;
+  });
+
+  const p = samplePath(state.progress);
+  const tangent = sampleTangent(state.progress);
+  const normal = sampleNormal(state.progress);
+  foamTrails.forEach((foam, index) => {
+    const age = (time * 0.5 + index / foamTrails.length) % 1;
+    const back = 0.9 + age * 3.4;
+    const side = (index % 2 ? 1 : -1) * (0.65 + age * 0.35);
+    foam.position.set(
+      p.x - tangent.x * back + normal.x * (state.lateralOffset + side),
+      0.07,
+      p.z - tangent.z * back + normal.z * (state.lateralOffset + side)
+    );
+    foam.rotation.z = Math.atan2(tangent.x, tangent.z);
+    foam.visible = Math.abs(state.rowVelocity) > 0.01 && state.mode === "rowing";
+    foam.material.opacity = (1 - age) * Math.min(0.42, Math.abs(state.rowVelocity) * 7);
+  });
+}
+
 function showQuestion() {
+  state.forwardInput = 0;
+  state.steer = 0;
+  state.rowVelocity = 0;
   const q = questions[state.questionIndex];
   el.questionType.textContent = q.type;
   el.questionTitle.textContent = q.title;
@@ -538,20 +698,27 @@ function openFinalChest() {
 function speakGuardian() {
   const line = "Young hero, you have awakened the Leadership Matrix. Carry its courage well.";
   el.guardianLine.textContent = line;
+  playBaritoneBed();
   if (!state.sound || !("speechSynthesis" in window)) return;
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(line);
-  utterance.pitch = 0.55;
-  utterance.rate = 0.78;
+  utterance.pitch = 0.38;
+  utterance.rate = 0.64;
   utterance.volume = 1;
   const voices = window.speechSynthesis.getVoices();
-  utterance.voice = voices.find((voice) => /male|daniel|david|mark|google uk english male/i.test(voice.name)) || voices[0] || null;
+  utterance.voice = voices.find((voice) => /daniel|david|mark|george|male|english.*united kingdom|english.*australia/i.test(`${voice.name} ${voice.lang}`)) || voices[0] || null;
   window.speechSynthesis.speak(utterance);
+}
+
+function primeAudio() {
+  if (!state.sound) return;
+  audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+  if (audioContext.state === "suspended") audioContext.resume();
 }
 
 function playTone(freq, duration, type = "sine", delay = 0) {
   if (!state.sound) return;
-  audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+  primeAudio();
   const oscillator = audioContext.createOscillator();
   const gain = audioContext.createGain();
   oscillator.type = type;
@@ -563,6 +730,56 @@ function playTone(freq, duration, type = "sine", delay = 0) {
   gain.connect(audioContext.destination);
   oscillator.start(audioContext.currentTime + delay);
   oscillator.stop(audioContext.currentTime + delay + duration + 0.02);
+}
+
+function playWaterSwish(power = 0.5) {
+  if (!state.sound) return;
+  primeAudio();
+  const duration = 0.32;
+  const sampleRate = audioContext.sampleRate;
+  const buffer = audioContext.createBuffer(1, Math.floor(sampleRate * duration), sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < data.length; i += 1) {
+    const t = i / data.length;
+    data[i] = (Math.random() * 2 - 1) * Math.sin(t * Math.PI) * power;
+  }
+  const source = audioContext.createBufferSource();
+  const filter = audioContext.createBiquadFilter();
+  const gain = audioContext.createGain();
+  source.buffer = buffer;
+  filter.type = "bandpass";
+  filter.frequency.value = 560 + power * 440;
+  filter.Q.value = 0.9;
+  gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.08 + power * 0.08, audioContext.currentTime + 0.03);
+  gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + duration);
+  source.connect(filter);
+  filter.connect(gain);
+  gain.connect(audioContext.destination);
+  source.start();
+  source.stop(audioContext.currentTime + duration);
+}
+
+function playBaritoneBed() {
+  if (!state.sound) return;
+  primeAudio();
+  [82, 123, 164].forEach((freq, index) => {
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    const filter = audioContext.createBiquadFilter();
+    oscillator.type = index === 0 ? "sine" : "triangle";
+    oscillator.frequency.value = freq;
+    filter.type = "lowpass";
+    filter.frequency.value = 520;
+    gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(index === 0 ? 0.09 : 0.035, audioContext.currentTime + 0.18);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 3.9);
+    oscillator.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioContext.destination);
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 4.05);
+  });
 }
 
 function samplePath(t) {
@@ -591,6 +808,10 @@ function sampleTangent(t) {
 function sampleNormal(t) {
   const tangent = sampleTangent(t);
   return { x: -tangent.z, z: tangent.x };
+}
+
+function riverWidthAt(t) {
+  return 3.2 + Math.sin(t * Math.PI * 3.2) * 0.34 + Math.sin(t * Math.PI * 8) * 0.16;
 }
 
 function resize() {

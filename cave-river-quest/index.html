@@ -24,7 +24,7 @@
       </section>
 
       <section class="hint-chip" id="hintChip" aria-live="polite">
-        Row through the cave. Answer each gate to open the river.
+        Use the arrows to row through the cave. Ease up to each iron gate.
       </section>
 
       <section class="question-panel hidden" id="questionPanel" aria-modal="true" role="dialog" aria-labelledby="questionTitle">
@@ -55,9 +55,13 @@
       </section>
 
       <footer class="touch-controls" aria-label="Boat controls">
-        <button type="button" class="steer-button" id="leftButton" aria-label="Steer left"></button>
+        <div class="dpad" aria-label="Boat navigation">
+          <button type="button" class="nav-button up" id="forwardButton" aria-label="Row forward"></button>
+          <button type="button" class="nav-button left" id="leftButton" aria-label="Steer left"></button>
+          <button type="button" class="nav-button down" id="backButton" aria-label="Back paddle"></button>
+          <button type="button" class="nav-button right" id="rightButton" aria-label="Steer right"></button>
+        </div>
         <button type="button" class="sound-button" id="soundButton">Sound on</button>
-        <button type="button" class="steer-button right" id="rightButton" aria-label="Steer right"></button>
       </footer>
 
       <div class="fallback hidden" id="fallbackNotice">
