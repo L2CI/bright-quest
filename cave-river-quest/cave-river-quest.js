@@ -645,9 +645,9 @@ function addKenneyBoatAssets() {
   const trueCharacter = cloneAsset("character");
   if (trueCharacter) {
     trueCharacter.visible = true;
-    fitAssetToHeight(trueCharacter, 0.72);
-    trueCharacter.position.add(new THREE.Vector3(0, 0.42, -0.18));
-    trueCharacter.rotation.set(-0.28, Math.PI, 0);
+    fitAssetToHeight(trueCharacter, 0.16);
+    trueCharacter.position.add(new THREE.Vector3(0, 0.54, -0.18));
+    trueCharacter.rotation.set(-0.18, Math.PI, 0);
     tintAsset(trueCharacter, 0x2d82ff, 0.18);
     boat.add(trueCharacter);
     boatRig.characterModel = trueCharacter;
@@ -1634,8 +1634,8 @@ function updateRowingRig(time) {
     comicRider.scale.set(1.2 + Math.abs(stroke) * rowPower * 0.02, 1.2, 1);
   }
   if (boatRig.characterModel) {
-    boatRig.characterModel.rotation.x = -0.28 + stroke * rowPower * 0.08;
-    boatRig.characterModel.position.y = 0.44 + Math.cos(time * 5.4) * rowPower * 0.014;
+    boatRig.characterModel.rotation.x = -0.18 + stroke * rowPower * 0.06;
+    boatRig.characterModel.position.y = 0.54 + Math.cos(time * 5.4) * rowPower * 0.01;
   }
 }
 
