@@ -1,4 +1,9 @@
-const THREE_URL = "https://unpkg.com/three@0.165.0/build/three.module.js";
+const THREE_URL = "./vendor/three.module.js";
+const EFFECT_COMPOSER_URL = "./vendor/examples/jsm/postprocessing/EffectComposer.js";
+const RENDER_PASS_URL = "./vendor/examples/jsm/postprocessing/RenderPass.js";
+const BLOOM_PASS_URL = "./vendor/examples/jsm/postprocessing/UnrealBloomPass.js";
+const SSAO_PASS_URL = "./vendor/examples/jsm/postprocessing/SSAOPass.js";
+const FILM_PASS_URL = "./vendor/examples/jsm/postprocessing/FilmPass.js";
 
 const questions = [
   {
@@ -94,7 +99,16 @@ const el = {
 };
 
 let THREE;
+let EffectComposer;
+let RenderPass;
+let UnrealBloomPass;
+let SSAOPass;
+let FilmPass;
 let renderer;
+let composer;
+let bloomPass;
+let ssaoPass;
+let filmPass;
 let scene;
 let camera;
 let boat;
@@ -115,12 +129,39 @@ let audioContext;
 
 async function boot() {
   try {
-    THREE = await import(THREE_URL);
+    window.__caveQuestBoot = { ok: false, stage: "loading-modules" };
+    const modules = await Promise.all([
+      import(THREE_URL),
+      import(EFFECT_COMPOSER_URL),
+      import(RENDER_PASS_URL),
+      import(BLOOM_PASS_URL),
+      import(SSAO_PASS_URL),
+      import(FILM_PASS_URL)
+    ]);
+    THREE = modules[0];
+    EffectComposer = modules[1].EffectComposer;
+    RenderPass = modules[2].RenderPass;
+    UnrealBloomPass = modules[3].UnrealBloomPass;
+    SSAOPass = modules[4].SSAOPass;
+    FilmPass = modules[5].FilmPass;
+    window.__caveQuestBoot.stage = "initializing-scene";
     initScene();
     bindInput();
+    window.__caveQuestBoot = {
+      ok: true,
+      stage: "running",
+      threeRevision: THREE.REVISION,
+      composer: Boolean(composer),
+      postProcessing: {
+        bloom: Boolean(bloomPass),
+        ssao: Boolean(ssaoPass),
+        film: Boolean(filmPass)
+      }
+    };
     requestAnimationFrame(loop);
   } catch (error) {
     console.error(error);
+    window.__caveQuestBoot = { ok: false, stage: "failed", message: error?.message || String(error) };
     el.fallback.classList.remove("hidden");
   }
 }
@@ -139,7 +180,7 @@ function initScene() {
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.08;
+  renderer.toneMappingExposure = 1.2;
   renderer.setClearColor(0x071523);
 
   const ambient = new THREE.HemisphereLight(0x8fdfff, 0x090b13, 1.45);
@@ -149,6 +190,8 @@ function initScene() {
   moon.position.set(-6, 9, 7);
   moon.castShadow = true;
   moon.shadow.mapSize.set(2048, 2048);
+  moon.shadow.bias = -0.0003;
+  moon.shadow.normalBias = 0.02;
   scene.add(moon);
 
   makeCave();
@@ -156,8 +199,30 @@ function initScene() {
   makeBoat();
   makeGates();
   makeTreasureVault();
+  initPostProcessing();
   updateBoatTransform();
   window.addEventListener("resize", resize);
+}
+
+function initPostProcessing() {
+  composer = new EffectComposer(renderer);
+  const renderPass = new RenderPass(scene, camera);
+  composer.addPass(renderPass);
+
+  ssaoPass = new SSAOPass(scene, camera, window.innerWidth, window.innerHeight);
+  ssaoPass.kernelRadius = 14;
+  ssaoPass.minDistance = 0.004;
+  ssaoPass.maxDistance = 0.12;
+  composer.addPass(ssaoPass);
+
+  bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.2, 0.4, 0.8);
+  bloomPass.threshold = 0.8;
+  bloomPass.strength = 1.2;
+  bloomPass.radius = 0.4;
+  composer.addPass(bloomPass);
+
+  filmPass = new FilmPass(0.22, 0.18, 648, false);
+  composer.addPass(filmPass);
 }
 
 function makeCave() {
@@ -1152,7 +1217,7 @@ function loop(now) {
   const dt = Math.min((now - state.lastTime) / 1000, 0.05);
   state.lastTime = now;
   update(dt, now / 1000);
-  renderer.render(scene, camera);
+  composer.render();
   requestAnimationFrame(loop);
 }
 
@@ -1213,10 +1278,10 @@ function update(dt, time) {
     }
   }
 
-  updateBoatTransform(time);
+  updateBoatTransform(time, dt);
 }
 
-function updateBoatTransform(time = 0) {
+function updateBoatTransform(time = 0, dt = 0) {
   const p = samplePath(state.progress);
   const tangent = sampleTangent(state.progress);
   const normal = sampleNormal(state.progress);
@@ -1601,6 +1666,9 @@ function resize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  composer?.setSize(window.innerWidth, window.innerHeight);
+  if (ssaoPass) ssaoPass.setSize(window.innerWidth, window.innerHeight);
+  if (bloomPass) bloomPass.setSize(window.innerWidth, window.innerHeight);
 }
 
 function lerp(a, b, t) {
