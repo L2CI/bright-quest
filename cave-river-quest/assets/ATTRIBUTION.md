@@ -4,6 +4,12 @@ Assets used in the Cave River Quest 3D reward game.
 
 ## Poly Pizza
 
+- `poly-pizza/boy-zsky-stylized-character.glb`
+  - Title: Stylized Character
+  - Creator: Zsky
+  - Source: https://poly.pizza/m/tVqkTeQhCO
+  - License: CC-BY 3.0
+
 - `poly-pizza/chest-quaternius.glb`
   - Title: Chest
   - Creator: Quaternius
