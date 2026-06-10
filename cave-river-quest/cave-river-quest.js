@@ -8,9 +8,10 @@ const GLTF_LOADER_URL = "./vendor/examples/jsm/loaders/GLTFLoader.js";
 
 const ASSET_URLS = {
   boat: "./assets/kenney/pirate/boat-row-small.glb",
-  character: "./assets/kenney/blocky/character-a.glb",
+  character: "./assets/poly-pizza/boy-zsky-stylized-character.glb",
   paddle: "./assets/kenney/pirate/tool-paddle.glb",
-  chest: "./assets/kenney/pirate/chest.glb",
+  chest: "./assets/poly-pizza/chest-quaternius.glb",
+  guardian: "./assets/poly-pizza/robot-quaternius-animated.glb",
   gate: "./assets/kenney/dungeon/gate-metal-bars.glb",
   rocksA: "./assets/kenney/pirate/rocks-a.glb",
   rocksB: "./assets/kenney/pirate/rocks-b.glb",
@@ -299,6 +300,22 @@ function cloneAsset(key) {
   return clone;
 }
 
+function fitAssetToHeight(root, targetHeight) {
+  const box = new THREE.Box3().setFromObject(root);
+  const size = new THREE.Vector3();
+  box.getSize(size);
+  const sourceHeight = Math.max(size.y, 0.001);
+  root.scale.multiplyScalar(targetHeight / sourceHeight);
+  root.updateMatrixWorld(true);
+
+  const fittedBox = new THREE.Box3().setFromObject(root);
+  const center = new THREE.Vector3();
+  fittedBox.getCenter(center);
+  root.position.x -= center.x;
+  root.position.z -= center.z;
+  root.position.y -= fittedBox.min.y;
+}
+
 function makeCave() {
   const rockTexture = makeRockTexture();
   rockTexture.wrapS = THREE.RepeatWrapping;
@@ -573,9 +590,9 @@ function addKenneyBoatAssets() {
   const trueCharacter = cloneAsset("character");
   if (trueCharacter) {
     trueCharacter.visible = true;
-    trueCharacter.position.set(0, 0.66, -0.12);
+    fitAssetToHeight(trueCharacter, 1.08);
+    trueCharacter.position.set(0, 0.44, -0.18);
     trueCharacter.rotation.set(-0.28, Math.PI, 0);
-    trueCharacter.scale.setScalar(0.18);
     tintAsset(trueCharacter, 0x2d82ff, 0.18);
     boat.add(trueCharacter);
     boatRig.characterModel = trueCharacter;
@@ -1299,9 +1316,9 @@ function makeTreasureVault() {
   if (trueChest) {
     base.visible = false;
     lid.visible = false;
-    trueChest.position.set(0, -0.28, 0);
+    fitAssetToHeight(trueChest, 1.28);
+    trueChest.position.set(0, -0.32, 0);
     trueChest.rotation.y = Math.PI;
-    trueChest.scale.setScalar(0.95);
     chest.add(trueChest);
   }
   scene.add(chest);
@@ -1327,11 +1344,26 @@ function makeTreasureVault() {
   guardian = new THREE.Group();
   guardian.position.set(p.x + 4.2, -2, p.z - 2.2);
   guardian.rotation.y = -0.45;
-  makeGuardianBody(guardian);
-  guardianSprite = makeGuardianSprite();
-  guardianSprite.position.set(0, 2.75, -0.35);
-  guardianSprite.scale.set(4.2, 4.2, 1);
-  guardian.add(guardianSprite);
+  const trueGuardian = cloneAsset("guardian");
+  if (trueGuardian) {
+    fitAssetToHeight(trueGuardian, 4.3);
+    trueGuardian.rotation.y = Math.PI;
+    tintAsset(trueGuardian, 0x2d6dff, 0.16);
+    guardian.add(trueGuardian);
+
+    const chestGlow = new THREE.Mesh(
+      new THREE.SphereGeometry(0.18, 18, 18),
+      new THREE.MeshStandardMaterial({ color: 0x7df9ff, emissive: 0x35d7ff, emissiveIntensity: 2.4, roughness: 0.18 })
+    );
+    chestGlow.position.set(0, 2.45, -0.32);
+    guardian.add(chestGlow);
+  } else {
+    makeGuardianBody(guardian);
+    guardianSprite = makeGuardianSprite();
+    guardianSprite.position.set(0, 2.75, -0.35);
+    guardianSprite.scale.set(4.2, 4.2, 1);
+    guardian.add(guardianSprite);
+  }
   scene.add(guardian);
 }
 
@@ -1525,7 +1557,7 @@ function updateRowingRig(time) {
   }
   if (boatRig.characterModel) {
     boatRig.characterModel.rotation.x = -0.28 + stroke * rowPower * 0.08;
-    boatRig.characterModel.position.y = 0.66 + Math.cos(time * 5.4) * rowPower * 0.014;
+    boatRig.characterModel.position.y = 0.44 + Math.cos(time * 5.4) * rowPower * 0.014;
   }
 }
 
