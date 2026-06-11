@@ -1,4 +1,4 @@
-const BUILD_ID = "cinematic-2-5d-painted-base-ecafc16";
+const BUILD_ID = "cinematic-2-5d-water-swish-8c6357d";
 
 const questions = [
   {
@@ -76,12 +76,15 @@ const state = {
   lastTime: 0,
   rowPulse: 0,
   particles: [],
+  wakes: [],
   gateSparkles: [],
   finalStarted: false
 };
 
 let audioContext;
 let masterGain;
+let waterGain;
+let waterNoise;
 
 window.__caveQuestBoot = { ok: false, stage: "loading", build: BUILD_ID };
 
@@ -170,6 +173,7 @@ function update(dt, time) {
   }
   state.rowPulse += dt * (2.5 + Math.abs(state.velocity) * 55);
   updateParticles(dt);
+  updateWakes(dt);
 }
 
 function updateMovement(dt, time) {
@@ -181,8 +185,9 @@ function updateMovement(dt, time) {
   state.progress = clamp(state.progress + state.velocity * dt, 0, 0.94);
   state.lane = Math.sin((state.progress * 4.8 + 0.2) * Math.PI) * 0.18;
 
-  if (Math.abs(state.velocity) > 0.014 && Math.floor(time * 3) !== Math.floor((time - dt) * 3)) {
+  if (Math.abs(state.velocity) > 0.014 && Math.floor(time * 4) !== Math.floor((time - dt) * 4)) {
     playSwish(Math.min(1, Math.abs(state.velocity) * 18));
+    addWake();
   }
 
   const gate = gateProgress[state.questionIndex];
@@ -608,6 +613,8 @@ function drawRiver(w, h, time) {
   ctx.globalCompositeOperation = "source-over";
   ctx.restore();
 
+  drawWaterWakes(w, h, time);
+
   ctx.strokeStyle = "rgba(226, 255, 255, 0.58)";
   ctx.lineWidth = 5;
   [left, right].forEach((edge) => {
@@ -626,6 +633,29 @@ function drawRiver(w, h, time) {
     });
     ctx.stroke();
   });
+}
+
+function drawWaterWakes(w, h, time) {
+  if (!state.wakes.length) return;
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+  state.wakes.forEach((wake) => {
+    const alpha = wake.life * 0.42;
+    const x = wake.x + Math.sin(time * 3 + wake.phase) * 8;
+    const y = wake.y + wake.age * 18;
+    ctx.strokeStyle = `rgba(219, 255, 255, ${alpha})`;
+    ctx.lineWidth = 3 * wake.life;
+    ctx.beginPath();
+    ctx.ellipse(x, y, wake.radius * (1.5 - wake.life * 0.2), wake.radius * 0.34, wake.side * 0.22, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.strokeStyle = `rgba(255, 224, 137, ${alpha * 0.45})`;
+    ctx.lineWidth = 1.5 * wake.life;
+    ctx.beginPath();
+    ctx.moveTo(x - wake.radius * 1.4, y + wake.radius * 0.2);
+    ctx.quadraticCurveTo(x, y + Math.sin(time + wake.phase) * 6, x + wake.radius * 1.4, y + wake.radius * 0.12);
+    ctx.stroke();
+  });
+  ctx.restore();
 }
 
 function drawDistantObjects(w, h, time) {
@@ -1149,12 +1179,63 @@ function updateParticles(dt) {
   state.particles = state.particles.filter((p) => p.life > 0 && p.x > -80 && p.x < state.width + 80 && p.y < state.height + 120);
 }
 
+function addWake() {
+  const baseY = state.height * 0.86;
+  const baseX = state.width * 0.5 + state.lane * state.width * 0.18;
+  [-1, 1].forEach((side) => {
+    state.wakes.push({
+      x: baseX + side * state.width * 0.17,
+      y: baseY + Math.random() * 14,
+      side,
+      radius: 18 + Math.random() * 18,
+      age: 0,
+      life: 1,
+      phase: Math.random() * Math.PI * 2
+    });
+  });
+  if (state.wakes.length > 18) state.wakes.splice(0, state.wakes.length - 18);
+}
+
+function updateWakes(dt) {
+  state.wakes.forEach((wake) => {
+    wake.age += dt;
+    wake.radius += dt * 48;
+    wake.life -= dt * 1.35;
+  });
+  state.wakes = state.wakes.filter((wake) => wake.life > 0);
+}
+
 function primeAudio() {
   if (audioContext) return;
   audioContext = new (window.AudioContext || window.webkitAudioContext)();
   masterGain = audioContext.createGain();
   masterGain.gain.value = state.sound ? 0.35 : 0;
   masterGain.connect(audioContext.destination);
+  startWaterAmbience();
+}
+
+function startWaterAmbience() {
+  const sampleRate = audioContext.sampleRate;
+  const buffer = audioContext.createBuffer(1, sampleRate * 2, sampleRate);
+  const data = buffer.getChannelData(0);
+  let last = 0;
+  for (let i = 0; i < data.length; i += 1) {
+    last = last * 0.94 + (Math.random() * 2 - 1) * 0.06;
+    data[i] = last;
+  }
+  waterNoise = audioContext.createBufferSource();
+  waterNoise.buffer = buffer;
+  waterNoise.loop = true;
+
+  const filter = audioContext.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.frequency.value = 520;
+  filter.Q.value = 0.7;
+
+  waterGain = audioContext.createGain();
+  waterGain.gain.value = 0.018;
+  waterNoise.connect(filter).connect(waterGain).connect(masterGain);
+  waterNoise.start();
 }
 
 function tone(freq, duration, type = "sine", gain = 0.14, when = 0) {
@@ -1172,8 +1253,15 @@ function tone(freq, duration, type = "sine", gain = 0.14, when = 0) {
 }
 
 function playSwish(power) {
-  tone(90 + power * 70, 0.18, "triangle", 0.06 + power * 0.05);
-  tone(180 + power * 120, 0.12, "sine", 0.025, 0.04);
+  if (waterGain && audioContext && state.sound) {
+    const now = audioContext.currentTime;
+    waterGain.gain.cancelScheduledValues(now);
+    waterGain.gain.setValueAtTime(0.018, now);
+    waterGain.gain.linearRampToValueAtTime(0.038 + power * 0.018, now + 0.06);
+    waterGain.gain.exponentialRampToValueAtTime(0.018, now + 0.42);
+  }
+  tone(86 + power * 55, 0.16, "triangle", 0.025 + power * 0.018);
+  tone(170 + power * 90, 0.1, "sine", 0.012, 0.04);
 }
 
 function playGateHum() {
