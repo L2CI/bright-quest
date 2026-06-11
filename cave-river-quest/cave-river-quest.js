@@ -1,4 +1,4 @@
-const BUILD_ID = "sprite-strip-rowing-5a67933";
+const BUILD_ID = "boat-approaches-gate-651060d";
 
 const assetSources = {
   background: "./assets/generated/painted-cave-river.png",
@@ -215,13 +215,13 @@ function updateBoatApproach(dt) {
   const nextGate = gateProgress[state.questionIndex];
   let target = 0;
   if (state.mode === "gate-open") {
-    target = 0.82;
+    target = 1;
   } else if (state.mode === "question") {
-    target = 0.72;
+    target = 1;
   } else if (nextGate) {
-    target = clamp(1 - (nextGate - state.progress) / 0.22, 0, 0.72);
+    target = clamp(1 - (nextGate - state.progress) / 0.22, 0, 1);
   } else if (state.progress > 0.76) {
-    target = clamp((state.progress - 0.76) / 0.16, 0, 0.78);
+    target = clamp((state.progress - 0.76) / 0.16, 0, 1);
   }
   state.boatApproach = lerp(state.boatApproach, target, 1 - Math.pow(0.03, dt));
 }
@@ -815,16 +815,17 @@ function drawDistantObjects(w, h, time) {
 }
 
 function drawGate(w, h, t, index, opening, time) {
-  const y = lerp(h * 0.26, h * 0.57, t);
-  const scale = lerp(0.36, 0.98, t);
-  const x = w * 0.5 + Math.sin((gateProgress[index] + state.progress) * 8) * w * 0.05 * (1 - t);
+  const settle = easeOutCubic(t);
+  const y = h * 0.46 + Math.sin(index * 2.1) * h * 0.012;
+  const scale = lerp(0.62, 0.72, settle);
+  const x = w * 0.5 + Math.sin(gateProgress[index] * 8) * w * 0.018;
   if (art.gate) {
     ctx.save();
     ctx.translate(x, y);
     const spriteWidth = 260 * scale;
     const spriteHeight = spriteWidth * (art.gate.height / art.gate.width);
     const pulse = 1 + Math.sin(time * 3 + index) * 0.03;
-    ctx.globalAlpha = 0.72 + t * 0.28;
+    ctx.globalAlpha = 0.55 + settle * 0.45;
     ctx.filter = `drop-shadow(0 0 ${Math.round(18 * scale)}px rgba(91, 231, 255, 0.55))`;
     ctx.drawImage(art.gate, -spriteWidth * 0.5 * pulse, -spriteHeight * 0.48, spriteWidth * pulse, spriteHeight * pulse);
     ctx.filter = "none";
@@ -1028,7 +1029,7 @@ function drawGuardian(x, y, time) {
 
 function drawBoat(w, h, time) {
   const x = w * 0.5 + state.lane * w * 0.18;
-  const y = lerp(h * 0.8, h * 0.66, state.boatApproach) + Math.sin(time * 2.8) * 6;
+  const y = lerp(h * 0.82, h * 0.57, easeOutCubic(state.boatApproach)) + Math.sin(time * 2.8) * 6;
   const scale = Math.min(w / 1100, h / 650) * 0.92;
   if (art.boatStrip) {
     const rowPower = clamp(Math.abs(state.velocity) * 30 + Math.abs(state.forwardInput) * 0.75 + (state.mode === "gate-open" ? 0.6 : 0), 0, 1);
@@ -1037,7 +1038,7 @@ function drawBoat(w, h, time) {
     const frameIndex = rowPower > 0.08 ? Math.floor(phase * frameCount) % frameCount : 0;
     const frameWidth = art.boatStrip.width / frameCount;
     const frameHeight = art.boatStrip.height;
-    const spriteWidth = Math.min(w * 0.44, h * 0.7);
+    const spriteWidth = Math.min(w * lerp(0.44, 0.34, state.boatApproach), h * lerp(0.7, 0.54, state.boatApproach));
     const spriteHeight = spriteWidth * (frameHeight / frameWidth);
     const rowStroke = Math.sin(state.rowPulse) * rowPower;
     ctx.save();
