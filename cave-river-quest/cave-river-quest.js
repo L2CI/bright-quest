@@ -1,4 +1,4 @@
-const BUILD_ID = "larger-still-gates-fb2da7f";
+const BUILD_ID = "monument-gates-f1b6d7d";
 
 const assetSources = {
   background: "./assets/generated/painted-cave-river.png",
@@ -926,13 +926,13 @@ function drawDistantObjects(w, h, time) {
 
 function drawGate(w, h, t, index, opening, time) {
   const settle = easeOutCubic(t);
-  const y = h * 0.46 + Math.sin(index * 2.1) * h * 0.012;
-  const scale = lerp(0.95, 1.14, settle);
+  const y = h * 0.43 + Math.sin(index * 2.1) * h * 0.006;
+  const scale = lerp(0.96, 1.12, settle);
   const x = w * 0.5 + Math.sin(gateProgress[index] * 8) * w * 0.018;
   if (art.gate) {
     ctx.save();
     ctx.translate(x, y);
-    const spriteWidth = 430 * scale;
+    const spriteWidth = 645 * scale;
     const spriteHeight = spriteWidth * (art.gate.height / art.gate.width);
     ctx.globalAlpha = 0.68 + settle * 0.32;
     ctx.filter = `drop-shadow(0 0 ${Math.round(18 * scale)}px rgba(91, 231, 255, 0.55))`;
