@@ -5,8 +5,8 @@
   --deep: #071523;
   --panel: rgba(8, 20, 35, 0.78);
   --panel-strong: rgba(10, 26, 45, 0.92);
-  --gold: #ffd15c;
-  --aqua: #35d7ff;
+  --gold: #ffd66d;
+  --aqua: #5be7ff;
   --red: #e94d5f;
   --blue: #2877ff;
   --green: #51e090;
@@ -40,8 +40,9 @@ a {
   overflow: hidden;
   isolation: isolate;
   background:
-    radial-gradient(circle at 50% 120%, rgba(53, 215, 255, 0.18), transparent 42%),
-    linear-gradient(180deg, #0d2740, #071523 56%, #03101d);
+    radial-gradient(circle at 52% 10%, rgba(139, 240, 255, 0.28), transparent 34%),
+    radial-gradient(circle at 50% 120%, rgba(255, 198, 92, 0.16), transparent 42%),
+    linear-gradient(180deg, #12394d, #071523 56%, #020914);
 }
 
 #questCanvas {
@@ -70,9 +71,11 @@ a {
 .quest-title {
   pointer-events: auto;
   border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(5, 15, 28, 0.68);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
-  backdrop-filter: blur(14px);
+  background:
+    linear-gradient(180deg, rgba(20, 48, 72, 0.78), rgba(4, 14, 27, 0.66)),
+    radial-gradient(circle at 20% 0, rgba(91, 231, 255, 0.18), transparent 48%);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(18px) saturate(1.2);
 }
 
 .back-link {
@@ -140,9 +143,11 @@ a {
   padding: 12px 16px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 999px;
-  background: rgba(5, 15, 28, 0.68);
+  background:
+    linear-gradient(180deg, rgba(17, 45, 68, 0.76), rgba(4, 13, 25, 0.72)),
+    radial-gradient(circle at 50% 0, rgba(255, 214, 109, 0.18), transparent 55%);
   color: #eef8ff;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   text-align: center;
   font-size: clamp(0.9rem, 1.6vw, 1.08rem);
   font-weight: 900;
@@ -169,9 +174,10 @@ a {
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 24px;
   background:
-    linear-gradient(180deg, rgba(13, 38, 64, 0.96), rgba(7, 19, 34, 0.96)),
-    radial-gradient(circle at 20% 12%, rgba(255, 209, 92, 0.18), transparent 28%);
-  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.36);
+    radial-gradient(circle at 18% 8%, rgba(255, 214, 109, 0.24), transparent 30%),
+    radial-gradient(circle at 80% 0, rgba(91, 231, 255, 0.2), transparent 32%),
+    linear-gradient(180deg, rgba(15, 48, 76, 0.97), rgba(5, 17, 31, 0.97));
+  box-shadow: 0 34px 90px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255,255,255,0.18);
 }
 
 .question-card h2,
@@ -209,8 +215,8 @@ a {
   color: #061322;
   background:
     radial-gradient(circle at 24% 20%, rgba(255, 255, 255, 0.7), transparent 16%),
-    linear-gradient(135deg, #fff2a8, var(--gold) 52%, #ff9f43);
-  box-shadow: 0 16px 26px rgba(255, 177, 64, 0.22), inset 0 -5px 0 rgba(106, 66, 9, 0.18);
+    linear-gradient(135deg, #fff7bd, var(--gold) 52%, #f89b38);
+  box-shadow: 0 16px 30px rgba(255, 177, 64, 0.28), inset 0 -5px 0 rgba(106, 66, 9, 0.2), inset 0 1px 0 rgba(255,255,255,0.58);
   font-size: clamp(0.96rem, 2vw, 1.14rem);
   font-weight: 1000;
   cursor: pointer;
@@ -291,9 +297,9 @@ a {
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 30px;
   background:
-    linear-gradient(180deg, rgba(11, 31, 52, 0.72), rgba(5, 15, 28, 0.72)),
-    radial-gradient(circle at 50% 50%, rgba(53, 215, 255, 0.18), transparent 62%);
-  box-shadow: 0 22px 58px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    linear-gradient(180deg, rgba(14, 43, 68, 0.78), rgba(3, 13, 24, 0.74)),
+    radial-gradient(circle at 50% 50%, rgba(91, 231, 255, 0.22), transparent 62%);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.16);
   backdrop-filter: blur(16px);
 }
 
@@ -304,8 +310,8 @@ a {
   border-radius: 999px;
   background:
     radial-gradient(circle at 30% 22%, rgba(255, 255, 255, 0.68), transparent 20%),
-    linear-gradient(135deg, #e7fbff, var(--aqua) 56%, #2877ff);
-  box-shadow: 0 16px 28px rgba(40, 119, 255, 0.3), inset 0 -5px 0 rgba(4, 35, 75, 0.24);
+    linear-gradient(135deg, #f1feff, var(--aqua) 54%, #2e7fff);
+  box-shadow: 0 16px 32px rgba(40, 119, 255, 0.34), inset 0 -5px 0 rgba(4, 35, 75, 0.24), inset 0 1px 0 rgba(255,255,255,0.68);
   transition: transform 140ms ease, filter 140ms ease, box-shadow 140ms ease;
 }
 
