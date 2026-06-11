@@ -1,4 +1,4 @@
-const BUILD_ID = "monument-gates-f1b6d7d";
+const BUILD_ID = "breathing-room-gates-0285237";
 
 const assetSources = {
   background: "./assets/generated/painted-cave-river.png",
@@ -430,21 +430,45 @@ function drawJourneyScene(w, h, time) {
   const index = Math.min(plates.length - 1, Math.floor(journey));
   const local = journey - index;
   const nextIndex = Math.min(plates.length - 1, index + 1);
-  const fade = smoothstep(0.58, 0.98, local);
-  drawJourneyPlate(art[plates[index]], w, h, time, index, local, 1);
+  const fade = smoothstep(0.34, 0.82, local);
+  drawJourneyPlate(art[plates[index]], w, h, time, index, local, 1 - fade * 0.45);
   if (nextIndex !== index) {
     drawJourneyPlate(art[plates[nextIndex]], w, h, time, nextIndex, local - 1, fade);
   }
+  drawJourneyTransitionWash(w, h, local, index, fade);
   drawJourneyParallax(w, h, time, journey);
   drawPaintedSceneMotion(w, h, time);
 }
 
 function drawJourneyPlate(image, w, h, time, index, local, alpha) {
-  const travel = state.progress * 1.2 + index * 0.17;
-  const panX = Math.sin(travel * Math.PI * 1.6) * 0.034 + local * 0.02;
-  const panY = Math.cos(travel * Math.PI * 1.1) * 0.018 - state.boatApproach * 0.014;
-  const zoom = 1.04 + state.boatApproach * 0.028 + Math.sin(time * 0.08 + index) * 0.004;
+  const travel = state.progress * 2.1 + index * 0.23;
+  const panX = Math.sin(travel * Math.PI * 1.75) * 0.055 + local * 0.052 + state.lane * 0.035;
+  const panY = Math.cos(travel * Math.PI * 1.18) * 0.026 - state.boatApproach * 0.026 + local * 0.018;
+  const zoom = 1.07 + state.boatApproach * 0.05 + Math.abs(local) * 0.018 + Math.sin(time * 0.08 + index) * 0.004;
   drawCoverImagePan(image, 0, 0, w, h, panX, panY, zoom, alpha);
+}
+
+function drawJourneyTransitionWash(w, h, local, index, fade) {
+  const colors = [
+    [42, 216, 232],
+    [104, 226, 172],
+    [139, 118, 255],
+    [255, 194, 83],
+    [82, 231, 255]
+  ];
+  const color = colors[(index + 1) % colors.length];
+  const reveal = Math.sin(clamp(local, 0, 1) * Math.PI);
+  const alpha = Math.max(reveal * 0.12, fade * 0.08);
+  if (alpha <= 0.01) return;
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+  const glow = ctx.createRadialGradient(w * 0.5, h * 0.38, h * 0.1, w * 0.5, h * 0.52, h * 0.78);
+  glow.addColorStop(0, `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`);
+  glow.addColorStop(0.55, `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha * 0.45})`);
+  glow.addColorStop(1, `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0)`);
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, w, h);
+  ctx.restore();
 }
 
 function drawCoverImagePan(image, x, y, width, height, panX = 0, panY = 0, zoom = 1, alpha = 1) {
@@ -913,8 +937,8 @@ function drawDistantObjects(w, h, time) {
   gateProgress.forEach((gate, index) => {
     if (index !== state.questionIndex) return;
     const distance = gate - state.progress;
-    if (distance < -0.06 || distance > 0.26) return;
-    const t = 1 - clamp(distance / 0.26, 0, 1);
+    if (distance < -0.06 || distance > 0.075) return;
+    const t = 1 - clamp(distance / 0.075, 0, 1);
     drawGate(w, h, t, index, state.mode === "gate-open" && index === state.questionIndex ? state.gateOpening : 0, time);
   });
 
@@ -927,12 +951,12 @@ function drawDistantObjects(w, h, time) {
 function drawGate(w, h, t, index, opening, time) {
   const settle = easeOutCubic(t);
   const y = h * 0.43 + Math.sin(index * 2.1) * h * 0.006;
-  const scale = lerp(0.96, 1.12, settle);
+  const scale = lerp(0.74, 1.02, settle);
   const x = w * 0.5 + Math.sin(gateProgress[index] * 8) * w * 0.018;
   if (art.gate) {
     ctx.save();
     ctx.translate(x, y);
-    const spriteWidth = 645 * scale;
+    const spriteWidth = 520 * scale;
     const spriteHeight = spriteWidth * (art.gate.height / art.gate.width);
     ctx.globalAlpha = 0.68 + settle * 0.32;
     ctx.filter = `drop-shadow(0 0 ${Math.round(18 * scale)}px rgba(91, 231, 255, 0.55))`;
