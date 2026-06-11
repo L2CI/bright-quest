@@ -1,4 +1,4 @@
-const BUILD_ID = "cinematic-2-5d-artlift-62bc325";
+const BUILD_ID = "cinematic-2-5d-painted-base-ecafc16";
 
 const questions = [
   {
@@ -57,10 +57,7 @@ const el = {
   guardianLine: document.querySelector("#guardianLine"),
   soundButton: document.querySelector("#soundButton"),
   fallback: document.querySelector("#fallbackNotice"),
-  forward: document.querySelector("#forwardButton"),
-  back: document.querySelector("#backButton"),
-  left: document.querySelector("#leftButton"),
-  right: document.querySelector("#rightButton")
+  forward: document.querySelector("#forwardButton")
 };
 
 const ctx = el.canvas.getContext("2d", { alpha: false });
@@ -71,9 +68,7 @@ const state = {
   progress: 0,
   velocity: 0,
   forwardInput: 0,
-  steer: 0,
   lane: 0,
-  targetLane: 0,
   questionIndex: 0,
   mode: "rowing",
   gateOpening: 0,
@@ -106,7 +101,7 @@ function boot() {
   bindInput();
   seedParticles();
   el.gateCount.textContent = "0/5";
-  el.hint.textContent = "Row through the enchanted river. Glide up to each glowing gate.";
+  el.hint.textContent = "Hold Row to glide through the enchanted river. Ease up to each glowing gate.";
   window.__caveQuestBoot = { ok: true, stage: "ready", build: BUILD_ID, renderer: "2.5d-canvas" };
   requestAnimationFrame(loop);
 }
@@ -125,25 +120,16 @@ function bindInput() {
     button.addEventListener("pointerleave", onUp);
   };
 
-  hold(el.forward, () => { state.forwardInput = 1; }, () => { if (state.forwardInput > 0) state.forwardInput = 0; });
-  hold(el.back, () => { state.forwardInput = -0.55; }, () => { if (state.forwardInput < 0) state.forwardInput = 0; });
-  hold(el.left, () => { state.steer = -1; }, () => { if (state.steer < 0) state.steer = 0; });
-  hold(el.right, () => { state.steer = 1; }, () => { if (state.steer > 0) state.steer = 0; });
+  hold(el.forward, () => { state.forwardInput = 1; }, () => { state.forwardInput = 0; });
 
   window.addEventListener("keydown", (event) => {
     if (event.repeat) return;
     primeAudio();
-    if (event.key === "ArrowUp" || event.key.toLowerCase() === "w") state.forwardInput = 1;
-    if (event.key === "ArrowDown" || event.key.toLowerCase() === "s") state.forwardInput = -0.55;
-    if (event.key === "ArrowLeft" || event.key.toLowerCase() === "a") state.steer = -1;
-    if (event.key === "ArrowRight" || event.key.toLowerCase() === "d") state.steer = 1;
+    if (event.key === "ArrowUp" || event.key === " " || event.key.toLowerCase() === "w") state.forwardInput = 1;
   });
 
   window.addEventListener("keyup", (event) => {
-    if (["ArrowUp", "w", "W"].includes(event.key) && state.forwardInput > 0) state.forwardInput = 0;
-    if (["ArrowDown", "s", "S"].includes(event.key) && state.forwardInput < 0) state.forwardInput = 0;
-    if (["ArrowLeft", "a", "A"].includes(event.key) && state.steer < 0) state.steer = 0;
-    if (["ArrowRight", "d", "D"].includes(event.key) && state.steer > 0) state.steer = 0;
+    if (["ArrowUp", " ", "w", "W"].includes(event.key)) state.forwardInput = 0;
   });
 
   el.soundButton.addEventListener("click", () => {
@@ -193,11 +179,10 @@ function updateMovement(dt, time) {
     state.velocity = lerp(state.velocity, 0, 1 - Math.pow(0.025, dt));
   }
   state.progress = clamp(state.progress + state.velocity * dt, 0, 0.94);
-  state.targetLane = clamp(state.targetLane + state.steer * dt * 1.1, -1, 1);
-  state.lane = lerp(state.lane, state.targetLane, 1 - Math.pow(0.015, dt));
+  state.lane = Math.sin((state.progress * 4.8 + 0.2) * Math.PI) * 0.18;
 
-  if ((Math.abs(state.velocity) > 0.014 || Math.abs(state.steer) > 0.1) && Math.floor(time * 3) !== Math.floor((time - dt) * 3)) {
-    playSwish(Math.min(1, Math.abs(state.velocity) * 18 + Math.abs(state.steer) * 0.25));
+  if (Math.abs(state.velocity) > 0.014 && Math.floor(time * 3) !== Math.floor((time - dt) * 3)) {
+    playSwish(Math.min(1, Math.abs(state.velocity) * 18));
   }
 
   const gate = gateProgress[state.questionIndex];
@@ -285,12 +270,14 @@ function draw(time) {
 
 function drawBackdrop(w, h, time) {
   const sky = ctx.createLinearGradient(0, 0, 0, h);
-  sky.addColorStop(0, "#28566a");
-  sky.addColorStop(0.28, "#12384b");
+  sky.addColorStop(0, "#3b7180");
+  sky.addColorStop(0.22, "#183f54");
   sky.addColorStop(0.68, "#071928");
   sky.addColorStop(1, "#020811");
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, w, h);
+
+  drawPaintedCaveBase(w, h, time);
 
   const opening = ctx.createRadialGradient(w * 0.52, h * 0.05, 10, w * 0.52, h * 0.05, h * 0.55);
   opening.addColorStop(0, "rgba(222, 249, 255, 0.62)");
@@ -308,6 +295,46 @@ function drawBackdrop(w, h, time) {
     ctx.arc(x, y, 1.4 + (i % 4), 0, Math.PI * 2);
     ctx.fill();
   }
+}
+
+function drawPaintedCaveBase(w, h, time) {
+  const chamberGlow = ctx.createRadialGradient(w * 0.5, h * 0.18, 20, w * 0.5, h * 0.42, h * 0.72);
+  chamberGlow.addColorStop(0, "rgba(137, 235, 255, 0.24)");
+  chamberGlow.addColorStop(0.48, "rgba(23, 83, 105, 0.2)");
+  chamberGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
+  ctx.fillStyle = chamberGlow;
+  ctx.fillRect(0, 0, w, h);
+
+  const clusters = [
+    [0.05, 0.34, 0.24, 0.42],
+    [0.18, 0.18, 0.2, 0.34],
+    [0.78, 0.2, 0.24, 0.38],
+    [0.9, 0.44, 0.18, 0.36],
+    [0.5, 0.12, 0.22, 0.26]
+  ];
+  clusters.forEach(([cx, cy, sx, sy], index) => {
+    const g = ctx.createRadialGradient(w * cx, h * cy, 10, w * cx, h * cy, w * sx);
+    g.addColorStop(0, index % 2 ? "rgba(72, 128, 141, 0.34)" : "rgba(87, 149, 155, 0.28)");
+    g.addColorStop(0.72, "rgba(10, 29, 40, 0.36)");
+    g.addColorStop(1, "rgba(2, 8, 14, 0)");
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.ellipse(w * cx, h * cy, w * sx, h * sy, Math.sin(index) * 0.2, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  ctx.save();
+  ctx.globalAlpha = 0.18;
+  ctx.strokeStyle = "#e0fbff";
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 18; i += 1) {
+    const y = h * (0.12 + i * 0.036);
+    ctx.beginPath();
+    ctx.moveTo(w * 0.08, y + Math.sin(i) * 8);
+    ctx.bezierCurveTo(w * 0.28, y + 22, w * 0.58, y - 18, w * 0.92, y + Math.cos(i) * 10);
+    ctx.stroke();
+  }
+  ctx.restore();
 }
 
 function drawLightShafts(w, h, time) {
@@ -499,15 +526,15 @@ function drawLanterns(w, h, time) {
 }
 
 function drawRiver(w, h, time) {
-  const horizonY = h * 0.25;
-  const bottomY = h * 1.08;
+  const horizonY = h * 0.16;
+  const bottomY = h * 1.12;
   const left = [];
   const right = [];
   for (let i = 0; i <= 36; i += 1) {
     const t = i / 36;
     const y = lerp(horizonY, bottomY, t);
-    const center = w * 0.5 + Math.sin((t + state.progress * 0.85) * Math.PI * 2.2) * w * lerp(0.03, 0.11, t) + state.lane * w * 0.08 * t;
-    const half = lerp(w * 0.045, w * 0.42, Math.pow(t, 1.35));
+    const center = w * 0.5 + Math.sin((t + state.progress * 0.85) * Math.PI * 2.2) * w * lerp(0.02, 0.15, t) + state.lane * w * 0.08 * t;
+    const half = lerp(w * 0.035, w * 0.5, Math.pow(t, 1.45));
     left.push([center - half, y]);
     right.push([center + half, y]);
   }
@@ -581,8 +608,8 @@ function drawRiver(w, h, time) {
   ctx.globalCompositeOperation = "source-over";
   ctx.restore();
 
-  ctx.strokeStyle = "rgba(226, 255, 255, 0.62)";
-  ctx.lineWidth = 4;
+  ctx.strokeStyle = "rgba(226, 255, 255, 0.58)";
+  ctx.lineWidth = 5;
   [left, right].forEach((edge) => {
     ctx.beginPath();
     edge.forEach(([x, y], index) => index ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
@@ -809,11 +836,11 @@ function drawGuardian(x, y, time) {
 
 function drawBoat(w, h, time) {
   const x = w * 0.5 + state.lane * w * 0.18;
-  const y = h * 0.765 + Math.sin(time * 2.8) * 6;
-  const scale = Math.min(w / 1100, h / 650) * 1.02;
+  const y = h * 0.78 + Math.sin(time * 2.8) * 6;
+  const scale = Math.min(w / 1100, h / 650) * 0.92;
   ctx.save();
   ctx.translate(x, y);
-  ctx.rotate(state.steer * 0.045 + Math.sin(time * 2.4) * 0.012);
+  ctx.rotate(Math.sin(time * 2.4) * 0.012);
   ctx.scale(scale, scale);
 
   ctx.fillStyle = "rgba(0, 0, 0, 0.28)";

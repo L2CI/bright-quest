@@ -25,7 +25,7 @@
       </section>
 
       <section class="hint-chip" id="hintChip" aria-live="polite">
-        Use the arrows to row through the cave. Ease up to each iron gate.
+        Hold Row to glide through the cave. Ease up to each glowing gate.
       </section>
 
       <section class="question-panel hidden" id="questionPanel" aria-modal="true" role="dialog" aria-labelledby="questionTitle">
@@ -56,12 +56,10 @@
       </section>
 
       <footer class="touch-controls" aria-label="Boat controls">
-        <div class="dpad" aria-label="Boat navigation">
-          <button type="button" class="nav-button up" id="forwardButton" aria-label="Row forward"></button>
-          <button type="button" class="nav-button left" id="leftButton" aria-label="Steer left"></button>
-          <button type="button" class="nav-button down" id="backButton" aria-label="Back paddle"></button>
-          <button type="button" class="nav-button right" id="rightButton" aria-label="Steer right"></button>
-        </div>
+        <button type="button" class="row-button" id="forwardButton" aria-label="Row forward">
+          <span aria-hidden="true"></span>
+          Row
+        </button>
         <button type="button" class="sound-button" id="soundButton">Sound on</button>
       </footer>
 
@@ -71,6 +69,6 @@
       </div>
     </main>
 
-    <script type="module" src="cave-river-quest.js?v=cinematic-2-5d-artlift-62bc325"></script>
+    <script type="module" src="cave-river-quest.js?v=cinematic-2-5d-painted-base-ecafc16"></script>
   </body>
 </html>
