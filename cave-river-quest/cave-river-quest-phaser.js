@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "gate-chamber-arrival-001";
+  const BUILD_ID = "projected-gate-approach-001";
   const assetBase = "./assets/generated/";
   const questions = [
     {
@@ -301,8 +301,8 @@
     state.progress = clamp(state.progress + state.velocity * dt, 0, 0.94);
     state.lane = Math.sin((state.progress * 4.8 + 0.2) * Math.PI) * 0.18;
     const gate = gateProgress[state.questionIndex];
-    if (gate && state.progress >= gate - 0.05) {
-      state.progress = gate - 0.05;
+    if (gate && state.progress >= gate - 0.022) {
+      state.progress = gate - 0.022;
       state.velocity = 0;
       state.forwardInput = 0;
       stopWaterLoop();
@@ -434,6 +434,10 @@
       scene.chamberShade.setAlpha(0);
       return;
     }
+    if (state.mode === "rowing") {
+      renderProjectedTravelGate(scene, gate);
+      return;
+    }
     if (state.mode !== "arriving" && state.mode !== "question" && state.mode !== "gate-open") {
       scene.gate.setVisible(false);
       scene.gateAura.setAlpha(0);
@@ -446,7 +450,7 @@
       ? easeOutCubic(clamp(state.arrivalTimer / 1.1, 0, 1))
       : 1;
     const openingEase = easeOutCubic(state.gateOpening);
-    const targetWidth = Math.min(w * 0.4, h * 0.48, 520);
+    const targetWidth = Math.min(w * 0.4, h * 0.48, 520) * lerp(0.86, 1, arrivalEase);
     const texture = scene.textures.get("gate").getSourceImage();
     scene.chamberShade
       .setPosition(0, 0)
@@ -462,6 +466,38 @@
       .setAlpha(arrivalEase * (1 - openingEase * 0.75))
       .setDisplaySize(targetWidth, targetWidth * (texture.height / texture.width))
       .setPosition(w * 0.5, h * 0.42 - openingEase * h * 0.12);
+  }
+
+  function renderProjectedTravelGate(scene, gate) {
+    const distance = gate - state.progress;
+    const visibleDistance = 0.24;
+    const stopDistance = 0.022;
+    if (distance < stopDistance || distance > visibleDistance) {
+      scene.gate.setVisible(false);
+      scene.gateAura.setAlpha(0);
+      scene.chamberShade.setAlpha(0);
+      return;
+    }
+    const w = scene.scale.width;
+    const h = scene.scale.height;
+    const approach = 1 - clamp((distance - stopDistance) / (visibleDistance - stopDistance), 0, 1);
+    const depthEase = easeInOutCubic(approach);
+    const pathX = w * 0.5 + Math.sin((state.progress * 5.8 + depthEase * 1.25) * Math.PI) * w * lerp(0.015, 0.05, depthEase);
+    const y = lerp(h * 0.31, h * 0.42, depthEase);
+    const maxWidth = Math.min(w * 0.38, h * 0.45, 500);
+    const targetWidth = maxWidth * lerp(0.24, 0.84, depthEase);
+    const texture = scene.textures.get("gate").getSourceImage();
+    const alpha = smoothstep(0.08, 0.34, approach) * lerp(0.45, 0.92, depthEase);
+    scene.chamberShade.setAlpha(0);
+    scene.gateAura
+      .setPosition(pathX, y)
+      .setRadius(Math.min(w * 0.14, 150) * lerp(0.35, 0.9, depthEase))
+      .setAlpha(alpha * 0.28);
+    scene.gate
+      .setVisible(true)
+      .setAlpha(alpha)
+      .setDisplaySize(targetWidth, targetWidth * (texture.height / texture.width))
+      .setPosition(pathX, y);
   }
 
   function renderTreasureAndGuardian(scene) {
@@ -625,7 +661,7 @@
         if (!isQa) return false;
         const gateIndex = clamp(Math.floor(Number(index) || 0), 0, gateProgress.length - 1);
         state.questionIndex = gateIndex;
-        state.progress = gateProgress[gateIndex] - 0.05;
+        state.progress = gateProgress[gateIndex] - 0.022;
         state.velocity = 0;
         state.forwardInput = 0;
         state.boatApproach = 0.45;
@@ -668,6 +704,13 @@
 
   function easeOutCubic(t) {
     return 1 - Math.pow(1 - clamp(t, 0, 1), 3);
+  }
+
+  function easeInOutCubic(t) {
+    const clamped = clamp(t, 0, 1);
+    return clamped < 0.5
+      ? 4 * clamped * clamped * clamped
+      : 1 - Math.pow(-2 * clamped + 2, 3) / 2;
   }
 
   function startGame() {
