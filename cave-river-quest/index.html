@@ -10,7 +10,7 @@
   </head>
   <body>
     <main class="quest-shell" aria-label="Cave River Quest cinematic reward game">
-      <canvas id="questCanvas" aria-label="Cinematic cave river game"></canvas>
+      <div id="questGame" aria-label="Cinematic cave river game"></div>
 
       <section class="hud-top" aria-label="Game status">
         <a class="back-link" href="../" aria-label="Back to Bright Quest">Back</a>
@@ -69,6 +69,8 @@
       </div>
     </main>
 
-    <script type="module" src="cave-river-quest.js?v=breathing-room-gates-0285237"></script>
+    <script src="vendor/phaser.min.js"></script>
+    <script src="vendor/howler.min.js"></script>
+    <script src="cave-river-quest-phaser.js?v=phaser-runtime-001"></script>
   </body>
 </html>
