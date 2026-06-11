@@ -1,9 +1,9 @@
-const BUILD_ID = "painted-assets-9224a8f";
+const BUILD_ID = "painted-alpha-controls-8d399a7";
 
 const assetSources = {
   background: "./assets/generated/painted-cave-river.png",
-  boat: "./assets/generated/painted-boat-boy.png",
-  gate: "./assets/generated/painted-gate.png"
+  boat: "./assets/generated/painted-boat-boy-alpha.png",
+  gate: "./assets/generated/painted-gate-alpha.png"
 };
 
 const questions = [
@@ -968,17 +968,21 @@ function drawBoat(w, h, time) {
   const y = h * 0.78 + Math.sin(time * 2.8) * 6;
   const scale = Math.min(w / 1100, h / 650) * 0.92;
   if (art.boat) {
+    const rowPower = clamp(Math.abs(state.velocity) * 22 + Math.abs(state.forwardInput) * 0.42, 0, 1);
+    const rowStroke = Math.sin(state.rowPulse) * rowPower;
     ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(Math.sin(time * 2.4) * 0.01);
-    const spriteWidth = Math.min(w * 0.46, h * 0.72);
+    ctx.translate(x, y + Math.sin(time * 3.2) * 3.5);
+    ctx.rotate(Math.sin(time * 2.4) * 0.008 + rowStroke * 0.016);
+    const spriteWidth = Math.min(w * 0.42, h * 0.66);
     const spriteHeight = spriteWidth * (art.boat.height / art.boat.width);
+    const drawWidth = spriteWidth * (1 + rowPower * 0.012);
+    const drawHeight = spriteHeight * (1 - rowPower * 0.006);
     ctx.fillStyle = "rgba(0, 0, 0, 0.24)";
     ctx.beginPath();
     ctx.ellipse(0, spriteHeight * 0.32, spriteWidth * 0.32, spriteHeight * 0.06, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.filter = "drop-shadow(0 18px 22px rgba(0, 0, 0, 0.28))";
-    ctx.drawImage(art.boat, -spriteWidth * 0.5, -spriteHeight * 0.58, spriteWidth, spriteHeight);
+    ctx.drawImage(art.boat, -drawWidth * 0.5, -drawHeight * 0.58, drawWidth, drawHeight);
     ctx.filter = "none";
     ctx.restore();
     return;
