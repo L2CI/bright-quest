@@ -1,11 +1,20 @@
-const BUILD_ID = "boat-approaches-gate-651060d";
+const BUILD_ID = "offline-journey-plates-a347e11";
 
 const assetSources = {
   background: "./assets/generated/painted-cave-river.png",
+  plate1: "./assets/generated/journey-plate-1.png",
+  plate2: "./assets/generated/journey-plate-2.png",
+  plate3: "./assets/generated/journey-plate-3.png",
+  plate4: "./assets/generated/journey-plate-4.png",
+  plate5: "./assets/generated/journey-plate-5.png",
   boatStrip: "./assets/generated/painted-rowboat-rowing-frames-alpha.png",
   boat: "./assets/generated/painted-boat-boy-alpha.png",
-  gate: "./assets/generated/painted-gate-alpha.png"
+  gate: "./assets/generated/painted-gate-alpha.png",
+  chest: "./assets/generated/treasure-chest-alpha.png",
+  guardian: "./assets/generated/guardian-robot-alpha.png"
 };
+
+const journeyPlateKeys = ["plate1", "plate2", "plate3", "plate4", "plate5"];
 
 const questions = [
   {
@@ -244,6 +253,25 @@ function updateDebugHook() {
     setRowing: (active) => {
       state.forwardInput = active ? 1 : 0;
     },
+    setProgressForQa: (value) => {
+      if (!new URLSearchParams(window.location.search).has("qa")) return false;
+      state.progress = clamp(Number(value) || 0, 0, 0.94);
+      state.velocity = 0;
+      state.mode = "rowing";
+      state.questionIndex = gateProgress.findIndex((gate) => gate > state.progress + 0.02);
+      if (state.questionIndex < 0) state.questionIndex = gateProgress.length;
+      state.boatApproach = 0;
+      return true;
+    },
+    startFinalForQa: () => {
+      if (!new URLSearchParams(window.location.search).has("qa")) return false;
+      state.progress = 0.94;
+      state.mode = "final";
+      state.finalStarted = true;
+      state.questionIndex = gateProgress.length;
+      state.boatApproach = 1;
+      return true;
+    },
     openCurrentGateForQa: () => {
       if (!isFastQa && !new URLSearchParams(window.location.search).has("qa")) return false;
       state.mode = "gate-open";
@@ -355,7 +383,9 @@ function draw(time) {
   const w = state.width;
   const h = state.height;
   ctx.clearRect(0, 0, w, h);
-  if (art.background) {
+  if (art.plate1) {
+    drawJourneyScene(w, h, time);
+  } else if (art.background) {
     drawCoverImage(art.background, 0, 0, w, h);
     drawPaintedSceneMotion(w, h, time);
   } else {
@@ -366,9 +396,67 @@ function draw(time) {
   }
   drawDistantObjects(w, h, time);
   drawBoat(w, h, time);
+  if (state.finalStarted) drawFinalGuardian(w, h, time);
   if (!art.background) drawForegroundRocks(w, h, time);
   drawParticles();
   drawVignette(w, h);
+}
+
+function drawJourneyScene(w, h, time) {
+  const plates = journeyPlateKeys.filter((key) => art[key]);
+  const journey = clamp(state.progress / 0.92, 0, 0.999) * (plates.length - 1);
+  const index = Math.min(plates.length - 1, Math.floor(journey));
+  const local = journey - index;
+  const nextIndex = Math.min(plates.length - 1, index + 1);
+  const fade = smoothstep(0.58, 0.98, local);
+  drawJourneyPlate(art[plates[index]], w, h, time, index, local, 1);
+  if (nextIndex !== index) {
+    drawJourneyPlate(art[plates[nextIndex]], w, h, time, nextIndex, local - 1, fade);
+  }
+  drawJourneyParallax(w, h, time, journey);
+  drawPaintedSceneMotion(w, h, time);
+}
+
+function drawJourneyPlate(image, w, h, time, index, local, alpha) {
+  const travel = state.progress * 1.2 + index * 0.17;
+  const panX = Math.sin(travel * Math.PI * 1.6) * 0.034 + local * 0.02;
+  const panY = Math.cos(travel * Math.PI * 1.1) * 0.018 - state.boatApproach * 0.014;
+  const zoom = 1.04 + state.boatApproach * 0.028 + Math.sin(time * 0.08 + index) * 0.004;
+  drawCoverImagePan(image, 0, 0, w, h, panX, panY, zoom, alpha);
+}
+
+function drawCoverImagePan(image, x, y, width, height, panX = 0, panY = 0, zoom = 1, alpha = 1) {
+  const imageRatio = image.width / image.height;
+  const targetRatio = width / height;
+  let sourceWidth = image.width / zoom;
+  let sourceHeight = sourceWidth / targetRatio;
+  if (sourceHeight > image.height / zoom) {
+    sourceHeight = image.height / zoom;
+    sourceWidth = sourceHeight * targetRatio;
+  }
+  const maxX = Math.max(0, image.width - sourceWidth);
+  const maxY = Math.max(0, image.height - sourceHeight);
+  const sourceX = clamp((image.width - sourceWidth) * 0.5 + panX * image.width, 0, maxX);
+  const sourceY = clamp((image.height - sourceHeight) * 0.5 + panY * image.height, 0, maxY);
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, x, y, width, height);
+  ctx.restore();
+}
+
+function drawJourneyParallax(w, h, time, journey) {
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+  for (let i = 0; i < 34; i += 1) {
+    const t = (i * 0.073 + time * 0.035 + journey * 0.09) % 1;
+    const x = (w * ((i * 97) % 100) / 100 + Math.sin(time * 0.3 + i) * 12) % w;
+    const y = h * (0.12 + t * 0.72);
+    ctx.fillStyle = i % 4 ? "rgba(105, 234, 255, 0.18)" : "rgba(255, 212, 104, 0.16)";
+    ctx.beginPath();
+    ctx.arc(x, y, lerp(1, 3.5, t), 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
 }
 
 function drawCoverImage(image, x, y, width, height) {
@@ -960,6 +1048,16 @@ function drawTreasure(w, h, t, time) {
   ctx.fillStyle = glow;
   ctx.fillRect(-220, -170, 440, 340);
 
+  if (art.chest) {
+    const chestWidth = 250;
+    const chestHeight = chestWidth * (art.chest.height / art.chest.width);
+    ctx.filter = "drop-shadow(0 22px 26px rgba(0, 0, 0, 0.32))";
+    ctx.drawImage(art.chest, -chestWidth * 0.5, -chestHeight * 0.38, chestWidth, chestHeight);
+    ctx.filter = "none";
+    ctx.restore();
+    return;
+  }
+
   const chestBody = ctx.createLinearGradient(0, -20, 0, 80);
   chestBody.addColorStop(0, "#b65f27");
   chestBody.addColorStop(0.55, "#7d3c1f");
@@ -987,11 +1085,28 @@ function drawTreasure(w, h, t, time) {
   roundedRect(-12, 28, 24, 28, 6);
   ctx.fill();
 
-  if (state.finalStarted) drawGuardian(0, -130, time);
   ctx.restore();
 }
 
-function drawGuardian(x, y, time) {
+function drawFinalGuardian(w, h, time) {
+  const x = w * 0.68;
+  const y = h * 0.62;
+  drawGuardian(x, y, time, Math.min(w * 0.22, h * 0.42));
+}
+
+function drawGuardian(x, y, time, width = 210) {
+  if (art.guardian) {
+    ctx.save();
+    ctx.translate(x, y + Math.sin(time * 2) * 4);
+    const robotWidth = width;
+    const robotHeight = robotWidth * (art.guardian.height / art.guardian.width);
+    ctx.globalAlpha = 1;
+    ctx.filter = "drop-shadow(0 0 28px rgba(91, 231, 255, 0.42)) drop-shadow(0 18px 24px rgba(0, 0, 0, 0.3))";
+    ctx.drawImage(art.guardian, -robotWidth * 0.5, -robotHeight * 0.88, robotWidth, robotHeight);
+    ctx.filter = "none";
+    ctx.restore();
+    return;
+  }
   ctx.save();
   ctx.translate(x, y + Math.sin(time * 2) * 4);
   ctx.scale(0.9, 0.9);
@@ -1638,6 +1753,11 @@ function lerp(a, b, t) {
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
+}
+
+function smoothstep(edge0, edge1, value) {
+  const t = clamp((value - edge0) / (edge1 - edge0), 0, 1);
+  return t * t * (3 - 2 * t);
 }
 
 function easeOutCubic(value) {
