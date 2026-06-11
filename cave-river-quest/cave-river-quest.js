@@ -1,4 +1,4 @@
-const BUILD_ID = "offline-journey-plates-a347e11";
+const BUILD_ID = "larger-still-gates-fb2da7f";
 
 const assetSources = {
   background: "./assets/generated/painted-cave-river.png",
@@ -46,6 +46,27 @@ const questions = [
     correct: "48"
   },
   {
+    type: "Riddle gate",
+    title: "Whisper Gate",
+    text: "I speak without a mouth and answer when you call. What am I?",
+    answers: ["A drum", "An echo", "A shadow", "A candle"],
+    correct: "An echo"
+  },
+  {
+    type: "Logic gate",
+    title: "Lantern Switch",
+    text: "Three lanterns are on. You blow one out. How many lanterns are still there?",
+    answers: ["1", "2", "3", "None"],
+    correct: "3"
+  },
+  {
+    type: "Word gate",
+    title: "Mirror Word",
+    text: "Which word becomes shorter when you add two letters to it?",
+    answers: ["Short", "Small", "Tiny", "Little"],
+    correct: "Short"
+  },
+  {
     type: "Final gate",
     title: "Vault Gate",
     text: "Which sentence uses an apostrophe correctly?",
@@ -55,7 +76,8 @@ const questions = [
 ];
 
 const isFastQa = new URLSearchParams(window.location.search).get("qa") === "fast";
-const gateProgress = isFastQa ? [0.05, 0.1, 0.15, 0.2, 0.25] : [0.16, 0.32, 0.49, 0.66, 0.82];
+const totalGates = questions.length;
+const gateProgress = buildGateProgress(totalGates, isFastQa);
 
 const el = {
   canvas: document.querySelector("#questCanvas"),
@@ -122,7 +144,7 @@ async function boot() {
   await loadArtAssets();
   bindInput();
   seedParticles();
-  el.gateCount.textContent = "0/5";
+  updateGateCount();
   el.hint.textContent = "Hold Row to glide through the enchanted river. Ease up to each glowing gate.";
   window.__caveQuestBoot = { ok: true, stage: "ready", build: BUILD_ID, renderer: "2.5d-canvas", art: Object.keys(art).filter((key) => art[key]?.complete).length };
   requestAnimationFrame(loop);
@@ -333,7 +355,7 @@ function updateGateOpen(dt, time) {
     state.mode = "rowing";
     state.gateOpening = 0;
     state.questionIndex += 1;
-    el.gateCount.textContent = `${state.questionIndex}/5`;
+    updateGateCount();
     state.progress = end;
     state.velocity = 0.018;
     el.hint.textContent = state.questionIndex >= gateProgress.length
@@ -905,17 +927,16 @@ function drawDistantObjects(w, h, time) {
 function drawGate(w, h, t, index, opening, time) {
   const settle = easeOutCubic(t);
   const y = h * 0.46 + Math.sin(index * 2.1) * h * 0.012;
-  const scale = lerp(0.62, 0.72, settle);
+  const scale = lerp(0.95, 1.14, settle);
   const x = w * 0.5 + Math.sin(gateProgress[index] * 8) * w * 0.018;
   if (art.gate) {
     ctx.save();
     ctx.translate(x, y);
-    const spriteWidth = 260 * scale;
+    const spriteWidth = 430 * scale;
     const spriteHeight = spriteWidth * (art.gate.height / art.gate.width);
-    const pulse = 1 + Math.sin(time * 3 + index) * 0.03;
-    ctx.globalAlpha = 0.55 + settle * 0.45;
+    ctx.globalAlpha = 0.68 + settle * 0.32;
     ctx.filter = `drop-shadow(0 0 ${Math.round(18 * scale)}px rgba(91, 231, 255, 0.55))`;
-    ctx.drawImage(art.gate, -spriteWidth * 0.5 * pulse, -spriteHeight * 0.48, spriteWidth * pulse, spriteHeight * pulse);
+    ctx.drawImage(art.gate, -spriteWidth * 0.5, -spriteHeight * 0.48, spriteWidth, spriteHeight);
     ctx.filter = "none";
     if (opening > 0) {
       ctx.globalCompositeOperation = "screen";
@@ -1753,6 +1774,19 @@ function lerp(a, b, t) {
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
+}
+
+function buildGateProgress(count, fast) {
+  if (fast) {
+    return Array.from({ length: count }, (_, index) => 0.05 + index * 0.05);
+  }
+  const first = 0.12;
+  const last = 0.86;
+  return Array.from({ length: count }, (_, index) => lerp(first, last, index / Math.max(1, count - 1)));
+}
+
+function updateGateCount() {
+  el.gateCount.textContent = `${Math.min(state.questionIndex, totalGates)}/${totalGates}`;
 }
 
 function smoothstep(edge0, edge1, value) {
