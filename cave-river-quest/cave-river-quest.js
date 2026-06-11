@@ -1,4 +1,4 @@
-const BUILD_ID = "painted-alpha-controls-8d399a7";
+const BUILD_ID = "layered-rowing-quest-aeb4d15";
 
 const assetSources = {
   background: "./assets/generated/painted-cave-river.png",
@@ -198,13 +198,41 @@ function loop(timeMs) {
 
 function update(dt, time) {
   if (state.mode === "rowing") updateMovement(dt, time);
-  if (state.mode === "gate-open") updateGateOpen(dt);
+  if (state.mode === "gate-open") updateGateOpen(dt, time);
   if (state.mode === "final") {
     state.progress = lerp(state.progress, 0.94, 1 - Math.pow(0.2, dt));
   }
   state.rowPulse += dt * (2.5 + Math.abs(state.velocity) * 55);
   updateParticles(dt);
   updateWakes(dt);
+  updateDebugHook();
+}
+
+function updateDebugHook() {
+  window.__caveQuestDebug = {
+    build: BUILD_ID,
+    getState: () => ({
+      mode: state.mode,
+      progress: Number(state.progress.toFixed(5)),
+      velocity: Number(state.velocity.toFixed(5)),
+      forwardInput: state.forwardInput,
+      gateOpening: Number(state.gateOpening.toFixed(5)),
+      questionIndex: state.questionIndex,
+      rowPulse: Number(state.rowPulse.toFixed(5)),
+      wakes: state.wakes.length
+    }),
+    setRowing: (active) => {
+      state.forwardInput = active ? 1 : 0;
+    },
+    openCurrentGateForQa: () => {
+      if (!isFastQa && !new URLSearchParams(window.location.search).has("qa")) return false;
+      state.mode = "gate-open";
+      state.gateOpening = 0;
+      state.velocity = 0;
+      state.progress = (gateProgress[state.questionIndex] || state.progress) - 0.018;
+      return true;
+    }
+  };
 }
 
 function updateMovement(dt, time) {
@@ -237,15 +265,29 @@ function updateMovement(dt, time) {
   }
 }
 
-function updateGateOpen(dt) {
+function updateGateOpen(dt, time) {
+  const gate = gateProgress[state.questionIndex] || state.progress;
+  const previousOpening = state.gateOpening;
   state.gateOpening += dt * 1.65;
+  const openingEase = easeOutCubic(clamp(state.gateOpening, 0, 1));
+  const start = gate - 0.018;
+  const nextGate = gateProgress[state.questionIndex + 1];
+  const driftDistance = nextGate ? Math.min(0.034, (nextGate - gate) * 0.35) : 0.034;
+  const end = gate + driftDistance;
+  state.velocity = lerp(state.velocity, 0.034, 1 - Math.pow(0.01, dt));
+  state.progress = lerp(start, end, openingEase);
+  state.lane = Math.sin((state.progress * 4.8 + 0.2) * Math.PI) * 0.18;
+  if (Math.floor(time * 5) !== Math.floor((time - dt) * 5) && previousOpening < 0.88) {
+    playSwish(0.45);
+    addWake();
+  }
   if (state.gateOpening >= 1) {
     state.mode = "rowing";
     state.gateOpening = 0;
     state.questionIndex += 1;
     el.gateCount.textContent = `${state.questionIndex}/5`;
-    state.progress += 0.014;
-    state.forwardInput = 0;
+    state.progress = end;
+    state.velocity = 0.018;
     el.hint.textContent = state.questionIndex >= gateProgress.length
       ? "The vault glows ahead. Row into the treasure chamber."
       : "Gate open. Follow the lanterns to the next challenge.";
@@ -968,7 +1010,7 @@ function drawBoat(w, h, time) {
   const y = h * 0.78 + Math.sin(time * 2.8) * 6;
   const scale = Math.min(w / 1100, h / 650) * 0.92;
   if (art.boat) {
-    const rowPower = clamp(Math.abs(state.velocity) * 22 + Math.abs(state.forwardInput) * 0.42, 0, 1);
+    const rowPower = clamp(Math.abs(state.velocity) * 28 + Math.abs(state.forwardInput) * 0.55 + (state.mode === "gate-open" ? 0.55 : 0), 0, 1);
     const rowStroke = Math.sin(state.rowPulse) * rowPower;
     ctx.save();
     ctx.translate(x, y + Math.sin(time * 3.2) * 3.5);
@@ -981,9 +1023,15 @@ function drawBoat(w, h, time) {
     ctx.beginPath();
     ctx.ellipse(0, spriteHeight * 0.32, spriteWidth * 0.32, spriteHeight * 0.06, 0, 0, Math.PI * 2);
     ctx.fill();
+    drawOarTrail(spriteWidth, spriteHeight, rowPower, rowStroke, time);
+    ctx.save();
+    roundedRect(-drawWidth * 0.42, -drawHeight * 0.58, drawWidth * 0.84, drawHeight * 0.92, drawWidth * 0.08);
+    ctx.clip();
     ctx.filter = "drop-shadow(0 18px 22px rgba(0, 0, 0, 0.28))";
     ctx.drawImage(art.boat, -drawWidth * 0.5, -drawHeight * 0.58, drawWidth, drawHeight);
     ctx.filter = "none";
+    ctx.restore();
+    drawPaintedRowingOverlay(spriteWidth, spriteHeight, rowPower, rowStroke, time);
     ctx.restore();
     return;
   }
@@ -1005,6 +1053,103 @@ function drawBoat(w, h, time) {
   drawOars(time);
   drawHull();
   drawBoy(time);
+  ctx.restore();
+}
+
+function drawOarTrail(spriteWidth, spriteHeight, rowPower, rowStroke, time) {
+  if (rowPower <= 0.04) return;
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+  [-1, 1].forEach((side) => {
+    const bladeX = side * spriteWidth * (0.46 + rowStroke * 0.05);
+    const bladeY = spriteHeight * (0.18 + rowStroke * 0.04);
+    ctx.strokeStyle = `rgba(219, 255, 255, ${0.22 + rowPower * 0.28})`;
+    ctx.lineWidth = Math.max(2, spriteWidth * 0.008);
+    ctx.beginPath();
+    ctx.ellipse(bladeX, bladeY, spriteWidth * (0.07 + rowPower * 0.02), spriteHeight * 0.025, side * 0.4, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.strokeStyle = `rgba(114, 237, 255, ${0.14 + rowPower * 0.18})`;
+    ctx.lineWidth = Math.max(1.5, spriteWidth * 0.004);
+    ctx.beginPath();
+    ctx.moveTo(bladeX - side * spriteWidth * 0.09, bladeY + Math.sin(time * 6) * 2);
+    ctx.quadraticCurveTo(bladeX, bladeY + spriteHeight * 0.035, bladeX + side * spriteWidth * 0.1, bladeY + Math.cos(time * 6) * 2);
+    ctx.stroke();
+  });
+  ctx.restore();
+}
+
+function drawPaintedRowingOverlay(spriteWidth, spriteHeight, rowPower, rowStroke, time) {
+  const unit = spriteWidth / 500;
+  const handleY = -spriteHeight * 0.18 + rowStroke * 16 * unit;
+  const shoulderY = -spriteHeight * 0.22 + Math.sin(time * 3.4) * 2 * unit;
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  [-1, 1].forEach((side) => {
+    const shoulderX = side * 42 * unit;
+    const handX = side * (72 + rowStroke * 24) * unit;
+    const handY = handleY + side * rowStroke * 4 * unit;
+    const oarAngle = side * (0.18 + rowStroke * 0.26);
+    const innerX = side * 50 * unit;
+    const bladeX = side * (242 + rowStroke * 34) * unit;
+    const bladeY = spriteHeight * 0.1 + rowStroke * 34 * unit;
+
+    ctx.save();
+    ctx.rotate(oarAngle);
+    const shaft = ctx.createLinearGradient(innerX, handleY, bladeX, bladeY);
+    shaft.addColorStop(0, "#ffe3a0");
+    shaft.addColorStop(0.34, "#c47a33");
+    shaft.addColorStop(1, "#6c361b");
+    ctx.strokeStyle = shaft;
+    ctx.lineWidth = 9 * unit;
+    ctx.shadowColor = "rgba(0, 0, 0, 0.28)";
+    ctx.shadowBlur = 8 * unit;
+    ctx.beginPath();
+    ctx.moveTo(innerX, handleY);
+    ctx.lineTo(bladeX, bladeY);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "#d99043";
+    ctx.beginPath();
+    ctx.ellipse(bladeX + side * 18 * unit, bladeY + 2 * unit, 32 * unit, 12 * unit, side * 0.24, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255, 231, 174, 0.55)";
+    ctx.lineWidth = 2 * unit;
+    ctx.beginPath();
+    ctx.moveTo(bladeX + side * 4 * unit, bladeY - 3 * unit);
+    ctx.lineTo(bladeX + side * 30 * unit, bladeY + 5 * unit);
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.strokeStyle = "#d99063";
+    ctx.lineWidth = 11 * unit;
+    ctx.shadowColor = "rgba(0, 0, 0, 0.18)";
+    ctx.shadowBlur = 5 * unit;
+    ctx.beginPath();
+    ctx.moveTo(shoulderX, shoulderY);
+    ctx.quadraticCurveTo(side * 58 * unit, shoulderY + 22 * unit, handX, handY);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "#efb984";
+    ctx.beginPath();
+    ctx.ellipse(handX, handY, 9 * unit, 7 * unit, side * 0.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255, 232, 197, 0.55)";
+    ctx.lineWidth = 1.6 * unit;
+    ctx.beginPath();
+    ctx.arc(handX - side * 2 * unit, handY - 1 * unit, 4 * unit, 0, Math.PI * 1.35);
+    ctx.stroke();
+  });
+
+  if (rowPower > 0.12) {
+    ctx.globalCompositeOperation = "screen";
+    ctx.strokeStyle = `rgba(229, 255, 255, ${0.16 + rowPower * 0.18})`;
+    ctx.lineWidth = 2.2 * unit;
+    ctx.beginPath();
+    ctx.ellipse(0, spriteHeight * 0.23, spriteWidth * 0.26, spriteHeight * 0.045, 0, 0, Math.PI * 2);
+    ctx.stroke();
+  }
   ctx.restore();
 }
 
@@ -1439,6 +1584,11 @@ function lerp(a, b, t) {
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
+}
+
+function easeOutCubic(value) {
+  const t = clamp(value, 0, 1);
+  return 1 - Math.pow(1 - t, 3);
 }
 
 try {
