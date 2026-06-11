@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "phaser-runtime-001";
+  const BUILD_ID = "gate-chamber-arrival-001";
   const assetBase = "./assets/generated/";
   const questions = [
     {
@@ -90,6 +90,7 @@
     velocity: 0,
     forwardInput: 0,
     questionIndex: 0,
+    arrivalTimer: 0,
     gateOpening: 0,
     boatApproach: 0,
     lane: 0,
@@ -139,7 +140,9 @@
       this.wash = this.add.rectangle(0, 0, 10, 10, 0x49dff2, 0).setOrigin(0).setBlendMode(Phaser.BlendModes.SCREEN).setDepth(2);
       this.waterFx = this.add.graphics().setDepth(3);
       this.sparkleLayer = this.add.layer().setDepth(4);
-      this.gate = this.add.image(0, 0, "gate").setOrigin(0.5, 0.48).setDepth(6).setVisible(false);
+      this.chamberShade = this.add.rectangle(0, 0, 10, 10, 0x03101d, 0).setOrigin(0).setDepth(5);
+      this.gateAura = this.add.circle(0, 0, 120, 0x5be7ff, 0).setBlendMode(Phaser.BlendModes.SCREEN).setDepth(6);
+      this.gate = this.add.image(0, 0, "gate").setOrigin(0.5, 0.5).setDepth(7).setVisible(false);
       this.chest = this.add.image(0, 0, "chest").setOrigin(0.5).setDepth(7).setVisible(false).setInteractive({ useHandCursor: true });
       this.boat = this.add.sprite(0, 0, "boatRow", 0).setOrigin(0.5).setDepth(9);
       this.guardian = this.add.image(0, 0, "guardian").setOrigin(0.5, 1).setDepth(8).setVisible(false).setAlpha(0);
@@ -178,6 +181,7 @@
       const dt = Math.min(delta / 1000, 0.05);
       this.timeSeconds = time / 1000;
       if (state.mode === "rowing") updateMovement(dt);
+      if (state.mode === "arriving") updateArrival(dt);
       if (state.mode === "gate-open") updateGateOpen(dt);
       if (state.mode === "final") {
         state.progress = lerp(state.progress, 0.94, 1 - Math.pow(0.2, dt));
@@ -297,18 +301,33 @@
     state.progress = clamp(state.progress + state.velocity * dt, 0, 0.94);
     state.lane = Math.sin((state.progress * 4.8 + 0.2) * Math.PI) * 0.18;
     const gate = gateProgress[state.questionIndex];
-    if (gate && state.progress >= gate - 0.018) {
-      state.progress = gate - 0.018;
+    if (gate && state.progress >= gate - 0.05) {
+      state.progress = gate - 0.05;
       state.velocity = 0;
       state.forwardInput = 0;
       stopWaterLoop();
-      showQuestion(state.questionIndex);
+      beginGateArrival();
     }
     if (state.questionIndex >= gateProgress.length && state.progress > 0.9 && !state.finalStarted) {
       state.finalStarted = true;
       state.mode = "final";
       el.finalePanel.classList.remove("hidden");
       el.hint.textContent = "The treasure waits ahead. Tap the chest when it glows.";
+    }
+  }
+
+  function beginGateArrival() {
+    state.mode = "arriving";
+    state.arrivalTimer = 0;
+    el.hint.textContent = "Ease into the gate chamber. Watch for the lanterns.";
+    sceneRef?.cameras.main.flash(280, 180, 246, 255, false);
+  }
+
+  function updateArrival(dt) {
+    state.arrivalTimer += dt;
+    state.boatApproach = lerp(state.boatApproach, 1, 1 - Math.pow(0.02, dt));
+    if (state.arrivalTimer >= 1.15) {
+      showQuestion(state.questionIndex);
     }
   }
 
@@ -333,7 +352,7 @@
   function updateBoatApproach(dt) {
     const nextGate = gateProgress[state.questionIndex];
     let target = 0;
-    if (state.mode === "gate-open" || state.mode === "question") target = 1;
+    if (state.mode === "arriving" || state.mode === "gate-open" || state.mode === "question") target = 1;
     else if (nextGate) target = clamp(1 - (nextGate - state.progress) / 0.12, 0, 1);
     else if (state.progress > 0.76) target = clamp((state.progress - 0.76) / 0.16, 0, 1);
     state.boatApproach = lerp(state.boatApproach, target, 1 - Math.pow(0.03, dt));
@@ -411,25 +430,38 @@
     const gate = gateProgress[state.questionIndex];
     if (!gate) {
       scene.gate.setVisible(false);
+      scene.gateAura.setAlpha(0);
+      scene.chamberShade.setAlpha(0);
       return;
     }
-    const distance = gate - state.progress;
-    if (distance < -0.06 || distance > 0.075) {
+    if (state.mode !== "arriving" && state.mode !== "question" && state.mode !== "gate-open") {
       scene.gate.setVisible(false);
+      scene.gateAura.setAlpha(0);
+      scene.chamberShade.setAlpha(0);
       return;
     }
     const w = scene.scale.width;
     const h = scene.scale.height;
-    const t = 1 - clamp(distance / 0.075, 0, 1);
-    const settle = easeOutCubic(t);
-    const scale = lerp(0.74, 1.02, settle);
-    const targetWidth = Math.min(w * 0.38, 520) * scale;
+    const arrivalEase = state.mode === "arriving"
+      ? easeOutCubic(clamp(state.arrivalTimer / 1.1, 0, 1))
+      : 1;
+    const openingEase = easeOutCubic(state.gateOpening);
+    const targetWidth = Math.min(w * 0.4, h * 0.48, 520);
     const texture = scene.textures.get("gate").getSourceImage();
+    scene.chamberShade
+      .setPosition(0, 0)
+      .setSize(w, h)
+      .setFillStyle(0x03101d, 0.2 + arrivalEase * 0.28)
+      .setAlpha(1);
+    scene.gateAura
+      .setPosition(w * 0.5, h * 0.39)
+      .setRadius(Math.min(w * 0.22, 220) * (1 + Math.sin(scene.timeSeconds * 2.2) * 0.03))
+      .setAlpha((0.16 + Math.sin(scene.timeSeconds * 2.6) * 0.035) * arrivalEase + openingEase * 0.24);
     scene.gate
       .setVisible(true)
-      .setAlpha(0.68 + settle * 0.32)
+      .setAlpha(arrivalEase * (1 - openingEase * 0.75))
       .setDisplaySize(targetWidth, targetWidth * (texture.height / texture.width))
-      .setPosition(w * 0.5 + Math.sin(gate * 8) * w * 0.018, h * 0.43 - state.gateOpening * h * 0.42);
+      .setPosition(w * 0.5, h * 0.42 - openingEase * h * 0.12);
   }
 
   function renderTreasureAndGuardian(scene) {
@@ -482,6 +514,7 @@
     if (!question) return;
     state.mode = "question";
     state.forwardInput = 0;
+    state.arrivalTimer = 0;
     el.questionType.textContent = question.type;
     el.questionTitle.textContent = question.title;
     el.questionText.textContent = question.text;
@@ -565,6 +598,7 @@
         velocity: Number(state.velocity.toFixed(5)),
         forwardInput: state.forwardInput,
         gateOpening: Number(state.gateOpening.toFixed(5)),
+        arrivalTimer: Number(state.arrivalTimer.toFixed(5)),
         questionIndex: state.questionIndex,
         boatApproach: Number(state.boatApproach.toFixed(5)),
         renderer: "phaser",
@@ -579,9 +613,23 @@
         state.progress = clamp(Number(value) || 0, 0, 0.94);
         state.velocity = 0;
         state.mode = "rowing";
+        state.arrivalTimer = 0;
         state.questionIndex = gateProgress.findIndex((gate) => gate > state.progress + 0.02);
         if (state.questionIndex < 0) state.questionIndex = gateProgress.length;
         state.boatApproach = 0;
+        el.questionPanel.classList.add("hidden");
+        el.finalePanel.classList.add("hidden");
+        return true;
+      },
+      arriveAtGateForQa: (index = state.questionIndex) => {
+        if (!isQa) return false;
+        const gateIndex = clamp(Math.floor(Number(index) || 0), 0, gateProgress.length - 1);
+        state.questionIndex = gateIndex;
+        state.progress = gateProgress[gateIndex] - 0.05;
+        state.velocity = 0;
+        state.forwardInput = 0;
+        state.boatApproach = 0.45;
+        beginGateArrival();
         el.questionPanel.classList.add("hidden");
         el.finalePanel.classList.add("hidden");
         return true;
