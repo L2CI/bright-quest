@@ -5,7 +5,7 @@ const BLOOM_PASS_URL = "./vendor/examples/jsm/postprocessing/UnrealBloomPass.js"
 const SSAO_PASS_URL = "./vendor/examples/jsm/postprocessing/SSAOPass.js";
 const FILM_PASS_URL = "./vendor/examples/jsm/postprocessing/FilmPass.js";
 const GLTF_LOADER_URL = "./vendor/examples/jsm/loaders/GLTFLoader.js";
-const BUILD_ID = "8f0f873-scale-fix";
+const BUILD_ID = "canyon-rebuild-7e8d66b";
 
 const ASSET_URLS = {
   character: "./assets/poly-pizza/boy-zsky-stylized-character.glb",
@@ -191,7 +191,7 @@ async function boot() {
 
 function initScene() {
   scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x5aa4b8, 0.005);
+  scene.fog = new THREE.FogExp2(0x173947, 0.012);
 
   camera = new THREE.PerspectiveCamera(58, window.innerWidth / window.innerHeight, 0.1, 140);
   camera.position.set(0, 7.2, 14);
@@ -203,14 +203,14 @@ function initScene() {
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.2;
-  renderer.setClearColor(0x5aa4b8);
+  renderer.toneMappingExposure = 1.35;
+  renderer.setClearColor(0x173947);
 
-  const ambient = new THREE.HemisphereLight(0xffffff, 0x64778a, 4.2);
+  const ambient = new THREE.HemisphereLight(0xd9f9ff, 0x25333f, 2.8);
   scene.add(ambient);
 
-  const moon = new THREE.DirectionalLight(0xfff4d2, 3.8);
-  moon.position.set(-6, 9, 7);
+  const moon = new THREE.DirectionalLight(0xcff7ff, 3.2);
+  moon.position.set(-5, 10, 4);
   moon.castShadow = true;
   moon.shadow.mapSize.set(2048, 2048);
   moon.shadow.bias = -0.0003;
@@ -319,57 +319,86 @@ function makeCave() {
   const rockTexture = makeRockTexture();
   rockTexture.wrapS = THREE.RepeatWrapping;
   rockTexture.wrapT = THREE.RepeatWrapping;
-  rockTexture.repeat.set(3, 5);
+  rockTexture.repeat.set(5, 8);
   const wallMaterial = new THREE.MeshStandardMaterial({
-    color: 0x54758a,
+    color: 0x4d7084,
     map: rockTexture,
     roughness: 0.9,
     metalness: 0.02,
     emissive: 0x081827,
-    emissiveIntensity: 0.18
+    emissiveIntensity: 0.24
   });
   const rockMaterial = new THREE.MeshStandardMaterial({
-    color: 0x6d8799,
+    color: 0x5c7484,
     map: rockTexture,
     roughness: 0.88,
-    metalness: 0.02
+    metalness: 0.02,
+    emissive: 0x071522,
+    emissiveIntensity: 0.08
   });
   const floorTexture = makeRockTexture(true);
   floorTexture.wrapS = THREE.RepeatWrapping;
   floorTexture.wrapT = THREE.RepeatWrapping;
   floorTexture.repeat.set(5, 9);
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(46, 98), new THREE.MeshStandardMaterial({ color: 0x3b6176, map: floorTexture, roughness: 0.9 }));
+  const floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(58, 104),
+    new THREE.MeshStandardMaterial({ color: 0x334d5b, map: floorTexture, roughness: 0.92, emissive: 0x061018, emissiveIntensity: 0.18 })
+  );
   floor.rotation.x = -Math.PI / 2;
-  floor.position.y = -0.28;
+  floor.position.y = -0.34;
   floor.receiveShadow = true;
   scene.add(floor);
 
-  const wallGeometry = new THREE.SphereGeometry(1, 18, 12);
-  for (let i = 0; i < 44; i += 1) {
-    const t = 0.02 + (i / 44) * 0.96;
+  [-1, 1].forEach((side) => {
+    const nearBank = new THREE.Mesh(makeRiverStripGeometry(side, 1.08, 2.28, -0.18, 128), new THREE.MeshStandardMaterial({
+      color: 0x496779,
+      map: floorTexture,
+      roughness: 0.88,
+      metalness: 0.03,
+      emissive: 0x071826,
+      emissiveIntensity: 0.2,
+      side: THREE.DoubleSide
+    }));
+    nearBank.receiveShadow = true;
+    scene.add(nearBank);
+
+    const ledge = new THREE.Mesh(makeRiverStripGeometry(side, 2.28, 5.2, 0.08, 128), wallMaterial);
+    ledge.material.side = THREE.DoubleSide;
+    ledge.receiveShadow = true;
+    ledge.castShadow = true;
+    scene.add(ledge);
+  });
+
+  const wallGeometry = new THREE.DodecahedronGeometry(1, 1);
+  for (let i = 0; i < 84; i += 1) {
+    const t = 0.015 + (i / 84) * 0.97;
     const p = samplePath(t);
     const n = sampleNormal(t);
     const side = i % 2 === 0 ? -1 : 1;
     const rock = new THREE.Mesh(wallGeometry, rockMaterial);
-    const distance = riverWidthAt(t) + 3.8 + Math.random() * 2.6;
-    const height = 1.8 + Math.random() * 1.8;
-    rock.position.set(p.x + n.x * side * distance, height * 0.45 - 0.18, p.z + n.z * side * distance);
-    rock.scale.set(2.6 + Math.random() * 2.2, height, 2.4 + Math.random() * 1.8);
-    rock.rotation.set(Math.random() * 0.25, Math.random() * Math.PI, Math.random() * 0.18);
+    const layer = i % 3;
+    const distance = riverWidthAt(t) + 3.8 + layer * 1.35 + Math.random() * 0.9;
+    const height = 1.8 + layer * 0.75 + Math.random() * 1.25;
+    rock.position.set(p.x + n.x * side * distance, height * 0.5 - 0.26, p.z + n.z * side * distance);
+    rock.scale.set(1.8 + Math.random() * 1.4, height, 1.2 + Math.random() * 1.1);
+    rock.rotation.set(Math.random() * 0.32, Math.random() * Math.PI, side * (0.12 + Math.random() * 0.2));
     rock.castShadow = true;
     rock.receiveShadow = true;
     scene.add(rock);
   }
 
-  const archGeometry = new THREE.TorusGeometry(15.8, 0.36, 14, 56, Math.PI);
-  for (let i = 0; i < 13; i += 1) {
-    const arch = new THREE.Mesh(archGeometry, wallMaterial);
-    arch.position.set(0, 1.2, 29 - i * 5.6);
-    arch.rotation.set(Math.PI / 2, 0, Math.PI);
-    arch.scale.set(1, 0.72 + Math.sin(i) * 0.06, 1);
-    arch.castShadow = true;
-    arch.receiveShadow = true;
-    scene.add(arch);
+  const ceilingMaterial = wallMaterial.clone();
+  ceilingMaterial.color.setHex(0x3d5d70);
+  for (let i = 0; i < 18; i += 1) {
+    const t = 0.025 + (i / 18) * 0.95;
+    const p = samplePath(t);
+    const tangent = sampleTangent(t);
+    const beam = new THREE.Mesh(new THREE.BoxGeometry(13.5 + Math.sin(i) * 1.4, 0.42, 1.6), ceilingMaterial);
+    beam.position.set(p.x, 4.8 + Math.sin(i * 1.7) * 0.35, p.z);
+    beam.rotation.set(0.1 * Math.sin(i), Math.atan2(tangent.x, tangent.z) + Math.PI / 2, 0.06 * Math.cos(i));
+    beam.castShadow = true;
+    beam.receiveShadow = true;
+    scene.add(beam);
   }
 
   const crystalMaterials = [
@@ -384,24 +413,24 @@ function makeCave() {
     const n = sampleNormal(t);
     const side = i % 2 === 0 ? -1 : 1;
     const crystal = new THREE.Mesh(crystalGeometry, crystalMaterials[i % crystalMaterials.length]);
-    crystal.position.set(p.x + n.x * side * (riverWidthAt(t) + 1.8 + Math.random() * 2.2), 0.28 + Math.random() * 1.4, p.z + n.z * side * (riverWidthAt(t) + 1.8 + Math.random() * 2.2));
-    crystal.scale.set(0.55 + Math.random() * 0.55, 0.9 + Math.random() * 1.0, 0.55 + Math.random() * 0.55);
+    crystal.position.set(p.x + n.x * side * (riverWidthAt(t) + 2.4 + Math.random() * 1.6), 0.36 + Math.random() * 1.8, p.z + n.z * side * (riverWidthAt(t) + 2.4 + Math.random() * 1.6));
+    crystal.scale.set(0.36 + Math.random() * 0.38, 0.72 + Math.random() * 0.75, 0.36 + Math.random() * 0.38);
     crystal.rotation.set(Math.random() * 0.5, Math.random() * Math.PI, Math.random() * 0.5);
     crystal.castShadow = true;
     scene.add(crystal);
   }
 
-  for (let i = 0; i < 22; i += 1) {
+  for (let i = 0; i < 30; i += 1) {
     const warm = i % 3 !== 0;
-    const t = 0.04 + (i / 22) * 0.92;
+    const t = 0.035 + (i / 30) * 0.93;
     const p = samplePath(t);
     const n = sampleNormal(t);
     const side = i % 2 ? -1 : 1;
-    const bankX = p.x + n.x * side * (riverWidthAt(t) + 2.65);
-    const bankZ = p.z + n.z * side * (riverWidthAt(t) + 2.65);
+    const bankX = p.x + n.x * side * (riverWidthAt(t) + 2.05);
+    const bankZ = p.z + n.z * side * (riverWidthAt(t) + 2.05);
     makeLantern(new THREE.Vector3(bankX, 0.02, bankZ), warm ? 0xffbd66 : 0x55e4ff);
-    const light = new THREE.PointLight(warm ? 0xffca75 : 0x65e7ff, warm ? 3.4 : 2.7, 16, 2);
-    light.position.set(bankX, 1.5, bankZ);
+    const light = new THREE.PointLight(warm ? 0xffca75 : 0x65e7ff, warm ? 5.6 : 3.4, 13, 1.7);
+    light.position.set(bankX, 1.62, bankZ);
     scene.add(light);
     caveLights.push(light);
 
@@ -414,6 +443,39 @@ function makeCave() {
   }
 
   addKenneyCaveAssets();
+}
+
+function makeRiverStripGeometry(side, innerPadding, outerPadding, y = -0.16, segments = 120) {
+  const positions = [];
+  const uvs = [];
+  const indices = [];
+  for (let i = 0; i <= segments; i += 1) {
+    const t = i / segments;
+    const p = samplePath(t);
+    const n = sampleNormal(t);
+    const inner = riverWidthAt(t) + innerPadding;
+    const outer = riverWidthAt(t) + outerPadding;
+    const wobble = Math.sin(t * Math.PI * 12 + side * 0.7) * 0.12;
+    positions.push(
+      p.x + n.x * side * inner,
+      y + wobble * 0.15,
+      p.z + n.z * side * inner,
+      p.x + n.x * side * outer,
+      y + 0.34 + wobble,
+      p.z + n.z * side * outer
+    );
+    uvs.push(0, t * 9, 1, t * 9);
+    if (i < segments) {
+      const base = i * 2;
+      indices.push(base, base + 1, base + 2, base + 1, base + 3, base + 2);
+    }
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  return geometry;
 }
 
 function addKenneyCaveAssets() {
@@ -481,15 +543,16 @@ function makeRiver() {
 
   waterUniforms = {
     time: { value: 0 },
-    deepColor: { value: new THREE.Color(0x075985) },
-    shallowColor: { value: new THREE.Color(0x16c7d9) },
+    deepColor: { value: new THREE.Color(0x06446c) },
+    shallowColor: { value: new THREE.Color(0x1ec8d6) },
     foamColor: { value: new THREE.Color(0xd8fbff) }
   };
   river = new THREE.Mesh(
     new THREE.ShapeGeometry(shape),
     new THREE.ShaderMaterial({
       uniforms: waterUniforms,
-      transparent: false,
+      transparent: true,
+      depthWrite: false,
       vertexShader: `
         varying vec2 vUv;
         varying vec3 vWorldPosition;
@@ -497,8 +560,8 @@ function makeRiver() {
         void main() {
           vUv = uv;
           vec3 transformed = position;
-          transformed.z += sin(position.x * 0.7 + time * 1.8) * 0.035;
-          transformed.z += sin(position.y * 1.4 - time * 1.2) * 0.025;
+          transformed.z += sin(position.x * 0.85 + time * 2.2) * 0.045;
+          transformed.z += sin(position.y * 1.8 - time * 1.5) * 0.03;
           vec4 worldPosition = modelMatrix * vec4(transformed, 1.0);
           vWorldPosition = worldPosition.xyz;
           gl_Position = projectionMatrix * viewMatrix * worldPosition;
@@ -519,16 +582,19 @@ function makeRiver() {
 
         void main() {
           vec2 flow = vUv;
-          flow.y -= time * 0.08;
-          float current = sin(flow.y * 34.0 + sin(flow.x * 9.0) * 1.4 + time * 2.2);
-          float small = sin((flow.x + flow.y) * 58.0 - time * 3.4) * 0.5 + 0.5;
-          float caustic = waveLine(flow, 2.4, 28.0, 0.045) * 0.45;
-          caustic += waveLine(flow.yx + vec2(0.18, 0.0), -1.8, 22.0, 0.035) * 0.35;
-          float channel = smoothstep(0.02, 0.45, vUv.x) * (1.0 - smoothstep(0.55, 0.98, vUv.x));
-          vec3 color = mix(deepColor, shallowColor, 0.32 + 0.16 * current + 0.08 * small);
-          color += foamColor * caustic * channel;
-          color += vec3(0.02, 0.18, 0.22) * sin(time + vWorldPosition.z * 0.16);
-          gl_FragColor = vec4(color, 1.0);
+          flow.y -= time * 0.11;
+          float current = sin(flow.y * 42.0 + sin(flow.x * 10.0) * 1.8 + time * 2.6);
+          float small = sin((flow.x + flow.y) * 78.0 - time * 4.4) * 0.5 + 0.5;
+          float caustic = waveLine(flow, 2.8, 34.0, 0.038) * 0.5;
+          caustic += waveLine(flow.yx + vec2(0.18, 0.0), -2.2, 26.0, 0.03) * 0.36;
+          float leftEdge = 1.0 - smoothstep(0.02, 0.16, vUv.x);
+          float rightEdge = smoothstep(0.84, 0.98, vUv.x);
+          float edgeFoam = max(leftEdge, rightEdge);
+          float channel = smoothstep(0.04, 0.4, vUv.x) * (1.0 - smoothstep(0.6, 0.96, vUv.x));
+          vec3 color = mix(deepColor, shallowColor, 0.38 + 0.15 * current + 0.1 * small);
+          color += foamColor * (caustic * channel + edgeFoam * 0.28);
+          color += vec3(0.01, 0.14, 0.18) * sin(time + vWorldPosition.z * 0.18);
+          gl_FragColor = vec4(color, 0.88);
         }
       `
     })
@@ -538,7 +604,13 @@ function makeRiver() {
   river.receiveShadow = true;
   scene.add(river);
 
-  const foamMaterial = new THREE.MeshBasicMaterial({ color: 0xd8fbff, transparent: true, opacity: 0.3, depthWrite: false });
+  const edgeFoam = new THREE.MeshBasicMaterial({ color: 0xbdf8ff, transparent: true, opacity: 0.35, depthWrite: false, side: THREE.DoubleSide });
+  [-1, 1].forEach((side) => {
+    const foamEdge = new THREE.Mesh(makeRiverStripGeometry(side, -0.08, 0.06, 0.075, 128), edgeFoam.clone());
+    scene.add(foamEdge);
+  });
+
+  const foamMaterial = new THREE.MeshBasicMaterial({ color: 0xd8fbff, transparent: true, opacity: 0.34, depthWrite: false });
   for (let i = 0; i < 18; i += 1) {
     const foam = new THREE.Mesh(new THREE.PlaneGeometry(1.2 + Math.random() * 1.6, 0.055), foamMaterial.clone());
     foam.rotation.x = -Math.PI / 2;
@@ -556,28 +628,47 @@ function makeBoat() {
   boatWood.wrapS = THREE.RepeatWrapping;
   boatWood.wrapT = THREE.RepeatWrapping;
   boatWood.repeat.set(1.4, 2.4);
-  const hullMaterial = new THREE.MeshStandardMaterial({ color: 0x9a5a32, map: boatWood, roughness: 0.72, metalness: 0.02 });
-  const innerMaterial = new THREE.MeshStandardMaterial({ color: 0x4f2f1f, map: boatWood, roughness: 0.82 });
-  const trimMaterial = new THREE.MeshStandardMaterial({ color: 0xe0ad65, map: boatWood, roughness: 0.52, metalness: 0.08 });
+  const hullMaterial = new THREE.MeshStandardMaterial({ color: 0x8b4f2c, map: boatWood, roughness: 0.78, metalness: 0.02 });
+  const innerMaterial = new THREE.MeshStandardMaterial({ color: 0x3f2618, map: boatWood, roughness: 0.84 });
+  const trimMaterial = new THREE.MeshStandardMaterial({ color: 0xd8994f, map: boatWood, roughness: 0.54, metalness: 0.08 });
   const shadowMaterial = new THREE.MeshStandardMaterial({ color: 0x2e1b12, roughness: 0.9 });
 
   const hull = new THREE.Mesh(makeBoatHullGeometry(), hullMaterial);
   hull.castShadow = true;
   hull.receiveShadow = true;
   hull.position.y = 0.22;
+  hull.scale.set(1.18, 1, 1.16);
   boat.add(hull);
 
-  const inner = new THREE.Mesh(new THREE.BoxGeometry(1.28, 0.16, 2.42), innerMaterial);
-  inner.position.set(0, 0.62, 0.02);
+  const inner = new THREE.Mesh(new THREE.BoxGeometry(1.36, 0.12, 2.45), innerMaterial);
+  inner.position.set(0, 0.59, 0.02);
   inner.castShadow = true;
   boat.add(inner);
+
+  const keel = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.16, 3.3), shadowMaterial);
+  keel.position.set(0, 0.17, 0.05);
+  keel.castShadow = true;
+  boat.add(keel);
+
+  const prow = new THREE.Mesh(new THREE.ConeGeometry(0.46, 0.86, 4), trimMaterial);
+  prow.position.set(0, 0.72, -1.92);
+  prow.rotation.set(Math.PI / 2, Math.PI / 4, 0);
+  prow.scale.set(0.55, 1, 0.42);
+  prow.castShadow = true;
+  boat.add(prow);
 
   [-1, 1].forEach((side) => {
     const rail = new THREE.Mesh(new THREE.CapsuleGeometry(0.07, 3.05, 5, 10), trimMaterial);
     rail.rotation.x = Math.PI / 2;
-    rail.position.set(side * 0.98, 0.78, 0);
+    rail.position.set(side * 1.08, 0.78, 0);
     rail.castShadow = true;
     boat.add(rail);
+
+    const sidePlank = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.34, 2.5), hullMaterial);
+    sidePlank.position.set(side * 0.9, 0.52, 0.06);
+    sidePlank.rotation.z = side * -0.1;
+    sidePlank.castShadow = true;
+    boat.add(sidePlank);
   });
 
   [-0.74, 0.12, 0.86].forEach((z) => {
@@ -601,7 +692,7 @@ function makeBoat() {
   boy.visible = false;
 
   comicRider = makeComicRiderSprite();
-  comicRider.position.set(0, 0.72, -0.3);
+  comicRider.position.set(0, 0.74, -0.3);
   comicRider.rotation.x = -0.08;
   comicRider.scale.set(1.2, 1.2, 1);
   boat.add(comicRider);
@@ -647,9 +738,9 @@ function addKenneyBoatAssets() {
   const trueCharacter = cloneAsset("character");
   if (trueCharacter) {
     trueCharacter.visible = true;
-    fitAssetToHeight(trueCharacter, 0.16);
-    trueCharacter.position.add(new THREE.Vector3(0, 0.54, -0.18));
-    trueCharacter.rotation.set(-0.18, Math.PI, 0);
+    fitAssetToHeight(trueCharacter, 0.62);
+    trueCharacter.position.add(new THREE.Vector3(0, 0.62, -0.18));
+    trueCharacter.rotation.set(-0.12, Math.PI, 0);
     tintAsset(trueCharacter, 0x2d82ff, 0.18);
     boat.add(trueCharacter);
     boatRig.characterModel = trueCharacter;
@@ -669,7 +760,7 @@ function addKenneyBoatAssets() {
       const paddle = cloneAsset("paddle");
       if (!paddle) return;
       paddle.visible = true;
-      paddle.position.set(side * 0.5, 0.58, -0.04);
+      paddle.position.set(side * 0.58, 0.6, -0.04);
       paddle.rotation.set(0.08, side * 0.55, side * 0.9);
       paddle.scale.setScalar(0.52);
       boat.add(paddle);
@@ -1282,10 +1373,11 @@ function makeGates() {
   stoneTexture.wrapS = THREE.RepeatWrapping;
   stoneTexture.wrapT = THREE.RepeatWrapping;
   stoneTexture.repeat.set(1.6, 1.6);
-  const stone = new THREE.MeshStandardMaterial({ color: 0x7b94a3, map: stoneTexture, roughness: 0.82, metalness: 0.03 });
-  const trim = new THREE.MeshStandardMaterial({ color: 0xffd47a, emissive: 0x7a3d00, emissiveIntensity: 0.45, roughness: 0.32, metalness: 0.35 });
-  const glow = new THREE.MeshStandardMaterial({ color: 0xffd15c, emissive: 0xff9900, emissiveIntensity: 1.8, roughness: 0.22 });
-  const barrierMaterial = new THREE.MeshBasicMaterial({ color: 0x69e6ff, transparent: true, opacity: 0.32, depthWrite: false });
+  const stone = new THREE.MeshStandardMaterial({ color: 0x6f8795, map: stoneTexture, roughness: 0.84, metalness: 0.04 });
+  const carved = new THREE.MeshStandardMaterial({ color: 0x9fb1ba, map: stoneTexture, roughness: 0.76, metalness: 0.06 });
+  const trim = new THREE.MeshStandardMaterial({ color: 0xffc86a, emissive: 0x9c4b00, emissiveIntensity: 0.72, roughness: 0.34, metalness: 0.38 });
+  const glow = new THREE.MeshStandardMaterial({ color: 0xffd15c, emissive: 0xff9900, emissiveIntensity: 2.1, roughness: 0.22 });
+  const barrierMaterial = new THREE.MeshBasicMaterial({ color: 0x75eaff, transparent: true, opacity: 0.24, depthWrite: false, side: THREE.DoubleSide });
   gateProgress.forEach((t, index) => {
     const p = samplePath(t);
     const n = sampleNormal(t);
@@ -1295,45 +1387,58 @@ function makeGates() {
     group.position.set(p.x, 0, p.z);
     group.rotation.y = Math.atan2(n.x, n.z);
 
-    const arch = new THREE.Mesh(new THREE.TorusGeometry(3.2, 0.2, 14, 48, Math.PI), stone);
-    arch.position.y = 2.16;
+    const arch = new THREE.Mesh(new THREE.TorusGeometry(3.05, 0.24, 16, 56, Math.PI), carved);
+    arch.position.y = 2.28;
     arch.rotation.z = Math.PI;
+    arch.scale.set(1.08, 0.86, 1);
     arch.castShadow = true;
+    arch.receiveShadow = true;
     group.add(arch);
 
-    const top = new THREE.Mesh(new THREE.BoxGeometry(6.4, 0.34, 0.44), trim);
-    top.position.y = 2.62;
+    const top = new THREE.Mesh(new THREE.BoxGeometry(6.9, 0.3, 0.52), trim);
+    top.position.y = 2.72;
     top.castShadow = true;
     group.add(top);
 
-    [-2.8, 2.8].forEach((x) => {
-      const post = new THREE.Mesh(new THREE.CapsuleGeometry(0.28, 2.8, 6, 14), stone);
-      post.position.set(x, 1.35, 0);
+    [-3.05, 3.05].forEach((x) => {
+      const post = new THREE.Mesh(new THREE.BoxGeometry(0.62, 2.8, 0.62), stone);
+      post.position.set(x, 1.24, 0);
+      post.rotation.z = x < 0 ? -0.08 : 0.08;
       post.castShadow = true;
       post.receiveShadow = true;
       group.add(post);
+
+      const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.48, 0.58, 0.34, 8), carved);
+      cap.position.set(x, 2.78, 0);
+      cap.castShadow = true;
+      group.add(cap);
+
+      const brazier = makeLantern(new THREE.Vector3(0, 0, 0), 0xffb14d);
+      brazier.position.set(x * 0.86, 0.04, -0.56);
+      brazier.scale.setScalar(0.78);
+      group.add(brazier);
     });
 
-    const barrier = new THREE.Mesh(new THREE.PlaneGeometry(4.5, 2.4, 10, 4), barrierMaterial.clone());
-    barrier.position.set(0, 1.34, -0.03);
+    const barrier = new THREE.Mesh(new THREE.PlaneGeometry(4.8, 2.28, 16, 8), barrierMaterial.clone());
+    barrier.position.set(0, 1.34, -0.04);
     barrier.userData.isBarrier = true;
     group.add(barrier);
 
-    [-1.3, 0, 1.3].forEach((x, runeIndex) => {
-      const rune = new THREE.Mesh(new THREE.TorusGeometry(0.28 + runeIndex * 0.05, 0.025, 8, 28), glow);
-      rune.position.set(x, 1.36 + Math.sin(runeIndex) * 0.22, -0.1);
+    [-1.45, 0, 1.45].forEach((x, runeIndex) => {
+      const rune = new THREE.Mesh(new THREE.TorusGeometry(0.26 + runeIndex * 0.05, 0.024, 8, 32), glow);
+      rune.position.set(x, 1.35 + Math.sin(runeIndex) * 0.18, -0.12);
       rune.rotation.y = Math.PI / 2;
       group.add(rune);
     });
 
-    const sign = new THREE.Mesh(new THREE.BoxGeometry(1.45, 0.46, 0.14), glow);
-    sign.position.y = 2.06;
-    sign.position.z = -0.25;
+    const sign = new THREE.Mesh(new THREE.BoxGeometry(1.72, 0.44, 0.14), glow);
+    sign.position.y = 2.2;
+    sign.position.z = -0.3;
     sign.castShadow = true;
     group.add(sign);
 
-    const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.4), glow);
-    gem.position.y = 3.15;
+    const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.34), glow);
+    gem.position.y = 3.12;
     gem.castShadow = true;
     group.add(gem);
 
@@ -1420,7 +1525,7 @@ function makeTreasureVault() {
   guardian.rotation.y = -0.45;
   const trueGuardian = cloneAsset("guardian");
   if (trueGuardian) {
-    fitAssetToHeight(trueGuardian, 4.3);
+    fitAssetToHeight(trueGuardian, 3.4);
     trueGuardian.rotation.y = Math.PI;
     tintAsset(trueGuardian, 0x2d6dff, 0.16);
     guardian.add(trueGuardian);
@@ -1599,10 +1704,19 @@ function updateBoatTransform(time = 0, dt = 0) {
   boat.rotation.x = state.rowVelocity * 1.3 + Math.sin(time * 3.8) * 0.018;
   updateRowingRig(time);
 
-  const camBack = window.innerWidth < 720 ? 10.2 : 12.8;
-  const camHeight = window.innerWidth < 720 ? 6.6 : 8.2;
-  camera.position.lerp(new THREE.Vector3(p.x - tangent.x * camBack + normal.x * sideOffset * 0.22, camHeight, p.z - tangent.z * camBack + normal.z * sideOffset * 0.22), 0.075);
-  camera.lookAt(p.x + normal.x * sideOffset * 0.22, 1.02, p.z + tangent.z * 4.4);
+  const camBack = window.innerWidth < 720 ? 7.4 : 8.8;
+  const camHeight = window.innerWidth < 720 ? 4.0 : 4.8;
+  const targetCamera = new THREE.Vector3(
+    p.x - tangent.x * camBack + normal.x * sideOffset * 0.28,
+    camHeight,
+    p.z - tangent.z * camBack + normal.z * sideOffset * 0.28
+  );
+  camera.position.lerp(targetCamera, 0.09);
+  camera.lookAt(
+    p.x + normal.x * sideOffset * 0.18 + tangent.x * 4.2,
+    1.0,
+    p.z + normal.z * sideOffset * 0.18 + tangent.z * 4.2
+  );
 
   if (river?.material) {
     river.material.emissiveIntensity = 0.6 + Math.sin(time * 1.8) * 0.12;
@@ -1637,7 +1751,7 @@ function updateRowingRig(time) {
   }
   if (boatRig.characterModel) {
     boatRig.characterModel.rotation.x = -0.18 + stroke * rowPower * 0.06;
-    boatRig.characterModel.position.y = 0.54 + Math.cos(time * 5.4) * rowPower * 0.01;
+    boatRig.characterModel.position.y = 0.62 + Math.cos(time * 5.4) * rowPower * 0.01;
   }
 }
 
