@@ -1,46 +1,30 @@
-const THREE_URL = "./vendor/three.module.js";
-const EFFECT_COMPOSER_URL = "./vendor/examples/jsm/postprocessing/EffectComposer.js";
-const RENDER_PASS_URL = "./vendor/examples/jsm/postprocessing/RenderPass.js";
-const BLOOM_PASS_URL = "./vendor/examples/jsm/postprocessing/UnrealBloomPass.js";
-const SSAO_PASS_URL = "./vendor/examples/jsm/postprocessing/SSAOPass.js";
-const FILM_PASS_URL = "./vendor/examples/jsm/postprocessing/FilmPass.js";
-const GLTF_LOADER_URL = "./vendor/examples/jsm/loaders/GLTFLoader.js";
-const BUILD_ID = "canyon-rebuild-7e8d66b";
-
-const ASSET_URLS = {
-  character: "./assets/poly-pizza/boy-zsky-stylized-character.glb",
-  chest: "./assets/poly-pizza/chest-quaternius.glb",
-  guardian: "./assets/poly-pizza/robot-quaternius-animated.glb",
-  rocksA: "./assets/kenney/pirate/rocks-a.glb",
-  rocksB: "./assets/kenney/pirate/rocks-b.glb",
-  rocksC: "./assets/kenney/pirate/rocks-c.glb"
-};
+const BUILD_ID = "cinematic-2-5d-6960333";
 
 const questions = [
   {
     type: "Maths gate",
-    title: "Iron Gate 1",
+    title: "Moonstone Gate",
     text: "The boat has 4 oars on each side. How many oars are there altogether?",
     answers: ["6", "8", "10", "12"],
     correct: "8"
   },
   {
     type: "Logic gate",
-    title: "Iron Gate 2",
+    title: "Echo Gate",
     text: "I am an odd number. Take away one letter and I become even. What am I?",
     answers: ["Seven", "Nine", "Eleven", "Three"],
     correct: "Seven"
   },
   {
     type: "English gate",
-    title: "Iron Gate 3",
+    title: "Lantern Gate",
     text: "Choose the best word: The cave river was dark, so Aarin rowed very ____.",
     answers: ["careful", "carefully", "care", "caring"],
     correct: "carefully"
   },
   {
     type: "Pattern gate",
-    title: "Iron Gate 4",
+    title: "Crystal Gate",
     text: "What comes next? 3, 6, 12, 24, ...",
     answers: ["30", "36", "42", "48"],
     correct: "48"
@@ -54,38 +38,8 @@ const questions = [
   }
 ];
 
-const pathPoints = [
-  { x: -11, z: 28 },
-  { x: -6, z: 19 },
-  { x: 7, z: 11 },
-  { x: 11, z: 1 },
-  { x: -4, z: -10 },
-  { x: -11, z: -22 },
-  { x: 3, z: -34 },
-  { x: 10, z: -47 }
-];
-
 const isFastQa = new URLSearchParams(window.location.search).get("qa") === "fast";
-const gateProgress = isFastQa ? [0.035, 0.07, 0.105, 0.14, 0.175] : [0.13, 0.29, 0.46, 0.64, 0.81];
-
-const state = {
-  progress: 0,
-  rowVelocity: 0,
-  forwardInput: 0,
-  steer: 0,
-  lateralOffset: 0,
-  lateralVelocity: 0,
-  questionIndex: 0,
-  mode: "rowing",
-  sound: true,
-  lastTime: performance.now(),
-  finalOpened: false,
-  gateOpening: 0,
-  wrongPulse: 0,
-  lastSwish: 0,
-  lastDrip: 0,
-  gateSoundPlayed: false
-};
+const gateProgress = isFastQa ? [0.05, 0.1, 0.15, 0.2, 0.25] : [0.16, 0.32, 0.49, 0.66, 0.82];
 
 const el = {
   canvas: document.querySelector("#questCanvas"),
@@ -103,1479 +57,58 @@ const el = {
   guardianLine: document.querySelector("#guardianLine"),
   soundButton: document.querySelector("#soundButton"),
   fallback: document.querySelector("#fallbackNotice"),
-  forwardButton: document.querySelector("#forwardButton"),
-  backButton: document.querySelector("#backButton"),
-  leftButton: document.querySelector("#leftButton"),
-  rightButton: document.querySelector("#rightButton")
+  forward: document.querySelector("#forwardButton"),
+  back: document.querySelector("#backButton"),
+  left: document.querySelector("#leftButton"),
+  right: document.querySelector("#rightButton")
 };
 
-let THREE;
-let EffectComposer;
-let RenderPass;
-let UnrealBloomPass;
-let SSAOPass;
-let FilmPass;
-let GLTFLoader;
-let renderer;
-let composer;
-let bloomPass;
-let ssaoPass;
-let filmPass;
-let scene;
-let camera;
-let boat;
-let boy;
-let comicRider;
-let river;
-let chest;
-let relic;
-let guardian;
-let guardianSprite;
-let boatRig = {};
-let currentGate;
-let gateMeshes = [];
-let caveLights = [];
-let foamTrails = [];
-let waterUniforms;
+const ctx = el.canvas.getContext("2d", { alpha: false });
+const state = {
+  width: 1,
+  height: 1,
+  dpr: 1,
+  progress: 0,
+  velocity: 0,
+  forwardInput: 0,
+  steer: 0,
+  lane: 0,
+  targetLane: 0,
+  questionIndex: 0,
+  mode: "rowing",
+  gateOpening: 0,
+  sound: true,
+  lastTime: 0,
+  rowPulse: 0,
+  particles: [],
+  gateSparkles: [],
+  finalStarted: false
+};
+
 let audioContext;
-let gltfLoader;
-let assetLibrary = {};
-const ASSET_LOAD_TIMEOUT_MS = 4500;
+let masterGain;
 
-async function boot() {
-  try {
-    window.__caveQuestBoot = { ok: false, stage: "loading-modules", build: BUILD_ID };
-    const modules = await Promise.all([
-      import(THREE_URL),
-      import(EFFECT_COMPOSER_URL),
-      import(RENDER_PASS_URL),
-      import(BLOOM_PASS_URL),
-      import(SSAO_PASS_URL),
-      import(FILM_PASS_URL),
-      import(GLTF_LOADER_URL)
-    ]);
-    THREE = modules[0];
-    EffectComposer = modules[1].EffectComposer;
-    RenderPass = modules[2].RenderPass;
-    UnrealBloomPass = modules[3].UnrealBloomPass;
-    SSAOPass = modules[4].SSAOPass;
-    FilmPass = modules[5].FilmPass;
-    GLTFLoader = modules[6].GLTFLoader;
-    gltfLoader = new GLTFLoader();
-    gltfLoader.setCrossOrigin("anonymous");
-    window.__caveQuestBoot.stage = "loading-assets";
-    assetLibrary = await loadKenneyAssets();
-    window.__caveQuestBoot.stage = "initializing-scene";
-    initScene();
-    bindInput();
-    window.__caveQuestBoot = {
-      ok: true,
-      stage: "running",
-      threeRevision: THREE.REVISION,
-      composer: Boolean(composer),
-      postProcessing: {
-        bloom: Boolean(bloomPass),
-        ssao: Boolean(ssaoPass),
-        film: Boolean(filmPass)
-      },
-      assets: Object.keys(assetLibrary).filter((key) => assetLibrary[key]).length,
-      build: BUILD_ID
-    };
-    requestAnimationFrame(loop);
-  } catch (error) {
-    console.error(error);
-    window.__caveQuestBoot = { ok: false, stage: "failed", message: error?.message || String(error), build: BUILD_ID };
-    el.fallback.classList.remove("hidden");
-  }
+window.__caveQuestBoot = { ok: false, stage: "loading", build: BUILD_ID };
+
+function resize() {
+  state.dpr = Math.min(window.devicePixelRatio || 1, 2);
+  state.width = Math.max(1, window.innerWidth);
+  state.height = Math.max(1, window.innerHeight);
+  el.canvas.width = Math.floor(state.width * state.dpr);
+  el.canvas.height = Math.floor(state.height * state.dpr);
+  el.canvas.style.width = `${state.width}px`;
+  el.canvas.style.height = `${state.height}px`;
+  ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
 }
 
-function initScene() {
-  scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x173947, 0.012);
-
-  camera = new THREE.PerspectiveCamera(58, window.innerWidth / window.innerHeight, 0.1, 140);
-  camera.position.set(0, 7.2, 14);
-
-  renderer = new THREE.WebGLRenderer({ canvas: el.canvas, antialias: true, alpha: false });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.35;
-  renderer.setClearColor(0x173947);
-
-  const ambient = new THREE.HemisphereLight(0xd9f9ff, 0x25333f, 2.8);
-  scene.add(ambient);
-
-  const moon = new THREE.DirectionalLight(0xcff7ff, 3.2);
-  moon.position.set(-5, 10, 4);
-  moon.castShadow = true;
-  moon.shadow.mapSize.set(2048, 2048);
-  moon.shadow.bias = -0.0003;
-  moon.shadow.normalBias = 0.02;
-  scene.add(moon);
-
-  makeCave();
-  makeRiver();
-  makeBoat();
-  makeGates();
-  makeTreasureVault();
-  initPostProcessing();
-  updateBoatTransform();
-  window.addEventListener("resize", resize);
-}
-
-function initPostProcessing() {
-  composer = new EffectComposer(renderer);
-  const renderPass = new RenderPass(scene, camera);
-  composer.addPass(renderPass);
-
-  ssaoPass = new SSAOPass(scene, camera, window.innerWidth, window.innerHeight);
-  ssaoPass.kernelRadius = 5;
-  ssaoPass.minDistance = 0.01;
-  ssaoPass.maxDistance = 0.045;
-  composer.addPass(ssaoPass);
-
-  bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.2, 0.4, 0.8);
-  bloomPass.threshold = 0.8;
-  bloomPass.strength = 1.2;
-  bloomPass.radius = 0.4;
-  composer.addPass(bloomPass);
-
-  filmPass = new FilmPass(0.025, 0.03, 648, false);
-  composer.addPass(filmPass);
-}
-
-async function loadKenneyAssets() {
-  const entries = await Promise.all(Object.entries(ASSET_URLS).map(async ([key, url]) => {
-    try {
-      const gltf = await withTimeout(loadGltf(url), ASSET_LOAD_TIMEOUT_MS, key);
-      const root = gltf.scene;
-      prepareAsset(root);
-      return [key, root];
-    } catch (error) {
-      console.warn(`Kenney asset failed: ${key}`, error);
-      return [key, null];
-    }
-  }));
-  return Object.fromEntries(entries);
-}
-
-function withTimeout(promise, ms, label) {
-  let timer;
-  const timeout = new Promise((_, reject) => {
-    timer = window.setTimeout(() => reject(new Error(`Timed out loading asset: ${label}`)), ms);
-  });
-  return Promise.race([promise, timeout]).finally(() => window.clearTimeout(timer));
-}
-
-function loadGltf(url) {
-  return new Promise((resolve, reject) => {
-    gltfLoader.load(url, resolve, undefined, reject);
-  });
-}
-
-function prepareAsset(root) {
-  root.traverse((node) => {
-    if (node.isMesh) {
-      node.castShadow = true;
-      node.receiveShadow = true;
-      const materials = Array.isArray(node.material) ? node.material : [node.material];
-      materials.filter(Boolean).forEach((material) => {
-        if ("roughness" in material) material.roughness = Math.min(material.roughness ?? 0.65, 0.72);
-        material.needsUpdate = true;
-      });
-    }
-  });
-}
-
-function cloneAsset(key) {
-  const asset = assetLibrary[key];
-  if (!asset) return null;
-  const clone = asset.clone(true);
-  prepareAsset(clone);
-  return clone;
-}
-
-function fitAssetToHeight(root, targetHeight) {
-  const box = new THREE.Box3().setFromObject(root);
-  const size = new THREE.Vector3();
-  box.getSize(size);
-  const sourceHeight = Math.max(size.y, 0.001);
-  root.scale.multiplyScalar(targetHeight / sourceHeight);
-  root.updateMatrixWorld(true);
-
-  const fittedBox = new THREE.Box3().setFromObject(root);
-  const center = new THREE.Vector3();
-  fittedBox.getCenter(center);
-  root.position.x -= center.x;
-  root.position.z -= center.z;
-  root.position.y -= fittedBox.min.y;
-}
-
-function makeCave() {
-  const rockTexture = makeRockTexture();
-  rockTexture.wrapS = THREE.RepeatWrapping;
-  rockTexture.wrapT = THREE.RepeatWrapping;
-  rockTexture.repeat.set(5, 8);
-  const wallMaterial = new THREE.MeshStandardMaterial({
-    color: 0x4d7084,
-    map: rockTexture,
-    roughness: 0.9,
-    metalness: 0.02,
-    emissive: 0x081827,
-    emissiveIntensity: 0.24
-  });
-  const rockMaterial = new THREE.MeshStandardMaterial({
-    color: 0x5c7484,
-    map: rockTexture,
-    roughness: 0.88,
-    metalness: 0.02,
-    emissive: 0x071522,
-    emissiveIntensity: 0.08
-  });
-  const floorTexture = makeRockTexture(true);
-  floorTexture.wrapS = THREE.RepeatWrapping;
-  floorTexture.wrapT = THREE.RepeatWrapping;
-  floorTexture.repeat.set(5, 9);
-  const floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(58, 104),
-    new THREE.MeshStandardMaterial({ color: 0x334d5b, map: floorTexture, roughness: 0.92, emissive: 0x061018, emissiveIntensity: 0.18 })
-  );
-  floor.rotation.x = -Math.PI / 2;
-  floor.position.y = -0.34;
-  floor.receiveShadow = true;
-  scene.add(floor);
-
-  [-1, 1].forEach((side) => {
-    const nearBank = new THREE.Mesh(makeRiverStripGeometry(side, 1.08, 2.28, -0.18, 128), new THREE.MeshStandardMaterial({
-      color: 0x496779,
-      map: floorTexture,
-      roughness: 0.88,
-      metalness: 0.03,
-      emissive: 0x071826,
-      emissiveIntensity: 0.2,
-      side: THREE.DoubleSide
-    }));
-    nearBank.receiveShadow = true;
-    scene.add(nearBank);
-
-    const ledge = new THREE.Mesh(makeRiverStripGeometry(side, 2.28, 5.2, 0.08, 128), wallMaterial);
-    ledge.material.side = THREE.DoubleSide;
-    ledge.receiveShadow = true;
-    ledge.castShadow = true;
-    scene.add(ledge);
-  });
-
-  const wallGeometry = new THREE.DodecahedronGeometry(1, 1);
-  for (let i = 0; i < 84; i += 1) {
-    const t = 0.015 + (i / 84) * 0.97;
-    const p = samplePath(t);
-    const n = sampleNormal(t);
-    const side = i % 2 === 0 ? -1 : 1;
-    const rock = new THREE.Mesh(wallGeometry, rockMaterial);
-    const layer = i % 3;
-    const distance = riverWidthAt(t) + 3.8 + layer * 1.35 + Math.random() * 0.9;
-    const height = 1.8 + layer * 0.75 + Math.random() * 1.25;
-    rock.position.set(p.x + n.x * side * distance, height * 0.5 - 0.26, p.z + n.z * side * distance);
-    rock.scale.set(1.8 + Math.random() * 1.4, height, 1.2 + Math.random() * 1.1);
-    rock.rotation.set(Math.random() * 0.32, Math.random() * Math.PI, side * (0.12 + Math.random() * 0.2));
-    rock.castShadow = true;
-    rock.receiveShadow = true;
-    scene.add(rock);
-  }
-
-  const ceilingMaterial = wallMaterial.clone();
-  ceilingMaterial.color.setHex(0x3d5d70);
-  for (let i = 0; i < 18; i += 1) {
-    const t = 0.025 + (i / 18) * 0.95;
-    const p = samplePath(t);
-    const tangent = sampleTangent(t);
-    const beam = new THREE.Mesh(new THREE.BoxGeometry(13.5 + Math.sin(i) * 1.4, 0.42, 1.6), ceilingMaterial);
-    beam.position.set(p.x, 4.8 + Math.sin(i * 1.7) * 0.35, p.z);
-    beam.rotation.set(0.1 * Math.sin(i), Math.atan2(tangent.x, tangent.z) + Math.PI / 2, 0.06 * Math.cos(i));
-    beam.castShadow = true;
-    beam.receiveShadow = true;
-    scene.add(beam);
-  }
-
-  const crystalMaterials = [
-    new THREE.MeshStandardMaterial({ color: 0x57e8ff, emissive: 0x16b9e8, emissiveIntensity: 1.5, roughness: 0.24, metalness: 0.05 }),
-    new THREE.MeshStandardMaterial({ color: 0xffd56e, emissive: 0xff9b2f, emissiveIntensity: 1.1, roughness: 0.34, metalness: 0.04 }),
-    new THREE.MeshStandardMaterial({ color: 0xb993ff, emissive: 0x784bff, emissiveIntensity: 1.0, roughness: 0.28, metalness: 0.04 })
-  ];
-  const crystalGeometry = new THREE.OctahedronGeometry(0.45, 1);
-  for (let i = 0; i < 28; i += 1) {
-    const t = 0.04 + (i / 28) * 0.9;
-    const p = samplePath(t);
-    const n = sampleNormal(t);
-    const side = i % 2 === 0 ? -1 : 1;
-    const crystal = new THREE.Mesh(crystalGeometry, crystalMaterials[i % crystalMaterials.length]);
-    crystal.position.set(p.x + n.x * side * (riverWidthAt(t) + 2.4 + Math.random() * 1.6), 0.36 + Math.random() * 1.8, p.z + n.z * side * (riverWidthAt(t) + 2.4 + Math.random() * 1.6));
-    crystal.scale.set(0.36 + Math.random() * 0.38, 0.72 + Math.random() * 0.75, 0.36 + Math.random() * 0.38);
-    crystal.rotation.set(Math.random() * 0.5, Math.random() * Math.PI, Math.random() * 0.5);
-    crystal.castShadow = true;
-    scene.add(crystal);
-  }
-
-  for (let i = 0; i < 30; i += 1) {
-    const warm = i % 3 !== 0;
-    const t = 0.035 + (i / 30) * 0.93;
-    const p = samplePath(t);
-    const n = sampleNormal(t);
-    const side = i % 2 ? -1 : 1;
-    const bankX = p.x + n.x * side * (riverWidthAt(t) + 2.05);
-    const bankZ = p.z + n.z * side * (riverWidthAt(t) + 2.05);
-    makeLantern(new THREE.Vector3(bankX, 0.02, bankZ), warm ? 0xffbd66 : 0x55e4ff);
-    const light = new THREE.PointLight(warm ? 0xffca75 : 0x65e7ff, warm ? 5.6 : 3.4, 13, 1.7);
-    light.position.set(bankX, 1.62, bankZ);
-    scene.add(light);
-    caveLights.push(light);
-
-    const glow = new THREE.Mesh(
-      new THREE.SphereGeometry(0.18, 18, 18),
-      new THREE.MeshBasicMaterial({ color: warm ? 0xffbf61 : 0x53dfff, transparent: true, opacity: 0.9 })
-    );
-    glow.position.copy(light.position);
-    scene.add(glow);
-  }
-
-  addKenneyCaveAssets();
-}
-
-function makeRiverStripGeometry(side, innerPadding, outerPadding, y = -0.16, segments = 120) {
-  const positions = [];
-  const uvs = [];
-  const indices = [];
-  for (let i = 0; i <= segments; i += 1) {
-    const t = i / segments;
-    const p = samplePath(t);
-    const n = sampleNormal(t);
-    const inner = riverWidthAt(t) + innerPadding;
-    const outer = riverWidthAt(t) + outerPadding;
-    const wobble = Math.sin(t * Math.PI * 12 + side * 0.7) * 0.12;
-    positions.push(
-      p.x + n.x * side * inner,
-      y + wobble * 0.15,
-      p.z + n.z * side * inner,
-      p.x + n.x * side * outer,
-      y + 0.34 + wobble,
-      p.z + n.z * side * outer
-    );
-    uvs.push(0, t * 9, 1, t * 9);
-    if (i < segments) {
-      const base = i * 2;
-      indices.push(base, base + 1, base + 2, base + 1, base + 3, base + 2);
-    }
-  }
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-  geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
-  geometry.setIndex(indices);
-  geometry.computeVertexNormals();
-  return geometry;
-}
-
-function addKenneyCaveAssets() {
-  const rockKeys = ["rocksA", "rocksB", "rocksC"];
-  for (let i = 0; i < 18; i += 1) {
-    const model = cloneAsset(rockKeys[i % rockKeys.length]);
-    if (!model) continue;
-    const t = 0.04 + (i / 18) * 0.9;
-    const p = samplePath(t);
-    const n = sampleNormal(t);
-    const side = i % 2 === 0 ? -1 : 1;
-    model.position.set(p.x + n.x * side * (riverWidthAt(t) + 2.4 + Math.random() * 1.8), -0.4, p.z + n.z * side * (riverWidthAt(t) + 2.4 + Math.random() * 1.8));
-    model.rotation.y = Math.random() * Math.PI;
-    model.scale.setScalar(0.34 + Math.random() * 0.2);
-    scene.add(model);
-  }
-}
-
-function makeLantern(position, color = 0xffb85c) {
-  const group = new THREE.Group();
-  const metal = new THREE.MeshStandardMaterial({ color: 0x283441, roughness: 0.42, metalness: 0.7 });
-  const glass = new THREE.MeshStandardMaterial({
-    color,
-    emissive: color,
-    emissiveIntensity: 1.9,
-    roughness: 0.18,
-    metalness: 0.05,
-    transparent: true,
-    opacity: 0.86
-  });
-  const post = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 1.2, 10), metal);
-  post.position.y = 0.55;
-  const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.22, 18, 14), glass);
-  lamp.position.y = 1.18;
-  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.14, 0.08, 10), metal);
-  cap.position.y = 1.42;
-  group.add(post, lamp, cap);
-  group.position.copy(position);
-  group.traverse((node) => {
-    if (node.isMesh) {
-      node.castShadow = true;
-      node.receiveShadow = true;
-    }
-  });
-  scene.add(group);
-  return group;
-}
-
-function makeRiver() {
-  const shape = new THREE.Shape();
-  const left = [];
-  const right = [];
-  for (let i = 0; i <= 130; i += 1) {
-    const t = i / 130;
-    const p = samplePath(t);
-    const n = sampleNormal(t);
-    const width = riverWidthAt(t);
-    left.push(new THREE.Vector2(p.x + n.x * width, -p.z - n.z * width));
-    right.push(new THREE.Vector2(p.x - n.x * width, -p.z + n.z * width));
-  }
-  shape.moveTo(left[0].x, left[0].y);
-  left.forEach((p) => shape.lineTo(p.x, p.y));
-  right.reverse().forEach((p) => shape.lineTo(p.x, p.y));
-  shape.closePath();
-
-  waterUniforms = {
-    time: { value: 0 },
-    deepColor: { value: new THREE.Color(0x06446c) },
-    shallowColor: { value: new THREE.Color(0x1ec8d6) },
-    foamColor: { value: new THREE.Color(0xd8fbff) }
-  };
-  river = new THREE.Mesh(
-    new THREE.ShapeGeometry(shape),
-    new THREE.ShaderMaterial({
-      uniforms: waterUniforms,
-      transparent: true,
-      depthWrite: false,
-      vertexShader: `
-        varying vec2 vUv;
-        varying vec3 vWorldPosition;
-        uniform float time;
-        void main() {
-          vUv = uv;
-          vec3 transformed = position;
-          transformed.z += sin(position.x * 0.85 + time * 2.2) * 0.045;
-          transformed.z += sin(position.y * 1.8 - time * 1.5) * 0.03;
-          vec4 worldPosition = modelMatrix * vec4(transformed, 1.0);
-          vWorldPosition = worldPosition.xyz;
-          gl_Position = projectionMatrix * viewMatrix * worldPosition;
-        }
-      `,
-      fragmentShader: `
-        varying vec2 vUv;
-        varying vec3 vWorldPosition;
-        uniform float time;
-        uniform vec3 deepColor;
-        uniform vec3 shallowColor;
-        uniform vec3 foamColor;
-
-        float waveLine(vec2 p, float speed, float scale, float width) {
-          float v = sin(p.x * scale + sin(p.y * 2.3 + time * 0.6) * 0.7 + time * speed);
-          return smoothstep(1.0 - width, 1.0, v);
-        }
-
-        void main() {
-          vec2 flow = vUv;
-          flow.y -= time * 0.11;
-          float current = sin(flow.y * 42.0 + sin(flow.x * 10.0) * 1.8 + time * 2.6);
-          float small = sin((flow.x + flow.y) * 78.0 - time * 4.4) * 0.5 + 0.5;
-          float caustic = waveLine(flow, 2.8, 34.0, 0.038) * 0.5;
-          caustic += waveLine(flow.yx + vec2(0.18, 0.0), -2.2, 26.0, 0.03) * 0.36;
-          float leftEdge = 1.0 - smoothstep(0.02, 0.16, vUv.x);
-          float rightEdge = smoothstep(0.84, 0.98, vUv.x);
-          float edgeFoam = max(leftEdge, rightEdge);
-          float channel = smoothstep(0.04, 0.4, vUv.x) * (1.0 - smoothstep(0.6, 0.96, vUv.x));
-          vec3 color = mix(deepColor, shallowColor, 0.38 + 0.15 * current + 0.1 * small);
-          color += foamColor * (caustic * channel + edgeFoam * 0.28);
-          color += vec3(0.01, 0.14, 0.18) * sin(time + vWorldPosition.z * 0.18);
-          gl_FragColor = vec4(color, 0.88);
-        }
-      `
-    })
-  );
-  river.rotation.x = -Math.PI / 2;
-  river.position.y = 0;
-  river.receiveShadow = true;
-  scene.add(river);
-
-  const edgeFoam = new THREE.MeshBasicMaterial({ color: 0xbdf8ff, transparent: true, opacity: 0.35, depthWrite: false, side: THREE.DoubleSide });
-  [-1, 1].forEach((side) => {
-    const foamEdge = new THREE.Mesh(makeRiverStripGeometry(side, -0.08, 0.06, 0.075, 128), edgeFoam.clone());
-    scene.add(foamEdge);
-  });
-
-  const foamMaterial = new THREE.MeshBasicMaterial({ color: 0xd8fbff, transparent: true, opacity: 0.34, depthWrite: false });
-  for (let i = 0; i < 18; i += 1) {
-    const foam = new THREE.Mesh(new THREE.PlaneGeometry(1.2 + Math.random() * 1.6, 0.055), foamMaterial.clone());
-    foam.rotation.x = -Math.PI / 2;
-    foam.position.y = 0.055;
-    foam.visible = false;
-    foamTrails.push(foam);
-    scene.add(foam);
-  }
-}
-
-function makeBoat() {
-  boat = new THREE.Group();
-
-  const boatWood = makeWoodTexture();
-  boatWood.wrapS = THREE.RepeatWrapping;
-  boatWood.wrapT = THREE.RepeatWrapping;
-  boatWood.repeat.set(1.4, 2.4);
-  const hullMaterial = new THREE.MeshStandardMaterial({ color: 0x8b4f2c, map: boatWood, roughness: 0.78, metalness: 0.02 });
-  const innerMaterial = new THREE.MeshStandardMaterial({ color: 0x3f2618, map: boatWood, roughness: 0.84 });
-  const trimMaterial = new THREE.MeshStandardMaterial({ color: 0xd8994f, map: boatWood, roughness: 0.54, metalness: 0.08 });
-  const shadowMaterial = new THREE.MeshStandardMaterial({ color: 0x2e1b12, roughness: 0.9 });
-
-  const hull = new THREE.Mesh(makeBoatHullGeometry(), hullMaterial);
-  hull.castShadow = true;
-  hull.receiveShadow = true;
-  hull.position.y = 0.22;
-  hull.scale.set(1.18, 1, 1.16);
-  boat.add(hull);
-
-  const inner = new THREE.Mesh(new THREE.BoxGeometry(1.36, 0.12, 2.45), innerMaterial);
-  inner.position.set(0, 0.59, 0.02);
-  inner.castShadow = true;
-  boat.add(inner);
-
-  const keel = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.16, 3.3), shadowMaterial);
-  keel.position.set(0, 0.17, 0.05);
-  keel.castShadow = true;
-  boat.add(keel);
-
-  const prow = new THREE.Mesh(new THREE.ConeGeometry(0.46, 0.86, 4), trimMaterial);
-  prow.position.set(0, 0.72, -1.92);
-  prow.rotation.set(Math.PI / 2, Math.PI / 4, 0);
-  prow.scale.set(0.55, 1, 0.42);
-  prow.castShadow = true;
-  boat.add(prow);
-
-  [-1, 1].forEach((side) => {
-    const rail = new THREE.Mesh(new THREE.CapsuleGeometry(0.07, 3.05, 5, 10), trimMaterial);
-    rail.rotation.x = Math.PI / 2;
-    rail.position.set(side * 1.08, 0.78, 0);
-    rail.castShadow = true;
-    boat.add(rail);
-
-    const sidePlank = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.34, 2.5), hullMaterial);
-    sidePlank.position.set(side * 0.9, 0.52, 0.06);
-    sidePlank.rotation.z = side * -0.1;
-    sidePlank.castShadow = true;
-    boat.add(sidePlank);
-  });
-
-  [-0.74, 0.12, 0.86].forEach((z) => {
-    const bench = new THREE.Mesh(new THREE.BoxGeometry(1.36, 0.12, 0.2), trimMaterial);
-    bench.position.set(0, 0.78, z);
-    bench.castShadow = true;
-    boat.add(bench);
-  });
-
-  for (let i = -2; i <= 2; i += 1) {
-    const rib = new THREE.Mesh(new THREE.BoxGeometry(1.42 - Math.abs(i) * 0.12, 0.08, 0.08), shadowMaterial);
-    rib.position.set(0, 0.56, i * 0.46);
-    rib.castShadow = true;
-    boat.add(rib);
-  }
-
-  boy = new THREE.Group();
-  makeRowingBoy(boy);
-  boy.position.set(0, 0.2, -0.08);
-  boat.add(boy);
-  boy.visible = false;
-
-  comicRider = makeComicRiderSprite();
-  comicRider.position.set(0, 0.74, -0.3);
-  comicRider.rotation.x = -0.08;
-  comicRider.scale.set(1.2, 1.2, 1);
-  boat.add(comicRider);
-
-  const oarMaterial = new THREE.MeshStandardMaterial({ color: 0xd9ad73, roughness: 0.5 });
-  const bladeMaterial = new THREE.MeshStandardMaterial({ color: 0xf1d29b, roughness: 0.48 });
-  boatRig.oars = [];
-  [-1, 1].forEach((side) => {
-    const oar = new THREE.Group();
-    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 2.9, 10), oarMaterial);
-    shaft.rotation.z = Math.PI / 2;
-    const blade = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.08, 0.22), bladeMaterial);
-    blade.position.x = side * 1.48;
-    blade.scale.set(0.7, 1, 1.25);
-    blade.castShadow = true;
-    shaft.castShadow = true;
-    oar.add(shaft, blade);
-    oar.position.set(side * 0.22, 0.86, 0.02);
-    oar.rotation.set(0.16, 0, side * 0.42);
-    oar.name = `oar-${side}`;
-    boat.add(oar);
-    boatRig.oars.push({ group: oar, side });
-  });
-
-  addKenneyBoatAssets();
-  scene.add(boat);
-}
-
-function addKenneyBoatAssets() {
-  const trueBoat = cloneAsset("boat");
-  if (trueBoat) {
-    boat.children.forEach((child) => {
-      child.visible = false;
-    });
-
-    trueBoat.visible = true;
-    trueBoat.position.set(0, 0.22, 0);
-    trueBoat.rotation.y = Math.PI;
-    trueBoat.scale.setScalar(1.08);
-    boat.add(trueBoat);
-  }
-
-  const trueCharacter = cloneAsset("character");
-  if (trueCharacter) {
-    trueCharacter.visible = true;
-    fitAssetToHeight(trueCharacter, 0.62);
-    trueCharacter.position.add(new THREE.Vector3(0, 0.62, -0.18));
-    trueCharacter.rotation.set(-0.12, Math.PI, 0);
-    tintAsset(trueCharacter, 0x2d82ff, 0.18);
-    boat.add(trueCharacter);
-    boatRig.characterModel = trueCharacter;
-    if (boy) boy.visible = false;
-    if (comicRider) comicRider.visible = false;
-  } else if (comicRider) {
-    comicRider.visible = true;
-  }
-
-  const truePaddle = cloneAsset("paddle");
-  if (truePaddle) {
-    boatRig.oars.forEach(({ group }) => {
-      group.visible = false;
-    });
-    boatRig.oars = [];
-    [-1, 1].forEach((side) => {
-      const paddle = cloneAsset("paddle");
-      if (!paddle) return;
-      paddle.visible = true;
-      paddle.position.set(side * 0.58, 0.6, -0.04);
-      paddle.rotation.set(0.08, side * 0.55, side * 0.9);
-      paddle.scale.setScalar(0.52);
-      boat.add(paddle);
-      boatRig.oars.push({ group: paddle, side });
-    });
-  }
-}
-
-function tintAsset(root, color, amount = 0.2) {
-  const target = new THREE.Color(color);
-  root.traverse((node) => {
-    if (node.isMesh) {
-      const materials = Array.isArray(node.material) ? node.material : [node.material];
-      materials.filter(Boolean).forEach((material) => {
-        if (material.color) material.color.lerp(target, amount);
-        material.needsUpdate = true;
-      });
-    }
-  });
-}
-
-function makeBoatHullGeometry() {
-  const vertices = new Float32Array([
-    0, 0.78, -1.85, -1.02, 0.62, -1.2, 1.02, 0.62, -1.2,
-    -1.02, 0.62, -1.2, -1.1, 0.52, 1.2, 1.1, 0.52, 1.2,
-    -1.02, 0.62, -1.2, 1.1, 0.52, 1.2, 1.02, 0.62, -1.2,
-    -1.1, 0.52, 1.2, 0, 0.7, 1.9, 1.1, 0.52, 1.2,
-    -0.58, 0.06, -1.05, 0.58, 0.06, -1.05, 0.7, 0.02, 1.05,
-    -0.58, 0.06, -1.05, 0.7, 0.02, 1.05, -0.7, 0.02, 1.05,
-    -1.02, 0.62, -1.2, -0.58, 0.06, -1.05, -0.7, 0.02, 1.05,
-    -1.02, 0.62, -1.2, -0.7, 0.02, 1.05, -1.1, 0.52, 1.2,
-    1.02, 0.62, -1.2, 1.1, 0.52, 1.2, 0.7, 0.02, 1.05,
-    1.02, 0.62, -1.2, 0.7, 0.02, 1.05, 0.58, 0.06, -1.05,
-    0, 0.78, -1.85, 1.02, 0.62, -1.2, 0.58, 0.06, -1.05,
-    0, 0.78, -1.85, 0.58, 0.06, -1.05, -0.58, 0.06, -1.05,
-    0, 0.78, -1.85, -0.58, 0.06, -1.05, -1.02, 0.62, -1.2,
-    -1.1, 0.52, 1.2, -0.7, 0.02, 1.05, 0.7, 0.02, 1.05,
-    -1.1, 0.52, 1.2, 0.7, 0.02, 1.05, 0, 0.7, 1.9,
-    0, 0.7, 1.9, 0.7, 0.02, 1.05, 1.1, 0.52, 1.2
-  ]);
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
-  geometry.computeVertexNormals();
-  return geometry;
-}
-
-function makeRowingBoy(group) {
-  const skin = new THREE.MeshStandardMaterial({ color: 0xd69a67, roughness: 0.62 });
-  const cheek = new THREE.MeshStandardMaterial({ color: 0xe8a176, roughness: 0.68 });
-  const shirt = new THREE.MeshStandardMaterial({ color: 0x2470d8, roughness: 0.58 });
-  const vestMat = new THREE.MeshStandardMaterial({ color: 0xffc83d, roughness: 0.5 });
-  const shorts = new THREE.MeshStandardMaterial({ color: 0x18345f, roughness: 0.66 });
-  const hair = new THREE.MeshStandardMaterial({ color: 0x2a1a12, roughness: 0.82 });
-  const eyeMat = new THREE.MeshBasicMaterial({ color: 0x101820 });
-  const shoeMat = new THREE.MeshStandardMaterial({ color: 0x1c2430, roughness: 0.7 });
-
-  const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.28, 0.56, 8, 18), shirt);
-  torso.position.set(0, 0.86, 0.02);
-  torso.scale.set(0.92, 1, 0.72);
-  torso.rotation.x = -0.18;
-  torso.castShadow = true;
-  group.add(torso);
-
-  const vest = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.48, 0.12), vestMat);
-  vest.position.set(0, 0.9, -0.22);
-  vest.rotation.x = -0.18;
-  vest.castShadow = true;
-  group.add(vest);
-
-  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.1, 0.16, 14), skin);
-  neck.position.set(0, 1.28, -0.01);
-  group.add(neck);
-
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.27, 28, 20), skin);
-  head.position.set(0, 1.52, -0.06);
-  head.scale.set(0.88, 1.08, 0.8);
-  head.castShadow = true;
-  group.add(head);
-
-  const hairCap = new THREE.Mesh(new THREE.SphereGeometry(0.275, 26, 10, 0, Math.PI * 2, 0, Math.PI / 2), hair);
-  hairCap.position.set(0, 1.61, -0.06);
-  hairCap.scale.set(0.94, 0.66, 0.86);
-  hairCap.castShadow = true;
-  group.add(hairCap);
-
-  const fringe = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.08, 0.08), hair);
-  fringe.position.set(0.02, 1.59, -0.27);
-  fringe.rotation.z = -0.18;
-  group.add(fringe);
-
-  [-1, 1].forEach((side) => {
-    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.026, 10, 8), eyeMat);
-    eye.position.set(side * 0.08, 1.53, -0.275);
-    eye.scale.set(1, 0.8, 0.45);
-    group.add(eye);
-
-    const ear = new THREE.Mesh(new THREE.SphereGeometry(0.042, 12, 8), skin);
-    ear.position.set(side * 0.235, 1.51, -0.05);
-    ear.scale.set(0.55, 0.85, 0.35);
-    group.add(ear);
-
-    const blush = new THREE.Mesh(new THREE.SphereGeometry(0.032, 10, 8), cheek);
-    blush.position.set(side * 0.12, 1.47, -0.285);
-    blush.scale.set(1.25, 0.5, 0.25);
-    group.add(blush);
-  });
-
-  const nose = new THREE.Mesh(new THREE.SphereGeometry(0.03, 10, 8), skin);
-  nose.position.set(0, 1.49, -0.3);
-  nose.scale.set(0.75, 1, 1.3);
-  group.add(nose);
-
-  const smile = new THREE.Mesh(new THREE.TorusGeometry(0.055, 0.006, 6, 18, Math.PI), new THREE.MeshBasicMaterial({ color: 0x7f3f2c }));
-  smile.position.set(0, 1.43, -0.292);
-  smile.rotation.set(Math.PI, 0, 0);
-  group.add(smile);
-
-  boatRig.arms = [];
-  [-1, 1].forEach((side) => {
-    const shoulder = new THREE.Group();
-    shoulder.position.set(side * 0.25, 1.02, -0.1);
-    shoulder.rotation.z = side * -0.58;
-    shoulder.rotation.x = -0.28;
-    const upper = new THREE.Mesh(new THREE.CapsuleGeometry(0.055, 0.34, 8, 12), shirt);
-    upper.position.y = -0.18;
-    upper.rotation.z = 0.05;
-    const forearm = new THREE.Mesh(new THREE.CapsuleGeometry(0.05, 0.34, 8, 12), skin);
-    forearm.position.set(side * 0.08, -0.45, -0.08);
-    forearm.rotation.z = side * 0.4;
-    const hand = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 10), skin);
-    hand.position.set(side * 0.16, -0.66, -0.12);
-    shoulder.add(upper, forearm, hand);
-    group.add(shoulder);
-    boatRig.arms.push({ group: shoulder, side });
-  });
-
-  [-1, 1].forEach((side) => {
-    const thigh = new THREE.Mesh(new THREE.CapsuleGeometry(0.075, 0.34, 8, 12), shorts);
-    thigh.position.set(side * 0.16, 0.5, 0.12);
-    thigh.rotation.set(1.05, 0, side * 0.12);
-    const calf = new THREE.Mesh(new THREE.CapsuleGeometry(0.06, 0.28, 8, 12), skin);
-    calf.position.set(side * 0.22, 0.42, -0.15);
-    calf.rotation.set(1.22, 0, side * 0.08);
-    const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.08, 0.24), shoeMat);
-    shoe.position.set(side * 0.24, 0.34, -0.36);
-    shoe.castShadow = true;
-    group.add(thigh, calf, shoe);
-  });
-}
-
-function makeComicRiderSprite() {
-  const canvas = document.createElement("canvas");
-  canvas.width = 1024;
-  canvas.height = 1024;
-  const ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
-
-  const shadow = ctx.createRadialGradient(512, 830, 40, 512, 830, 360);
-  shadow.addColorStop(0, "rgba(0, 0, 0, 0.36)");
-  shadow.addColorStop(1, "rgba(0, 0, 0, 0)");
-  ctx.fillStyle = shadow;
-  ctx.beginPath();
-  ctx.ellipse(512, 828, 355, 82, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  const hull = ctx.createLinearGradient(0, 610, 0, 900);
-  hull.addColorStop(0, "#c47a35");
-  hull.addColorStop(0.52, "#8e4a24");
-  hull.addColorStop(1, "#3d2216");
-  ctx.fillStyle = hull;
-  ctx.strokeStyle = "#2a160e";
-  ctx.lineWidth = 18;
-  ctx.beginPath();
-  ctx.moveTo(150, 640);
-  ctx.bezierCurveTo(270, 560, 750, 560, 874, 640);
-  ctx.bezierCurveTo(805, 820, 650, 904, 512, 916);
-  ctx.bezierCurveTo(372, 904, 218, 820, 150, 640);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-
-  const inside = ctx.createLinearGradient(0, 596, 0, 764);
-  inside.addColorStop(0, "#6b351c");
-  inside.addColorStop(1, "#27140d");
-  ctx.fillStyle = inside;
-  ctx.strokeStyle = "#f0bd65";
-  ctx.lineWidth = 12;
-  ctx.beginPath();
-  ctx.ellipse(512, 645, 325, 92, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.strokeStyle = "rgba(255, 224, 150, 0.72)";
-  ctx.lineWidth = 10;
-  for (let i = 0; i < 5; i += 1) {
-    const y = 690 + i * 34;
-    ctx.beginPath();
-    ctx.moveTo(270 + i * 22, y);
-    ctx.bezierCurveTo(392, y + 28, 632, y + 28, 754 - i * 22, y);
-    ctx.stroke();
-  }
-
-  drawOar(ctx, 240, 602, 84, 832, -1);
-  drawOar(ctx, 784, 602, 940, 832, 1);
-
-  const torso = ctx.createLinearGradient(0, 390, 0, 650);
-  torso.addColorStop(0, "#2f8cff");
-  torso.addColorStop(1, "#123f95");
-  ctx.fillStyle = torso;
-  ctx.strokeStyle = "#061b45";
-  ctx.lineWidth = 14;
-  ctx.beginPath();
-  ctx.moveTo(400, 430);
-  ctx.bezierCurveTo(452, 378, 575, 378, 628, 430);
-  ctx.lineTo(690, 630);
-  ctx.bezierCurveTo(612, 692, 416, 692, 336, 630);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-
-  const vest = ctx.createLinearGradient(0, 420, 0, 660);
-  vest.addColorStop(0, "#ffe36d");
-  vest.addColorStop(0.55, "#ffb629");
-  vest.addColorStop(1, "#f47d20");
-  ctx.fillStyle = vest;
-  ctx.strokeStyle = "#8c4208";
-  ctx.lineWidth = 10;
-  roundedRect(ctx, 410, 438, 205, 222, 42);
-  ctx.fill();
-  ctx.stroke();
-  ctx.strokeStyle = "rgba(255,255,255,0.55)";
-  ctx.lineWidth = 8;
-  ctx.beginPath();
-  ctx.moveTo(512, 452);
-  ctx.lineTo(512, 650);
-  ctx.stroke();
-
-  drawArm(ctx, 395, 468, 262, 586, -1);
-  drawArm(ctx, 630, 468, 762, 586, 1);
-
-  const skin = ctx.createLinearGradient(0, 210, 0, 400);
-  skin.addColorStop(0, "#f0bc86");
-  skin.addColorStop(1, "#c97748");
-  ctx.fillStyle = skin;
-  ctx.strokeStyle = "#7f3f28";
-  ctx.lineWidth = 12;
-  ctx.beginPath();
-  ctx.ellipse(512, 312, 100, 118, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
-
-  const hair = ctx.createLinearGradient(0, 178, 0, 300);
-  hair.addColorStop(0, "#3a2417");
-  hair.addColorStop(1, "#140b07");
-  ctx.fillStyle = hair;
-  ctx.beginPath();
-  ctx.moveTo(410, 284);
-  ctx.bezierCurveTo(410, 176, 472, 136, 548, 162);
-  ctx.bezierCurveTo(622, 188, 622, 260, 596, 294);
-  ctx.bezierCurveTo(560, 250, 486, 242, 410, 284);
-  ctx.fill();
-
-  ctx.fillStyle = "#101820";
-  ctx.beginPath();
-  ctx.ellipse(476, 318, 12, 17, 0, 0, Math.PI * 2);
-  ctx.ellipse(548, 318, 12, 17, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.strokeStyle = "#7a3827";
-  ctx.lineWidth = 7;
-  ctx.beginPath();
-  ctx.arc(512, 350, 42, 0.18 * Math.PI, 0.82 * Math.PI);
-  ctx.stroke();
-
-  ctx.fillStyle = "rgba(255, 142, 132, 0.4)";
-  ctx.beginPath();
-  ctx.ellipse(442, 350, 28, 15, -0.1, 0, Math.PI * 2);
-  ctx.ellipse(584, 350, 28, 15, 0.1, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.strokeStyle = "rgba(255,255,255,0.55)";
-  ctx.lineWidth = 8;
-  ctx.beginPath();
-  ctx.moveTo(426, 236);
-  ctx.bezierCurveTo(470, 176, 560, 174, 596, 235);
-  ctx.stroke();
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.anisotropy = 4;
-  const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false });
-  const sprite = new THREE.Sprite(material);
-  sprite.scale.set(2.9, 2.9, 1);
-  sprite.userData.texture = texture;
-  return sprite;
-}
-
-function drawOar(ctx, x1, y1, x2, y2, side) {
-  ctx.strokeStyle = "#dca96a";
-  ctx.lineWidth = 18;
-  ctx.beginPath();
-  ctx.moveTo(x1, y1);
-  ctx.lineTo(x2, y2);
-  ctx.stroke();
-
-  const blade = ctx.createLinearGradient(0, y2 - 40, 0, y2 + 60);
-  blade.addColorStop(0, "#f6d39b");
-  blade.addColorStop(1, "#b56e34");
-  ctx.fillStyle = blade;
-  ctx.strokeStyle = "#6a3a1e";
-  ctx.lineWidth = 8;
-  ctx.beginPath();
-  ctx.ellipse(x2 + side * 6, y2 + 24, 38, 78, side * 0.18, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
-}
-
-function drawArm(ctx, sx, sy, hx, hy, side) {
-  ctx.strokeStyle = "#1d5ab8";
-  ctx.lineWidth = 42;
-  ctx.beginPath();
-  ctx.moveTo(sx, sy);
-  ctx.bezierCurveTo(sx + side * 12, sy + 60, hx - side * 40, hy - 56, hx, hy);
-  ctx.stroke();
-  ctx.strokeStyle = "#d9905e";
-  ctx.lineWidth = 30;
-  ctx.beginPath();
-  ctx.moveTo(sx + side * 34, sy + 68);
-  ctx.bezierCurveTo(sx + side * 68, sy + 104, hx - side * 36, hy - 34, hx, hy);
-  ctx.stroke();
-  ctx.fillStyle = "#e1a06d";
-  ctx.strokeStyle = "#7f3f28";
-  ctx.lineWidth = 7;
-  ctx.beginPath();
-  ctx.ellipse(hx, hy, 30, 24, side * 0.3, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
-}
-
-function roundedRect(ctx, x, y, width, height, radius) {
-  ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-  ctx.lineTo(x + width - radius, y);
-  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-  ctx.lineTo(x + width, y + height - radius);
-  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-  ctx.lineTo(x + radius, y + height);
-  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-  ctx.lineTo(x, y + radius);
-  ctx.quadraticCurveTo(x, y, x + radius, y);
-  ctx.closePath();
-}
-
-function makeCanvasTexture(size, painter) {
-  const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext("2d");
-  painter(ctx, size);
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.anisotropy = 4;
-  return texture;
-}
-
-function makeRockTexture(darker = false) {
-  return makeCanvasTexture(512, (ctx, size) => {
-    const base = ctx.createLinearGradient(0, 0, size, size);
-    base.addColorStop(0, darker ? "#101725" : "#24344a");
-    base.addColorStop(0.55, darker ? "#182638" : "#31465d");
-    base.addColorStop(1, darker ? "#0a101a" : "#152233");
-    ctx.fillStyle = base;
-    ctx.fillRect(0, 0, size, size);
-
-    for (let i = 0; i < 80; i += 1) {
-      const x = Math.random() * size;
-      const y = Math.random() * size;
-      const r = 18 + Math.random() * 72;
-      ctx.fillStyle = `rgba(${darker ? 70 : 120}, ${darker ? 95 : 145}, ${darker ? 120 : 170}, ${0.04 + Math.random() * 0.08})`;
-      ctx.beginPath();
-      ctx.ellipse(x, y, r, r * (0.35 + Math.random() * 0.5), Math.random() * Math.PI, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    ctx.lineWidth = 3;
-    for (let i = 0; i < 34; i += 1) {
-      ctx.strokeStyle = `rgba(0, 0, 0, ${0.12 + Math.random() * 0.18})`;
-      ctx.beginPath();
-      const y = Math.random() * size;
-      ctx.moveTo(-30, y);
-      for (let x = 0; x < size + 40; x += 52) {
-        ctx.lineTo(x, y + Math.sin(x * 0.035 + i) * (8 + Math.random() * 20));
-      }
-      ctx.stroke();
-    }
-
-    for (let i = 0; i < 22; i += 1) {
-      const x = Math.random() * size;
-      const y = Math.random() * size;
-      const color = i % 3 === 0 ? "rgba(72, 221, 255, 0.32)" : "rgba(255, 180, 92, 0.22)";
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.moveTo(x, y - 16);
-      ctx.lineTo(x + 14, y + 8);
-      ctx.lineTo(x - 10, y + 16);
-      ctx.closePath();
-      ctx.fill();
-    }
-  });
-}
-
-function makeWaterTexture() {
-  return makeCanvasTexture(512, (ctx, size) => {
-    const base = ctx.createLinearGradient(0, 0, size, size);
-    base.addColorStop(0, "#0ec8e7");
-    base.addColorStop(0.45, "#087999");
-    base.addColorStop(1, "#043d68");
-    ctx.fillStyle = base;
-    ctx.fillRect(0, 0, size, size);
-
-    for (let i = 0; i < 38; i += 1) {
-      ctx.strokeStyle = `rgba(221, 255, 255, ${0.12 + Math.random() * 0.22})`;
-      ctx.lineWidth = 2 + Math.random() * 5;
-      ctx.beginPath();
-      const y = Math.random() * size;
-      ctx.moveTo(-20, y);
-      for (let x = 0; x < size + 40; x += 34) {
-        ctx.lineTo(x, y + Math.sin(x * 0.04 + i) * (8 + Math.random() * 14));
-      }
-      ctx.stroke();
-    }
-
-    const glow = ctx.createRadialGradient(size * 0.5, size * 0.45, 20, size * 0.5, size * 0.45, size * 0.55);
-    glow.addColorStop(0, "rgba(126, 249, 255, 0.32)");
-    glow.addColorStop(1, "rgba(126, 249, 255, 0)");
-    ctx.fillStyle = glow;
-    ctx.fillRect(0, 0, size, size);
-  });
-}
-
-function makeMetalTexture() {
-  return makeCanvasTexture(512, (ctx, size) => {
-    const base = ctx.createLinearGradient(0, 0, size, size);
-    base.addColorStop(0, "#9aa7b8");
-    base.addColorStop(0.42, "#4f5c6d");
-    base.addColorStop(1, "#1b232d");
-    ctx.fillStyle = base;
-    ctx.fillRect(0, 0, size, size);
-
-    for (let i = 0; i < 80; i += 1) {
-      ctx.strokeStyle = `rgba(255, 255, 255, ${0.05 + Math.random() * 0.16})`;
-      ctx.lineWidth = 1 + Math.random() * 2;
-      ctx.beginPath();
-      const x = Math.random() * size;
-      const y = Math.random() * size;
-      ctx.moveTo(x, y);
-      ctx.lineTo(x + 30 + Math.random() * 120, y + Math.random() * 24 - 12);
-      ctx.stroke();
-    }
-
-    for (let i = 0; i < 28; i += 1) {
-      ctx.fillStyle = `rgba(0, 0, 0, ${0.08 + Math.random() * 0.14})`;
-      ctx.beginPath();
-      ctx.arc(Math.random() * size, Math.random() * size, 5 + Math.random() * 15, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  });
-}
-
-function makeWoodTexture() {
-  return makeCanvasTexture(512, (ctx, size) => {
-    const base = ctx.createLinearGradient(0, 0, size, 0);
-    base.addColorStop(0, "#6b351c");
-    base.addColorStop(0.45, "#c47632");
-    base.addColorStop(1, "#4a2414");
-    ctx.fillStyle = base;
-    ctx.fillRect(0, 0, size, size);
-
-    for (let i = 0; i < 28; i += 1) {
-      ctx.strokeStyle = `rgba(55, 24, 10, ${0.16 + Math.random() * 0.22})`;
-      ctx.lineWidth = 3 + Math.random() * 7;
-      ctx.beginPath();
-      const y = (i / 28) * size + Math.random() * 12;
-      ctx.moveTo(0, y);
-      for (let x = 0; x <= size; x += 36) {
-        ctx.lineTo(x, y + Math.sin(x * 0.035 + i) * 12);
-      }
-      ctx.stroke();
-    }
-
-    for (let i = 0; i < 18; i += 1) {
-      ctx.strokeStyle = "rgba(255, 225, 155, 0.18)";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      const y = Math.random() * size;
-      ctx.moveTo(0, y);
-      ctx.lineTo(size, y + Math.random() * 18 - 9);
-      ctx.stroke();
-    }
-  });
-}
-
-function makeGoldTexture() {
-  return makeCanvasTexture(512, (ctx, size) => {
-    const base = ctx.createLinearGradient(0, 0, size, size);
-    base.addColorStop(0, "#fff2a8");
-    base.addColorStop(0.28, "#ffd15c");
-    base.addColorStop(0.58, "#d4891f");
-    base.addColorStop(1, "#7a3c00");
-    ctx.fillStyle = base;
-    ctx.fillRect(0, 0, size, size);
-
-    for (let i = 0; i < 36; i += 1) {
-      ctx.strokeStyle = `rgba(255,255,255,${0.12 + Math.random() * 0.22})`;
-      ctx.lineWidth = 2 + Math.random() * 5;
-      ctx.beginPath();
-      const x = Math.random() * size;
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x + Math.random() * 90 - 45, size);
-      ctx.stroke();
-    }
-  });
-}
-
-function makeGuardianSprite() {
-  const canvas = document.createElement("canvas");
-  canvas.width = 1024;
-  canvas.height = 1024;
-  const ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, 1024, 1024);
-
-  const aura = ctx.createRadialGradient(512, 430, 40, 512, 430, 430);
-  aura.addColorStop(0, "rgba(126,249,255,0.45)");
-  aura.addColorStop(0.5, "rgba(40,119,255,0.18)");
-  aura.addColorStop(1, "rgba(40,119,255,0)");
-  ctx.fillStyle = aura;
-  ctx.fillRect(0, 0, 1024, 1024);
-
-  drawGuardianPart(ctx, "#b8c7d8", "#516273", [[392, 210], [632, 210], [680, 340], [620, 430], [404, 430], [344, 340]]);
-  drawGuardianPart(ctx, "#2d7cff", "#0b327a", [[310, 400], [505, 332], [505, 612], [285, 660], [230, 520]]);
-  drawGuardianPart(ctx, "#e94d5f", "#7a1d29", [[519, 332], [714, 400], [794, 520], [739, 660], [519, 612]]);
-  drawGuardianPart(ctx, "#dce8f6", "#6a7b8f", [[420, 180], [604, 180], [646, 250], [610, 336], [414, 336], [378, 250]]);
-
-  ctx.fillStyle = "#09101d";
-  ctx.beginPath();
-  ctx.moveTo(436, 260);
-  ctx.lineTo(494, 280);
-  ctx.lineTo(494, 304);
-  ctx.lineTo(436, 292);
-  ctx.closePath();
-  ctx.moveTo(588, 260);
-  ctx.lineTo(530, 280);
-  ctx.lineTo(530, 304);
-  ctx.lineTo(588, 292);
-  ctx.closePath();
-  ctx.fill();
-
-  const chestGlow = ctx.createRadialGradient(512, 486, 12, 512, 486, 90);
-  chestGlow.addColorStop(0, "#ffffff");
-  chestGlow.addColorStop(0.35, "#7df9ff");
-  chestGlow.addColorStop(1, "rgba(125,249,255,0)");
-  ctx.fillStyle = chestGlow;
-  ctx.fillRect(420, 394, 184, 184);
-  drawGuardianPart(ctx, "#ffd15c", "#8a4f08", [[512, 412], [590, 486], [512, 560], [434, 486]]);
-
-  drawGuardianPart(ctx, "#2d7cff", "#0b327a", [[230, 500], [330, 540], [295, 830], [190, 790]]);
-  drawGuardianPart(ctx, "#e94d5f", "#7a1d29", [[794, 500], [694, 540], [729, 830], [834, 790]]);
-  drawGuardianPart(ctx, "#b8c7d8", "#516273", [[385, 640], [492, 640], [470, 910], [340, 910]]);
-  drawGuardianPart(ctx, "#b8c7d8", "#516273", [[532, 640], [639, 640], [684, 910], [554, 910]]);
-
-  ctx.strokeStyle = "rgba(255,255,255,0.5)";
-  ctx.lineWidth = 10;
-  ctx.beginPath();
-  ctx.moveTo(390, 230);
-  ctx.lineTo(512, 170);
-  ctx.lineTo(634, 230);
-  ctx.stroke();
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.anisotropy = 4;
-  const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false, opacity: 0.96 });
-  return new THREE.Sprite(material);
-}
-
-function drawGuardianPart(ctx, fillA, fillB, points) {
-  const grad = ctx.createLinearGradient(0, 0, 1024, 1024);
-  grad.addColorStop(0, fillA);
-  grad.addColorStop(1, fillB);
-  ctx.fillStyle = grad;
-  ctx.strokeStyle = "rgba(4, 10, 22, 0.85)";
-  ctx.lineWidth = 14;
-  ctx.beginPath();
-  points.forEach(([x, y], index) => {
-    if (index === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  });
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-  ctx.strokeStyle = "rgba(255,255,255,0.28)";
-  ctx.lineWidth = 5;
-  ctx.stroke();
-}
-
-function makeGates() {
-  const stoneTexture = makeRockTexture();
-  stoneTexture.wrapS = THREE.RepeatWrapping;
-  stoneTexture.wrapT = THREE.RepeatWrapping;
-  stoneTexture.repeat.set(1.6, 1.6);
-  const stone = new THREE.MeshStandardMaterial({ color: 0x6f8795, map: stoneTexture, roughness: 0.84, metalness: 0.04 });
-  const carved = new THREE.MeshStandardMaterial({ color: 0x9fb1ba, map: stoneTexture, roughness: 0.76, metalness: 0.06 });
-  const trim = new THREE.MeshStandardMaterial({ color: 0xffc86a, emissive: 0x9c4b00, emissiveIntensity: 0.72, roughness: 0.34, metalness: 0.38 });
-  const glow = new THREE.MeshStandardMaterial({ color: 0xffd15c, emissive: 0xff9900, emissiveIntensity: 2.1, roughness: 0.22 });
-  const barrierMaterial = new THREE.MeshBasicMaterial({ color: 0x75eaff, transparent: true, opacity: 0.24, depthWrite: false, side: THREE.DoubleSide });
-  gateProgress.forEach((t, index) => {
-    const p = samplePath(t);
-    const n = sampleNormal(t);
-    const group = new THREE.Group();
-    group.userData.progress = t;
-    group.userData.index = index;
-    group.position.set(p.x, 0, p.z);
-    group.rotation.y = Math.atan2(n.x, n.z);
-
-    const arch = new THREE.Mesh(new THREE.TorusGeometry(3.05, 0.24, 16, 56, Math.PI), carved);
-    arch.position.y = 2.28;
-    arch.rotation.z = Math.PI;
-    arch.scale.set(1.08, 0.86, 1);
-    arch.castShadow = true;
-    arch.receiveShadow = true;
-    group.add(arch);
-
-    const top = new THREE.Mesh(new THREE.BoxGeometry(6.9, 0.3, 0.52), trim);
-    top.position.y = 2.72;
-    top.castShadow = true;
-    group.add(top);
-
-    [-3.05, 3.05].forEach((x) => {
-      const post = new THREE.Mesh(new THREE.BoxGeometry(0.62, 2.8, 0.62), stone);
-      post.position.set(x, 1.24, 0);
-      post.rotation.z = x < 0 ? -0.08 : 0.08;
-      post.castShadow = true;
-      post.receiveShadow = true;
-      group.add(post);
-
-      const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.48, 0.58, 0.34, 8), carved);
-      cap.position.set(x, 2.78, 0);
-      cap.castShadow = true;
-      group.add(cap);
-
-      const brazier = makeLantern(new THREE.Vector3(0, 0, 0), 0xffb14d);
-      brazier.position.set(x * 0.86, 0.04, -0.56);
-      brazier.scale.setScalar(0.78);
-      group.add(brazier);
-    });
-
-    const barrier = new THREE.Mesh(new THREE.PlaneGeometry(4.8, 2.28, 16, 8), barrierMaterial.clone());
-    barrier.position.set(0, 1.34, -0.04);
-    barrier.userData.isBarrier = true;
-    group.add(barrier);
-
-    [-1.45, 0, 1.45].forEach((x, runeIndex) => {
-      const rune = new THREE.Mesh(new THREE.TorusGeometry(0.26 + runeIndex * 0.05, 0.024, 8, 32), glow);
-      rune.position.set(x, 1.35 + Math.sin(runeIndex) * 0.18, -0.12);
-      rune.rotation.y = Math.PI / 2;
-      group.add(rune);
-    });
-
-    const sign = new THREE.Mesh(new THREE.BoxGeometry(1.72, 0.44, 0.14), glow);
-    sign.position.y = 2.2;
-    sign.position.z = -0.3;
-    sign.castShadow = true;
-    group.add(sign);
-
-    const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.34), glow);
-    gem.position.y = 3.12;
-    gem.castShadow = true;
-    group.add(gem);
-
-    const gateLight = new THREE.PointLight(0xffb14d, 1.4, 7, 2);
-    gateLight.position.set(0, 2.25, -0.65);
-    group.add(gateLight);
-
-    const trueGate = cloneAsset("gate");
-    if (trueGate) {
-      group.children.forEach((child) => {
-        if (child !== gateLight) child.visible = false;
-      });
-      trueGate.position.set(0, -0.12, 0);
-      trueGate.rotation.y = Math.PI;
-      trueGate.scale.setScalar(1.05);
-      group.add(trueGate);
-    }
-
-    scene.add(group);
-    gateMeshes.push(group);
-  });
-}
-
-function makeTreasureVault() {
-  const p = samplePath(0.93);
-  const stoneTexture = makeRockTexture(true);
-  const woodTexture = makeWoodTexture();
-  const goldTexture = makeGoldTexture();
-  chest = new THREE.Group();
-  chest.position.set(p.x, 0.34, p.z);
-  chest.rotation.y = -0.3;
-  const dais = new THREE.Mesh(
-    new THREE.CylinderGeometry(2.6, 3.1, 0.5, 9),
-    new THREE.MeshStandardMaterial({ color: 0x3d5166, map: stoneTexture, roughness: 0.72, metalness: 0.18 })
-  );
-  dais.position.set(p.x, 0.05, p.z);
-  dais.castShadow = true;
-  dais.receiveShadow = true;
-  scene.add(dais);
-
-  const base = new THREE.Mesh(
-    new THREE.BoxGeometry(2.1, 1, 1.35),
-    new THREE.MeshStandardMaterial({ color: 0xb46a25, map: woodTexture, roughness: 0.5, metalness: 0.04 })
-  );
-  const lid = new THREE.Mesh(
-    new THREE.BoxGeometry(2.18, 0.46, 1.42),
-    new THREE.MeshStandardMaterial({ color: 0xffc247, map: goldTexture, roughness: 0.32, metalness: 0.38 })
-  );
-  lid.position.y = 0.7;
-  base.castShadow = true;
-  lid.castShadow = true;
-  chest.add(base, lid);
-  const trueChest = cloneAsset("chest");
-  if (trueChest) {
-    base.visible = false;
-    lid.visible = false;
-    fitAssetToHeight(trueChest, 1.28);
-    trueChest.position.add(new THREE.Vector3(0, -0.32, 0));
-    trueChest.rotation.y = Math.PI;
-    chest.add(trueChest);
-  }
-  scene.add(chest);
-
-  const vaultLight = new THREE.PointLight(0x7df9ff, 2.2, 10, 2);
-  vaultLight.position.set(p.x, 2.1, p.z + 0.5);
-  scene.add(vaultLight);
-
-  relic = new THREE.Group();
-  const relicCore = new THREE.Mesh(
-    new THREE.OctahedronGeometry(0.54),
-    new THREE.MeshStandardMaterial({ color: 0x7df9ff, emissive: 0x29a8ff, emissiveIntensity: 1.8, roughness: 0.18, metalness: 0.35 })
-  );
-  const relicFrame = new THREE.Mesh(
-    new THREE.TorusGeometry(0.78, 0.07, 10, 48),
-    new THREE.MeshStandardMaterial({ color: 0xffd15c, emissive: 0x7a3c00, roughness: 0.22, metalness: 0.75 })
-  );
-  relicFrame.rotation.x = Math.PI / 2;
-  relic.add(relicCore, relicFrame);
-  relic.position.set(p.x, -1.4, p.z);
-  scene.add(relic);
-
-  guardian = new THREE.Group();
-  guardian.position.set(p.x + 4.2, -2, p.z - 2.2);
-  guardian.rotation.y = -0.45;
-  const trueGuardian = cloneAsset("guardian");
-  if (trueGuardian) {
-    fitAssetToHeight(trueGuardian, 3.4);
-    trueGuardian.rotation.y = Math.PI;
-    tintAsset(trueGuardian, 0x2d6dff, 0.16);
-    guardian.add(trueGuardian);
-
-    const chestGlow = new THREE.Mesh(
-      new THREE.SphereGeometry(0.18, 18, 18),
-      new THREE.MeshStandardMaterial({ color: 0x7df9ff, emissive: 0x35d7ff, emissiveIntensity: 2.4, roughness: 0.18 })
-    );
-    chestGlow.position.set(0, 2.45, -0.32);
-    guardian.add(chestGlow);
-  } else {
-    makeGuardianBody(guardian);
-    guardianSprite = makeGuardianSprite();
-    guardianSprite.position.set(0, 2.75, -0.35);
-    guardianSprite.scale.set(4.2, 4.2, 1);
-    guardian.add(guardianSprite);
-  }
-  scene.add(guardian);
-}
-
-function makeGuardianBody(group) {
-  const blue = new THREE.MeshStandardMaterial({ color: 0x245bcb, roughness: 0.42, metalness: 0.62 });
-  const red = new THREE.MeshStandardMaterial({ color: 0xbb2e3c, roughness: 0.42, metalness: 0.62 });
-  const silver = new THREE.MeshStandardMaterial({ color: 0xb8c7d8, roughness: 0.28, metalness: 0.82 });
-  const glow = new THREE.MeshStandardMaterial({ color: 0x7df9ff, emissive: 0x33c9ff, emissiveIntensity: 1.6 });
-
-  const torso = new THREE.Mesh(new THREE.BoxGeometry(1.45, 2.0, 0.72), blue);
-  torso.position.y = 2.7;
-  const chestPlate = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.68, 0.78), red);
-  chestPlate.position.set(0, 2.95, -0.05);
-  const spark = new THREE.Mesh(new THREE.OctahedronGeometry(0.22), glow);
-  spark.position.set(0, 2.95, -0.48);
-  const head = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.72, 0.62), silver);
-  head.position.y = 4.08;
-  const crest = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.52, 0.18), blue);
-  crest.position.y = 4.62;
-  group.add(torso, chestPlate, spark, head, crest);
-
-  [-1, 1].forEach((side) => {
-    const shoulder = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.62, 0.78), side < 0 ? red : blue);
-    shoulder.position.set(side * 1.05, 3.35, 0);
-    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.42, 1.35, 0.42), silver);
-    arm.position.set(side * 1.18, 2.42, 0);
-    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.45, 0.5), side < 0 ? blue : red);
-    leg.position.set(side * 0.42, 1.05, 0);
-    shoulder.castShadow = true;
-    arm.castShadow = true;
-    leg.castShadow = true;
-    group.add(shoulder, arm, leg);
-  });
+function boot() {
+  resize();
+  bindInput();
+  seedParticles();
+  el.gateCount.textContent = "0/5";
+  el.hint.textContent = "Row through the enchanted river. Glide up to each glowing gate.";
+  window.__caveQuestBoot = { ok: true, stage: "ready", build: BUILD_ID, renderer: "2.5d-canvas" };
+  requestAnimationFrame(loop);
 }
 
 function bindInput() {
@@ -1588,524 +121,746 @@ function bindInput() {
     });
     button.addEventListener("pointerup", onUp);
     button.addEventListener("pointercancel", onUp);
+    button.addEventListener("lostpointercapture", onUp);
     button.addEventListener("pointerleave", onUp);
   };
 
-  hold(el.forwardButton, () => { state.forwardInput = 1; }, () => { if (state.forwardInput > 0) state.forwardInput = 0; });
-  hold(el.backButton, () => { state.forwardInput = -0.62; }, () => { if (state.forwardInput < 0) state.forwardInput = 0; });
-  hold(el.leftButton, () => { state.steer = -1; }, () => { if (state.steer < 0) state.steer = 0; });
-  hold(el.rightButton, () => { state.steer = 1; }, () => { if (state.steer > 0) state.steer = 0; });
+  hold(el.forward, () => { state.forwardInput = 1; }, () => { if (state.forwardInput > 0) state.forwardInput = 0; });
+  hold(el.back, () => { state.forwardInput = -0.55; }, () => { if (state.forwardInput < 0) state.forwardInput = 0; });
+  hold(el.left, () => { state.steer = -1; }, () => { if (state.steer < 0) state.steer = 0; });
+  hold(el.right, () => { state.steer = 1; }, () => { if (state.steer > 0) state.steer = 0; });
 
   window.addEventListener("keydown", (event) => {
-    const key = event.key.toLowerCase();
-    if (key === "arrowup" || key === "w") state.forwardInput = 1;
-    if (key === "arrowdown" || key === "s") state.forwardInput = -0.62;
-    if (key === "arrowleft" || key === "a") state.steer = -1;
-    if (key === "arrowright" || key === "d") state.steer = 1;
+    if (event.repeat) return;
     primeAudio();
+    if (event.key === "ArrowUp" || event.key.toLowerCase() === "w") state.forwardInput = 1;
+    if (event.key === "ArrowDown" || event.key.toLowerCase() === "s") state.forwardInput = -0.55;
+    if (event.key === "ArrowLeft" || event.key.toLowerCase() === "a") state.steer = -1;
+    if (event.key === "ArrowRight" || event.key.toLowerCase() === "d") state.steer = 1;
   });
+
   window.addEventListener("keyup", (event) => {
-    const key = event.key.toLowerCase();
-    if (["arrowup", "w"].includes(key) && state.forwardInput > 0) state.forwardInput = 0;
-    if (["arrowdown", "s"].includes(key) && state.forwardInput < 0) state.forwardInput = 0;
-    if (["arrowleft", "a"].includes(key) && state.steer < 0) state.steer = 0;
-    if (["arrowright", "d"].includes(key) && state.steer > 0) state.steer = 0;
+    if (["ArrowUp", "w", "W"].includes(event.key) && state.forwardInput > 0) state.forwardInput = 0;
+    if (["ArrowDown", "s", "S"].includes(event.key) && state.forwardInput < 0) state.forwardInput = 0;
+    if (["ArrowLeft", "a", "A"].includes(event.key) && state.steer < 0) state.steer = 0;
+    if (["ArrowRight", "d", "D"].includes(event.key) && state.steer > 0) state.steer = 0;
   });
+
   el.soundButton.addEventListener("click", () => {
     state.sound = !state.sound;
     el.soundButton.textContent = state.sound ? "Sound on" : "Sound off";
-    if (state.sound) playTone(330, 0.08, "sine");
+    if (masterGain) masterGain.gain.value = state.sound ? 0.35 : 0;
+    primeAudio();
   });
-  el.claimButton.addEventListener("click", openFinalChest);
+
+  el.claimButton.addEventListener("click", () => {
+    primeAudio();
+    el.finalePanel.classList.add("hidden");
+    state.mode = "final";
+    state.finalStarted = true;
+    playVictoryVoice();
+    el.guardianLine.textContent = "Autobot, you now have the Matrix of Leadership.";
+    el.guardianPanel.classList.remove("hidden");
+    burstParticles(state.width * 0.5, state.height * 0.43, 120);
+  });
+
+  window.addEventListener("resize", resize);
 }
 
-function loop(now) {
-  const dt = Math.min((now - state.lastTime) / 1000, 0.05);
-  state.lastTime = now;
-  update(dt, now / 1000);
-  composer.render();
+function loop(timeMs) {
+  const time = timeMs / 1000;
+  const dt = Math.min(0.033, Math.max(0.001, time - (state.lastTime || time)));
+  state.lastTime = time;
+  update(dt, time);
+  draw(time);
   requestAnimationFrame(loop);
 }
 
 function update(dt, time) {
-  caveLights.forEach((light, index) => {
-    light.intensity = 1 + Math.sin(time * 2.2 + index) * 0.22;
-  });
-  updateWater(dt, time);
-  updateCaveAmbience(time);
-
-  if (state.mode === "rowing") {
-    const nextGate = gateProgress[state.questionIndex];
-    if (typeof nextGate === "number" && state.progress >= nextGate - 0.022) {
-      state.mode = "question";
-      currentGate = gateMeshes[state.questionIndex];
-      state.progress = nextGate - 0.022;
-      showQuestion();
-    } else if (state.progress >= 0.91) {
-      state.mode = "finale";
-      el.finalePanel.classList.remove("hidden");
-      el.hint.textContent = "The treasure vault is here. Tap the chest to claim the relic.";
-      playTone(196, 0.16, "triangle");
-    } else {
-      updateMovement(dt, time);
-    }
+  if (state.mode === "rowing") updateMovement(dt, time);
+  if (state.mode === "gate-open") updateGateOpen(dt);
+  if (state.mode === "final") {
+    state.progress = lerp(state.progress, 0.94, 1 - Math.pow(0.2, dt));
   }
-
-  if (state.mode === "gate-open" && currentGate) {
-    if (!state.gateSoundPlayed) {
-      state.gateSoundPlayed = true;
-      playGateOpeningSound();
-    }
-    state.gateOpening += dt * 1.4;
-    const openAmount = easeOut(Math.min(state.gateOpening, 1));
-    currentGate.position.y = openAmount * 2.2;
-    currentGate.traverse((node) => {
-      if (node.userData?.isBarrier && node.material) {
-        node.material.opacity = Math.max(0.04, 0.32 * (1 - openAmount));
-      }
-    });
-    if (state.gateOpening >= 1) {
-      state.mode = "rowing";
-      state.gateOpening = 0;
-      state.gateSoundPlayed = false;
-      state.questionIndex += 1;
-      currentGate = null;
-      el.gateCount.textContent = `${state.questionIndex}/5`;
-      state.rowVelocity = 0.018;
-      state.forwardInput = 0;
-      el.hint.textContent = state.questionIndex >= gateProgress.length
-        ? "The vault is ahead. Row forward into the treasure chamber."
-        : "Gate open. Row forward and steer through the next bend.";
-    }
-  }
-
-  if (state.mode === "final-reveal") {
-    relic.position.y = Math.min(relic.position.y + dt * 1.7, 2.2);
-    relic.rotation.y += dt * 2.6;
-    guardian.position.y = Math.min(guardian.position.y + dt * 1.6, 0);
-    guardian.rotation.y = -0.45 + Math.sin(time * 2) * 0.03;
-    if (guardianSprite) {
-      guardianSprite.position.y = 2.75 + Math.sin(time * 2.4) * 0.06;
-      guardianSprite.material.opacity = 0.94 + Math.sin(time * 3) * 0.06;
-    }
-  }
-
-  updateBoatTransform(time, dt);
-}
-
-function updateBoatTransform(time = 0, dt = 0) {
-  const p = samplePath(state.progress);
-  const tangent = sampleTangent(state.progress);
-  const normal = sampleNormal(state.progress);
-  const sideOffset = state.lateralOffset;
-  boat.position.set(p.x + normal.x * sideOffset, 0.18 + Math.sin(time * 3.1) * 0.05, p.z + normal.z * sideOffset);
-  boat.rotation.y = Math.atan2(tangent.x, tangent.z) + state.steer * -0.16 + state.lateralVelocity * -0.08;
-  boat.rotation.z = state.steer * -0.1 + Math.sin(time * 2.8) * 0.025;
-  boat.rotation.x = state.rowVelocity * 1.3 + Math.sin(time * 3.8) * 0.018;
-  updateRowingRig(time);
-
-  const camBack = window.innerWidth < 720 ? 7.4 : 8.8;
-  const camHeight = window.innerWidth < 720 ? 4.0 : 4.8;
-  const targetCamera = new THREE.Vector3(
-    p.x - tangent.x * camBack + normal.x * sideOffset * 0.28,
-    camHeight,
-    p.z - tangent.z * camBack + normal.z * sideOffset * 0.28
-  );
-  camera.position.lerp(targetCamera, 0.09);
-  camera.lookAt(
-    p.x + normal.x * sideOffset * 0.18 + tangent.x * 4.2,
-    1.0,
-    p.z + normal.z * sideOffset * 0.18 + tangent.z * 4.2
-  );
-
-  if (river?.material) {
-    river.material.emissiveIntensity = 0.6 + Math.sin(time * 1.8) * 0.12;
-    if (river.material.map) {
-      river.material.map.offset.y -= dt * 0.08;
-      river.material.map.offset.x = Math.sin(time * 0.25) * 0.02;
-    }
-  }
-}
-
-function updateRowingRig(time) {
-  const rowPower = Math.min(1, Math.abs(state.rowVelocity) * 20 + Math.abs(state.forwardInput) * 0.4);
-  const stroke = Math.sin(time * (4.4 + rowPower * 3.2));
-  boatRig.oars?.forEach(({ group, side }) => {
-    group.rotation.x = 0.16 + stroke * rowPower * 0.2;
-    group.rotation.y = side * (0.1 + stroke * rowPower * 0.1);
-    group.rotation.z = side * (0.42 + stroke * rowPower * 0.36);
-    group.position.y = 0.62 + Math.cos(time * 6.2) * rowPower * 0.02;
-  });
-  boatRig.arms?.forEach(({ group, side }) => {
-    group.rotation.z = side * (-0.58 + stroke * rowPower * 0.32);
-    group.rotation.x = -0.28 + Math.cos(time * 4.8) * rowPower * 0.16;
-  });
-  if (boy) {
-    boy.rotation.x = -0.05 + stroke * rowPower * 0.05;
-    boy.position.y = 0.2 + Math.cos(time * 5.4) * rowPower * 0.012;
-  }
-  if (comicRider) {
-    comicRider.position.y = 0.72 + Math.cos(time * 5.4) * rowPower * 0.012;
-    comicRider.rotation.z = stroke * rowPower * 0.035;
-    comicRider.scale.set(1.2 + Math.abs(stroke) * rowPower * 0.02, 1.2, 1);
-  }
-  if (boatRig.characterModel) {
-    boatRig.characterModel.rotation.x = -0.18 + stroke * rowPower * 0.06;
-    boatRig.characterModel.position.y = 0.62 + Math.cos(time * 5.4) * rowPower * 0.01;
-  }
+  state.rowPulse += dt * (2.5 + Math.abs(state.velocity) * 55);
+  updateParticles(dt);
 }
 
 function updateMovement(dt, time) {
-  const targetVelocity = state.forwardInput * (isFastQa ? 0.2 : 0.055);
-  state.rowVelocity = lerp(state.rowVelocity, targetVelocity, 1 - Math.pow(0.001, dt));
+  const targetVelocity = state.forwardInput * (isFastQa ? 0.19 : 0.05);
+  state.velocity = lerp(state.velocity, targetVelocity, 1 - Math.pow(0.002, dt));
   if (Math.abs(state.forwardInput) < 0.01) {
-    state.rowVelocity = lerp(state.rowVelocity, 0, 1 - Math.pow(0.03, dt));
+    state.velocity = lerp(state.velocity, 0, 1 - Math.pow(0.025, dt));
   }
-  state.progress = Math.max(0, Math.min(0.94, state.progress + state.rowVelocity * dt));
+  state.progress = clamp(state.progress + state.velocity * dt, 0, 0.94);
+  state.targetLane = clamp(state.targetLane + state.steer * dt * 1.1, -1, 1);
+  state.lane = lerp(state.lane, state.targetLane, 1 - Math.pow(0.015, dt));
 
-  const maxOffset = riverWidthAt(state.progress) - 1.25;
-  const targetLateral = state.steer * maxOffset;
-  state.lateralOffset = lerp(state.lateralOffset, targetLateral, 1 - Math.pow(0.015, dt));
-  state.lateralVelocity = lerp(state.lateralVelocity, state.steer, 1 - Math.pow(0.02, dt));
+  if ((Math.abs(state.velocity) > 0.014 || Math.abs(state.steer) > 0.1) && Math.floor(time * 3) !== Math.floor((time - dt) * 3)) {
+    playSwish(Math.min(1, Math.abs(state.velocity) * 18 + Math.abs(state.steer) * 0.25));
+  }
 
-  if ((Math.abs(state.rowVelocity) > 0.012 || Math.abs(state.steer) > 0.2) && time - state.lastSwish > 0.55) {
-    state.lastSwish = time;
-    playWaterSwish(Math.min(1, Math.abs(state.rowVelocity) * 18 + Math.abs(state.steer) * 0.25));
+  const gate = gateProgress[state.questionIndex];
+  if (gate && state.progress >= gate - 0.018) {
+    state.progress = gate - 0.018;
+    state.velocity = 0;
+    showQuestion(state.questionIndex);
+  }
+
+  if (state.questionIndex >= gateProgress.length && state.progress > 0.9 && !state.finalStarted) {
+    state.mode = "treasure";
+    state.velocity = 0;
+    el.finalePanel.classList.remove("hidden");
+    el.hint.textContent = "The treasure chamber is open. Tap the chest to claim the relic.";
+    playChime();
   }
 }
 
-function updateCaveAmbience(time) {
-  if (time - state.lastDrip > 4.2 + Math.sin(time * 0.21) * 1.4) {
-    state.lastDrip = time;
-    playCaveDrip();
+function updateGateOpen(dt) {
+  state.gateOpening += dt * 1.65;
+  if (state.gateOpening >= 1) {
+    state.mode = "rowing";
+    state.gateOpening = 0;
+    state.questionIndex += 1;
+    el.gateCount.textContent = `${state.questionIndex}/5`;
+    state.progress += 0.014;
+    state.forwardInput = 0;
+    el.hint.textContent = state.questionIndex >= gateProgress.length
+      ? "The vault glows ahead. Row into the treasure chamber."
+      : "Gate open. Follow the lanterns to the next challenge.";
   }
 }
 
-function updateWater(dt, time) {
-  if (waterUniforms) {
-    waterUniforms.time.value = time;
-  }
-
-  const p = samplePath(state.progress);
-  const tangent = sampleTangent(state.progress);
-  const normal = sampleNormal(state.progress);
-  foamTrails.forEach((foam, index) => {
-    const age = (time * 0.5 + index / foamTrails.length) % 1;
-    const back = 0.9 + age * 3.4;
-    const side = (index % 2 ? 1 : -1) * (0.65 + age * 0.35);
-    foam.position.set(
-      p.x - tangent.x * back + normal.x * (state.lateralOffset + side),
-      0.07,
-      p.z - tangent.z * back + normal.z * (state.lateralOffset + side)
-    );
-    foam.rotation.z = Math.atan2(tangent.x, tangent.z);
-    foam.visible = Math.abs(state.rowVelocity) > 0.01 && state.mode === "rowing";
-    foam.material.opacity = (1 - age) * Math.min(0.28, Math.abs(state.rowVelocity) * 5);
-  });
-}
-
-function showQuestion() {
-  state.forwardInput = 0;
-  state.steer = 0;
-  state.rowVelocity = 0;
-  const q = questions[state.questionIndex];
-  el.questionType.textContent = q.type;
-  el.questionTitle.textContent = q.title;
-  el.questionText.textContent = q.text;
+function showQuestion(index) {
+  state.mode = "question";
+  const question = questions[index];
+  el.questionType.textContent = question.type;
+  el.questionTitle.textContent = question.title;
+  el.questionText.textContent = question.text;
   el.feedback.textContent = "";
-  el.answerGrid.innerHTML = "";
-  q.answers.forEach((answer) => {
+  el.answerGrid.replaceChildren();
+  question.answers.forEach((answer) => {
     const button = document.createElement("button");
     button.type = "button";
     button.textContent = answer;
-    button.addEventListener("click", () => answerQuestion(answer));
+    button.addEventListener("click", () => answerQuestion(answer, question.correct));
     el.answerGrid.append(button);
   });
   el.questionPanel.classList.remove("hidden");
-  el.hint.textContent = "An iron gate blocks the river. Pick the answer to open it.";
-  playTone(130, 0.12, "sawtooth");
+  el.hint.textContent = "A glowing gate blocks the river. Choose the answer to open it.";
+  playGateHum();
 }
 
-function answerQuestion(answer) {
-  const q = questions[state.questionIndex];
-  if (answer !== q.correct) {
-    el.feedback.textContent = "Not that one. Try again, captain.";
-    state.wrongPulse = 1;
-    playWrongClank();
+function answerQuestion(answer, correct) {
+  primeAudio();
+  if (answer !== correct) {
+    el.feedback.textContent = "Almost. Try one more time.";
+    playWrong();
     return;
   }
-  el.feedback.textContent = "Correct. Gate opening.";
-  playCorrectChime();
+  el.feedback.textContent = "Correct. The gate opens.";
+  playGateOpen();
+  burstParticles(state.width * 0.5, state.height * 0.45, 50);
   setTimeout(() => {
     el.questionPanel.classList.add("hidden");
-    el.hint.textContent = "Gate open. Keep rowing through the glowing river.";
     state.mode = "gate-open";
-  }, 450);
+    state.gateOpening = 0;
+  }, 500);
 }
 
-function openFinalChest() {
-  if (state.finalOpened) return;
-  state.finalOpened = true;
-  state.mode = "final-reveal";
-  el.finalePanel.classList.add("hidden");
-  el.guardianPanel.classList.remove("hidden");
-  el.hint.textContent = "The Leadership Matrix is yours.";
-  playTone(196, 0.18, "triangle");
-  playTone(392, 0.22, "triangle", 0.12);
-  playTone(659, 0.28, "sine", 0.24);
-  playRelicReveal();
-  speakGuardian();
+function draw(time) {
+  const w = state.width;
+  const h = state.height;
+  ctx.clearRect(0, 0, w, h);
+  drawBackdrop(w, h, time);
+  drawCaveLayers(w, h, time);
+  drawRiver(w, h, time);
+  drawDistantObjects(w, h, time);
+  drawBoat(w, h, time);
+  drawParticles();
+  drawVignette(w, h);
 }
 
-function speakGuardian() {
-  const line = "Young hero, you have awakened the Leadership Matrix. Carry its courage well.";
-  el.guardianLine.textContent = line;
-  playBaritoneBed();
-  if (!state.sound || !("speechSynthesis" in window)) return;
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(line);
-  utterance.lang = "en-US";
-  utterance.pitch = 0.38;
-  utterance.rate = 0.64;
-  utterance.volume = 1;
-  const voices = window.speechSynthesis.getVoices();
-  utterance.voice =
-    voices.find((voice) => /en-US/i.test(voice.lang) && /david|mark|guy|matthew|male|english/i.test(`${voice.name} ${voice.lang}`)) ||
-    voices.find((voice) => /en-US/i.test(voice.lang)) ||
-    voices.find((voice) => /david|mark|guy|matthew|male/i.test(voice.name)) ||
-    voices[0] ||
-    null;
-  window.speechSynthesis.speak(utterance);
+function drawBackdrop(w, h, time) {
+  const sky = ctx.createLinearGradient(0, 0, 0, h);
+  sky.addColorStop(0, "#173749");
+  sky.addColorStop(0.42, "#0b2435");
+  sky.addColorStop(1, "#03111c");
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, w, h);
+
+  const opening = ctx.createRadialGradient(w * 0.52, h * 0.05, 10, w * 0.52, h * 0.05, h * 0.55);
+  opening.addColorStop(0, "rgba(154, 233, 255, 0.42)");
+  opening.addColorStop(0.32, "rgba(65, 168, 199, 0.18)");
+  opening.addColorStop(1, "rgba(4, 18, 28, 0)");
+  ctx.fillStyle = opening;
+  ctx.fillRect(0, 0, w, h);
+
+  for (let i = 0; i < 26; i += 1) {
+    const x = (i * 173 + Math.sin(time * 0.2 + i) * 12) % w;
+    const y = h * (0.14 + ((i * 37) % 42) / 100);
+    ctx.fillStyle = i % 3 ? "rgba(91, 231, 255, 0.18)" : "rgba(255, 194, 92, 0.16)";
+    ctx.beginPath();
+    ctx.arc(x, y, 1.4 + (i % 4), 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawCaveLayers(w, h, time) {
+  drawWallLayer(w, h, 0.14, "#163346", "#071621", time, 0.14);
+  drawWallLayer(w, h, 0.24, "#1e4558", "#0a1c29", time, 0.28);
+  drawWallLayer(w, h, 0.34, "#2b5969", "#0e2633", time, 0.42);
+  drawStalactites(w, h, time);
+  drawLanterns(w, h, time);
+}
+
+function drawWallLayer(w, h, horizon, light, dark, time, offset) {
+  const topY = h * horizon;
+  const floorY = h * 0.83;
+  [["left", -1], ["right", 1]].forEach(([, side]) => {
+    const g = ctx.createLinearGradient(0, topY, 0, floorY);
+    g.addColorStop(0, light);
+    g.addColorStop(1, dark);
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    if (side < 0) {
+      ctx.moveTo(0, topY - 80);
+      for (let i = 0; i <= 12; i += 1) {
+        const t = i / 12;
+        const x = w * (0.16 + t * (0.18 + offset * 0.08)) + Math.sin(i * 1.9 + time * 0.12) * 10;
+        const y = lerp(topY, floorY, t);
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(0, h);
+      ctx.closePath();
+    } else {
+      ctx.moveTo(w, topY - 80);
+      for (let i = 0; i <= 12; i += 1) {
+        const t = i / 12;
+        const x = w * (0.84 - t * (0.18 + offset * 0.08)) + Math.sin(i * 1.7 + time * 0.1) * 10;
+        const y = lerp(topY, floorY, t);
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(w, h);
+      ctx.closePath();
+    }
+    ctx.fill();
+    ctx.strokeStyle = "rgba(143, 216, 230, 0.08)";
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 10; i += 1) {
+      const y = topY + i * (h * 0.055);
+      ctx.beginPath();
+      ctx.moveTo(side < 0 ? 0 : w, y);
+      ctx.bezierCurveTo(w * (side < 0 ? 0.08 : 0.92), y + 18, w * (side < 0 ? 0.2 : 0.8), y - 10, w * (side < 0 ? 0.34 : 0.66), y + 35);
+      ctx.stroke();
+    }
+  });
+}
+
+function drawStalactites(w, h, time) {
+  ctx.fillStyle = "#05131d";
+  for (let i = 0; i < 18; i += 1) {
+    const x = (i / 17) * w + Math.sin(i * 2.1) * 18;
+    const len = h * (0.08 + ((i * 11) % 9) / 100);
+    ctx.beginPath();
+    ctx.moveTo(x - 34, 0);
+    ctx.lineTo(x + 28, 0);
+    ctx.lineTo(x + Math.sin(time + i) * 3, len);
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+
+function drawLanterns(w, h, time) {
+  for (let i = 0; i < 12; i += 1) {
+    const side = i % 2 ? -1 : 1;
+    const depth = i / 11;
+    const y = lerp(h * 0.28, h * 0.74, depth);
+    const x = w * 0.5 + side * lerp(w * 0.1, w * 0.36, depth) + Math.sin(i * 4) * 12;
+    const size = lerp(9, 28, depth);
+    const pulse = 0.84 + Math.sin(time * 2.4 + i) * 0.16;
+    const glow = ctx.createRadialGradient(x, y, 2, x, y, size * 4.6);
+    glow.addColorStop(0, `rgba(255, 219, 116, ${0.48 * pulse})`);
+    glow.addColorStop(0.36, `rgba(255, 139, 45, ${0.22 * pulse})`);
+    glow.addColorStop(1, "rgba(255, 139, 45, 0)");
+    ctx.fillStyle = glow;
+    ctx.fillRect(x - size * 5, y - size * 5, size * 10, size * 10);
+    ctx.strokeStyle = "#1c2b34";
+    ctx.lineWidth = Math.max(2, size * 0.15);
+    ctx.beginPath();
+    ctx.moveTo(x, y - size * 1.9);
+    ctx.lineTo(x, y + size * 0.4);
+    ctx.stroke();
+    ctx.fillStyle = "#ffd36b";
+    roundedRect(x - size * 0.55, y - size * 0.5, size * 1.1, size * 1.2, size * 0.25);
+    ctx.fill();
+  }
+}
+
+function drawRiver(w, h, time) {
+  const horizonY = h * 0.25;
+  const bottomY = h * 1.08;
+  const left = [];
+  const right = [];
+  for (let i = 0; i <= 36; i += 1) {
+    const t = i / 36;
+    const y = lerp(horizonY, bottomY, t);
+    const center = w * 0.5 + Math.sin((t + state.progress * 0.85) * Math.PI * 2.2) * w * lerp(0.03, 0.11, t) + state.lane * w * 0.08 * t;
+    const half = lerp(w * 0.045, w * 0.42, Math.pow(t, 1.35));
+    left.push([center - half, y]);
+    right.push([center + half, y]);
+  }
+
+  const bankGradient = ctx.createLinearGradient(0, horizonY, 0, h);
+  bankGradient.addColorStop(0, "#385d6e");
+  bankGradient.addColorStop(1, "#102431");
+  ctx.fillStyle = bankGradient;
+  ctx.beginPath();
+  ctx.moveTo(0, horizonY);
+  left.forEach(([x, y]) => ctx.lineTo(x, y));
+  ctx.lineTo(0, h);
+  ctx.closePath();
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(w, horizonY);
+  right.forEach(([x, y]) => ctx.lineTo(x, y));
+  ctx.lineTo(w, h);
+  ctx.closePath();
+  ctx.fill();
+
+  const water = ctx.createLinearGradient(0, horizonY, 0, h);
+  water.addColorStop(0, "#0b6d8d");
+  water.addColorStop(0.42, "#0fa9bd");
+  water.addColorStop(1, "#073e65");
+  ctx.fillStyle = water;
+  ctx.beginPath();
+  ctx.moveTo(left[0][0], left[0][1]);
+  left.forEach(([x, y]) => ctx.lineTo(x, y));
+  right.slice().reverse().forEach(([x, y]) => ctx.lineTo(x, y));
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.save();
+  ctx.clip();
+  for (let i = 0; i < 42; i += 1) {
+    const t = ((i / 42 + time * 0.06 + state.progress * 2.5) % 1);
+    const y = lerp(horizonY, bottomY, Math.pow(t, 1.22));
+    const alpha = lerp(0.08, 0.38, t);
+    const width = lerp(w * 0.04, w * 0.68, Math.pow(t, 1.45));
+    const x = w * 0.5 + Math.sin((t + state.progress) * Math.PI * 2.2) * w * 0.08 + state.lane * w * 0.06 * t;
+    ctx.strokeStyle = `rgba(223, 255, 255, ${alpha})`;
+    ctx.lineWidth = lerp(1, 4, t);
+    ctx.beginPath();
+    ctx.moveTo(x - width * 0.5, y);
+    ctx.bezierCurveTo(x - width * 0.18, y + 8, x + width * 0.18, y - 8, x + width * 0.5, y);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  ctx.strokeStyle = "rgba(219, 255, 255, 0.42)";
+  ctx.lineWidth = 3;
+  [left, right].forEach((edge) => {
+    ctx.beginPath();
+    edge.forEach(([x, y], index) => index ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+    ctx.stroke();
+  });
+}
+
+function drawDistantObjects(w, h, time) {
+  gateProgress.forEach((gate, index) => {
+    const distance = gate - state.progress;
+    if (distance < -0.04 || distance > 0.34) return;
+    const t = 1 - clamp(distance / 0.34, 0, 1);
+    drawGate(w, h, t, index, state.mode === "gate-open" && index === state.questionIndex ? state.gateOpening : 0, time);
+  });
+
+  if (state.progress > 0.76) {
+    const t = clamp((state.progress - 0.76) / 0.18, 0, 1);
+    drawTreasure(w, h, t, time);
+  }
+}
+
+function drawGate(w, h, t, index, opening, time) {
+  const y = lerp(h * 0.28, h * 0.58, t);
+  const scale = lerp(0.35, 1.12, t);
+  const x = w * 0.5 + Math.sin((gateProgress[index] + state.progress) * 8) * w * 0.05 * (1 - t);
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+
+  const glow = ctx.createRadialGradient(0, 10, 20, 0, 10, 160);
+  glow.addColorStop(0, opening ? "rgba(255, 220, 96, 0.52)" : "rgba(98, 232, 255, 0.38)");
+  glow.addColorStop(1, "rgba(98, 232, 255, 0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(-180, -130, 360, 300);
+
+  ctx.fillStyle = "#5f7f8f";
+  roundedRect(-142, -20, 36, 150, 14);
+  ctx.fill();
+  roundedRect(106, -20, 36, 150, 14);
+  ctx.fill();
+  ctx.fillStyle = "#8ca7b3";
+  roundedRect(-158, -36, 68, 28, 12);
+  ctx.fill();
+  roundedRect(90, -36, 68, 28, 12);
+  ctx.fill();
+  ctx.strokeStyle = "#ffd66d";
+  ctx.lineWidth = 12;
+  ctx.beginPath();
+  ctx.arc(0, 16, 120, Math.PI * 1.04, Math.PI * 1.96);
+  ctx.stroke();
+
+  const curtainAlpha = Math.max(0, 0.75 - opening);
+  const curtain = ctx.createLinearGradient(0, -84, 0, 106);
+  curtain.addColorStop(0, `rgba(110, 242, 255, ${0.18 * curtainAlpha})`);
+  curtain.addColorStop(0.5, `rgba(46, 143, 255, ${0.36 * curtainAlpha})`);
+  curtain.addColorStop(1, `rgba(8, 42, 86, ${0.18 * curtainAlpha})`);
+  ctx.fillStyle = curtain;
+  roundedRect(-92, -62, 184, 174, 24);
+  ctx.fill();
+  ctx.strokeStyle = `rgba(214, 252, 255, ${0.56 * curtainAlpha})`;
+  ctx.lineWidth = 3;
+  for (let i = 0; i < 4; i += 1) {
+    const yy = -32 + i * 34 + Math.sin(time * 2 + i) * 4;
+    ctx.beginPath();
+    ctx.moveTo(-70, yy);
+    ctx.bezierCurveTo(-20, yy - 16, 20, yy + 16, 70, yy);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = "#ffe083";
+  ctx.beginPath();
+  ctx.moveTo(0, -128);
+  ctx.lineTo(25, -86);
+  ctx.lineTo(0, -46);
+  ctx.lineTo(-25, -86);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawTreasure(w, h, t, time) {
+  const x = w * 0.5;
+  const y = lerp(h * 0.32, h * 0.48, t);
+  const scale = lerp(0.5, 1.1, t);
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+  const glow = ctx.createRadialGradient(0, 0, 10, 0, 0, 190);
+  glow.addColorStop(0, "rgba(255, 221, 97, 0.58)");
+  glow.addColorStop(1, "rgba(255, 221, 97, 0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(-220, -170, 440, 340);
+
+  ctx.fillStyle = "#7d4520";
+  roundedRect(-72, 8, 144, 58, 12);
+  ctx.fill();
+  ctx.fillStyle = "#ca7427";
+  ctx.beginPath();
+  ctx.ellipse(0, 8, 74, 42, 0, Math.PI, 0);
+  ctx.fill();
+  ctx.strokeStyle = "#ffd66d";
+  ctx.lineWidth = 8;
+  ctx.strokeRect(-70, 8, 140, 58);
+  ctx.fillStyle = "#ffe182";
+  roundedRect(-12, 28, 24, 28, 6);
+  ctx.fill();
+
+  if (state.finalStarted) drawGuardian(0, -130, time);
+  ctx.restore();
+}
+
+function drawGuardian(x, y, time) {
+  ctx.save();
+  ctx.translate(x, y + Math.sin(time * 2) * 4);
+  ctx.scale(0.9, 0.9);
+  ctx.fillStyle = "#315fd7";
+  roundedRect(-58, -8, 116, 104, 14);
+  ctx.fill();
+  ctx.fillStyle = "#d83e43";
+  roundedRect(-48, -8, 42, 94, 10);
+  ctx.fill();
+  roundedRect(6, -8, 42, 94, 10);
+  ctx.fill();
+  ctx.fillStyle = "#cdd9e6";
+  roundedRect(-36, -78, 72, 62, 12);
+  ctx.fill();
+  ctx.fillStyle = "#38e8ff";
+  ctx.fillRect(-22, -52, 14, 8);
+  ctx.fillRect(8, -52, 14, 8);
+  ctx.fillStyle = "#51f3ff";
+  ctx.beginPath();
+  ctx.arc(0, 40, 16 + Math.sin(time * 4) * 2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawBoat(w, h, time) {
+  const x = w * 0.5 + state.lane * w * 0.18;
+  const y = h * 0.78 + Math.sin(time * 2.8) * 6;
+  const scale = Math.min(w / 1100, h / 650) * 1.2;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(state.steer * 0.045 + Math.sin(time * 2.4) * 0.012);
+  ctx.scale(scale, scale);
+
+  ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
+  ctx.beginPath();
+  ctx.ellipse(0, 54, 150, 34, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  drawOars(time);
+  drawHull();
+  drawBoy(time);
+  ctx.restore();
+}
+
+function drawOars(time) {
+  const stroke = Math.sin(state.rowPulse) * clamp(Math.abs(state.velocity) * 26 + Math.abs(state.forwardInput) * 0.45, 0.12, 1);
+  [-1, 1].forEach((side) => {
+    ctx.save();
+    ctx.rotate(side * (0.24 + stroke * 0.18));
+    ctx.strokeStyle = "#d49a5f";
+    ctx.lineWidth = 10;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(side * 30, 8);
+    ctx.lineTo(side * 182, 42 + stroke * 22);
+    ctx.stroke();
+    ctx.fillStyle = "#efc98b";
+    ctx.beginPath();
+    ctx.ellipse(side * 205, 48 + stroke * 24, 26, 10, side * 0.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
+function drawHull() {
+  const hull = ctx.createLinearGradient(0, -30, 0, 80);
+  hull.addColorStop(0, "#cf7c35");
+  hull.addColorStop(0.55, "#8a411f");
+  hull.addColorStop(1, "#472415");
+  ctx.fillStyle = hull;
+  ctx.beginPath();
+  ctx.moveTo(-138, -10);
+  ctx.bezierCurveTo(-110, 72, -44, 104, 0, 112);
+  ctx.bezierCurveTo(44, 104, 110, 72, 138, -10);
+  ctx.bezierCurveTo(80, 24, -80, 24, -138, -10);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = "#f0b365";
+  ctx.lineWidth = 9;
+  ctx.stroke();
+  ctx.fillStyle = "#2f1a12";
+  ctx.beginPath();
+  ctx.ellipse(0, 8, 94, 28, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255, 218, 142, 0.55)";
+  ctx.lineWidth = 4;
+  for (let i = -2; i <= 2; i += 1) {
+    ctx.beginPath();
+    ctx.moveTo(-78, i * 17 + 22);
+    ctx.quadraticCurveTo(0, i * 12 + 32, 78, i * 17 + 22);
+    ctx.stroke();
+  }
+}
+
+function drawBoy(time) {
+  const breathe = Math.sin(time * 2.5) * 2;
+  ctx.save();
+  ctx.translate(0, -44 + breathe);
+  ctx.fillStyle = "#1b4f9c";
+  roundedRect(-28, -12, 56, 56, 18);
+  ctx.fill();
+  ctx.fillStyle = "#ffcc4d";
+  roundedRect(-24, 4, 48, 20, 8);
+  ctx.fill();
+  ctx.fillStyle = "#d99a6c";
+  roundedRect(-30, -70, 60, 58, 22);
+  ctx.fill();
+  ctx.fillStyle = "#2b1d18";
+  ctx.beginPath();
+  ctx.moveTo(-30, -52);
+  ctx.bezierCurveTo(-34, -86, 14, -98, 34, -62);
+  ctx.bezierCurveTo(8, -72, -4, -64, -30, -52);
+  ctx.fill();
+  ctx.fillStyle = "#0d1720";
+  ctx.beginPath();
+  ctx.arc(-12, -46, 4, 0, Math.PI * 2);
+  ctx.arc(14, -46, 4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#803d30";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(2, -34, 10, 0.1, Math.PI - 0.1);
+  ctx.stroke();
+  ctx.strokeStyle = "#d99a6c";
+  ctx.lineWidth = 11;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-25, 4);
+  ctx.lineTo(-66, 18 + Math.sin(state.rowPulse) * 8);
+  ctx.moveTo(25, 4);
+  ctx.lineTo(66, 18 - Math.sin(state.rowPulse) * 8);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawParticles() {
+  state.particles.forEach((p) => {
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+}
+
+function drawVignette(w, h) {
+  const vignette = ctx.createRadialGradient(w * 0.5, h * 0.52, h * 0.18, w * 0.5, h * 0.52, h * 0.86);
+  vignette.addColorStop(0, "rgba(0, 0, 0, 0)");
+  vignette.addColorStop(1, "rgba(0, 0, 0, 0.54)");
+  ctx.fillStyle = vignette;
+  ctx.fillRect(0, 0, w, h);
+}
+
+function seedParticles() {
+  for (let i = 0; i < 42; i += 1) {
+    state.particles.push({
+      x: Math.random() * state.width,
+      y: Math.random() * state.height * 0.75,
+      vx: -4 + Math.random() * 8,
+      vy: -4 - Math.random() * 10,
+      size: 1 + Math.random() * 2.5,
+      life: 0.15 + Math.random() * 0.35,
+      color: i % 3 ? "#6cf3ff" : "#ffd66d",
+      drift: true
+    });
+  }
+}
+
+function burstParticles(x, y, count) {
+  for (let i = 0; i < count; i += 1) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 80 + Math.random() * 260;
+    state.particles.push({
+      x,
+      y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 80,
+      size: 2 + Math.random() * 5,
+      life: 0.8 + Math.random() * 0.8,
+      color: i % 2 ? "#ffe083" : "#6cf3ff",
+      drift: false
+    });
+  }
+}
+
+function updateParticles(dt) {
+  state.particles.forEach((p) => {
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    if (!p.drift) p.vy += 90 * dt;
+    p.life -= p.drift ? dt * 0.02 : dt * 0.9;
+    if (p.drift && (p.y < -20 || p.life < 0.1)) {
+      p.x = Math.random() * state.width;
+      p.y = state.height * (0.18 + Math.random() * 0.55);
+      p.life = 0.15 + Math.random() * 0.35;
+    }
+  });
+  state.particles = state.particles.filter((p) => p.life > 0 && p.x > -80 && p.x < state.width + 80 && p.y < state.height + 120);
 }
 
 function primeAudio() {
-  if (!state.sound) return;
-  audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
-  if (audioContext.state === "suspended") audioContext.resume();
+  if (audioContext) return;
+  audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  masterGain = audioContext.createGain();
+  masterGain.gain.value = state.sound ? 0.35 : 0;
+  masterGain.connect(audioContext.destination);
 }
 
-function playTone(freq, duration, type = "sine", delay = 0) {
-  if (!state.sound) return;
-  primeAudio();
-  const oscillator = audioContext.createOscillator();
-  const gain = audioContext.createGain();
-  oscillator.type = type;
-  oscillator.frequency.value = freq;
-  gain.gain.setValueAtTime(0.0001, audioContext.currentTime + delay);
-  gain.gain.exponentialRampToValueAtTime(0.16, audioContext.currentTime + delay + 0.02);
-  gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + delay + duration);
-  oscillator.connect(gain);
-  gain.connect(audioContext.destination);
-  oscillator.start(audioContext.currentTime + delay);
-  oscillator.stop(audioContext.currentTime + delay + duration + 0.02);
+function tone(freq, duration, type = "sine", gain = 0.14, when = 0) {
+  if (!audioContext || !state.sound) return;
+  const osc = audioContext.createOscillator();
+  const g = audioContext.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, audioContext.currentTime + when);
+  g.gain.setValueAtTime(0.0001, audioContext.currentTime + when);
+  g.gain.exponentialRampToValueAtTime(gain, audioContext.currentTime + when + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + when + duration);
+  osc.connect(g).connect(masterGain);
+  osc.start(audioContext.currentTime + when);
+  osc.stop(audioContext.currentTime + when + duration + 0.04);
 }
 
-function playWaterSwish(power = 0.5) {
-  if (!state.sound) return;
-  primeAudio();
-  const duration = 0.32;
-  const sampleRate = audioContext.sampleRate;
-  const buffer = audioContext.createBuffer(1, Math.floor(sampleRate * duration), sampleRate);
-  const data = buffer.getChannelData(0);
-  for (let i = 0; i < data.length; i += 1) {
-    const t = i / data.length;
-    data[i] = (Math.random() * 2 - 1) * Math.sin(t * Math.PI) * power;
+function playSwish(power) {
+  tone(90 + power * 70, 0.18, "triangle", 0.06 + power * 0.05);
+  tone(180 + power * 120, 0.12, "sine", 0.025, 0.04);
+}
+
+function playGateHum() {
+  tone(164, 0.38, "sine", 0.05);
+  tone(246, 0.4, "triangle", 0.035, 0.06);
+}
+
+function playGateOpen() {
+  tone(146, 0.16, "sawtooth", 0.08);
+  tone(330, 0.2, "triangle", 0.09, 0.08);
+  tone(660, 0.28, "sine", 0.07, 0.18);
+}
+
+function playWrong() {
+  tone(180, 0.14, "square", 0.05);
+  tone(130, 0.16, "square", 0.035, 0.12);
+}
+
+function playChime() {
+  [392, 523, 659, 784].forEach((freq, i) => tone(freq, 0.22, "sine", 0.07, i * 0.09));
+}
+
+function playVictoryVoice() {
+  if (!audioContext || !state.sound) return;
+  playChime();
+  const line = "Autobot, you now have the Matrix of Leadership.";
+  if ("speechSynthesis" in window) {
+    const utterance = new SpeechSynthesisUtterance(line);
+    utterance.rate = 0.72;
+    utterance.pitch = 0.42;
+    utterance.volume = 0.95;
+    const voices = speechSynthesis.getVoices();
+    utterance.voice = voices.find((voice) => /male|david|mark|english|us/i.test(`${voice.name} ${voice.lang}`)) || voices[0] || null;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(utterance);
   }
-  const source = audioContext.createBufferSource();
-  const filter = audioContext.createBiquadFilter();
-  const gain = audioContext.createGain();
-  source.buffer = buffer;
-  filter.type = "bandpass";
-  filter.frequency.value = 560 + power * 440;
-  filter.Q.value = 0.9;
-  gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.08 + power * 0.08, audioContext.currentTime + 0.03);
-  gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + duration);
-  source.connect(filter);
-  filter.connect(gain);
-  gain.connect(audioContext.destination);
-  source.start();
-  source.stop(audioContext.currentTime + duration);
 }
 
-function playCaveDrip() {
-  if (!state.sound) return;
-  primeAudio();
-  const now = audioContext.currentTime;
-  [720, 530].forEach((freq, index) => {
-    const oscillator = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(freq, now + index * 0.08);
-    oscillator.frequency.exponentialRampToValueAtTime(freq * 0.58, now + index * 0.08 + 0.26);
-    gain.gain.setValueAtTime(0.0001, now + index * 0.08);
-    gain.gain.exponentialRampToValueAtTime(index === 0 ? 0.035 : 0.022, now + index * 0.08 + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.08 + 0.34);
-    oscillator.connect(gain);
-    gain.connect(audioContext.destination);
-    oscillator.start(now + index * 0.08);
-    oscillator.stop(now + index * 0.08 + 0.36);
-  });
-}
-
-function playGateOpeningSound() {
-  if (!state.sound) return;
-  primeAudio();
-  const now = audioContext.currentTime;
-  const duration = 1.25;
-  const sampleRate = audioContext.sampleRate;
-  const buffer = audioContext.createBuffer(1, Math.floor(sampleRate * duration), sampleRate);
-  const data = buffer.getChannelData(0);
-  for (let i = 0; i < data.length; i += 1) {
-    const t = i / data.length;
-    data[i] = (Math.random() * 2 - 1) * (1 - t) * 0.7;
-  }
-  const source = audioContext.createBufferSource();
-  const filter = audioContext.createBiquadFilter();
-  const gain = audioContext.createGain();
-  source.buffer = buffer;
-  filter.type = "lowpass";
-  filter.frequency.setValueAtTime(260, now);
-  filter.frequency.linearRampToValueAtTime(880, now + duration);
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(0.16, now + 0.08);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-  source.connect(filter);
-  filter.connect(gain);
-  gain.connect(audioContext.destination);
-  source.start(now);
-  source.stop(now + duration);
-
-  [88, 132, 176].forEach((freq, index) => {
-    const oscillator = audioContext.createOscillator();
-    const toneGain = audioContext.createGain();
-    oscillator.type = "sawtooth";
-    oscillator.frequency.setValueAtTime(freq, now + index * 0.04);
-    oscillator.frequency.linearRampToValueAtTime(freq * 1.35, now + duration);
-    toneGain.gain.setValueAtTime(0.0001, now);
-    toneGain.gain.exponentialRampToValueAtTime(0.035, now + 0.12);
-    toneGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-    oscillator.connect(toneGain);
-    toneGain.connect(audioContext.destination);
-    oscillator.start(now + index * 0.04);
-    oscillator.stop(now + duration);
-  });
-}
-
-function playWrongClank() {
-  if (!state.sound) return;
-  primeAudio();
-  const now = audioContext.currentTime;
-  [92, 137, 211].forEach((freq, index) => {
-    const oscillator = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    oscillator.type = "square";
-    oscillator.frequency.value = freq;
-    gain.gain.setValueAtTime(0.0001, now + index * 0.035);
-    gain.gain.exponentialRampToValueAtTime(0.08, now + index * 0.035 + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.035 + 0.18);
-    oscillator.connect(gain);
-    gain.connect(audioContext.destination);
-    oscillator.start(now + index * 0.035);
-    oscillator.stop(now + index * 0.035 + 0.2);
-  });
-}
-
-function playCorrectChime() {
-  playTone(523, 0.12, "sine");
-  playTone(784, 0.18, "triangle", 0.08);
-  playTone(1046, 0.16, "sine", 0.18);
-}
-
-function playRelicReveal() {
-  if (!state.sound) return;
-  primeAudio();
-  const now = audioContext.currentTime;
-  [196, 247, 392, 659].forEach((freq, index) => {
-    const oscillator = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    oscillator.type = index < 2 ? "triangle" : "sine";
-    oscillator.frequency.setValueAtTime(freq, now + index * 0.12);
-    oscillator.frequency.linearRampToValueAtTime(freq * 1.08, now + 2.6);
-    gain.gain.setValueAtTime(0.0001, now + index * 0.12);
-    gain.gain.exponentialRampToValueAtTime(index < 2 ? 0.055 : 0.035, now + index * 0.12 + 0.18);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.8);
-    oscillator.connect(gain);
-    gain.connect(audioContext.destination);
-    oscillator.start(now + index * 0.12);
-    oscillator.stop(now + 2.9);
-  });
-}
-
-function playBaritoneBed() {
-  if (!state.sound) return;
-  primeAudio();
-  [82, 123, 164].forEach((freq, index) => {
-    const oscillator = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    const filter = audioContext.createBiquadFilter();
-    oscillator.type = index === 0 ? "sine" : "triangle";
-    oscillator.frequency.value = freq;
-    filter.type = "lowpass";
-    filter.frequency.value = 520;
-    gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
-    gain.gain.exponentialRampToValueAtTime(index === 0 ? 0.09 : 0.035, audioContext.currentTime + 0.18);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 3.9);
-    oscillator.connect(filter);
-    filter.connect(gain);
-    gain.connect(audioContext.destination);
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 4.05);
-  });
-}
-
-function samplePath(t) {
-  const clamped = Math.max(0, Math.min(1, t));
-  const scaled = clamped * (pathPoints.length - 1);
-  const index = Math.min(Math.floor(scaled), pathPoints.length - 2);
-  const local = scaled - index;
-  const a = pathPoints[index];
-  const b = pathPoints[index + 1];
-  const smooth = local * local * (3 - 2 * local);
-  return {
-    x: lerp(a.x, b.x, smooth),
-    z: lerp(a.z, b.z, smooth)
-  };
-}
-
-function sampleTangent(t) {
-  const a = samplePath(Math.max(0, t - 0.006));
-  const b = samplePath(Math.min(1, t + 0.006));
-  const dx = b.x - a.x;
-  const dz = b.z - a.z;
-  const len = Math.hypot(dx, dz) || 1;
-  return { x: dx / len, z: dz / len };
-}
-
-function sampleNormal(t) {
-  const tangent = sampleTangent(t);
-  return { x: -tangent.z, z: tangent.x };
-}
-
-function riverWidthAt(t) {
-  return 3.2 + Math.sin(t * Math.PI * 3.2) * 0.34 + Math.sin(t * Math.PI * 8) * 0.16;
-}
-
-function resize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  composer?.setSize(window.innerWidth, window.innerHeight);
-  if (ssaoPass) ssaoPass.setSize(window.innerWidth, window.innerHeight);
-  if (bloomPass) bloomPass.setSize(window.innerWidth, window.innerHeight);
+function roundedRect(x, y, width, height, radius) {
+  const r = Math.min(radius, Math.abs(width) / 2, Math.abs(height) / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + width - r, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+  ctx.lineTo(x + width, y + height - r);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+  ctx.lineTo(x + r, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
 }
 
 function lerp(a, b, t) {
   return a + (b - a) * t;
 }
 
-function easeOut(t) {
-  return 1 - Math.pow(1 - t, 3);
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
 }
 
-boot();
+try {
+  boot();
+} catch (error) {
+  console.error(error);
+  window.__caveQuestBoot = { ok: false, stage: "failed", build: BUILD_ID, message: error?.message || String(error) };
+  el.fallback.classList.remove("hidden");
+}
