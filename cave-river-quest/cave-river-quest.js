@@ -1,7 +1,8 @@
-const BUILD_ID = "layered-rowing-quest-aeb4d15";
+const BUILD_ID = "sprite-strip-rowing-5a67933";
 
 const assetSources = {
   background: "./assets/generated/painted-cave-river.png",
+  boatStrip: "./assets/generated/painted-rowboat-rowing-frames-alpha.png",
   boat: "./assets/generated/painted-boat-boy-alpha.png",
   gate: "./assets/generated/painted-gate-alpha.png"
 };
@@ -82,6 +83,7 @@ const state = {
   sound: true,
   lastTime: 0,
   rowPulse: 0,
+  boatApproach: 0,
   particles: [],
   wakes: [],
   gateSparkles: [],
@@ -203,9 +205,25 @@ function update(dt, time) {
     state.progress = lerp(state.progress, 0.94, 1 - Math.pow(0.2, dt));
   }
   state.rowPulse += dt * (2.5 + Math.abs(state.velocity) * 55);
+  updateBoatApproach(dt);
   updateParticles(dt);
   updateWakes(dt);
   updateDebugHook();
+}
+
+function updateBoatApproach(dt) {
+  const nextGate = gateProgress[state.questionIndex];
+  let target = 0;
+  if (state.mode === "gate-open") {
+    target = 0.82;
+  } else if (state.mode === "question") {
+    target = 0.72;
+  } else if (nextGate) {
+    target = clamp(1 - (nextGate - state.progress) / 0.22, 0, 0.72);
+  } else if (state.progress > 0.76) {
+    target = clamp((state.progress - 0.76) / 0.16, 0, 0.78);
+  }
+  state.boatApproach = lerp(state.boatApproach, target, 1 - Math.pow(0.03, dt));
 }
 
 function updateDebugHook() {
@@ -219,6 +237,8 @@ function updateDebugHook() {
       gateOpening: Number(state.gateOpening.toFixed(5)),
       questionIndex: state.questionIndex,
       rowPulse: Number(state.rowPulse.toFixed(5)),
+      boatApproach: Number(state.boatApproach.toFixed(5)),
+      boatArt: art.boatStrip ? "strip" : art.boat ? "static" : "procedural",
       wakes: state.wakes.length
     }),
     setRowing: (active) => {
@@ -781,9 +801,10 @@ function drawWaterWakes(w, h, time) {
 
 function drawDistantObjects(w, h, time) {
   gateProgress.forEach((gate, index) => {
+    if (index !== state.questionIndex) return;
     const distance = gate - state.progress;
-    if (distance < -0.04 || distance > 0.34) return;
-    const t = 1 - clamp(distance / 0.34, 0, 1);
+    if (distance < -0.06 || distance > 0.26) return;
+    const t = 1 - clamp(distance / 0.26, 0, 1);
     drawGate(w, h, t, index, state.mode === "gate-open" && index === state.questionIndex ? state.gateOpening : 0, time);
   });
 
@@ -795,7 +816,7 @@ function drawDistantObjects(w, h, time) {
 
 function drawGate(w, h, t, index, opening, time) {
   const y = lerp(h * 0.26, h * 0.57, t);
-  const scale = lerp(0.42, 1.26, t);
+  const scale = lerp(0.36, 0.98, t);
   const x = w * 0.5 + Math.sin((gateProgress[index] + state.progress) * 8) * w * 0.05 * (1 - t);
   if (art.gate) {
     ctx.save();
@@ -1007,13 +1028,46 @@ function drawGuardian(x, y, time) {
 
 function drawBoat(w, h, time) {
   const x = w * 0.5 + state.lane * w * 0.18;
-  const y = h * 0.78 + Math.sin(time * 2.8) * 6;
+  const y = lerp(h * 0.8, h * 0.66, state.boatApproach) + Math.sin(time * 2.8) * 6;
   const scale = Math.min(w / 1100, h / 650) * 0.92;
+  if (art.boatStrip) {
+    const rowPower = clamp(Math.abs(state.velocity) * 30 + Math.abs(state.forwardInput) * 0.75 + (state.mode === "gate-open" ? 0.6 : 0), 0, 1);
+    const frameCount = 4;
+    const phase = ((state.rowPulse / (Math.PI * 2)) % 1 + 1) % 1;
+    const frameIndex = rowPower > 0.08 ? Math.floor(phase * frameCount) % frameCount : 0;
+    const frameWidth = art.boatStrip.width / frameCount;
+    const frameHeight = art.boatStrip.height;
+    const spriteWidth = Math.min(w * 0.44, h * 0.7);
+    const spriteHeight = spriteWidth * (frameHeight / frameWidth);
+    const rowStroke = Math.sin(state.rowPulse) * rowPower;
+    ctx.save();
+    ctx.translate(x, y + Math.sin(time * 3.2) * 3.2 - rowPower * 10);
+    ctx.rotate(Math.sin(time * 2.4) * 0.008 + rowStroke * 0.012);
+    ctx.fillStyle = "rgba(0, 0, 0, 0.24)";
+    ctx.beginPath();
+    ctx.ellipse(0, spriteHeight * 0.33, spriteWidth * 0.3, spriteHeight * 0.055, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.filter = "drop-shadow(0 18px 22px rgba(0, 0, 0, 0.28))";
+    ctx.drawImage(
+      art.boatStrip,
+      frameIndex * frameWidth,
+      0,
+      frameWidth,
+      frameHeight,
+      -spriteWidth * 0.5,
+      -spriteHeight * 0.58,
+      spriteWidth,
+      spriteHeight
+    );
+    ctx.filter = "none";
+    ctx.restore();
+    return;
+  }
   if (art.boat) {
     const rowPower = clamp(Math.abs(state.velocity) * 28 + Math.abs(state.forwardInput) * 0.55 + (state.mode === "gate-open" ? 0.55 : 0), 0, 1);
     const rowStroke = Math.sin(state.rowPulse) * rowPower;
     ctx.save();
-    ctx.translate(x, y + Math.sin(time * 3.2) * 3.5);
+    ctx.translate(x, y + Math.sin(time * 3.2) * 3.5 - rowPower * 8);
     ctx.rotate(Math.sin(time * 2.4) * 0.008 + rowStroke * 0.016);
     const spriteWidth = Math.min(w * 0.42, h * 0.66);
     const spriteHeight = spriteWidth * (art.boat.height / art.boat.width);
@@ -1031,7 +1085,6 @@ function drawBoat(w, h, time) {
     ctx.drawImage(art.boat, -drawWidth * 0.5, -drawHeight * 0.58, drawWidth, drawHeight);
     ctx.filter = "none";
     ctx.restore();
-    drawPaintedRowingOverlay(spriteWidth, spriteHeight, rowPower, rowStroke, time);
     ctx.restore();
     return;
   }
