@@ -1,4 +1,10 @@
-const BUILD_ID = "cinematic-2-5d-water-swish-8c6357d";
+const BUILD_ID = "painted-assets-9224a8f";
+
+const assetSources = {
+  background: "./assets/generated/painted-cave-river.png",
+  boat: "./assets/generated/painted-boat-boy.png",
+  gate: "./assets/generated/painted-gate.png"
+};
 
 const questions = [
   {
@@ -61,6 +67,7 @@ const el = {
 };
 
 const ctx = el.canvas.getContext("2d", { alpha: false });
+const art = {};
 const state = {
   width: 1,
   height: 1,
@@ -99,14 +106,38 @@ function resize() {
   ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
 }
 
-function boot() {
+async function boot() {
   resize();
+  await loadArtAssets();
   bindInput();
   seedParticles();
   el.gateCount.textContent = "0/5";
   el.hint.textContent = "Hold Row to glide through the enchanted river. Ease up to each glowing gate.";
-  window.__caveQuestBoot = { ok: true, stage: "ready", build: BUILD_ID, renderer: "2.5d-canvas" };
+  window.__caveQuestBoot = { ok: true, stage: "ready", build: BUILD_ID, renderer: "2.5d-canvas", art: Object.keys(art).filter((key) => art[key]?.complete).length };
   requestAnimationFrame(loop);
+}
+
+async function loadArtAssets() {
+  const entries = await Promise.all(Object.entries(assetSources).map(async ([key, src]) => {
+    try {
+      return [key, await loadImage(src)];
+    } catch (error) {
+      console.warn(`Art asset failed: ${key}`, error);
+      return [key, null];
+    }
+  }));
+  entries.forEach(([key, image]) => {
+    art[key] = image;
+  });
+}
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = src;
+  });
 }
 
 function bindInput() {
@@ -262,15 +293,63 @@ function draw(time) {
   const w = state.width;
   const h = state.height;
   ctx.clearRect(0, 0, w, h);
-  drawBackdrop(w, h, time);
-  drawLightShafts(w, h, time);
-  drawCaveLayers(w, h, time);
-  drawRiver(w, h, time);
+  if (art.background) {
+    drawCoverImage(art.background, 0, 0, w, h);
+    drawPaintedSceneMotion(w, h, time);
+  } else {
+    drawBackdrop(w, h, time);
+    drawLightShafts(w, h, time);
+    drawCaveLayers(w, h, time);
+    drawRiver(w, h, time);
+  }
   drawDistantObjects(w, h, time);
   drawBoat(w, h, time);
-  drawForegroundRocks(w, h, time);
+  if (!art.background) drawForegroundRocks(w, h, time);
   drawParticles();
   drawVignette(w, h);
+}
+
+function drawCoverImage(image, x, y, width, height) {
+  const imageRatio = image.width / image.height;
+  const targetRatio = width / height;
+  let sourceWidth = image.width;
+  let sourceHeight = image.height;
+  let sourceX = 0;
+  let sourceY = 0;
+  if (imageRatio > targetRatio) {
+    sourceWidth = image.height * targetRatio;
+    sourceX = (image.width - sourceWidth) / 2;
+  } else {
+    sourceHeight = image.width / targetRatio;
+    sourceY = (image.height - sourceHeight) / 2;
+  }
+  ctx.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, x, y, width, height);
+}
+
+function drawPaintedSceneMotion(w, h, time) {
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+  const riverGlow = ctx.createRadialGradient(w * 0.5, h * 0.62, 20, w * 0.5, h * 0.7, h * 0.55);
+  riverGlow.addColorStop(0, "rgba(88, 255, 236, 0.18)");
+  riverGlow.addColorStop(0.55, "rgba(40, 181, 219, 0.08)");
+  riverGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
+  ctx.fillStyle = riverGlow;
+  ctx.fillRect(0, 0, w, h);
+
+  for (let i = 0; i < 38; i += 1) {
+    const t = (i / 38 + time * 0.055 + state.progress * 1.7) % 1;
+    const y = lerp(h * 0.28, h * 1.05, Math.pow(t, 1.18));
+    const width = lerp(w * 0.06, w * 0.58, Math.pow(t, 1.4));
+    const x = w * 0.5 + Math.sin(t * Math.PI * 2.6 + state.progress) * w * 0.1;
+    ctx.strokeStyle = `rgba(215, 255, 255, ${lerp(0.04, 0.22, t)})`;
+    ctx.lineWidth = lerp(1, 4, t);
+    ctx.beginPath();
+    ctx.moveTo(x - width * 0.5, y);
+    ctx.bezierCurveTo(x - width * 0.15, y + 10, x + width * 0.15, y - 10, x + width * 0.5, y);
+    ctx.stroke();
+  }
+  ctx.restore();
+  drawWaterWakes(w, h, time);
 }
 
 function drawBackdrop(w, h, time) {
@@ -676,6 +755,26 @@ function drawGate(w, h, t, index, opening, time) {
   const y = lerp(h * 0.26, h * 0.57, t);
   const scale = lerp(0.42, 1.26, t);
   const x = w * 0.5 + Math.sin((gateProgress[index] + state.progress) * 8) * w * 0.05 * (1 - t);
+  if (art.gate) {
+    ctx.save();
+    ctx.translate(x, y);
+    const spriteWidth = 260 * scale;
+    const spriteHeight = spriteWidth * (art.gate.height / art.gate.width);
+    const pulse = 1 + Math.sin(time * 3 + index) * 0.03;
+    ctx.globalAlpha = 0.72 + t * 0.28;
+    ctx.filter = `drop-shadow(0 0 ${Math.round(18 * scale)}px rgba(91, 231, 255, 0.55))`;
+    ctx.drawImage(art.gate, -spriteWidth * 0.5 * pulse, -spriteHeight * 0.48, spriteWidth * pulse, spriteHeight * pulse);
+    ctx.filter = "none";
+    if (opening > 0) {
+      ctx.globalCompositeOperation = "screen";
+      ctx.fillStyle = `rgba(255, 226, 116, ${opening * 0.32})`;
+      ctx.beginPath();
+      ctx.ellipse(0, 12, spriteWidth * 0.34, spriteHeight * 0.22, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+    return;
+  }
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(scale, scale);
@@ -868,6 +967,22 @@ function drawBoat(w, h, time) {
   const x = w * 0.5 + state.lane * w * 0.18;
   const y = h * 0.78 + Math.sin(time * 2.8) * 6;
   const scale = Math.min(w / 1100, h / 650) * 0.92;
+  if (art.boat) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(Math.sin(time * 2.4) * 0.01);
+    const spriteWidth = Math.min(w * 0.46, h * 0.72);
+    const spriteHeight = spriteWidth * (art.boat.height / art.boat.width);
+    ctx.fillStyle = "rgba(0, 0, 0, 0.24)";
+    ctx.beginPath();
+    ctx.ellipse(0, spriteHeight * 0.32, spriteWidth * 0.32, spriteHeight * 0.06, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.filter = "drop-shadow(0 18px 22px rgba(0, 0, 0, 0.28))";
+    ctx.drawImage(art.boat, -spriteWidth * 0.5, -spriteHeight * 0.58, spriteWidth, spriteHeight);
+    ctx.filter = "none";
+    ctx.restore();
+    return;
+  }
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(Math.sin(time * 2.4) * 0.012);
