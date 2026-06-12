@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "cartoon-gate-rig-007";
+  const BUILD_ID = "mobile-gate-scale-008";
   const assetBase = "./assets/generated/";
   const questions = [
     {
@@ -245,6 +245,11 @@
     el.forward.addEventListener("pointerdown", (event) => {
       event.preventDefault();
       setRowing(true);
+    });
+    [el.forward, el.soundButton].forEach((control) => {
+      control.addEventListener("contextmenu", (event) => event.preventDefault());
+      control.addEventListener("selectstart", (event) => event.preventDefault());
+      control.addEventListener("dragstart", (event) => event.preventDefault());
     });
     window.addEventListener("pointerup", () => setRowing(false));
     window.addEventListener("pointercancel", () => setRowing(false));
@@ -714,14 +719,15 @@
     }
     const w = scene.scale.width;
     const h = scene.scale.height;
+    const isNarrow = w < 720;
     const arrivalEase = state.mode === "approaching"
       ? easeOutCubic(clamp(state.arrivalTimer / 0.72, 0, 1))
       : 1;
     const openingEase = smoothstep(0.08, 0.96, state.gateOpening);
-    const targetWidth = Math.min(w * 0.38, h * 0.58, 610);
+    const targetWidth = Math.min(w * (isNarrow ? 0.58 : 0.38), h * (isNarrow ? 0.42 : 0.58), isNarrow ? 360 : 610);
     const texture = scene.textures.get("gate").getSourceImage();
     const gateX = w * 0.5;
-    const gateY = h * 0.35;
+    const gateY = h * (isNarrow ? 0.43 : 0.35);
     const gateHeight = targetWidth * (texture.height / texture.width);
     const visualScale = lerp(0.93, 1, arrivalEase);
     scene.chamberShade
@@ -755,11 +761,12 @@
     }
     const w = scene.scale.width;
     const h = scene.scale.height;
+    const isNarrow = w < 720;
     const approach = smoothstep(0.86, 1, travel);
     const depthEase = easeOutCubic(approach);
     const pathX = w * 0.5 + Math.sin((gate * 5.8 + 0.45) * Math.PI) * w * lerp(0.026, 0.012, depthEase);
-    const y = h * lerp(0.23, 0.3, depthEase);
-    const maxWidth = Math.min(w * 0.24, h * 0.3, 310);
+    const y = h * lerp(isNarrow ? 0.33 : 0.23, isNarrow ? 0.42 : 0.3, depthEase);
+    const maxWidth = Math.min(w * (isNarrow ? 0.5 : 0.24), h * (isNarrow ? 0.36 : 0.3), isNarrow ? 320 : 310);
     const scaleFromDot = Math.max(0.035, depthEase * depthEase);
     const targetWidth = maxWidth * lerp(0.035, 0.42, scaleFromDot);
     const texture = scene.textures.get("gate").getSourceImage();
@@ -941,7 +948,7 @@
       const pass = state.boatPass;
       const passEase = easeInOutCubic(pass);
       const startY = h * (isNarrow ? 0.6 : 0.62);
-      const gateY = h * 0.37;
+      const gateY = h * (isNarrow ? 0.44 : 0.37);
       x = lerp(w * 0.5, w * 0.5 + Math.sin((state.questionIndex + 1) * 1.7) * w * 0.018, passEase);
       y = lerp(startY, gateY + h * 0.04, passEase) + Math.sin(scene.timeSeconds * 2.6) * lerp(3, 0, passEase);
       scaleT = lerp(1, 1.72, passEase);
