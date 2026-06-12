@@ -1,71 +1,71 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "integrated-gate-treasure-002";
+  const BUILD_ID = "river-audio-backgrounds-gate-003";
   const assetBase = "./assets/generated/";
   const questions = [
     {
       type: "Maths Gate",
       title: "Lantern Rows",
-      text: "There are 4 rows of lanterns with 6 lanterns in each row. Three lanterns go out. How many are still glowing?",
-      answers: ["18", "21", "24", "27"],
-      correct: "21"
+      text: "Four rows have 6 lanterns each. Three lanterns go out, then 5 new ones are lit. How many glow now?",
+      answers: ["21", "24", "26", "29"],
+      correct: "26"
     },
     {
       type: "Logic Gate",
-      title: "Bridge Rule",
-      text: "A sign says: 'Only boats with an even number may pass.' Which boat number can pass?",
-      answers: ["17", "23", "34", "41"],
-      correct: "34"
+      title: "Factor Lock",
+      text: "The lock opens for a number that is a factor of 36 and also greater than 6. Which number works?",
+      answers: ["5", "6", "9", "14"],
+      correct: "9"
     },
     {
       type: "Word Gate",
       title: "Cave Meaning",
-      text: "In the sentence 'The narrow tunnel made the rower cautious,' what does cautious mean?",
-      answers: ["careful", "angry", "very loud", "sleepy"],
-      correct: "careful"
+      text: "In 'The narrow tunnel made the rower cautious,' which clue best helps you know cautious means careful?",
+      answers: ["narrow tunnel", "the rower", "made the", "cave color"],
+      correct: "narrow tunnel"
     },
     {
       type: "Pattern Gate",
-      title: "Crystal Pattern",
-      text: "What number comes next: 3, 6, 12, 24, ?",
-      answers: ["30", "36", "42", "48"],
-      correct: "48"
+      title: "Fraction Torch",
+      text: "A torch burns for 3/4 of an hour. Another burns for 1/4 of an hour. How long do they burn altogether?",
+      answers: ["1/2 hour", "1 hour", "1 1/4 hours", "2 hours"],
+      correct: "1 hour"
     },
     {
       type: "Inference Gate",
       title: "Wet Footprints",
-      text: "You see wet footprints leading away from the river, but no one is nearby. What is the best guess?",
+      text: "Wet footprints lead from the river to a dry tunnel, and the lantern there is still swinging. What is the best inference?",
       answers: ["Someone climbed out recently", "The cave is dry", "The boat flew", "The lantern walked"],
       correct: "Someone climbed out recently"
     },
     {
       type: "Maths Gate",
-      title: "Supplies Check",
-      text: "Milo packed 36 berries. He shares them equally among 4 friends. How many berries does each friend get?",
-      answers: ["6", "8", "9", "12"],
-      correct: "9"
+      title: "Elapsed Time",
+      text: "The boat leaves at 3:20 and reaches the next gate at 4:05. How long did the trip take?",
+      answers: ["35 minutes", "45 minutes", "50 minutes", "1 hour"],
+      correct: "45 minutes"
     },
     {
       type: "Grammar Gate",
       title: "Best Sentence",
-      text: "Which sentence uses the apostrophe correctly?",
-      answers: ["The boys oar is long.", "The boy's oar is long.", "The boys' is oar long.", "The boy oar's is long."],
-      correct: "The boy's oar is long."
+      text: "Which revision combines the ideas best? 'The river was dark. The river was calm.'",
+      answers: ["The river was dark and calm.", "The river was dark calm.", "Dark the river was calm.", "The river and was dark calm."],
+      correct: "The river was dark and calm."
     },
     {
-      type: "Logic Gate",
-      title: "Two Clues",
-      text: "The blue key is not in the left box. The red key is not in the middle box. If the blue key is in the middle, where is the red key?",
-      answers: ["left box", "middle box", "right box", "river"],
-      correct: "left box"
+      type: "Geometry Gate",
+      title: "Angle Signal",
+      text: "The gate symbol has an angle smaller than a right angle. What kind of angle is it?",
+      answers: ["acute", "obtuse", "straight", "square"],
+      correct: "acute"
     },
     {
       type: "Word Gate",
       title: "Prefix Power",
-      text: "What does the prefix 're-' mean in the word 'rebuild'?",
-      answers: ["again", "before", "under", "not"],
-      correct: "again"
+      text: "If a map is 'misread,' what most likely happened?",
+      answers: ["It was read wrongly", "It was read twice", "It was read aloud", "It was not a map"],
+      correct: "It was read wrongly"
     },
     {
       type: "Final Gate",
@@ -136,9 +136,15 @@
       this.load.image("plate3", assetBase + "journey-plate-3.png");
       this.load.image("plate4", assetBase + "journey-plate-4.png");
       this.load.image("plate5", assetBase + "journey-plate-5.png");
-      this.load.image("gate", assetBase + "portal-gate-v2-alpha.png");
+      this.load.image("plate6", assetBase + "journey-plate-6.png");
+      this.load.image("plate7", assetBase + "journey-plate-7.png");
+      this.load.image("plate8", assetBase + "journey-plate-8.png");
+      this.load.image("plate9", assetBase + "journey-plate-9.png");
+      this.load.image("plate10", assetBase + "journey-plate-10.png");
+      this.load.image("gate", assetBase + "stone-gate-v3-alpha.png");
       this.load.image("chest", assetBase + "treasure-chest-alpha.png");
       this.load.image("guardian", assetBase + "guardian-robot-alpha.png");
+      this.load.audio("riverLoop", "./assets/audio/mixkit-river-water-flowing.mp3");
       this.load.spritesheet("boatRow", assetBase + "painted-rowboat-rowing-frames-alpha.png", {
         frameWidth: 543,
         frameHeight: 408
@@ -151,7 +157,7 @@
       state.height = this.scale.height;
       this.cameras.main.setBackgroundColor("#071523");
 
-      this.plateKeys = ["plate1", "plate2", "plate3", "plate4", "plate5"];
+      this.plateKeys = ["plate1", "plate2", "plate3", "plate4", "plate5", "plate6", "plate7", "plate8", "plate9", "plate10"];
       this.bgA = this.add.image(0, 0, "plate1").setOrigin(0.5).setDepth(0);
       this.bgB = this.add.image(0, 0, "plate2").setOrigin(0.5).setDepth(1).setAlpha(0);
       this.wash = this.add.rectangle(0, 0, 10, 10, 0x49dff2, 0).setOrigin(0).setBlendMode(Phaser.BlendModes.SCREEN).setDepth(2);
@@ -166,6 +172,7 @@
       this.chest = this.add.image(0, 0, "chest").setOrigin(0.5).setDepth(10).setVisible(false).setInteractive({ useHandCursor: true });
       this.boat = this.add.sprite(0, 0, "boatRow", 0).setOrigin(0.5).setDepth(9);
       this.guardian = this.add.image(0, 0, "guardian").setOrigin(0.5, 1).setDepth(8).setVisible(false).setAlpha(0);
+      this.riverLoop = this.sound.add("riverLoop", { loop: true, volume: 0.36 });
 
       this.anims.create({
         key: "row",
@@ -212,16 +219,18 @@
       if (!state.qaFrozen) updateBoatApproach(dt);
       renderJourney(this);
       renderWaterFx(this);
-      renderGate(this);
-      renderTreasureAndGuardian(this);
-      renderBoat(this);
-      updateDebugHook();
+    renderGate(this);
+    renderTreasureAndGuardian(this);
+    renderBoat(this);
+    updateRiverAmbience();
+    updateDebugHook();
     }
   }
 
   function setupInput() {
     const setRowing = (active) => {
       if (state.mode !== "rowing") return;
+      if (active) startRiverAmbience();
       state.forwardInput = active ? 1 : 0;
       if (active) startWaterLoop();
       else stopWaterLoop();
@@ -242,7 +251,8 @@
     el.soundButton.addEventListener("click", () => {
       state.soundEnabled = !state.soundEnabled;
       el.soundButton.textContent = state.soundEnabled ? "Sound on" : "Sound off";
-      if (!state.soundEnabled) stopWaterLoop();
+      if (state.soundEnabled) startRiverAmbience();
+      else stopAllLoops();
     });
   }
 
@@ -275,6 +285,28 @@
     noise.start();
     audio.water = noise;
     audio.gain = gain;
+  }
+
+  function startRiverAmbience() {
+    if (!state.soundEnabled || !sceneRef?.riverLoop) return;
+    resumeAudio();
+    if (!sceneRef.riverLoop.isPlaying) {
+      sceneRef.riverLoop.play();
+    }
+    sceneRef.riverLoop.setVolume(state.mode === "question" ? 0.24 : 0.38);
+  }
+
+  function updateRiverAmbience() {
+    if (!state.soundEnabled || !sceneRef?.riverLoop?.isPlaying) return;
+    const target = state.mode === "question" ? 0.22 : state.mode === "gate-open" ? 0.42 : 0.36;
+    sceneRef.riverLoop.setVolume(lerp(sceneRef.riverLoop.volume, target, 0.035));
+  }
+
+  function stopAllLoops() {
+    stopWaterLoop();
+    if (sceneRef?.riverLoop?.isPlaying) {
+      sceneRef.riverLoop.stop();
+    }
   }
 
   function playRowSplash() {
@@ -448,6 +480,7 @@
 
   function resumeAudio() {
     if (audio?.ctx?.state === "suspended") audio.ctx.resume();
+    if (sceneRef?.sound?.context?.state === "suspended") sceneRef.sound.context.resume();
   }
 
   function updateMovement(dt) {
@@ -478,6 +511,7 @@
     state.boatPass = 0;
     el.hint.textContent = "The gate is ahead. Keep rowing into the lantern light.";
     startWaterLoop();
+    startRiverAmbience();
   }
 
   function updateApproach(dt) {
@@ -622,20 +656,20 @@
       ? easeOutCubic(clamp(state.arrivalTimer / 0.34, 0, 1))
       : 1;
     const openingEase = easeOutCubic(state.gateOpening);
-    const targetWidth = Math.min(w * 0.36, h * 0.52, 560);
+    const targetWidth = Math.min(w * 0.32, h * 0.5, 520);
     const texture = scene.textures.get("gate").getSourceImage();
     const gateX = w * 0.5;
-    const gateY = h * 0.35;
+    const gateY = h * 0.36;
     const gateHeight = targetWidth * (texture.height / texture.width);
     scene.chamberShade
       .setPosition(0, 0)
       .setSize(w, h)
-      .setFillStyle(0x03101d, 0.06 + arrivalEase * 0.18)
+      .setFillStyle(0x03101d, 0.04 + arrivalEase * 0.14)
       .setAlpha(1);
     scene.gateAura
       .setPosition(gateX, gateY)
-      .setRadius(Math.min(w * 0.22, 220) * (1 + Math.sin(scene.timeSeconds * 2.2) * 0.03 + openingEase * 0.18))
-      .setAlpha((0.12 + Math.sin(scene.timeSeconds * 2.6) * 0.03) * arrivalEase + openingEase * 0.28);
+      .setRadius(Math.min(w * 0.18, 180) * (1 + Math.sin(scene.timeSeconds * 2.2) * 0.025 + openingEase * 0.12))
+      .setAlpha((0.08 + Math.sin(scene.timeSeconds * 2.6) * 0.02) * arrivalEase + openingEase * 0.16);
     scene.gate
       .setVisible(true)
       .setDepth(7)
@@ -685,14 +719,14 @@
     seal.clear();
     dust.clear();
     const closedAlpha = arrivalEase * (1 - openingEase);
-    const portalW = gateWidth * 0.5;
-    const portalH = gateHeight * 0.5;
-    const portalY = gateY + gateHeight * 0.07;
+    const portalW = gateWidth * 0.46;
+    const portalH = gateHeight * 0.44;
+    const portalY = gateY + gateHeight * 0.08;
     const baseY = gateY + gateHeight * 0.4;
     seal.setBlendMode(Phaser.BlendModes.SCREEN);
-    seal.fillStyle(0x5be7ff, 0.09 * arrivalEase);
-    seal.fillEllipse(gateX, baseY, gateWidth * 0.78, gateHeight * 0.12);
-    seal.fillStyle(0xdfffff, 0.08 * arrivalEase);
+    seal.fillStyle(0x9befff, 0.065 * arrivalEase);
+    seal.fillEllipse(gateX, baseY, gateWidth * 0.88, gateHeight * 0.13);
+    seal.fillStyle(0xffe7a0, 0.055 * arrivalEase);
     for (let i = 0; i < 9; i += 1) {
       const phase = (scene.timeSeconds * 0.32 + i * 0.13) % 1;
       const x = gateX + Math.sin(i * 1.9) * gateWidth * 0.34;
@@ -700,14 +734,16 @@
       seal.fillEllipse(x, y, gateWidth * lerp(0.1, 0.22, phase), gateHeight * lerp(0.018, 0.04, phase));
     }
     if (closedAlpha > 0.02) {
-      seal.fillStyle(0x09263c, 0.52 * closedAlpha);
-      seal.fillRoundedRect(gateX - portalW * 0.52, portalY - portalH * 0.5, portalW * 1.04, portalH, portalW * 0.12);
-      seal.lineStyle(Math.max(2, gateWidth * 0.014), 0x58efff, 0.36 * closedAlpha);
-      seal.strokeRoundedRect(gateX - portalW * 0.52, portalY - portalH * 0.5, portalW * 1.04, portalH, portalW * 0.12);
+      seal.fillStyle(0x03101d, 0.24 * closedAlpha);
+      seal.fillRoundedRect(gateX - portalW * 0.5, portalY - portalH * 0.48, portalW, portalH * 0.96, portalW * 0.12);
+      seal.lineStyle(Math.max(2, gateWidth * 0.01), 0xffd56c, 0.22 * closedAlpha);
+      seal.strokeRoundedRect(gateX - portalW * 0.5, portalY - portalH * 0.48, portalW, portalH * 0.96, portalW * 0.12);
       for (let i = -2; i <= 2; i += 1) {
         const x = gateX + i * portalW * 0.18;
-        seal.lineStyle(Math.max(2, gateWidth * 0.012), 0xffd56c, (0.56 - Math.abs(i) * 0.06) * closedAlpha);
+        seal.lineStyle(Math.max(3, gateWidth * 0.013), 0x101820, (0.72 - Math.abs(i) * 0.07) * closedAlpha);
         seal.lineBetween(x, portalY - portalH * 0.43, x, portalY + portalH * 0.43);
+        seal.lineStyle(Math.max(1, gateWidth * 0.004), 0xffd56c, (0.18 - Math.abs(i) * 0.02) * closedAlpha);
+        seal.lineBetween(x - gateWidth * 0.006, portalY - portalH * 0.4, x - gateWidth * 0.006, portalY + portalH * 0.4);
       }
     }
     if (openingEase > 0.02) {
@@ -822,6 +858,8 @@
     if (!question) return;
     state.mode = "question";
     state.forwardInput = 0;
+    stopWaterLoop();
+    updateRiverAmbience();
     state.arrivalTimer = 0;
     el.questionType.textContent = question.type;
     el.questionTitle.textContent = question.title;
@@ -855,6 +893,7 @@
       state.mode = "gate-open";
       state.gateOpening = 0;
       state.boatPass = 0;
+      startRiverAmbience();
       startWaterLoop();
     }, 450);
   }
