@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "projected-gate-approach-001";
+  const BUILD_ID = "static-gate-pass-through-001";
   const assetBase = "./assets/generated/";
   const questions = [
     {
@@ -54,6 +54,20 @@
       correct: "The boat is fast."
     },
     {
+      type: "Logic Gate",
+      title: "Silent Switch",
+      text: "A lantern is on. One switch turns it off. What should you do first?",
+      answers: ["Look at the switch", "Break the lantern", "Close your eyes", "Row backwards"],
+      correct: "Look at the switch"
+    },
+    {
+      type: "Word Gate",
+      title: "Hidden Word",
+      text: "Which word has the tiny word 'and' hiding inside it?",
+      answers: ["boat", "candle", "cart", "stone"],
+      correct: "candle"
+    },
+    {
       type: "Final Gate",
       title: "Leadership Choice",
       text: "A friend drops their paddle. What should a leader do?",
@@ -92,7 +106,9 @@
     questionIndex: 0,
     arrivalTimer: 0,
     gateOpening: 0,
+    boatPass: 0,
     boatApproach: 0,
+    qaFrozen: false,
     lane: 0,
     soundEnabled: true,
     finalStarted: false,
@@ -143,6 +159,8 @@
       this.chamberShade = this.add.rectangle(0, 0, 10, 10, 0x03101d, 0).setOrigin(0).setDepth(5);
       this.gateAura = this.add.circle(0, 0, 120, 0x5be7ff, 0).setBlendMode(Phaser.BlendModes.SCREEN).setDepth(6);
       this.gate = this.add.image(0, 0, "gate").setOrigin(0.5, 0.5).setDepth(7).setVisible(false);
+      this.gateSeal = this.add.graphics().setDepth(8);
+      this.gateDust = this.add.graphics().setDepth(8);
       this.chest = this.add.image(0, 0, "chest").setOrigin(0.5).setDepth(7).setVisible(false).setInteractive({ useHandCursor: true });
       this.boat = this.add.sprite(0, 0, "boatRow", 0).setOrigin(0.5).setDepth(9);
       this.guardian = this.add.image(0, 0, "guardian").setOrigin(0.5, 1).setDepth(8).setVisible(false).setAlpha(0);
@@ -173,6 +191,7 @@
       updateGateCount();
       setupInput();
       setupAudio();
+      applyQaUrlState();
       updateDebugHook();
       window.__caveQuestBoot = { ok: true, stage: "ready", build: BUILD_ID, renderer: "phaser", engine: Phaser.VERSION };
     }
@@ -180,13 +199,15 @@
     update(time, delta) {
       const dt = Math.min(delta / 1000, 0.05);
       this.timeSeconds = time / 1000;
-      if (state.mode === "rowing") updateMovement(dt);
-      if (state.mode === "arriving") updateArrival(dt);
-      if (state.mode === "gate-open") updateGateOpen(dt);
-      if (state.mode === "final") {
-        state.progress = lerp(state.progress, 0.94, 1 - Math.pow(0.2, dt));
+      if (!state.qaFrozen) {
+        if (state.mode === "rowing") updateMovement(dt);
+        if (state.mode === "approaching") updateApproach(dt);
+        if (state.mode === "gate-open") updateGateOpen(dt);
+        if (state.mode === "final") {
+          state.progress = lerp(state.progress, 0.94, 1 - Math.pow(0.2, dt));
+        }
       }
-      updateBoatApproach(dt);
+      if (!state.qaFrozen) updateBoatApproach(dt);
       renderJourney(this);
       renderWaterFx(this);
       renderGate(this);
@@ -284,6 +305,68 @@
     osc.stop(ctx.currentTime + (type === "gate" ? 0.9 : 0.32));
   }
 
+  function playGateOpenSound() {
+    if (!state.soundEnabled) return;
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    resumeAudio();
+    const now = ctx.currentTime;
+
+    const buffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.95), ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i += 1) {
+      const fade = 1 - i / data.length;
+      data[i] = (Math.random() * 2 - 1) * fade * 0.55;
+    }
+    const rumble = ctx.createBufferSource();
+    rumble.buffer = buffer;
+    const lowpass = ctx.createBiquadFilter();
+    lowpass.type = "lowpass";
+    lowpass.frequency.setValueAtTime(180, now);
+    lowpass.frequency.exponentialRampToValueAtTime(760, now + 0.7);
+    const rumbleGain = ctx.createGain();
+    rumbleGain.gain.setValueAtTime(0.0001, now);
+    rumbleGain.gain.exponentialRampToValueAtTime(0.08, now + 0.05);
+    rumbleGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.95);
+    rumble.connect(lowpass).connect(rumbleGain).connect(ctx.destination);
+    rumble.start(now);
+    rumble.stop(now + 1);
+
+    const chimeGain = ctx.createGain();
+    chimeGain.gain.setValueAtTime(0.0001, now + 0.16);
+    chimeGain.gain.exponentialRampToValueAtTime(0.05, now + 0.22);
+    chimeGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.05);
+    chimeGain.connect(ctx.destination);
+    [392, 587, 784].forEach((frequency, index) => {
+      const osc = ctx.createOscillator();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(frequency, now + 0.18 + index * 0.035);
+      osc.connect(chimeGain);
+      osc.start(now + 0.18 + index * 0.035);
+      osc.stop(now + 1.08);
+    });
+  }
+
+  function playGateCloseSound() {
+    if (!state.soundEnabled) return;
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    resumeAudio();
+    const now = ctx.currentTime;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.045, now + 0.025);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.34);
+    gain.connect(ctx.destination);
+    const osc = ctx.createOscillator();
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(116, now);
+    osc.frequency.exponentialRampToValueAtTime(58, now + 0.28);
+    osc.connect(gain);
+    osc.start(now);
+    osc.stop(now + 0.36);
+  }
+
   function getAudioContext() {
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     if (!window.AudioContext) return null;
@@ -301,12 +384,12 @@
     state.progress = clamp(state.progress + state.velocity * dt, 0, 0.94);
     state.lane = Math.sin((state.progress * 4.8 + 0.2) * Math.PI) * 0.18;
     const gate = gateProgress[state.questionIndex];
-    if (gate && state.progress >= gate - 0.022) {
-      state.progress = gate - 0.022;
+    if (gate && state.progress >= gate - 0.055) {
+      state.progress = gate - 0.055;
       state.velocity = 0;
       state.forwardInput = 0;
       stopWaterLoop();
-      beginGateArrival();
+      beginGateApproach();
     }
     if (state.questionIndex >= gateProgress.length && state.progress > 0.9 && !state.finalStarted) {
       state.finalStarted = true;
@@ -316,33 +399,41 @@
     }
   }
 
-  function beginGateArrival() {
-    state.mode = "arriving";
+  function beginGateApproach() {
+    state.mode = "approaching";
     state.arrivalTimer = 0;
-    el.hint.textContent = "Ease into the gate chamber. Watch for the lanterns.";
-    sceneRef?.cameras.main.flash(280, 180, 246, 255, false);
+    state.boatPass = 0;
+    el.hint.textContent = "The gate is ahead. Keep rowing into the lantern light.";
+    startWaterLoop();
   }
 
-  function updateArrival(dt) {
+  function updateApproach(dt) {
     state.arrivalTimer += dt;
-    state.boatApproach = lerp(state.boatApproach, 1, 1 - Math.pow(0.02, dt));
-    if (state.arrivalTimer >= 1.15) {
+    state.boatApproach = lerp(state.boatApproach, 1, 1 - Math.pow(0.018, dt));
+    state.progress = (gateProgress[state.questionIndex] || state.progress) - 0.055;
+    if (state.arrivalTimer >= 1.45) {
+      stopWaterLoop();
       showQuestion(state.questionIndex);
     }
   }
 
   function updateGateOpen(dt) {
-    state.gateOpening = clamp(state.gateOpening + dt / 0.85, 0, 1);
+    state.gateOpening = clamp(state.gateOpening + dt / 1.45, 0, 1);
+    state.boatPass = easeInOutCubic(state.gateOpening);
     const start = (gateProgress[state.questionIndex] || state.progress) - 0.018;
     const nextGate = gateProgress[state.questionIndex + 1];
-    const end = nextGate ? nextGate - 0.11 : 0.88;
-    state.progress = lerp(start, end, easeOutCubic(state.gateOpening));
+    const end = nextGate ? nextGate - 0.13 : 0.88;
+    state.progress = lerp(start, end, Math.pow(state.boatPass, 1.35));
     state.lane = Math.sin((state.progress * 4.8 + 0.2) * Math.PI) * 0.18;
     if (state.gateOpening >= 1) {
       state.questionIndex += 1;
       updateGateCount();
       state.mode = "rowing";
       state.gateOpening = 0;
+      state.boatPass = 0;
+      state.boatApproach = 0;
+      stopWaterLoop();
+      playGateCloseSound();
       el.hint.textContent = state.questionIndex >= questions.length
         ? "The vault is close. Row into the golden glow."
         : "Nice. Keep rowing to the next glowing gate.";
@@ -352,8 +443,8 @@
   function updateBoatApproach(dt) {
     const nextGate = gateProgress[state.questionIndex];
     let target = 0;
-    if (state.mode === "arriving" || state.mode === "gate-open" || state.mode === "question") target = 1;
-    else if (nextGate) target = clamp(1 - (nextGate - state.progress) / 0.12, 0, 1);
+    if (state.mode === "approaching" || state.mode === "gate-open" || state.mode === "question") target = 1;
+    else if (nextGate) target = clamp(1 - (nextGate - state.progress) / 0.16, 0, 0.42);
     else if (state.progress > 0.76) target = clamp((state.progress - 0.76) / 0.16, 0, 1);
     state.boatApproach = lerp(state.boatApproach, target, 1 - Math.pow(0.03, dt));
   }
@@ -432,72 +523,119 @@
       scene.gate.setVisible(false);
       scene.gateAura.setAlpha(0);
       scene.chamberShade.setAlpha(0);
+      scene.gateSeal?.clear();
+      scene.gateDust?.clear();
       return;
     }
     if (state.mode === "rowing") {
-      renderProjectedTravelGate(scene, gate);
+      renderDistantGateHint(scene, gate);
       return;
     }
-    if (state.mode !== "arriving" && state.mode !== "question" && state.mode !== "gate-open") {
+    if (state.mode !== "approaching" && state.mode !== "question" && state.mode !== "gate-open") {
       scene.gate.setVisible(false);
       scene.gateAura.setAlpha(0);
       scene.chamberShade.setAlpha(0);
+      scene.gateSeal?.clear();
+      scene.gateDust?.clear();
       return;
     }
     const w = scene.scale.width;
     const h = scene.scale.height;
-    const arrivalEase = state.mode === "arriving"
-      ? easeOutCubic(clamp(state.arrivalTimer / 1.1, 0, 1))
+    const arrivalEase = state.mode === "approaching"
+      ? easeOutCubic(clamp(state.arrivalTimer / 0.34, 0, 1))
       : 1;
     const openingEase = easeOutCubic(state.gateOpening);
-    const targetWidth = Math.min(w * 0.4, h * 0.48, 520) * lerp(0.86, 1, arrivalEase);
+    const targetWidth = Math.min(w * 0.42, h * 0.54, 600);
     const texture = scene.textures.get("gate").getSourceImage();
+    const gateX = w * 0.5;
+    const gateY = h * 0.37;
+    const gateHeight = targetWidth * (texture.height / texture.width);
     scene.chamberShade
       .setPosition(0, 0)
       .setSize(w, h)
-      .setFillStyle(0x03101d, 0.2 + arrivalEase * 0.28)
+      .setFillStyle(0x03101d, 0.1 + arrivalEase * 0.28)
       .setAlpha(1);
     scene.gateAura
-      .setPosition(w * 0.5, h * 0.39)
-      .setRadius(Math.min(w * 0.22, 220) * (1 + Math.sin(scene.timeSeconds * 2.2) * 0.03))
-      .setAlpha((0.16 + Math.sin(scene.timeSeconds * 2.6) * 0.035) * arrivalEase + openingEase * 0.24);
+      .setPosition(gateX, gateY)
+      .setRadius(Math.min(w * 0.24, 240) * (1 + Math.sin(scene.timeSeconds * 2.2) * 0.03 + openingEase * 0.18))
+      .setAlpha((0.18 + Math.sin(scene.timeSeconds * 2.6) * 0.035) * arrivalEase + openingEase * 0.3);
     scene.gate
       .setVisible(true)
-      .setAlpha(arrivalEase * (1 - openingEase * 0.75))
-      .setDisplaySize(targetWidth, targetWidth * (texture.height / texture.width))
-      .setPosition(w * 0.5, h * 0.42 - openingEase * h * 0.12);
+      .setDepth(7)
+      .setAlpha(arrivalEase)
+      .setDisplaySize(targetWidth, gateHeight)
+      .setPosition(gateX, gateY);
+    renderGateSeal(scene, gateX, gateY, targetWidth, gateHeight, arrivalEase, openingEase);
   }
 
-  function renderProjectedTravelGate(scene, gate) {
+  function renderDistantGateHint(scene, gate) {
     const distance = gate - state.progress;
-    const visibleDistance = 0.24;
-    const stopDistance = 0.022;
+    const visibleDistance = 0.18;
+    const stopDistance = 0.055;
     if (distance < stopDistance || distance > visibleDistance) {
       scene.gate.setVisible(false);
       scene.gateAura.setAlpha(0);
       scene.chamberShade.setAlpha(0);
+      scene.gateSeal?.clear();
+      scene.gateDust?.clear();
       return;
     }
     const w = scene.scale.width;
     const h = scene.scale.height;
     const approach = 1 - clamp((distance - stopDistance) / (visibleDistance - stopDistance), 0, 1);
     const depthEase = easeInOutCubic(approach);
-    const pathX = w * 0.5 + Math.sin((state.progress * 5.8 + depthEase * 1.25) * Math.PI) * w * lerp(0.015, 0.05, depthEase);
-    const y = lerp(h * 0.31, h * 0.42, depthEase);
-    const maxWidth = Math.min(w * 0.38, h * 0.45, 500);
-    const targetWidth = maxWidth * lerp(0.24, 0.84, depthEase);
+    const pathX = w * 0.5 + Math.sin((gate * 5.8 + 0.45) * Math.PI) * w * 0.018;
+    const y = h * 0.36;
+    const maxWidth = Math.min(w * 0.3, h * 0.38, 360);
+    const targetWidth = maxWidth * lerp(0.22, 0.34, depthEase);
     const texture = scene.textures.get("gate").getSourceImage();
-    const alpha = smoothstep(0.08, 0.34, approach) * lerp(0.45, 0.92, depthEase);
+    const alpha = smoothstep(0.1, 0.42, approach) * 0.48;
     scene.chamberShade.setAlpha(0);
     scene.gateAura
       .setPosition(pathX, y)
-      .setRadius(Math.min(w * 0.14, 150) * lerp(0.35, 0.9, depthEase))
-      .setAlpha(alpha * 0.28);
+      .setRadius(Math.min(w * 0.1, 112))
+      .setAlpha(alpha * 0.18);
     scene.gate
       .setVisible(true)
       .setAlpha(alpha)
       .setDisplaySize(targetWidth, targetWidth * (texture.height / texture.width))
       .setPosition(pathX, y);
+  }
+
+  function renderGateSeal(scene, gateX, gateY, gateWidth, gateHeight, arrivalEase, openingEase) {
+    const seal = scene.gateSeal;
+    const dust = scene.gateDust;
+    seal.clear();
+    dust.clear();
+    const closedAlpha = arrivalEase * (1 - openingEase);
+    const portalW = gateWidth * 0.34;
+    const portalH = gateHeight * 0.36;
+    const portalY = gateY + gateHeight * 0.06;
+    if (closedAlpha > 0.02) {
+      seal.setBlendMode(Phaser.BlendModes.SCREEN);
+      seal.fillStyle(0x09263c, 0.52 * closedAlpha);
+      seal.fillRoundedRect(gateX - portalW * 0.52, portalY - portalH * 0.5, portalW * 1.04, portalH, portalW * 0.12);
+      seal.lineStyle(Math.max(2, gateWidth * 0.014), 0x58efff, 0.36 * closedAlpha);
+      seal.strokeRoundedRect(gateX - portalW * 0.52, portalY - portalH * 0.5, portalW * 1.04, portalH, portalW * 0.12);
+      for (let i = -2; i <= 2; i += 1) {
+        const x = gateX + i * portalW * 0.18;
+        seal.lineStyle(Math.max(2, gateWidth * 0.012), 0xffd56c, (0.56 - Math.abs(i) * 0.06) * closedAlpha);
+        seal.lineBetween(x, portalY - portalH * 0.43, x, portalY + portalH * 0.43);
+      }
+    }
+    if (openingEase > 0.02) {
+      dust.setBlendMode(Phaser.BlendModes.SCREEN);
+      for (let i = 0; i < 24; i += 1) {
+        const seed = i * 12.9898;
+        const t = (openingEase + (i % 7) * 0.035) % 1;
+        const angle = seed + scene.timeSeconds * 0.25;
+        const radius = portalW * lerp(0.14, 0.72, t);
+        const x = gateX + Math.cos(angle) * radius;
+        const y = portalY + Math.sin(angle * 1.7) * portalH * 0.32 - openingEase * gateHeight * 0.13;
+        dust.fillStyle(i % 3 ? 0x70efff : 0xffd56c, (1 - t) * openingEase * 0.55);
+        dust.fillCircle(x, y, lerp(1.5, 5, 1 - t));
+      }
+    }
   }
 
   function renderTreasureAndGuardian(scene) {
@@ -536,13 +674,40 @@
     const farHeightCap = isNarrow ? 0.38 : 0.56;
     const nearY = isNarrow ? 0.69 : 0.74;
     const farY = isNarrow ? 0.6 : 0.66;
-    const width = Math.min(w * lerp(nearWidth, farWidth, state.boatApproach), h * lerp(nearHeightCap, farHeightCap, state.boatApproach));
+    const approach = state.mode === "approaching"
+      ? easeInOutCubic(clamp(state.arrivalTimer / 1.45, 0, 1))
+      : state.boatApproach;
+    let x = w * 0.5 + state.lane * w * 0.13;
+    let y = lerp(h * nearY, h * farY, approach) + Math.sin(scene.timeSeconds * 2.2) * 4;
+    let scaleT = approach;
+    let alpha = 1;
+    let depth = 9;
+
+    if (state.mode === "question") {
+      scaleT = 1;
+      x = w * 0.5;
+      y = h * (isNarrow ? 0.59 : 0.61) + Math.sin(scene.timeSeconds * 1.8) * 2;
+    }
+
+    if (state.mode === "gate-open") {
+      const pass = state.boatPass;
+      const passEase = easeInOutCubic(pass);
+      const startY = h * (isNarrow ? 0.6 : 0.62);
+      const gateY = h * 0.37;
+      x = lerp(w * 0.5, w * 0.5 + Math.sin((state.questionIndex + 1) * 1.7) * w * 0.018, passEase);
+      y = lerp(startY, gateY + h * 0.04, passEase) + Math.sin(scene.timeSeconds * 2.6) * lerp(3, 0, passEase);
+      scaleT = lerp(1, 1.72, passEase);
+      alpha = lerp(1, 0.16, smoothstep(0.9, 1, passEase));
+      depth = passEase > 0.82 ? 6 : 9;
+    }
+
+    const width = Math.min(w * lerp(nearWidth, farWidth, scaleT), h * lerp(nearHeightCap, farHeightCap, scaleT));
     scene.boat.setDisplaySize(width, width * (408 / 543));
-    scene.boat.setPosition(
-      w * 0.5 + state.lane * w * 0.13,
-      lerp(h * nearY, h * farY, state.boatApproach) + Math.sin(scene.timeSeconds * 2.2) * 4
-    );
-    scene.boat.setFrame(state.forwardInput ? Math.floor(scene.timeSeconds * 8) % 4 : Math.floor(scene.timeSeconds * 2) % 2);
+    scene.boat.setPosition(x, y);
+    scene.boat.setDepth(depth);
+    scene.boat.setAlpha(alpha);
+    const rowing = state.forwardInput || state.mode === "approaching" || state.mode === "gate-open";
+    scene.boat.setFrame(rowing ? Math.floor(scene.timeSeconds * 8) % 4 : Math.floor(scene.timeSeconds * 2) % 2);
   }
 
   function showQuestion(index) {
@@ -576,12 +741,14 @@
       return;
     }
     el.feedback.textContent = "Correct. The gate opens.";
-    playTone("gate");
+    playGateOpenSound();
     sceneRef?.cameras.main.shake(180, 0.004);
     setTimeout(() => {
       el.questionPanel.classList.add("hidden");
       state.mode = "gate-open";
       state.gateOpening = 0;
+      state.boatPass = 0;
+      startWaterLoop();
     }, 450);
   }
 
@@ -634,9 +801,11 @@
         velocity: Number(state.velocity.toFixed(5)),
         forwardInput: state.forwardInput,
         gateOpening: Number(state.gateOpening.toFixed(5)),
+        boatPass: Number(state.boatPass.toFixed(5)),
         arrivalTimer: Number(state.arrivalTimer.toFixed(5)),
         questionIndex: state.questionIndex,
         boatApproach: Number(state.boatApproach.toFixed(5)),
+        qaFrozen: state.qaFrozen,
         renderer: "phaser",
         engine: Phaser.VERSION
       }),
@@ -650,6 +819,9 @@
         state.velocity = 0;
         state.mode = "rowing";
         state.arrivalTimer = 0;
+        state.gateOpening = 0;
+        state.boatPass = 0;
+        state.qaFrozen = false;
         state.questionIndex = gateProgress.findIndex((gate) => gate > state.progress + 0.02);
         if (state.questionIndex < 0) state.questionIndex = gateProgress.length;
         state.boatApproach = 0;
@@ -665,7 +837,8 @@
         state.velocity = 0;
         state.forwardInput = 0;
         state.boatApproach = 0.45;
-        beginGateArrival();
+        state.qaFrozen = false;
+        beginGateApproach();
         el.questionPanel.classList.add("hidden");
         el.finalePanel.classList.add("hidden");
         return true;
@@ -676,11 +849,63 @@
         state.mode = "final";
         state.finalStarted = true;
         state.questionIndex = questions.length;
+        state.qaFrozen = false;
         el.finalePanel.classList.remove("hidden");
         updateGateCount();
         return true;
       }
     };
+  }
+
+  function applyQaUrlState() {
+    if (!isQa) return;
+    const params = new URLSearchParams(window.location.search);
+    const qaState = params.get("qaState");
+    if (!qaState) return;
+    const gateIndex = clamp(Math.floor(Number(params.get("gate")) || 0), 0, gateProgress.length - 1);
+    state.questionIndex = gateIndex;
+    state.progress = gateProgress[gateIndex] - 0.055;
+    state.velocity = 0;
+    state.forwardInput = 0;
+    state.lane = 0;
+    state.boatApproach = 0;
+    state.gateOpening = 0;
+    state.boatPass = 0;
+    state.qaFrozen = true;
+    el.questionPanel.classList.add("hidden");
+    el.finalePanel.classList.add("hidden");
+
+    if (qaState === "approach") {
+      state.mode = "approaching";
+      state.arrivalTimer = Number(params.get("t")) || 0.78;
+      state.boatApproach = easeInOutCubic(clamp(state.arrivalTimer / 1.45, 0, 1));
+      el.hint.textContent = "QA: gate is fixed while the boat approaches.";
+      return;
+    }
+    if (qaState === "question") {
+      state.mode = "question";
+      state.boatApproach = 1;
+      showQuestion(gateIndex);
+      return;
+    }
+    if (qaState === "open" || qaState === "pass") {
+      state.mode = "gate-open";
+      state.boatApproach = 1;
+      state.gateOpening = qaState === "open" ? 0.38 : 0.62;
+      state.boatPass = easeInOutCubic(state.gateOpening);
+      el.hint.textContent = qaState === "open"
+        ? "QA: gate opens in place."
+        : "QA: boat slips through the open gate.";
+      return;
+    }
+    if (qaState === "final") {
+      state.progress = 0.94;
+      state.mode = "final";
+      state.finalStarted = true;
+      state.questionIndex = questions.length;
+      el.finalePanel.classList.remove("hidden");
+      updateGateCount();
+    }
   }
 
   function buildGateProgress(count) {
