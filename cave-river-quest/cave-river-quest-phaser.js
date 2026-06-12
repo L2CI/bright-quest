@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "river-audio-backgrounds-gate-003";
+  const BUILD_ID = "auto-advance-gate-scale-004";
   const assetBase = "./assets/generated/";
   const questions = [
     {
@@ -108,6 +108,8 @@
     gateOpening: 0,
     boatPass: 0,
     boatApproach: 0,
+    transitionStart: 0,
+    transitionEnd: 0,
     qaFrozen: false,
     lastSplashAt: 0,
     lane: 0,
@@ -527,10 +529,14 @@
   function updateGateOpen(dt) {
     state.gateOpening = clamp(state.gateOpening + dt / 1.45, 0, 1);
     state.boatPass = easeInOutCubic(state.gateOpening);
-    const start = (gateProgress[state.questionIndex] || state.progress) - 0.018;
+    const currentGate = gateProgress[state.questionIndex] || state.progress;
     const nextGate = gateProgress[state.questionIndex + 1];
-    const end = nextGate ? nextGate - 0.13 : 0.88;
-    state.progress = lerp(start, end, Math.pow(state.boatPass, 1.35));
+    const gap = nextGate ? nextGate - currentGate : 0.08;
+    const fallbackStart = nextGate ? currentGate + gap * 0.14 : 0.875;
+    const fallbackEnd = nextGate ? Math.min(nextGate - 0.058, currentGate + gap * 0.34) : 0.9;
+    const start = state.transitionStart || fallbackStart;
+    const end = state.transitionEnd || fallbackEnd;
+    state.progress = lerp(start, end, Math.pow(state.boatPass, 0.72));
     state.lane = Math.sin((state.progress * 4.8 + 0.2) * Math.PI) * 0.18;
     if (state.gateOpening >= 1) {
       state.questionIndex += 1;
@@ -538,6 +544,8 @@
       state.mode = "rowing";
       state.gateOpening = 0;
       state.boatPass = 0;
+      state.transitionStart = 0;
+      state.transitionEnd = 0;
       state.boatApproach = 0;
       stopWaterLoop();
       playGateCloseSound();
@@ -694,21 +702,21 @@
     const w = scene.scale.width;
     const h = scene.scale.height;
     const approach = 1 - clamp((distance - stopDistance) / (visibleDistance - stopDistance), 0, 1);
-    const depthEase = easeInOutCubic(approach);
+    const depthEase = easeOutCubic(approach);
     const pathX = w * 0.5 + Math.sin((gate * 5.8 + 0.45) * Math.PI) * w * 0.018;
     const y = h * 0.36;
     const maxWidth = Math.min(w * 0.3, h * 0.38, 360);
-    const targetWidth = maxWidth * lerp(0.22, 0.34, depthEase);
+    const scaleFromDot = Math.max(0.035, depthEase * depthEase);
+    const targetWidth = maxWidth * lerp(0.08, 0.36, scaleFromDot);
     const texture = scene.textures.get("gate").getSourceImage();
-    const alpha = smoothstep(0.1, 0.42, approach) * 0.48;
     scene.chamberShade.setAlpha(0);
     scene.gateAura
       .setPosition(pathX, y)
-      .setRadius(Math.min(w * 0.1, 112))
-      .setAlpha(alpha * 0.18);
+      .setRadius(Math.min(w * 0.08, 90) * lerp(0.35, 1, scaleFromDot))
+      .setAlpha(0.08 + scaleFromDot * 0.08);
     scene.gate
       .setVisible(true)
-      .setAlpha(alpha)
+      .setAlpha(0.92)
       .setDisplaySize(targetWidth, targetWidth * (texture.height / texture.width))
       .setPosition(pathX, y);
   }
@@ -889,6 +897,13 @@
     playGateOpenSound();
     sceneRef?.cameras.main.shake(180, 0.004);
     setTimeout(() => {
+      const currentGate = gateProgress[state.questionIndex] || state.progress;
+      const nextGate = gateProgress[state.questionIndex + 1];
+      const gap = nextGate ? nextGate - currentGate : 0.08;
+      state.transitionStart = nextGate ? currentGate + gap * 0.14 : 0.875;
+      state.transitionEnd = nextGate ? Math.min(nextGate - 0.058, currentGate + gap * 0.34) : 0.9;
+      state.progress = state.transitionStart;
+      state.boatApproach = 0.82;
       el.questionPanel.classList.add("hidden");
       state.mode = "gate-open";
       state.gateOpening = 0;
@@ -967,6 +982,8 @@
         state.arrivalTimer = 0;
         state.gateOpening = 0;
         state.boatPass = 0;
+        state.transitionStart = 0;
+        state.transitionEnd = 0;
         state.qaFrozen = false;
         state.questionIndex = gateProgress.findIndex((gate) => gate > state.progress + 0.02);
         if (state.questionIndex < 0) state.questionIndex = gateProgress.length;
@@ -1017,6 +1034,8 @@
     state.boatApproach = 0;
     state.gateOpening = 0;
     state.boatPass = 0;
+    state.transitionStart = 0;
+    state.transitionEnd = 0;
     state.qaFrozen = true;
     el.questionPanel.classList.add("hidden");
     el.finalePanel.classList.add("hidden");
