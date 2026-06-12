@@ -1,78 +1,78 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "static-gate-pass-through-001";
+  const BUILD_ID = "integrated-gate-treasure-002";
   const assetBase = "./assets/generated/";
   const questions = [
     {
       type: "Maths Gate",
-      title: "Crystal Count",
-      text: "There are 4 blue crystals and 5 gold crystals. How many crystals glow in total?",
-      answers: ["8", "9", "10", "11"],
-      correct: "9"
+      title: "Lantern Rows",
+      text: "There are 4 rows of lanterns with 6 lanterns in each row. Three lanterns go out. How many are still glowing?",
+      answers: ["18", "21", "24", "27"],
+      correct: "21"
     },
     {
       type: "Logic Gate",
-      title: "The Odd Lantern",
-      text: "Which one does not belong: river, boat, candle, oar?",
-      answers: ["river", "boat", "candle", "oar"],
-      correct: "candle"
+      title: "Bridge Rule",
+      text: "A sign says: 'Only boats with an even number may pass.' Which boat number can pass?",
+      answers: ["17", "23", "34", "41"],
+      correct: "34"
     },
     {
       type: "Word Gate",
-      title: "Cave Word",
-      text: "Which word means almost the same as brave?",
-      answers: ["sleepy", "courageous", "tiny", "silent"],
-      correct: "courageous"
+      title: "Cave Meaning",
+      text: "In the sentence 'The narrow tunnel made the rower cautious,' what does cautious mean?",
+      answers: ["careful", "angry", "very loud", "sleepy"],
+      correct: "careful"
     },
     {
       type: "Pattern Gate",
       title: "Crystal Pattern",
-      text: "What comes next: red, blue, red, blue, red, ?",
-      answers: ["red", "blue", "green", "gold"],
-      correct: "blue"
+      text: "What number comes next: 3, 6, 12, 24, ?",
+      answers: ["30", "36", "42", "48"],
+      correct: "48"
     },
     {
-      type: "Riddle Gate",
-      title: "River Riddle",
-      text: "I have a mouth but never speak. I have a bed but never sleep. What am I?",
-      answers: ["A river", "A dragon", "A lantern", "A cave"],
-      correct: "A river"
+      type: "Inference Gate",
+      title: "Wet Footprints",
+      text: "You see wet footprints leading away from the river, but no one is nearby. What is the best guess?",
+      answers: ["Someone climbed out recently", "The cave is dry", "The boat flew", "The lantern walked"],
+      correct: "Someone climbed out recently"
     },
     {
       type: "Maths Gate",
-      title: "Torch Trail",
-      text: "If 3 torches are on the left wall and 4 are on the right wall, how many torches are there?",
-      answers: ["6", "7", "8", "9"],
-      correct: "7"
+      title: "Supplies Check",
+      text: "Milo packed 36 berries. He shares them equally among 4 friends. How many berries does each friend get?",
+      answers: ["6", "8", "9", "12"],
+      correct: "9"
     },
     {
       type: "Grammar Gate",
-      title: "The Best Sentence",
-      text: "Which sentence is written correctly?",
-      answers: ["The boat is fast.", "the boat is fast", "The boat are fast.", "Boat the fast is."],
-      correct: "The boat is fast."
+      title: "Best Sentence",
+      text: "Which sentence uses the apostrophe correctly?",
+      answers: ["The boys oar is long.", "The boy's oar is long.", "The boys' is oar long.", "The boy oar's is long."],
+      correct: "The boy's oar is long."
     },
     {
       type: "Logic Gate",
-      title: "Silent Switch",
-      text: "A lantern is on. One switch turns it off. What should you do first?",
-      answers: ["Look at the switch", "Break the lantern", "Close your eyes", "Row backwards"],
-      correct: "Look at the switch"
+      title: "Two Clues",
+      text: "The blue key is not in the left box. The red key is not in the middle box. If the blue key is in the middle, where is the red key?",
+      answers: ["left box", "middle box", "right box", "river"],
+      correct: "left box"
     },
     {
       type: "Word Gate",
-      title: "Hidden Word",
-      text: "Which word has the tiny word 'and' hiding inside it?",
-      answers: ["boat", "candle", "cart", "stone"],
-      correct: "candle"
+      title: "Prefix Power",
+      text: "What does the prefix 're-' mean in the word 'rebuild'?",
+      answers: ["again", "before", "under", "not"],
+      correct: "again"
     },
     {
       type: "Final Gate",
       title: "Leadership Choice",
-      text: "A friend drops their paddle. What should a leader do?",
-      answers: ["Laugh", "Help them", "Hide it", "Race away"],
-      correct: "Help them"
+      text: "Your team is nervous before the final gate. What is the strongest leadership choice?",
+      answers: ["Blame them", "Make a plan together", "Quit the quest", "Grab the treasure alone"],
+      correct: "Make a plan together"
     }
   ];
 
@@ -109,6 +109,7 @@
     boatPass: 0,
     boatApproach: 0,
     qaFrozen: false,
+    lastSplashAt: 0,
     lane: 0,
     soundEnabled: true,
     finalStarted: false,
@@ -135,7 +136,7 @@
       this.load.image("plate3", assetBase + "journey-plate-3.png");
       this.load.image("plate4", assetBase + "journey-plate-4.png");
       this.load.image("plate5", assetBase + "journey-plate-5.png");
-      this.load.image("gate", assetBase + "painted-gate-alpha.png");
+      this.load.image("gate", assetBase + "portal-gate-v2-alpha.png");
       this.load.image("chest", assetBase + "treasure-chest-alpha.png");
       this.load.image("guardian", assetBase + "guardian-robot-alpha.png");
       this.load.spritesheet("boatRow", assetBase + "painted-rowboat-rowing-frames-alpha.png", {
@@ -161,7 +162,8 @@
       this.gate = this.add.image(0, 0, "gate").setOrigin(0.5, 0.5).setDepth(7).setVisible(false);
       this.gateSeal = this.add.graphics().setDepth(8);
       this.gateDust = this.add.graphics().setDepth(8);
-      this.chest = this.add.image(0, 0, "chest").setOrigin(0.5).setDepth(7).setVisible(false).setInteractive({ useHandCursor: true });
+      this.chestGlow = this.add.graphics().setDepth(8);
+      this.chest = this.add.image(0, 0, "chest").setOrigin(0.5).setDepth(10).setVisible(false).setInteractive({ useHandCursor: true });
       this.boat = this.add.sprite(0, 0, "boatRow", 0).setOrigin(0.5).setDepth(9);
       this.guardian = this.add.image(0, 0, "guardian").setOrigin(0.5, 1).setDepth(8).setVisible(false).setAlpha(0);
 
@@ -275,6 +277,30 @@
     audio.gain = gain;
   }
 
+  function playRowSplash() {
+    if (!state.soundEnabled || !audio?.ctx) return;
+    resumeAudio();
+    const now = audio.ctx.currentTime;
+    const buffer = audio.ctx.createBuffer(1, Math.floor(audio.ctx.sampleRate * 0.16), audio.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i += 1) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2) * 0.42;
+    }
+    const source = audio.ctx.createBufferSource();
+    source.buffer = buffer;
+    const filter = audio.ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.value = 1150 + Math.random() * 260;
+    filter.Q.value = 0.8;
+    const gain = audio.ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.035, now + 0.018);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+    source.connect(filter).connect(gain).connect(audio.ctx.destination);
+    source.start(now);
+    source.stop(now + 0.2);
+  }
+
   function stopWaterLoop() {
     if (!audio?.water) return;
     try {
@@ -291,6 +317,10 @@
     const ctx = getAudioContext();
     if (!ctx) return;
     resumeAudio();
+    if (type === "wrong") {
+      playSoftKnock(ctx);
+      return;
+    }
     const gain = ctx.createGain();
     gain.gain.setValueAtTime(0.0001, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(type === "wrong" ? 0.05 : 0.08, ctx.currentTime + 0.02);
@@ -303,6 +333,48 @@
     osc.connect(gain);
     osc.start();
     osc.stop(ctx.currentTime + (type === "gate" ? 0.9 : 0.32));
+  }
+
+  function playSoftKnock(ctx) {
+    const now = ctx.currentTime;
+    const buffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.18), ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i += 1) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 3) * 0.32;
+    }
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = 420;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.045, now + 0.018);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+    source.connect(filter).connect(gain).connect(ctx.destination);
+    source.start(now);
+    source.stop(now + 0.24);
+  }
+
+  function playSuccessSparkle() {
+    if (!state.soundEnabled) return;
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    resumeAudio();
+    const now = ctx.currentTime;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.042, now + 0.025);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.72);
+    gain.connect(ctx.destination);
+    [523.25, 659.25, 783.99, 1046.5].forEach((frequency, index) => {
+      const osc = ctx.createOscillator();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(frequency, now + index * 0.045);
+      osc.connect(gain);
+      osc.start(now + index * 0.045);
+      osc.stop(now + 0.74);
+    });
   }
 
   function playGateOpenSound() {
@@ -394,8 +466,9 @@
     if (state.questionIndex >= gateProgress.length && state.progress > 0.9 && !state.finalStarted) {
       state.finalStarted = true;
       state.mode = "final";
-      el.finalePanel.classList.remove("hidden");
-      el.hint.textContent = "The treasure waits ahead. Tap the chest when it glows.";
+      el.finalePanel.classList.add("hidden");
+      el.hint.textContent = "The treasure waits ahead. Tap the glowing chest.";
+      playSuccessSparkle();
     }
   }
 
@@ -514,6 +587,10 @@
         g.lineStyle(3, 0xdfffff, 0.38);
         g.strokeEllipse(bx + side * w * 0.18, by + h * 0.12, w * 0.09, h * 0.035);
       }
+      if (scene.timeSeconds - state.lastSplashAt > 0.52) {
+        state.lastSplashAt = scene.timeSeconds;
+        playRowSplash();
+      }
     }
   }
 
@@ -545,20 +622,20 @@
       ? easeOutCubic(clamp(state.arrivalTimer / 0.34, 0, 1))
       : 1;
     const openingEase = easeOutCubic(state.gateOpening);
-    const targetWidth = Math.min(w * 0.42, h * 0.54, 600);
+    const targetWidth = Math.min(w * 0.36, h * 0.52, 560);
     const texture = scene.textures.get("gate").getSourceImage();
     const gateX = w * 0.5;
-    const gateY = h * 0.37;
+    const gateY = h * 0.35;
     const gateHeight = targetWidth * (texture.height / texture.width);
     scene.chamberShade
       .setPosition(0, 0)
       .setSize(w, h)
-      .setFillStyle(0x03101d, 0.1 + arrivalEase * 0.28)
+      .setFillStyle(0x03101d, 0.06 + arrivalEase * 0.18)
       .setAlpha(1);
     scene.gateAura
       .setPosition(gateX, gateY)
-      .setRadius(Math.min(w * 0.24, 240) * (1 + Math.sin(scene.timeSeconds * 2.2) * 0.03 + openingEase * 0.18))
-      .setAlpha((0.18 + Math.sin(scene.timeSeconds * 2.6) * 0.035) * arrivalEase + openingEase * 0.3);
+      .setRadius(Math.min(w * 0.22, 220) * (1 + Math.sin(scene.timeSeconds * 2.2) * 0.03 + openingEase * 0.18))
+      .setAlpha((0.12 + Math.sin(scene.timeSeconds * 2.6) * 0.03) * arrivalEase + openingEase * 0.28);
     scene.gate
       .setVisible(true)
       .setDepth(7)
@@ -608,11 +685,21 @@
     seal.clear();
     dust.clear();
     const closedAlpha = arrivalEase * (1 - openingEase);
-    const portalW = gateWidth * 0.34;
-    const portalH = gateHeight * 0.36;
-    const portalY = gateY + gateHeight * 0.06;
+    const portalW = gateWidth * 0.5;
+    const portalH = gateHeight * 0.5;
+    const portalY = gateY + gateHeight * 0.07;
+    const baseY = gateY + gateHeight * 0.4;
+    seal.setBlendMode(Phaser.BlendModes.SCREEN);
+    seal.fillStyle(0x5be7ff, 0.09 * arrivalEase);
+    seal.fillEllipse(gateX, baseY, gateWidth * 0.78, gateHeight * 0.12);
+    seal.fillStyle(0xdfffff, 0.08 * arrivalEase);
+    for (let i = 0; i < 9; i += 1) {
+      const phase = (scene.timeSeconds * 0.32 + i * 0.13) % 1;
+      const x = gateX + Math.sin(i * 1.9) * gateWidth * 0.34;
+      const y = baseY + Math.sin(scene.timeSeconds + i) * gateHeight * 0.014;
+      seal.fillEllipse(x, y, gateWidth * lerp(0.1, 0.22, phase), gateHeight * lerp(0.018, 0.04, phase));
+    }
     if (closedAlpha > 0.02) {
-      seal.setBlendMode(Phaser.BlendModes.SCREEN);
       seal.fillStyle(0x09263c, 0.52 * closedAlpha);
       seal.fillRoundedRect(gateX - portalW * 0.52, portalY - portalH * 0.5, portalW * 1.04, portalH, portalW * 0.12);
       seal.lineStyle(Math.max(2, gateWidth * 0.014), 0x58efff, 0.36 * closedAlpha);
@@ -641,26 +728,39 @@
   function renderTreasureAndGuardian(scene) {
     const w = scene.scale.width;
     const h = scene.scale.height;
+    scene.chestGlow.clear();
     const t = clamp((state.progress - 0.76) / 0.18, 0, 1);
     if (t > 0) {
-      const chestWidth = Math.min(w * 0.26, 320) * lerp(0.62, 1.0, easeOutCubic(t));
+      const finalT = state.mode === "final" || state.finaleClaimed ? 1 : 0;
+      const eased = easeOutCubic(t);
+      const chestWidth = Math.min(w * lerp(0.2, 0.3, finalT), h * lerp(0.24, 0.36, finalT), 390) * lerp(0.62, 1.0, eased);
       const chestTexture = scene.textures.get("chest").getSourceImage();
+      const chestX = lerp(w * 0.5, w * 0.66, finalT);
+      const chestY = lerp(h * 0.38, h * 0.34, finalT);
+      scene.chestGlow.setBlendMode(Phaser.BlendModes.SCREEN);
+      scene.chestGlow.fillStyle(0xffd56c, (0.12 + Math.sin(scene.timeSeconds * 3) * 0.03) * t);
+      scene.chestGlow.fillCircle(chestX, chestY, chestWidth * 0.55);
+      scene.chestGlow.lineStyle(3, 0xfff2a8, 0.18 * t);
+      scene.chestGlow.strokeEllipse(chestX, chestY + chestWidth * 0.22, chestWidth * 1.15, chestWidth * 0.28);
       scene.chest
         .setVisible(true)
+        .setDepth(10)
         .setDisplaySize(chestWidth, chestWidth * (chestTexture.height / chestTexture.width))
-        .setPosition(w * 0.5, lerp(h * 0.28, h * 0.43, t))
+        .setPosition(chestX, chestY + Math.sin(scene.timeSeconds * 1.7) * 4 * finalT)
         .setAlpha(t);
     } else {
       scene.chest.setVisible(false);
     }
     if (state.finaleClaimed) {
-      const guardianWidth = Math.min(w * 0.24, 260);
+      const isNarrow = w < 720;
+      const guardianWidth = Math.min(w * (isNarrow ? 0.78 : 0.5), h * 0.8, isNarrow ? 330 : 620);
       const guardianTexture = scene.textures.get("guardian").getSourceImage();
       scene.guardian
         .setVisible(true)
-        .setAlpha(lerp(scene.guardian.alpha, 1, 0.04))
+        .setAlpha(state.qaFrozen ? 0.94 : lerp(scene.guardian.alpha, 1, 0.08))
+        .setDepth(11)
         .setDisplaySize(guardianWidth, guardianWidth * (guardianTexture.height / guardianTexture.width))
-        .setPosition(w * 0.75, h * 0.82 + Math.sin(scene.timeSeconds * 1.4) * 5);
+        .setPosition(w * (isNarrow ? 0.6 : 0.78), h * (isNarrow ? 0.92 : 0.98) + Math.sin(scene.timeSeconds * 1.4) * 5);
     }
   }
 
@@ -687,6 +787,13 @@
       scaleT = 1;
       x = w * 0.5;
       y = h * (isNarrow ? 0.59 : 0.61) + Math.sin(scene.timeSeconds * 1.8) * 2;
+    }
+
+    if (state.mode === "final" || state.finaleClaimed) {
+      scaleT = 0.72;
+      x = w * (isNarrow ? 0.46 : 0.4);
+      y = h * (isNarrow ? 0.72 : 0.76) + Math.sin(scene.timeSeconds * 1.8) * 3;
+      depth = 9;
     }
 
     if (state.mode === "gate-open") {
@@ -760,7 +867,7 @@
     el.guardianPanel.classList.remove("hidden");
     el.hint.textContent = "Quest complete. You earned the Leadership Matrix.";
     speakFinale();
-    playTone("gate");
+    playSuccessSparkle();
   }
 
   function speakFinale() {
@@ -898,12 +1005,21 @@
         : "QA: boat slips through the open gate.";
       return;
     }
-    if (qaState === "final") {
+    if (qaState === "final" || qaState === "claimed") {
       state.progress = 0.94;
       state.mode = "final";
       state.finalStarted = true;
       state.questionIndex = questions.length;
-      el.finalePanel.classList.remove("hidden");
+      state.finaleClaimed = qaState === "claimed";
+      if (state.finaleClaimed) {
+        el.guardianLine.textContent = "Autobot, you now have the Matrix of Leadership.";
+        el.guardianPanel.classList.remove("hidden");
+        el.hint.textContent = "Quest complete. You earned the Leadership Matrix.";
+      } else {
+        el.guardianPanel.classList.add("hidden");
+        el.hint.textContent = "The treasure waits ahead. Tap the glowing chest.";
+      }
+      el.finalePanel.classList.add("hidden");
       updateGateCount();
     }
   }
