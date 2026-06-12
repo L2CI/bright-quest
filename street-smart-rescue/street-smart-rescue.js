@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "street-smart-voice-004";
+  const BUILD_ID = "street-smart-voice-005";
   const questions = [
     {
       type: "Number Riddle",
@@ -545,6 +545,7 @@
 
   function showQuestion() {
     state.scene = "question";
+    showDialogueCaptions();
     const q = questions[state.questionIndex];
     el.questionType.textContent = q.type;
     el.questionTitle.textContent = q.title;
@@ -886,10 +887,11 @@
     const utterance = new SpeechSynthesisUtterance(line);
     utterance.lang = "en-US";
     utterance.volume = 0.95;
-    utterance.rate = speaker === "Officer" ? 0.82 : 1.08;
-    utterance.pitch = speaker === "Officer" ? 0.62 : 1.32;
+    utterance.rate = speaker === "Officer" ? 0.72 : 1.18;
+    utterance.pitch = speaker === "Officer" ? 0.5 : 1.75;
     const voice = pickVoice(speaker);
     if (voice) utterance.voice = voice;
+    hideDialogueCaptions();
     window.speechSynthesis.speak(utterance);
   }
 
@@ -900,9 +902,19 @@
     const englishVoices = speechVoices.filter((voice) => /^en[-_]/i.test(voice.lang || ""));
     const pool = englishVoices.length ? englishVoices : speechVoices;
     if (speaker === "Officer") {
-      return pool.find((voice) => /david|mark|george|male|daniel/i.test(voice.name)) || pool[0];
+      return pool.find((voice) => /grandpa|elder|old|george|david|daniel|mark|male/i.test(voice.name)) || pool[0];
     }
-    return pool.find((voice) => /zira|susan|samantha|female|aria|jenny/i.test(voice.name)) || pool[1] || pool[0];
+    return pool.find((voice) => /child|kid|boy|junior|young|ryan|mark|david|male/i.test(voice.name)) || pool.find((voice) => /zira|susan|samantha|aria|jenny/i.test(voice.name)) || pool[0];
+  }
+
+  function hideDialogueCaptions() {
+    el.dialogue.classList.add("voice-caption-off");
+    el.dialogue.setAttribute("aria-hidden", "true");
+  }
+
+  function showDialogueCaptions() {
+    el.dialogue.classList.remove("voice-caption-off");
+    el.dialogue.removeAttribute("aria-hidden");
   }
 
   function setCaption(text) {

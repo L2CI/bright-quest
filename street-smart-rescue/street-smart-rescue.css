@@ -184,6 +184,11 @@ a {
   line-height: 1.18;
 }
 
+.dialogue-panel.voice-caption-off {
+  display: none;
+  pointer-events: none;
+}
+
 .start-panel,
 .finale-panel,
 .question-panel {
