@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "interactive-cartoon-shots-006";
+  const BUILD_ID = "cartoon-gate-rig-007";
   const assetBase = "./assets/generated/";
   const questions = [
     {
@@ -172,6 +172,7 @@
       this.chamberShade = this.add.rectangle(0, 0, 10, 10, 0x03101d, 0).setOrigin(0).setDepth(5);
       this.gateAura = this.add.circle(0, 0, 120, 0x5be7ff, 0).setBlendMode(Phaser.BlendModes.SCREEN).setDepth(6);
       this.gate = this.add.image(0, 0, "gate").setOrigin(0.5, 0.5).setDepth(7).setVisible(false);
+      this.gateDoor = this.add.graphics().setDepth(8);
       this.gateSeal = this.add.graphics().setDepth(8);
       this.gateDust = this.add.graphics().setDepth(8);
       this.chestGlow = this.add.graphics().setDepth(8);
@@ -225,11 +226,11 @@
       if (!state.qaFrozen) updateBoatApproach(dt);
       renderJourney(this);
       renderWaterFx(this);
-    renderGate(this);
-    renderTreasureAndGuardian(this);
-    renderBoat(this);
-    updateRiverAmbience();
-    updateDebugHook();
+      renderGate(this);
+      renderTreasureAndGuardian(this);
+      renderBoat(this);
+      updateRiverAmbience();
+      updateDebugHook();
     }
   }
 
@@ -693,6 +694,7 @@
       scene.gate.setVisible(false);
       scene.gateAura.setAlpha(0);
       scene.chamberShade.setAlpha(0);
+      scene.gateDoor?.clear();
       scene.gateSeal?.clear();
       scene.gateDust?.clear();
       return;
@@ -705,6 +707,7 @@
       scene.gate.setVisible(false);
       scene.gateAura.setAlpha(0);
       scene.chamberShade.setAlpha(0);
+      scene.gateDoor?.clear();
       scene.gateSeal?.clear();
       scene.gateDust?.clear();
       return;
@@ -712,14 +715,15 @@
     const w = scene.scale.width;
     const h = scene.scale.height;
     const arrivalEase = state.mode === "approaching"
-      ? easeOutCubic(clamp(state.arrivalTimer / 0.34, 0, 1))
+      ? easeOutCubic(clamp(state.arrivalTimer / 0.72, 0, 1))
       : 1;
-    const openingEase = easeOutCubic(state.gateOpening);
-    const targetWidth = Math.min(w * 0.32, h * 0.5, 520);
+    const openingEase = smoothstep(0.08, 0.96, state.gateOpening);
+    const targetWidth = Math.min(w * 0.38, h * 0.58, 610);
     const texture = scene.textures.get("gate").getSourceImage();
     const gateX = w * 0.5;
-    const gateY = h * 0.36;
+    const gateY = h * 0.35;
     const gateHeight = targetWidth * (texture.height / texture.width);
+    const visualScale = lerp(0.93, 1, arrivalEase);
     scene.chamberShade
       .setPosition(0, 0)
       .setSize(w, h)
@@ -732,33 +736,37 @@
     scene.gate
       .setVisible(true)
       .setDepth(7)
-      .setAlpha(arrivalEase)
-      .setDisplaySize(targetWidth, gateHeight)
+      .setAlpha(1)
+      .setDisplaySize(targetWidth * visualScale, gateHeight * visualScale)
       .setPosition(gateX, gateY);
-    renderGateSeal(scene, gateX, gateY, targetWidth, gateHeight, arrivalEase, openingEase);
+    renderGateRig(scene, gateX, gateY, targetWidth * visualScale, gateHeight * visualScale, arrivalEase, openingEase);
   }
 
   function renderDistantGateHint(scene, gate) {
     const travel = clamp(state.sceneTravel, 0, 1);
-    if (travel < 0.76) {
+    if (travel < 0.86) {
       scene.gate.setVisible(false);
       scene.gateAura.setAlpha(0);
       scene.chamberShade.setAlpha(0);
+      scene.gateDoor?.clear();
       scene.gateSeal?.clear();
       scene.gateDust?.clear();
       return;
     }
     const w = scene.scale.width;
     const h = scene.scale.height;
-    const approach = smoothstep(0.76, 1, travel);
+    const approach = smoothstep(0.86, 1, travel);
     const depthEase = easeOutCubic(approach);
-    const pathX = w * 0.5 + Math.sin((gate * 5.8 + 0.45) * Math.PI) * w * lerp(0.042, 0.018, depthEase);
-    const y = h * lerp(0.27, 0.31, depthEase);
-    const maxWidth = Math.min(w * 0.23, h * 0.26, 250);
+    const pathX = w * 0.5 + Math.sin((gate * 5.8 + 0.45) * Math.PI) * w * lerp(0.026, 0.012, depthEase);
+    const y = h * lerp(0.23, 0.3, depthEase);
+    const maxWidth = Math.min(w * 0.24, h * 0.3, 310);
     const scaleFromDot = Math.max(0.035, depthEase * depthEase);
-    const targetWidth = maxWidth * lerp(0.025, 0.18, scaleFromDot);
+    const targetWidth = maxWidth * lerp(0.035, 0.42, scaleFromDot);
     const texture = scene.textures.get("gate").getSourceImage();
     scene.chamberShade.setAlpha(0);
+    scene.gateDoor?.clear();
+    scene.gateSeal?.clear();
+    scene.gateDust?.clear();
     scene.gateAura
       .setPosition(pathX, y)
       .setRadius(Math.min(w * 0.045, 54) * lerp(0.2, 0.72, scaleFromDot))
@@ -770,38 +778,69 @@
       .setPosition(pathX, y);
   }
 
-  function renderGateSeal(scene, gateX, gateY, gateWidth, gateHeight, arrivalEase, openingEase) {
+  function renderGateRig(scene, gateX, gateY, gateWidth, gateHeight, arrivalEase, openingEase) {
+    const door = scene.gateDoor;
     const seal = scene.gateSeal;
     const dust = scene.gateDust;
+    door.clear();
     seal.clear();
     dust.clear();
-    const closedAlpha = arrivalEase * (1 - openingEase);
+    const doorAlpha = arrivalEase;
     const portalW = gateWidth * 0.46;
     const portalH = gateHeight * 0.44;
     const portalY = gateY + gateHeight * 0.08;
+    const portalTop = portalY - portalH * 0.48;
+    const portalBottom = portalY + portalH * 0.48;
     const baseY = gateY + gateHeight * 0.4;
+    const lift = openingEase * portalH * 1.22;
+
+    door.fillStyle(0x07121c, 0.58 * arrivalEase);
+    door.fillRoundedRect(gateX - portalW * 0.48, portalTop, portalW * 0.96, portalH * 0.96, portalW * 0.08);
+    door.lineStyle(Math.max(2, gateWidth * 0.008), 0xffd36a, 0.16 * arrivalEase);
+    door.strokeRoundedRect(gateX - portalW * 0.48, portalTop, portalW * 0.96, portalH * 0.96, portalW * 0.08);
+
+    door.lineStyle(Math.max(5, gateWidth * 0.017), 0x101722, 0.96 * doorAlpha);
+    for (let i = -3; i <= 3; i += 1) {
+      const x = gateX + i * portalW * 0.135;
+      drawClippedLine(door, x, portalTop - lift, x, portalBottom - lift, portalTop, portalBottom);
+    }
+    door.lineStyle(Math.max(2, gateWidth * 0.006), 0x5f6b75, 0.48 * doorAlpha);
+    for (let i = -3; i <= 3; i += 1) {
+      const x = gateX + i * portalW * 0.135 - gateWidth * 0.006;
+      drawClippedLine(door, x, portalTop - lift + portalH * 0.05, x, portalBottom - lift - portalH * 0.06, portalTop, portalBottom);
+    }
+    door.lineStyle(Math.max(5, gateWidth * 0.017), 0x15100f, 0.94 * doorAlpha);
+    for (let i = 0; i < 4; i += 1) {
+      const y = portalTop + portalH * (0.18 + i * 0.2) - lift;
+      drawClippedLine(door, gateX - portalW * 0.43, y, gateX + portalW * 0.43, y, portalTop, portalBottom);
+    }
+    door.lineStyle(Math.max(2, gateWidth * 0.006), 0xffc95a, 0.28 * doorAlpha);
+    for (let i = 0; i < 3; i += 1) {
+      const y = portalTop + portalH * (0.2 + i * 0.2) - lift - gateHeight * 0.006;
+      drawClippedLine(door, gateX - portalW * 0.41, y, gateX + portalW * 0.41, y, portalTop, portalBottom);
+    }
+    if (openingEase < 0.95) {
+      const teethY = portalBottom - lift;
+      door.fillStyle(0x101722, 0.95 * doorAlpha);
+      for (let i = -3; i <= 3; i += 1) {
+        const x = gateX + i * portalW * 0.135;
+        const top = clamp(teethY - portalH * 0.055, portalTop, portalBottom);
+        const bottom = clamp(teethY + portalH * 0.045, portalTop, portalBottom);
+        if (bottom > portalTop && top < portalBottom) {
+          door.fillTriangle(x - gateWidth * 0.014, top, x + gateWidth * 0.014, top, x, bottom);
+        }
+      }
+    }
+
     seal.setBlendMode(Phaser.BlendModes.SCREEN);
-    seal.fillStyle(0x9befff, 0.065 * arrivalEase);
+    seal.fillStyle(0x9befff, 0.04 * arrivalEase);
     seal.fillEllipse(gateX, baseY, gateWidth * 0.88, gateHeight * 0.13);
-    seal.fillStyle(0xffe7a0, 0.055 * arrivalEase);
-    for (let i = 0; i < 9; i += 1) {
+    seal.fillStyle(0xffe7a0, 0.04 * arrivalEase);
+    for (let i = 0; i < 7; i += 1) {
       const phase = (scene.timeSeconds * 0.32 + i * 0.13) % 1;
       const x = gateX + Math.sin(i * 1.9) * gateWidth * 0.34;
       const y = baseY + Math.sin(scene.timeSeconds + i) * gateHeight * 0.014;
       seal.fillEllipse(x, y, gateWidth * lerp(0.1, 0.22, phase), gateHeight * lerp(0.018, 0.04, phase));
-    }
-    if (closedAlpha > 0.02) {
-      seal.fillStyle(0x03101d, 0.24 * closedAlpha);
-      seal.fillRoundedRect(gateX - portalW * 0.5, portalY - portalH * 0.48, portalW, portalH * 0.96, portalW * 0.12);
-      seal.lineStyle(Math.max(2, gateWidth * 0.01), 0xffd56c, 0.22 * closedAlpha);
-      seal.strokeRoundedRect(gateX - portalW * 0.5, portalY - portalH * 0.48, portalW, portalH * 0.96, portalW * 0.12);
-      for (let i = -2; i <= 2; i += 1) {
-        const x = gateX + i * portalW * 0.18;
-        seal.lineStyle(Math.max(3, gateWidth * 0.013), 0x101820, (0.72 - Math.abs(i) * 0.07) * closedAlpha);
-        seal.lineBetween(x, portalY - portalH * 0.43, x, portalY + portalH * 0.43);
-        seal.lineStyle(Math.max(1, gateWidth * 0.004), 0xffd56c, (0.18 - Math.abs(i) * 0.02) * closedAlpha);
-        seal.lineBetween(x - gateWidth * 0.006, portalY - portalH * 0.4, x - gateWidth * 0.006, portalY + portalH * 0.4);
-      }
     }
     if (openingEase > 0.02) {
       dust.setBlendMode(Phaser.BlendModes.SCREEN);
@@ -816,6 +855,15 @@
         dust.fillCircle(x, y, lerp(1.5, 5, 1 - t));
       }
     }
+  }
+
+  function drawClippedLine(graphics, x1, y1, x2, y2, clipTop, clipBottom) {
+    const minY = Math.min(y1, y2);
+    const maxY = Math.max(y1, y2);
+    if (maxY < clipTop || minY > clipBottom) return;
+    const cy1 = clamp(y1, clipTop, clipBottom);
+    const cy2 = clamp(y2, clipTop, clipBottom);
+    graphics.lineBetween(x1, cy1, x2, cy2);
   }
 
   function renderTreasureAndGuardian(scene) {
@@ -846,14 +894,14 @@
     }
     if (state.finaleClaimed) {
       const isNarrow = w < 720;
-      const guardianWidth = Math.min(w * (isNarrow ? 0.78 : 0.5), h * 0.8, isNarrow ? 330 : 620);
+      const guardianWidth = Math.min(w * (isNarrow ? 0.92 : 0.62), h * 0.92, isNarrow ? 430 : 760);
       const guardianTexture = scene.textures.get("guardian").getSourceImage();
       scene.guardian
         .setVisible(true)
         .setAlpha(state.qaFrozen ? 0.94 : lerp(scene.guardian.alpha, 1, 0.08))
         .setDepth(11)
         .setDisplaySize(guardianWidth, guardianWidth * (guardianTexture.height / guardianTexture.width))
-        .setPosition(w * (isNarrow ? 0.6 : 0.78), h * (isNarrow ? 0.92 : 0.98) + Math.sin(scene.timeSeconds * 1.4) * 5);
+        .setPosition(w * (isNarrow ? 0.64 : 0.78), h * (isNarrow ? 0.98 : 1.06) + Math.sin(scene.timeSeconds * 1.4) * 5);
     }
   }
 
