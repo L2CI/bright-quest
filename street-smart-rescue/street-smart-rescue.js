@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "street-smart-voice-005";
+  const BUILD_ID = "street-smart-voice-006";
   const questions = [
     {
       type: "Number Riddle",
@@ -887,8 +887,8 @@
     const utterance = new SpeechSynthesisUtterance(line);
     utterance.lang = "en-US";
     utterance.volume = 0.95;
-    utterance.rate = speaker === "Officer" ? 0.72 : 1.18;
-    utterance.pitch = speaker === "Officer" ? 0.5 : 1.75;
+    utterance.rate = speaker === "Officer" ? 0.9 : 1.04;
+    utterance.pitch = speaker === "Officer" ? 0.82 : 1.14;
     const voice = pickVoice(speaker);
     if (voice) utterance.voice = voice;
     hideDialogueCaptions();
@@ -901,10 +901,11 @@
     }
     const englishVoices = speechVoices.filter((voice) => /^en[-_]/i.test(voice.lang || ""));
     const pool = englishVoices.length ? englishVoices : speechVoices;
+    const maleVoices = pool.filter((voice) => !/zira|susan|samantha|aria|jenny|female/i.test(voice.name));
     if (speaker === "Officer") {
-      return pool.find((voice) => /grandpa|elder|old|george|david|daniel|mark|male/i.test(voice.name)) || pool[0];
+      return maleVoices.find((voice) => /george|david|daniel|mark|guy|male/i.test(voice.name)) || maleVoices[0] || pool[0];
     }
-    return pool.find((voice) => /child|kid|boy|junior|young|ryan|mark|david|male/i.test(voice.name)) || pool.find((voice) => /zira|susan|samantha|aria|jenny/i.test(voice.name)) || pool[0];
+    return maleVoices.find((voice) => /ryan|mark|david|daniel|guy|male/i.test(voice.name)) || maleVoices[0] || pool[0];
   }
 
   function hideDialogueCaptions() {
