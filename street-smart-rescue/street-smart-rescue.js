@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "street-smart-raster-003";
+  const BUILD_ID = "street-smart-voice-004";
   const questions = [
     {
       type: "Number Riddle",
@@ -79,6 +79,7 @@
 
   let sceneRef = null;
   let audioContext = null;
+  let speechVoices = [];
 
   renderBadges();
 
@@ -161,6 +162,7 @@
   new Phaser.Game(config);
 
   function setupInput() {
+    setupSpeech();
     el.startButton.addEventListener("click", () => {
       unlockAudio();
       startIntro();
@@ -428,6 +430,7 @@
     el.questionPanel.classList.add("hidden");
     setCaption("The driveway is quiet. The jazzy car blinks like it has an idea.");
     say("Kid", "No one's here... maybe I can drive today.");
+    speakLine("Kid", "No one's here... maybe I can drive today.");
     flashWhite(0.18);
     const scene = sceneRef;
     scene.tweens.killTweensOf([scene.kid, scene.kidCar]);
@@ -468,6 +471,7 @@
     state.scene = "rollout";
     setCaption("The car rolls onto the road. It wobbles. This is already a bad idea.");
     say("Kid", "Okay... just a little drive.");
+    speakLine("Kid", "Okay... just a little drive.");
     playTone("engine");
     showSpeedLines(true);
     scene.tweens.add({
@@ -495,6 +499,7 @@
     state.scene = "stop";
     setCaption("Red and blue lights flash. The police car pulls in behind him.");
     say("Officer", "Show me your driver's licence!");
+    speakLine("Officer", "Show me your driver's licence!");
     playTone("siren");
     showSpeedLines(false);
     sweepPoliceLights(5);
@@ -524,8 +529,10 @@
             popDialogue();
             setTimeout(() => {
               say("Kid", "I don't have one. I was just trying.");
+              speakLine("Kid", "I don't have one. I was just trying.");
               setTimeout(() => {
                 say("Officer", "Driving is not a game. Solve five puzzles, then go straight back.");
+                speakLine("Officer", "Driving is not a game. Solve five puzzles, then go straight back.");
                 setCaption("Five puzzle checkpoints appear. Wrong answers stay put until corrected.");
                 setTimeout(showQuestion, motion(1700));
               }, motion(1700));
@@ -862,6 +869,40 @@
     el.speaker.textContent = speaker;
     el.line.textContent = line;
     popDialogue();
+  }
+
+  function setupSpeech() {
+    if (!("speechSynthesis" in window)) return;
+    const loadVoices = () => {
+      speechVoices = window.speechSynthesis.getVoices();
+    };
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }
+
+  function speakLine(speaker, line) {
+    if (!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(line);
+    utterance.lang = "en-US";
+    utterance.volume = 0.95;
+    utterance.rate = speaker === "Officer" ? 0.82 : 1.08;
+    utterance.pitch = speaker === "Officer" ? 0.62 : 1.32;
+    const voice = pickVoice(speaker);
+    if (voice) utterance.voice = voice;
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function pickVoice(speaker) {
+    if (!speechVoices.length && "speechSynthesis" in window) {
+      speechVoices = window.speechSynthesis.getVoices();
+    }
+    const englishVoices = speechVoices.filter((voice) => /^en[-_]/i.test(voice.lang || ""));
+    const pool = englishVoices.length ? englishVoices : speechVoices;
+    if (speaker === "Officer") {
+      return pool.find((voice) => /david|mark|george|male|daniel/i.test(voice.name)) || pool[0];
+    }
+    return pool.find((voice) => /zira|susan|samantha|female|aria|jenny/i.test(voice.name)) || pool[1] || pool[0];
   }
 
   function setCaption(text) {
