@@ -9,6 +9,17 @@
   width: 100%;
 }
 
+.street-smart-tile {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(237, 246, 255, 0.96)),
+    radial-gradient(circle at 78% 18%, rgba(255, 95, 138, 0.24), transparent 28%);
+  border-color: rgba(40, 119, 255, 0.24);
+}
+
+.street-smart-tile .button {
+  width: 100%;
+}
+
 .treasure-quest-preview {
   position: relative;
   min-height: 190px;
@@ -19,6 +30,27 @@
     radial-gradient(circle at 50% 72%, rgba(53, 215, 255, 0.72), transparent 24%),
     linear-gradient(180deg, #10243a, #071523 62%, #04101f);
   box-shadow: inset 0 -42px 80px rgba(20, 22, 111, 0.16);
+}
+
+.street-smart-preview {
+  position: relative;
+  min-height: 190px;
+  overflow: hidden;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 78% 22%, #ffd15c 0 8%, transparent 9%),
+    linear-gradient(180deg, #82d9ff 0 52%, #6fce82 53% 61%, #32445f 62% 100%);
+  box-shadow: inset 0 -42px 80px rgba(20, 22, 111, 0.16);
+}
+
+.street-smart-preview::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 46px;
+  height: 10px;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.96) 0 42px, transparent 42px 86px);
 }
 
 .treasure-quest-preview::before {
@@ -32,9 +64,102 @@
 
 .treasure-mini-avatar,
 .treasure-mini-chest,
-.treasure-mini-island {
+.treasure-mini-island,
+.street-mini-sun,
+.street-mini-road,
+.street-mini-car,
+.street-mini-police,
+.street-mini-flash {
   position: absolute;
   display: block;
+}
+
+.street-mini-sun {
+  right: 30px;
+  top: 24px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #ffd15c;
+  box-shadow: 0 0 28px rgba(255, 209, 92, 0.72);
+}
+
+.street-mini-road {
+  left: -10%;
+  right: -10%;
+  bottom: 0;
+  height: 72px;
+  background: #26364f;
+}
+
+.street-mini-car,
+.street-mini-police {
+  bottom: 48px;
+  width: 104px;
+  height: 48px;
+  border-radius: 24px 34px 16px 16px;
+  box-shadow: 0 14px 20px rgba(20, 22, 111, 0.18);
+}
+
+.street-mini-car {
+  left: 34px;
+  background: linear-gradient(135deg, #12b8d9, #ffd15c);
+  transform: rotate(-2deg);
+}
+
+.street-mini-police {
+  right: 34px;
+  background: linear-gradient(90deg, #ffffff 0 55%, #2877ff 56%);
+}
+
+.street-mini-car::before,
+.street-mini-police::before {
+  content: "";
+  position: absolute;
+  left: 22px;
+  top: -18px;
+  width: 42px;
+  height: 28px;
+  border-radius: 16px 16px 8px 8px;
+  background: rgba(184, 243, 255, 0.92);
+}
+
+.street-mini-car::after,
+.street-mini-police::after {
+  content: "";
+  position: absolute;
+  left: 16px;
+  bottom: -10px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #13213b;
+  box-shadow: 58px 0 0 #13213b;
+}
+
+.street-mini-police .noop {
+  display: none;
+}
+
+.street-mini-flash {
+  width: 88px;
+  height: 18px;
+  border-radius: 999px;
+  transform: rotate(-12deg);
+  opacity: 0.82;
+  filter: blur(0.2px);
+}
+
+.street-mini-flash.one {
+  right: 82px;
+  top: 58px;
+  background: linear-gradient(90deg, transparent, rgba(40, 119, 255, 0.9), transparent);
+}
+
+.street-mini-flash.two {
+  right: 46px;
+  top: 88px;
+  background: linear-gradient(90deg, transparent, rgba(255, 45, 95, 0.9), transparent);
 }
 
 .treasure-mini-avatar {
@@ -124,6 +249,13 @@
 
 .treasure-parent-card .button {
   flex: 0 0 auto;
+}
+
+.street-smart-parent-card {
+  border-color: #dbe9ff;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(238, 247, 255, 0.95)),
+    radial-gradient(circle at 88% 12%, rgba(255, 95, 138, 0.2), transparent 26%);
 }
 
 @media (max-width: 720px) {

@@ -1,2 +1,4 @@
 node_modules/
 qa-screens/
+street-smart-rescue/qa-*
+street-smart-rescue/assets/generated/*-source.png

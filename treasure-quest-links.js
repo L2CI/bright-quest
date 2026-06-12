@@ -1,8 +1,13 @@
 (() => {
   const treasureQuestUrl = "cave-river-quest/";
+  const streetSmartUrl = "street-smart-rescue/";
 
   function openTreasureQuest() {
     window.location.href = treasureQuestUrl;
+  }
+
+  function openStreetSmartRescue() {
+    window.location.href = streetSmartUrl;
   }
 
   function kidGameCard() {
@@ -21,6 +26,25 @@
     `;
   }
 
+  function kidStreetSmartCard() {
+    return `
+      <article class="game-tile street-smart-tile unlocked" data-street-smart-card>
+        <div class="game-preview street-smart-preview" aria-hidden="true">
+          <span class="street-mini-sun"></span>
+          <span class="street-mini-road"></span>
+          <span class="street-mini-car"></span>
+          <span class="street-mini-police"></span>
+          <span class="street-mini-flash one"></span>
+          <span class="street-mini-flash two"></span>
+        </div>
+        <p class="eyebrow">Animated puzzle quest</p>
+        <h3>Street Smart Rescue</h3>
+        <p>Solve five Grade 4 puzzle riddles after a flashy police stop and help the kid make the safe choice.</p>
+        <button class="button button-primary" type="button" data-open-street-smart>Play puzzle quest</button>
+      </article>
+    `;
+  }
+
   function parentGameCard() {
     return `
       <div class="treasure-parent-card" data-treasure-parent-card>
@@ -34,16 +58,39 @@
     `;
   }
 
+  function parentStreetSmartCard() {
+    return `
+      <div class="treasure-parent-card street-smart-parent-card" data-street-smart-parent-card>
+        <div>
+          <p class="eyebrow">Animated puzzle game</p>
+          <h4>Street Smart Rescue</h4>
+          <p>Open the new road-safety puzzle game. It is standalone and does not change saved test results.</p>
+        </div>
+        <button class="button button-soft" type="button" data-open-street-smart>Open game</button>
+      </div>
+    `;
+  }
+
   function injectKidGameLink() {
     const list = document.querySelector("#gamesList");
-    if (!list || list.querySelector("[data-treasure-quest-card]")) return;
-    list.insertAdjacentHTML("afterbegin", kidGameCard());
+    if (!list) return;
+    if (!list.querySelector("[data-street-smart-card]")) {
+      list.insertAdjacentHTML("afterbegin", kidStreetSmartCard());
+    }
+    if (!list.querySelector("[data-treasure-quest-card]")) {
+      list.insertAdjacentHTML("afterbegin", kidGameCard());
+    }
   }
 
   function injectParentGameLink() {
     const recommendation = document.querySelector("#parentRecommendation");
-    if (!recommendation || recommendation.querySelector("[data-treasure-parent-card]")) return;
-    recommendation.insertAdjacentHTML("beforeend", parentGameCard());
+    if (!recommendation) return;
+    if (!recommendation.querySelector("[data-treasure-parent-card]")) {
+      recommendation.insertAdjacentHTML("beforeend", parentGameCard());
+    }
+    if (!recommendation.querySelector("[data-street-smart-parent-card]")) {
+      recommendation.insertAdjacentHTML("beforeend", parentStreetSmartCard());
+    }
   }
 
   function wrapGlobal(name, after) {
@@ -74,9 +121,17 @@
 
   document.addEventListener("click", (event) => {
     const trigger = event.target.closest("[data-open-treasure-quest]");
-    if (!trigger) return;
-    event.preventDefault();
-    openTreasureQuest();
+    if (trigger) {
+      event.preventDefault();
+      openTreasureQuest();
+      return;
+    }
+
+    const streetTrigger = event.target.closest("[data-open-street-smart]");
+    if (streetTrigger) {
+      event.preventDefault();
+      openStreetSmartRescue();
+    }
   });
 
   window.addEventListener("DOMContentLoaded", () => {
