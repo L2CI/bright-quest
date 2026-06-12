@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "background-step-gate-depth-005";
+  const BUILD_ID = "interactive-cartoon-shots-006";
   const assetBase = "./assets/generated/";
   const questions = [
     {
@@ -112,6 +112,8 @@
     transitionEnd: 0,
     sceneStep: 0,
     sceneTravel: 0,
+    shotProgress: 0,
+    shotVelocity: 0,
     qaFrozen: false,
     lastSplashAt: 0,
     lane: 0,
@@ -488,14 +490,24 @@
   }
 
   function updateMovement(dt) {
-    const target = state.forwardInput ? (state.questionIndex === 0 ? 0.01 : 0.0058) : 0;
-    state.velocity = lerp(state.velocity, target, 1 - Math.pow(0.015, dt));
-    state.progress = clamp(state.progress + state.velocity * dt, 0, 0.94);
-    state.lane = Math.sin((state.progress * 4.8 + 0.2) * Math.PI) * 0.18;
     const gate = gateProgress[state.questionIndex];
-    if (gate && state.progress >= gate - 0.055) {
+    if (gate) {
+      const previousGate = state.questionIndex > 0 ? gateProgress[state.questionIndex - 1] : 0;
+      const gap = Math.max(0.04, gate - previousGate);
+      const start = state.questionIndex > 0 ? previousGate + gap * 0.08 : 0;
+      const end = gate - 0.055;
+      const target = state.forwardInput ? 0.215 : 0;
+      state.shotVelocity = lerp(state.shotVelocity, target, 1 - Math.pow(0.025, dt));
+      state.shotProgress = clamp(state.shotProgress + state.shotVelocity * dt, 0, 1);
+      const shotEase = easeInOutCubic(state.shotProgress);
+      state.velocity = state.shotVelocity;
+      state.progress = lerp(start, end, shotEase);
+      state.lane = Math.sin((state.sceneStep * 0.7 + state.shotProgress * 1.25 + 0.2) * Math.PI) * 0.18;
+    }
+    if (gate && state.shotProgress >= 1) {
       state.progress = gate - 0.055;
       state.velocity = 0;
+      state.shotVelocity = 0;
       state.forwardInput = 0;
       stopWaterLoop();
       beginGateApproach();
@@ -549,6 +561,8 @@
       state.boatPass = 0;
       state.transitionStart = 0;
       state.transitionEnd = 0;
+      state.shotProgress = 0;
+      state.shotVelocity = 0;
       state.boatApproach = 0;
       stopWaterLoop();
       playGateCloseSound();
@@ -562,7 +576,7 @@
     const nextGate = gateProgress[state.questionIndex];
     let target = 0;
     if (state.mode === "approaching" || state.mode === "gate-open" || state.mode === "question") target = 1;
-    else if (nextGate) target = clamp(1 - (nextGate - state.progress) / 0.16, 0, 0.42);
+    else if (nextGate) target = clamp(0.05 + state.shotProgress * 0.48, 0, 0.48);
     else if (state.progress > 0.76) target = clamp((state.progress - 0.76) / 0.16, 0, 1);
     state.boatApproach = lerp(state.boatApproach, target, 1 - Math.pow(0.03, dt));
   }
@@ -600,11 +614,7 @@
     if (state.mode === "gate-open") {
       local = clamp(state.boatPass * 0.35, 0, 0.42);
     } else if (gate) {
-      const previousGate = state.questionIndex > 0 ? gateProgress[state.questionIndex - 1] : 0;
-      const gap = Math.max(0.04, gate - previousGate);
-      const start = state.questionIndex > 0 ? previousGate + gap * 0.08 : 0;
-      const end = gate - 0.055;
-      local = clamp((state.progress - start) / Math.max(0.001, end - start), 0, 1);
+      local = clamp(state.shotProgress, 0, 1);
     } else {
       local = clamp((state.progress - 0.84) / 0.08, 0, 1);
     }
@@ -614,10 +624,11 @@
 
   function setPlate(image, key, w, h, index, local, alpha, time) {
     if (image.texture.key !== key) image.setTexture(key);
-    const travel = state.progress * 2.1 + index * 0.23;
-    const panX = Math.sin(travel * Math.PI * 1.75) * 0.055 + local * 0.052 + state.lane * 0.035;
-    const panY = Math.cos(travel * Math.PI * 1.18) * 0.026 - state.boatApproach * 0.026 + local * 0.018;
-    const zoom = 1.07 + state.boatApproach * 0.05 + Math.abs(local) * 0.018 + Math.sin(time * 0.08 + index) * 0.004;
+    const shot = clamp(local, 0, 1);
+    const travel = index * 0.43 + shot * 1.15;
+    const panX = Math.sin(travel * Math.PI * 0.85) * 0.04 + shot * 0.092 + state.lane * 0.04;
+    const panY = Math.cos(travel * Math.PI * 0.62) * 0.018 - state.boatApproach * 0.036 + shot * 0.034;
+    const zoom = 1.045 + shot * 0.11 + state.boatApproach * 0.04 + Math.sin(time * 0.08 + index) * 0.004;
     coverImage(image, w, h, zoom);
     image.setPosition(w * (0.5 - panX * 0.52), h * (0.5 - panY * 0.44));
     image.setAlpha(alpha);
@@ -629,12 +640,19 @@
     const g = scene.waterFx;
     g.clear();
     g.setBlendMode(Phaser.BlendModes.SCREEN);
+    const travel = clamp(state.sceneTravel, 0, 1);
+    const rowingPower = state.forwardInput ? 1 : 0.35;
+    g.fillStyle(0x5be7ff, 0.035 + travel * 0.025);
+    g.fillTriangle(w * 0.5, h * 0.12, w * (0.16 - travel * 0.04), h, w * (0.84 + travel * 0.04), h);
+    g.fillStyle(0x061826, 0.08 + travel * 0.04);
+    g.fillRect(0, 0, w, h * lerp(0.07, 0.035, travel));
+    g.fillRect(0, h * lerp(0.93, 0.97, travel), w, h * 0.08);
     for (let i = 0; i < 34; i += 1) {
-      const t = (i / 34 + scene.timeSeconds * 0.06 + state.progress * 2.4) % 1;
-      const y = lerp(h * 0.17, h * 1.05, Math.pow(t, 1.18));
-      const x = w * 0.5 + Math.sin((t + state.progress) * Math.PI * 2.3) * w * 0.08 + state.lane * w * 0.06 * t;
-      const len = lerp(w * 0.04, w * 0.34, t);
-      g.lineStyle(Phaser.Math.Linear(1, 3, t), 0xdfffff, Phaser.Math.Linear(0.06, 0.24, t));
+      const t = (i / 34 + scene.timeSeconds * (0.035 + rowingPower * 0.045) + travel * 0.42) % 1;
+      const y = lerp(h * 0.14, h * 1.08, Math.pow(t, 1.16));
+      const x = w * 0.5 + Math.sin((t + state.sceneStep * 0.17 + travel) * Math.PI * 2.3) * w * lerp(0.05, 0.14, t) + state.lane * w * 0.08 * t;
+      const len = lerp(w * 0.05, w * 0.42, t) * lerp(0.75, 1.2, rowingPower);
+      g.lineStyle(Phaser.Math.Linear(1, 3.8, t), 0xdfffff, Phaser.Math.Linear(0.05, 0.28, t) * lerp(0.8, 1.15, rowingPower));
       g.beginPath();
       for (let step = 0; step <= 8; step += 1) {
         const u = step / 8;
@@ -643,6 +661,16 @@
         if (step === 0) g.moveTo(px, py);
         else g.lineTo(px, py);
       }
+      g.strokePath();
+    }
+    for (let i = 0; i < 10; i += 1) {
+      const t = (i / 10 + scene.timeSeconds * 0.022 + travel * 0.18) % 1;
+      const alpha = Phaser.Math.Linear(0.02, 0.09, 1 - Math.abs(t - 0.5) * 2);
+      g.lineStyle(Phaser.Math.Linear(16, 44, t), 0xffffff, alpha);
+      g.beginPath();
+      const y = h * Phaser.Math.Linear(0.12, 0.82, t);
+      g.moveTo(w * (0.08 + i * 0.09), y);
+      g.lineTo(w * (0.18 + i * 0.09 + travel * 0.05), y + h * 0.24);
       g.strokePath();
     }
     if (state.forwardInput) {
@@ -711,10 +739,8 @@
   }
 
   function renderDistantGateHint(scene, gate) {
-    const distance = gate - state.progress;
-    const visibleDistance = 0.067;
-    const stopDistance = 0.055;
-    if (distance < stopDistance || distance > visibleDistance) {
+    const travel = clamp(state.sceneTravel, 0, 1);
+    if (travel < 0.76) {
       scene.gate.setVisible(false);
       scene.gateAura.setAlpha(0);
       scene.chamberShade.setAlpha(0);
@@ -724,13 +750,13 @@
     }
     const w = scene.scale.width;
     const h = scene.scale.height;
-    const approach = 1 - clamp((distance - stopDistance) / (visibleDistance - stopDistance), 0, 1);
+    const approach = smoothstep(0.76, 1, travel);
     const depthEase = easeOutCubic(approach);
-    const pathX = w * 0.5 + Math.sin((gate * 5.8 + 0.45) * Math.PI) * w * 0.028;
+    const pathX = w * 0.5 + Math.sin((gate * 5.8 + 0.45) * Math.PI) * w * lerp(0.042, 0.018, depthEase);
     const y = h * lerp(0.27, 0.31, depthEase);
     const maxWidth = Math.min(w * 0.23, h * 0.26, 250);
     const scaleFromDot = Math.max(0.035, depthEase * depthEase);
-    const targetWidth = maxWidth * lerp(0.03, 0.16, scaleFromDot);
+    const targetWidth = maxWidth * lerp(0.025, 0.18, scaleFromDot);
     const texture = scene.textures.get("gate").getSourceImage();
     scene.chamberShade.setAlpha(0);
     scene.gateAura
@@ -927,6 +953,8 @@
       state.transitionStart = nextGate ? currentGate + gap * 0.03 : 0.875;
       state.transitionEnd = nextGate ? Math.min(nextGate - 0.058, currentGate + gap * 0.08) : 0.9;
       state.progress = state.transitionStart;
+      state.shotProgress = 0;
+      state.shotVelocity = 0;
       state.boatApproach = 0.82;
       el.questionPanel.classList.add("hidden");
       state.mode = "gate-open";
@@ -992,6 +1020,8 @@
         boatApproach: Number(state.boatApproach.toFixed(5)),
         sceneStep: state.sceneStep,
         sceneTravel: Number(state.sceneTravel.toFixed(5)),
+        shotProgress: Number(state.shotProgress.toFixed(5)),
+        shotVelocity: Number(state.shotVelocity.toFixed(5)),
         plateKey: sceneRef?.plateKeys?.[state.sceneStep] || null,
         qaFrozen: state.qaFrozen,
         renderer: "phaser",
@@ -1011,6 +1041,8 @@
         state.boatPass = 0;
         state.transitionStart = 0;
         state.transitionEnd = 0;
+        state.shotProgress = 0;
+        state.shotVelocity = 0;
         state.qaFrozen = false;
         state.questionIndex = gateProgress.findIndex((gate) => gate > state.progress + 0.02);
         if (state.questionIndex < 0) state.questionIndex = gateProgress.length;
@@ -1027,6 +1059,8 @@
         state.questionIndex = gateIndex;
         state.sceneStep = gateIndex;
         state.sceneTravel = 0;
+        state.shotProgress = 0;
+        state.shotVelocity = 0;
         state.progress = gateProgress[gateIndex] - 0.022;
         state.velocity = 0;
         state.forwardInput = 0;
@@ -1045,6 +1079,8 @@
         state.questionIndex = questions.length;
         state.sceneStep = sceneRef?.plateKeys?.length ? sceneRef.plateKeys.length - 1 : questions.length - 1;
         state.sceneTravel = 1;
+        state.shotProgress = 1;
+        state.shotVelocity = 0;
         state.qaFrozen = false;
         el.finalePanel.classList.remove("hidden");
         updateGateCount();
@@ -1071,6 +1107,8 @@
     state.transitionEnd = 0;
     state.sceneStep = gateIndex;
     state.sceneTravel = 0;
+    state.shotProgress = 0;
+    state.shotVelocity = 0;
     state.qaFrozen = true;
     el.questionPanel.classList.add("hidden");
     el.finalePanel.classList.add("hidden");
