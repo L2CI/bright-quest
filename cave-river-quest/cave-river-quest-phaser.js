@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "auto-advance-gate-scale-004";
+  const BUILD_ID = "background-step-gate-depth-005";
   const assetBase = "./assets/generated/";
   const questions = [
     {
@@ -110,6 +110,8 @@
     boatApproach: 0,
     transitionStart: 0,
     transitionEnd: 0,
+    sceneStep: 0,
+    sceneTravel: 0,
     qaFrozen: false,
     lastSplashAt: 0,
     lane: 0,
@@ -486,7 +488,7 @@
   }
 
   function updateMovement(dt) {
-    const target = state.forwardInput ? 0.055 : 0;
+    const target = state.forwardInput ? (state.questionIndex === 0 ? 0.01 : 0.0058) : 0;
     state.velocity = lerp(state.velocity, target, 1 - Math.pow(0.015, dt));
     state.progress = clamp(state.progress + state.velocity * dt, 0, 0.94);
     state.lane = Math.sin((state.progress * 4.8 + 0.2) * Math.PI) * 0.18;
@@ -532,14 +534,15 @@
     const currentGate = gateProgress[state.questionIndex] || state.progress;
     const nextGate = gateProgress[state.questionIndex + 1];
     const gap = nextGate ? nextGate - currentGate : 0.08;
-    const fallbackStart = nextGate ? currentGate + gap * 0.14 : 0.875;
-    const fallbackEnd = nextGate ? Math.min(nextGate - 0.058, currentGate + gap * 0.34) : 0.9;
+    const fallbackStart = nextGate ? currentGate + gap * 0.03 : 0.875;
+    const fallbackEnd = nextGate ? Math.min(nextGate - 0.058, currentGate + gap * 0.08) : 0.9;
     const start = state.transitionStart || fallbackStart;
     const end = state.transitionEnd || fallbackEnd;
     state.progress = lerp(start, end, Math.pow(state.boatPass, 0.72));
     state.lane = Math.sin((state.progress * 4.8 + 0.2) * Math.PI) * 0.18;
     if (state.gateOpening >= 1) {
       state.questionIndex += 1;
+      state.sceneStep = Math.min(state.questionIndex, sceneRef?.plateKeys?.length ? sceneRef.plateKeys.length - 1 : questions.length - 1);
       updateGateCount();
       state.mode = "rowing";
       state.gateOpening = 0;
@@ -567,19 +570,19 @@
   function renderJourney(scene) {
     const w = scene.scale.width;
     const h = scene.scale.height;
-    const journey = clamp(state.progress / 0.92, 0, 0.999) * (scene.plateKeys.length - 1);
-    const index = Math.min(scene.plateKeys.length - 1, Math.floor(journey));
-    const local = journey - index;
+    const frame = getJourneyFrame(scene);
+    const index = frame.index;
+    const local = frame.local;
     const nextIndex = Math.min(scene.plateKeys.length - 1, index + 1);
-    const fade = smoothstep(0.34, 0.82, local);
-    setPlate(scene.bgA, scene.plateKeys[index], w, h, index, local, 1 - fade * 0.45, scene.timeSeconds);
-    setPlate(scene.bgB, scene.plateKeys[nextIndex], w, h, nextIndex, local - 1, nextIndex === index ? 0 : fade, scene.timeSeconds);
+    const fade = nextIndex === index ? 0 : smoothstep(0.86, 0.99, local) * 0.18;
+    setPlate(scene.bgA, scene.plateKeys[index], w, h, index, local, 1, scene.timeSeconds);
+    setPlate(scene.bgB, scene.plateKeys[nextIndex], w, h, nextIndex, local - 1, fade, scene.timeSeconds);
     const washColors = [0x2ad8e8, 0x68e2ac, 0x8b76ff, 0xffc253, 0x52e7ff];
     const reveal = Math.sin(clamp(local, 0, 1) * Math.PI);
     scene.wash.setPosition(0, 0).setSize(w, h).setFillStyle(washColors[(index + 1) % washColors.length], Math.max(reveal * 0.1, fade * 0.07));
 
     scene.sparkles.forEach((sparkle, i) => {
-      const t = (i * 0.071 + scene.timeSeconds * sparkle.speed + journey * 0.05) % 1;
+      const t = (i * 0.071 + scene.timeSeconds * sparkle.speed + (index + local) * 0.05) % 1;
       sparkle.dot.setPosition(
         (w * ((sparkle.seed % 100) / 100) + Math.sin(scene.timeSeconds * 0.4 + i) * 22) % w,
         h * (0.12 + t * 0.72)
@@ -587,6 +590,26 @@
       sparkle.dot.setRadius(Phaser.Math.Linear(1, 3.4, t));
       sparkle.dot.setAlpha(Phaser.Math.Linear(0.08, 0.36, t));
     });
+  }
+
+  function getJourneyFrame(scene) {
+    const maxIndex = scene.plateKeys.length - 1;
+    const index = clamp(Math.floor(state.sceneStep), 0, maxIndex);
+    const gate = gateProgress[state.questionIndex];
+    let local = 0;
+    if (state.mode === "gate-open") {
+      local = clamp(state.boatPass * 0.35, 0, 0.42);
+    } else if (gate) {
+      const previousGate = state.questionIndex > 0 ? gateProgress[state.questionIndex - 1] : 0;
+      const gap = Math.max(0.04, gate - previousGate);
+      const start = state.questionIndex > 0 ? previousGate + gap * 0.08 : 0;
+      const end = gate - 0.055;
+      local = clamp((state.progress - start) / Math.max(0.001, end - start), 0, 1);
+    } else {
+      local = clamp((state.progress - 0.84) / 0.08, 0, 1);
+    }
+    state.sceneTravel = local;
+    return { index, local };
   }
 
   function setPlate(image, key, w, h, index, local, alpha, time) {
@@ -689,7 +712,7 @@
 
   function renderDistantGateHint(scene, gate) {
     const distance = gate - state.progress;
-    const visibleDistance = 0.18;
+    const visibleDistance = 0.067;
     const stopDistance = 0.055;
     if (distance < stopDistance || distance > visibleDistance) {
       scene.gate.setVisible(false);
@@ -703,17 +726,17 @@
     const h = scene.scale.height;
     const approach = 1 - clamp((distance - stopDistance) / (visibleDistance - stopDistance), 0, 1);
     const depthEase = easeOutCubic(approach);
-    const pathX = w * 0.5 + Math.sin((gate * 5.8 + 0.45) * Math.PI) * w * 0.018;
-    const y = h * 0.36;
-    const maxWidth = Math.min(w * 0.3, h * 0.38, 360);
+    const pathX = w * 0.5 + Math.sin((gate * 5.8 + 0.45) * Math.PI) * w * 0.028;
+    const y = h * lerp(0.27, 0.31, depthEase);
+    const maxWidth = Math.min(w * 0.23, h * 0.26, 250);
     const scaleFromDot = Math.max(0.035, depthEase * depthEase);
-    const targetWidth = maxWidth * lerp(0.08, 0.36, scaleFromDot);
+    const targetWidth = maxWidth * lerp(0.03, 0.16, scaleFromDot);
     const texture = scene.textures.get("gate").getSourceImage();
     scene.chamberShade.setAlpha(0);
     scene.gateAura
       .setPosition(pathX, y)
-      .setRadius(Math.min(w * 0.08, 90) * lerp(0.35, 1, scaleFromDot))
-      .setAlpha(0.08 + scaleFromDot * 0.08);
+      .setRadius(Math.min(w * 0.045, 54) * lerp(0.2, 0.72, scaleFromDot))
+      .setAlpha(0.04 + scaleFromDot * 0.05);
     scene.gate
       .setVisible(true)
       .setAlpha(0.92)
@@ -900,8 +923,9 @@
       const currentGate = gateProgress[state.questionIndex] || state.progress;
       const nextGate = gateProgress[state.questionIndex + 1];
       const gap = nextGate ? nextGate - currentGate : 0.08;
-      state.transitionStart = nextGate ? currentGate + gap * 0.14 : 0.875;
-      state.transitionEnd = nextGate ? Math.min(nextGate - 0.058, currentGate + gap * 0.34) : 0.9;
+      state.sceneStep = Math.min(state.questionIndex + 1, sceneRef?.plateKeys?.length ? sceneRef.plateKeys.length - 1 : questions.length - 1);
+      state.transitionStart = nextGate ? currentGate + gap * 0.03 : 0.875;
+      state.transitionEnd = nextGate ? Math.min(nextGate - 0.058, currentGate + gap * 0.08) : 0.9;
       state.progress = state.transitionStart;
       state.boatApproach = 0.82;
       el.questionPanel.classList.add("hidden");
@@ -966,6 +990,9 @@
         arrivalTimer: Number(state.arrivalTimer.toFixed(5)),
         questionIndex: state.questionIndex,
         boatApproach: Number(state.boatApproach.toFixed(5)),
+        sceneStep: state.sceneStep,
+        sceneTravel: Number(state.sceneTravel.toFixed(5)),
+        plateKey: sceneRef?.plateKeys?.[state.sceneStep] || null,
         qaFrozen: state.qaFrozen,
         renderer: "phaser",
         engine: Phaser.VERSION
@@ -987,6 +1014,8 @@
         state.qaFrozen = false;
         state.questionIndex = gateProgress.findIndex((gate) => gate > state.progress + 0.02);
         if (state.questionIndex < 0) state.questionIndex = gateProgress.length;
+        state.sceneStep = Math.min(state.questionIndex, sceneRef?.plateKeys?.length ? sceneRef.plateKeys.length - 1 : questions.length - 1);
+        state.sceneTravel = 0;
         state.boatApproach = 0;
         el.questionPanel.classList.add("hidden");
         el.finalePanel.classList.add("hidden");
@@ -996,6 +1025,8 @@
         if (!isQa) return false;
         const gateIndex = clamp(Math.floor(Number(index) || 0), 0, gateProgress.length - 1);
         state.questionIndex = gateIndex;
+        state.sceneStep = gateIndex;
+        state.sceneTravel = 0;
         state.progress = gateProgress[gateIndex] - 0.022;
         state.velocity = 0;
         state.forwardInput = 0;
@@ -1012,6 +1043,8 @@
         state.mode = "final";
         state.finalStarted = true;
         state.questionIndex = questions.length;
+        state.sceneStep = sceneRef?.plateKeys?.length ? sceneRef.plateKeys.length - 1 : questions.length - 1;
+        state.sceneTravel = 1;
         state.qaFrozen = false;
         el.finalePanel.classList.remove("hidden");
         updateGateCount();
@@ -1036,6 +1069,8 @@
     state.boatPass = 0;
     state.transitionStart = 0;
     state.transitionEnd = 0;
+    state.sceneStep = gateIndex;
+    state.sceneTravel = 0;
     state.qaFrozen = true;
     el.questionPanel.classList.add("hidden");
     el.finalePanel.classList.add("hidden");
