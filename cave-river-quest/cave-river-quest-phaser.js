@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "mobile-gate-scale-008";
+  const BUILD_ID = "travel-staging-009";
   const assetBase = "./assets/generated/";
   const questions = [
     {
@@ -502,7 +502,7 @@
       const gap = Math.max(0.04, gate - previousGate);
       const start = state.questionIndex > 0 ? previousGate + gap * 0.08 : 0;
       const end = gate - 0.055;
-      const target = state.forwardInput ? 0.215 : 0;
+      const target = state.forwardInput ? 0.27 : 0;
       state.shotVelocity = lerp(state.shotVelocity, target, 1 - Math.pow(0.025, dt));
       state.shotProgress = clamp(state.shotProgress + state.shotVelocity * dt, 0, 1);
       const shotEase = easeInOutCubic(state.shotProgress);
@@ -540,7 +540,7 @@
     state.arrivalTimer += dt;
     state.boatApproach = lerp(state.boatApproach, 1, 1 - Math.pow(0.018, dt));
     state.progress = (gateProgress[state.questionIndex] || state.progress) - 0.055;
-    if (state.arrivalTimer >= 1.45) {
+    if (state.arrivalTimer >= 1.72) {
       stopWaterLoop();
       showQuestion(state.questionIndex);
     }
@@ -632,9 +632,10 @@
     if (image.texture.key !== key) image.setTexture(key);
     const shot = clamp(local, 0, 1);
     const travel = index * 0.43 + shot * 1.15;
-    const panX = Math.sin(travel * Math.PI * 0.85) * 0.04 + shot * 0.092 + state.lane * 0.04;
-    const panY = Math.cos(travel * Math.PI * 0.62) * 0.018 - state.boatApproach * 0.036 + shot * 0.034;
-    const zoom = 1.045 + shot * 0.11 + state.boatApproach * 0.04 + Math.sin(time * 0.08 + index) * 0.004;
+    const rowBoost = state.forwardInput ? 1 : 0;
+    const panX = Math.sin(travel * Math.PI * 0.85) * 0.05 + shot * 0.125 + state.lane * 0.055;
+    const panY = Math.cos(travel * Math.PI * 0.62) * 0.02 - state.boatApproach * 0.052 + shot * 0.058 + rowBoost * Math.sin(time * 2.8) * 0.004;
+    const zoom = 1.045 + shot * 0.155 + state.boatApproach * 0.055 + rowBoost * 0.012 + Math.sin(time * 0.08 + index) * 0.004;
     coverImage(image, w, h, zoom);
     image.setPosition(w * (0.5 - panX * 0.52), h * (0.5 - panY * 0.44));
     image.setAlpha(alpha);
@@ -648,13 +649,14 @@
     g.setBlendMode(Phaser.BlendModes.SCREEN);
     const travel = clamp(state.sceneTravel, 0, 1);
     const rowingPower = state.forwardInput ? 1 : 0.35;
+    const streamSpeed = state.forwardInput ? 0.135 : 0.055;
     g.fillStyle(0x5be7ff, 0.035 + travel * 0.025);
     g.fillTriangle(w * 0.5, h * 0.12, w * (0.16 - travel * 0.04), h, w * (0.84 + travel * 0.04), h);
     g.fillStyle(0x061826, 0.08 + travel * 0.04);
     g.fillRect(0, 0, w, h * lerp(0.07, 0.035, travel));
     g.fillRect(0, h * lerp(0.93, 0.97, travel), w, h * 0.08);
     for (let i = 0; i < 34; i += 1) {
-      const t = (i / 34 + scene.timeSeconds * (0.035 + rowingPower * 0.045) + travel * 0.42) % 1;
+      const t = (i / 34 + scene.timeSeconds * streamSpeed + travel * 0.56) % 1;
       const y = lerp(h * 0.14, h * 1.08, Math.pow(t, 1.16));
       const x = w * 0.5 + Math.sin((t + state.sceneStep * 0.17 + travel) * Math.PI * 2.3) * w * lerp(0.05, 0.14, t) + state.lane * w * 0.08 * t;
       const len = lerp(w * 0.05, w * 0.42, t) * lerp(0.75, 1.2, rowingPower);
@@ -685,6 +687,11 @@
       for (let side of [-1, 1]) {
         g.lineStyle(3, 0xdfffff, 0.38);
         g.strokeEllipse(bx + side * w * 0.18, by + h * 0.12, w * 0.09, h * 0.035);
+        g.lineStyle(2, 0xdfffff, 0.2);
+        g.beginPath();
+        g.moveTo(bx + side * w * 0.1, by + h * 0.18);
+        g.lineTo(bx + side * w * 0.24, by + h * 0.31);
+        g.strokePath();
       }
       if (scene.timeSeconds - state.lastSplashAt > 0.52) {
         state.lastSplashAt = scene.timeSeconds;
@@ -727,7 +734,7 @@
     const targetWidth = Math.min(w * (isNarrow ? 0.58 : 0.38), h * (isNarrow ? 0.42 : 0.58), isNarrow ? 360 : 610);
     const texture = scene.textures.get("gate").getSourceImage();
     const gateX = w * 0.5;
-    const gateY = h * (isNarrow ? 0.43 : 0.35);
+    const gateY = h * (isNarrow ? 0.405 : 0.35);
     const gateHeight = targetWidth * (texture.height / texture.width);
     const visualScale = lerp(0.93, 1, arrivalEase);
     scene.chamberShade
@@ -765,7 +772,7 @@
     const approach = smoothstep(0.86, 1, travel);
     const depthEase = easeOutCubic(approach);
     const pathX = w * 0.5 + Math.sin((gate * 5.8 + 0.45) * Math.PI) * w * lerp(0.026, 0.012, depthEase);
-    const y = h * lerp(isNarrow ? 0.33 : 0.23, isNarrow ? 0.42 : 0.3, depthEase);
+    const y = h * lerp(isNarrow ? 0.31 : 0.23, isNarrow ? 0.395 : 0.3, depthEase);
     const maxWidth = Math.min(w * (isNarrow ? 0.5 : 0.24), h * (isNarrow ? 0.36 : 0.3), isNarrow ? 320 : 310);
     const scaleFromDot = Math.max(0.035, depthEase * depthEase);
     const targetWidth = maxWidth * lerp(0.035, 0.42, scaleFromDot);
@@ -840,9 +847,13 @@
     }
 
     seal.setBlendMode(Phaser.BlendModes.SCREEN);
-    seal.fillStyle(0x9befff, 0.04 * arrivalEase);
-    seal.fillEllipse(gateX, baseY, gateWidth * 0.88, gateHeight * 0.13);
-    seal.fillStyle(0xffe7a0, 0.04 * arrivalEase);
+    seal.fillStyle(0x071523, 0.18 * arrivalEase);
+    seal.fillEllipse(gateX, baseY + gateHeight * 0.015, gateWidth * 0.98, gateHeight * 0.14);
+    seal.fillStyle(0x9befff, 0.075 * arrivalEase);
+    seal.fillEllipse(gateX, baseY, gateWidth * 0.96, gateHeight * 0.12);
+    seal.lineStyle(Math.max(1, gateWidth * 0.005), 0xcdfcff, 0.18 * arrivalEase);
+    seal.strokeEllipse(gateX, baseY, gateWidth * 1.05, gateHeight * 0.18);
+    seal.fillStyle(0xffe7a0, 0.05 * arrivalEase);
     for (let i = 0; i < 7; i += 1) {
       const phase = (scene.timeSeconds * 0.32 + i * 0.13) % 1;
       const x = gateX + Math.sin(i * 1.9) * gateWidth * 0.34;
@@ -921,12 +932,14 @@
     const nearHeightCap = isNarrow ? 0.46 : 0.72;
     const farHeightCap = isNarrow ? 0.38 : 0.56;
     const nearY = isNarrow ? 0.69 : 0.74;
-    const farY = isNarrow ? 0.6 : 0.66;
+    const farY = isNarrow ? 0.65 : 0.66;
     const approach = state.mode === "approaching"
       ? easeInOutCubic(clamp(state.arrivalTimer / 1.45, 0, 1))
       : state.boatApproach;
+    const rowCycle = (scene.timeSeconds * 8) % 1;
+    const rowSurge = state.forwardInput ? Math.sin(rowCycle * Math.PI) : 0;
     let x = w * 0.5 + state.lane * w * 0.13;
-    let y = lerp(h * nearY, h * farY, approach) + Math.sin(scene.timeSeconds * 2.2) * 4;
+    let y = lerp(h * nearY, h * farY, approach) + Math.sin(scene.timeSeconds * 2.2) * 4 - rowSurge * h * 0.012;
     let scaleT = approach;
     let alpha = 1;
     let depth = 9;
@@ -934,7 +947,7 @@
     if (state.mode === "question") {
       scaleT = 1;
       x = w * 0.5;
-      y = h * (isNarrow ? 0.59 : 0.61) + Math.sin(scene.timeSeconds * 1.8) * 2;
+      y = h * (isNarrow ? 0.66 : 0.61) + Math.sin(scene.timeSeconds * 1.8) * 2;
     }
 
     if (state.mode === "final" || state.finaleClaimed) {
@@ -947,13 +960,13 @@
     if (state.mode === "gate-open") {
       const pass = state.boatPass;
       const passEase = easeInOutCubic(pass);
-      const startY = h * (isNarrow ? 0.6 : 0.62);
-      const gateY = h * (isNarrow ? 0.44 : 0.37);
+      const startY = h * (isNarrow ? 0.66 : 0.62);
+      const gateY = h * (isNarrow ? 0.43 : 0.37);
       x = lerp(w * 0.5, w * 0.5 + Math.sin((state.questionIndex + 1) * 1.7) * w * 0.018, passEase);
       y = lerp(startY, gateY + h * 0.04, passEase) + Math.sin(scene.timeSeconds * 2.6) * lerp(3, 0, passEase);
       scaleT = lerp(1, 1.72, passEase);
       alpha = lerp(1, 0.16, smoothstep(0.9, 1, passEase));
-      depth = passEase > 0.82 ? 6 : 9;
+      depth = passEase > 0.28 ? 6 : 9;
     }
 
     const width = Math.min(w * lerp(nearWidth, farWidth, scaleT), h * lerp(nearHeightCap, farHeightCap, scaleT));
