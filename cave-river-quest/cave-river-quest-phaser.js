@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "travel-staging-009";
+  const BUILD_ID = "stable-rowing-010";
   const assetBase = "./assets/generated/";
   const questions = [
     {
@@ -936,10 +936,9 @@
     const approach = state.mode === "approaching"
       ? easeInOutCubic(clamp(state.arrivalTimer / 1.45, 0, 1))
       : state.boatApproach;
-    const rowCycle = (scene.timeSeconds * 8) % 1;
-    const rowSurge = state.forwardInput ? Math.sin(rowCycle * Math.PI) : 0;
+    const bob = Math.sin(scene.timeSeconds * 2.2) * (state.forwardInput ? 1.4 : 4);
     let x = w * 0.5 + state.lane * w * 0.13;
-    let y = lerp(h * nearY, h * farY, approach) + Math.sin(scene.timeSeconds * 2.2) * 4 - rowSurge * h * 0.012;
+    let y = lerp(h * nearY, h * farY, approach) + bob;
     let scaleT = approach;
     let alpha = 1;
     let depth = 9;
