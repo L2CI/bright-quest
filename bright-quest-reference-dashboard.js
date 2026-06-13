@@ -1,9 +1,14 @@
 ﻿(() => {
   const tests = window.BrightQuestInternationalTests || [];
   const gameNames = {
-    'intl-1': 'World Rally Drift',
-    'intl-2': 'Skyline Balloon Burst',
+    'intl-1': 'Cave River Quest',
+    'intl-2': 'Street Smart Rescue',
     'intl-3': 'Logic Lab Battle'
+  };
+
+  const standaloneGames = {
+    'intl-1': 'cave-river-quest/',
+    'intl-2': 'street-smart-rescue/'
   };
 
   function getProfile() {
@@ -270,7 +275,11 @@
 
   function gameCard(test, index, unlocked) {
     const names = Object.values(gameNames);
-    return `<button class="game-card-ref game-${index + 1}" type="button" data-play-world="${escapeAttr(test.level)}" ${unlocked ? '' : 'disabled'}><span></span><strong>${names[index]}</strong><small>${unlocked ? 'Play now' : 'Complete test to unlock'}</small></button>`;
+    const standaloneUrl = standaloneGames[test.level];
+    const actionAttr = standaloneUrl
+      ? `data-open-standalone-game="${escapeAttr(standaloneUrl)}"`
+      : `data-play-world="${escapeAttr(test.level)}"`;
+    return `<button class="game-card-ref game-${index + 1}" type="button" ${actionAttr} ${unlocked ? '' : 'disabled'}><span></span><strong>${names[index]}</strong><small>${unlocked ? 'Play now' : 'Complete test to unlock'}</small></button>`;
   }
 
   function coreTestStrip(latest) {
@@ -291,6 +300,9 @@
     ref.querySelector('[data-ref-continue]')?.addEventListener('click', () => document.querySelector('#continueButton')?.click());
     ref.querySelectorAll('[data-start-world]').forEach((button) => button.addEventListener('click', () => window.startBrightQuestInternationalTest?.(button.dataset.startWorld)));
     ref.querySelectorAll('[data-play-world]').forEach((button) => button.addEventListener('click', () => window.startBrightQuestInternationalArcade?.(button.dataset.playWorld)));
+    ref.querySelectorAll('[data-open-standalone-game]').forEach((button) => button.addEventListener('click', () => {
+      window.location.href = button.dataset.openStandaloneGame;
+    }));
     ref.querySelectorAll('[data-parent-jump]').forEach((button) => button.addEventListener('click', openParentPrompt));
     ref.querySelectorAll('[data-core-level]').forEach((button) => button.addEventListener('click', () => startLevel(Number(button.dataset.coreLevel))));
   }

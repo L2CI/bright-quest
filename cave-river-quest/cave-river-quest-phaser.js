@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "stable-rowing-010";
+  const BUILD_ID = "guardian-finale-011";
   const assetBase = "./assets/generated/";
   const questions = [
     {
@@ -196,6 +196,7 @@
       }
 
       this.chest.on("pointerdown", () => claimFinale());
+      el.claimButton?.addEventListener("click", () => claimFinale());
       this.scale.on("resize", (size) => {
         state.width = size.width;
         state.height = size.height;
@@ -518,13 +519,7 @@
       stopWaterLoop();
       beginGateApproach();
     }
-    if (state.questionIndex >= gateProgress.length && state.progress > 0.9 && !state.finalStarted) {
-      state.finalStarted = true;
-      state.mode = "final";
-      el.finalePanel.classList.add("hidden");
-      el.hint.textContent = "The treasure waits ahead. Tap the glowing chest.";
-      playSuccessSparkle();
-    }
+    if (state.questionIndex >= gateProgress.length && state.progress >= 0.89 && !state.finalStarted) beginFinale();
   }
 
   function beginGateApproach() {
@@ -562,6 +557,20 @@
       state.questionIndex += 1;
       state.sceneStep = Math.min(state.questionIndex, sceneRef?.plateKeys?.length ? sceneRef.plateKeys.length - 1 : questions.length - 1);
       updateGateCount();
+      if (state.questionIndex >= questions.length) {
+        state.progress = Math.max(state.progress, 0.91);
+        state.gateOpening = 0;
+        state.boatPass = 0;
+        state.transitionStart = 0;
+        state.transitionEnd = 0;
+        state.shotProgress = 1;
+        state.shotVelocity = 0;
+        state.boatApproach = 1;
+        stopWaterLoop();
+        playGateCloseSound();
+        beginFinale();
+        return;
+      }
       state.mode = "rowing";
       state.gateOpening = 0;
       state.boatPass = 0;
@@ -576,6 +585,19 @@
         ? "The vault is close. Row into the golden glow."
         : "Nice. Keep rowing to the next glowing gate.";
     }
+  }
+
+  function beginFinale() {
+    if (state.finalStarted) return;
+    state.finalStarted = true;
+    state.mode = "final";
+    state.progress = Math.max(state.progress, 0.91);
+    state.forwardInput = 0;
+    el.questionPanel.classList.add("hidden");
+    el.finalePanel.classList.remove("hidden");
+    el.guardianPanel.classList.add("hidden");
+    el.hint.textContent = "The treasure waits ahead. Tap the glowing chest.";
+    playSuccessSparkle();
   }
 
   function updateBoatApproach(dt) {
