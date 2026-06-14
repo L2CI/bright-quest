@@ -18,8 +18,10 @@ export async function onRequestPost(context) {
       voice: "onyx",
       input,
       instructions: [
-        "Speak like a warm, patient classroom teacher for an 8-year-old.",
-        "Use clear pacing, natural emphasis, and a steady friendly male voice.",
+        "Speak like a warm, lively primary school teacher tutoring an 8-year-old one-on-one.",
+        "Use the same steady friendly male voice, but add curiosity, smiles, and gentle energy.",
+        "Sound interested in what happens next, especially on phrases like 'watch this' and 'here is the sneaky bit'.",
+        "Keep the pace clear, with small pauses after questions and discoveries.",
         "Do not sound robotic, theatrical, or like an announcement."
       ].join(" "),
       response_format: "mp3"

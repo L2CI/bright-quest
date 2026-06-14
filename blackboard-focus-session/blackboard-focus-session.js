@@ -380,6 +380,8 @@
   function buildTeachingSteps(skill, section, examples, adjacent, index, narrative) {
     const example = examples[0];
     const secondExample = examples[1];
+    const concreteSteps = concreteStorySteps(skill, example, narrative, index);
+    if (concreteSteps.length) return concreteSteps;
     const prompt = example?.prompt ? shorten(example.prompt, 138) : samplePromptFor(skill);
     const answerLine = example?.correctText
       ? `Best answer: ${shorten(example.correctText, 52)}`
@@ -442,7 +444,7 @@
         ]
       },
       {
-        say: `Now we rehearse the move. ${narrative.practice}`,
+        say: `Now let's act it out on the board. ${narrative.practice}`,
         commands: thinkingCommands(skill),
         mobileCommands: mobileThinkingCommands(skill)
       },
@@ -519,6 +521,461 @@
         ]
       }
     ];
+  }
+
+  function concreteStorySteps(skill, example, narrative, index) {
+    const lower = String(skill || "").toLowerCase();
+    if (lower.includes("division")) return divisionStorySteps(example, narrative, index);
+    if (lower.includes("data")) return rangeStorySteps(example, narrative, index);
+    if (lower.includes("time")) return timeStorySteps(example, narrative, index);
+    if (lower.includes("money")) return moneyStorySteps(example, narrative, index);
+    if (lower.includes("pattern") || lower.includes("sequence")) return patternStorySteps(example, narrative, index);
+    if (lower.includes("multi")) return multiStepStorySteps(example, narrative, index);
+    if (lower.includes("subtraction")) return subtractionStorySteps(example, narrative, index);
+    if (lower.includes("deduction") || lower.includes("logic")) return logicStorySteps(example, narrative, index);
+    if (lower.includes("geometry")) return geometryStorySteps(example, narrative, index);
+    return [];
+  }
+
+  function divisionStorySteps(example, narrative, index) {
+    const nums = numbersFrom(example?.prompt);
+    const total = nums[0] || 104;
+    const groups = nums[1] || 8;
+    const extra = nums[2] || 6;
+    const share = Math.round(total / groups);
+    const final = share + extra;
+    return [
+      {
+        say: `Watch this one. It looks like a plain division question, but there is a little twist hiding at the end. We have a big pile of ${total} coloured tiles, and ${groups} tables waiting for their fair share.`,
+        commands: [
+          { type: "text", x: 52, y: 64, text: "A pile of tiles walks into the classroom...", size: 32, max: 1040 },
+          { type: "box", x: 84, y: 142, w: 300, h: 170 },
+          { type: "text", x: 132, y: 212, text: `${total} tiles`, size: 34 },
+          ...tableRowCommands(groups, 480, 130),
+          { type: "text", x: 502, y: 330, text: `${groups} tables are waiting`, size: 25, max: 520 }
+        ],
+        mobileCommands: [
+          { type: "text", fixed: true, x: 24, y: 38, text: "A big tile pile", size: 22 },
+          { type: "box", fixed: true, x: 34, y: 86, w: 126, h: 82 },
+          { type: "text", fixed: true, x: 64, y: 136, text: `${total}`, size: 24 },
+          { type: "text", fixed: true, x: 190, y: 116, text: `${groups} tables`, size: 18 },
+          { type: "text", fixed: true, x: 44, y: 238, text: "First question:", size: 18 },
+          { type: "text", fixed: true, x: 44, y: 278, text: "What does ONE table get?", size: 17, max: 270 }
+        ]
+      },
+      {
+        say: `Here is the part that makes the mistake feel reasonable. Your brain sees ${total} and ${groups}, and it wants to share. That is a good first idea. So let's share first: ${total} divided by ${groups} is ${share}. Each table gets ${share} tiles.`,
+        commands: [
+          { type: "erase" },
+          { type: "text", x: 52, y: 64, text: "Share the pile first", size: 34 },
+          ...tableRowCommands(groups, 92, 130, `${share}`),
+          { type: "line", x1: 90, y1: 342, x2: 820, y2: 342 },
+          { type: "text", x: 112, y: 404, text: `${total} / ${groups} = ${share}`, size: 42 },
+          { type: "text", x: 538, y: 404, text: "for each table", size: 30 }
+        ],
+        mobileCommands: [
+          { type: "erase" },
+          { type: "text", fixed: true, x: 24, y: 38, text: "Share first", size: 22 },
+          { type: "text", fixed: true, x: 44, y: 112, text: `${total} / ${groups} = ${share}`, size: 24 },
+          { type: "box", fixed: true, x: 42, y: 164, w: 112, h: 58 },
+          { type: "text", fixed: true, x: 72, y: 202, text: `T1 ${share}`, size: 16 },
+          { type: "box", fixed: true, x: 188, y: 164, w: 112, h: 58 },
+          { type: "text", fixed: true, x: 218, y: 202, text: `T2 ${share}`, size: 16 },
+          { type: "text", fixed: true, x: 44, y: 286, text: "Every table gets the same share.", size: 17, max: 270 }
+        ]
+      },
+      {
+        say: `Now, stop for the sneaky bit. The ${extra} border tiles are not in the big pile. They arrive later, like a little delivery truck for every table. So one table has ${share}, then it receives ${extra} more. That makes ${final}.`,
+        commands: [
+          { type: "erase" },
+          { type: "text", x: 52, y: 64, text: "The extra tiles arrive later", size: 34 },
+          { type: "box", x: 126, y: 140, w: 260, h: 118 },
+          { type: "text", x: 172, y: 210, text: `one table: ${share}`, size: 29 },
+          { type: "arrow", x1: 420, y1: 198, x2: 590, y2: 198 },
+          { type: "box", x: 620, y: 140, w: 260, h: 118 },
+          { type: "text", x: 670, y: 210, text: `+ ${extra} border`, size: 29 },
+          { type: "arrow", x1: 746, y1: 270, x2: 746, y2: 350 },
+          { type: "text", x: 308, y: 430, text: `${share} + ${extra} = ${final}`, size: 48 },
+          { type: "text", x: 602, y: 430, text: "tiles on each table", size: 28 }
+        ],
+        mobileCommands: [
+          { type: "erase" },
+          { type: "text", fixed: true, x: 24, y: 38, text: "Then the delivery arrives", size: 21, max: 300 },
+          { type: "box", fixed: true, x: 40, y: 104, w: 110, h: 58 },
+          { type: "text", fixed: true, x: 62, y: 140, text: `${share}`, size: 20 },
+          { type: "arrow", fixed: true, x1: 160, y1: 132, x2: 214, y2: 132 },
+          { type: "box", fixed: true, x: 226, y: 104, w: 90, h: 58 },
+          { type: "text", fixed: true, x: 248, y: 140, text: `+${extra}`, size: 20 },
+          { type: "text", fixed: true, x: 74, y: 244, text: `${share} + ${extra} = ${final}`, size: 25 },
+          { type: "text", fixed: true, x: 56, y: 300, text: "That is one table's total.", size: 17, max: 260 }
+        ]
+      },
+      checkStep(index, `Next time: share first, then ask what arrives for each group.`)
+    ];
+  }
+
+  function rangeStorySteps(example, narrative, index) {
+    const nums = numbersFrom(example?.prompt).filter((value) => value > 20);
+    const values = nums.length >= 4 ? nums.slice(0, 4) : [128, 146, 119, 152];
+    const low = Math.min(...values);
+    const high = Math.max(...values);
+    const range = high - low;
+    return [
+      {
+        say: `This one is a sneaky word question. Range sounds like it might mean the biggest pile. But watch this. I am going to line up the can collections like little towers.`,
+        commands: [
+          { type: "text", x: 52, y: 64, text: "Four can towers", size: 34 },
+          ...barCommands(values),
+          { type: "text", x: 86, y: 420, text: "Which tower is tallest? Which is shortest?", size: 30, max: 900 }
+        ],
+        mobileCommands: [
+          { type: "text", fixed: true, x: 24, y: 38, text: "Can towers", size: 22 },
+          { type: "text", fixed: true, x: 48, y: 110, text: values.join("   "), size: 17, max: 280 },
+          { type: "text", fixed: true, x: 44, y: 220, text: "Tallest? Shortest?", size: 20 }
+        ]
+      },
+      {
+        say: `Now the interesting bit. Range is the stretch from the smallest tower to the biggest tower. So I circle ${low}, I circle ${high}, and I ask: how far apart are they?`,
+        commands: [
+          { type: "erase" },
+          { type: "text", x: 52, y: 64, text: "Range means the stretch", size: 34 },
+          ...barCommands(values, low, high),
+          { type: "arrow", x1: 230, y1: 350, x2: 720, y2: 350 },
+          { type: "text", x: 276, y: 408, text: `${high} - ${low} = ${range}`, size: 46 }
+        ],
+        mobileCommands: [
+          { type: "erase" },
+          { type: "text", fixed: true, x: 24, y: 38, text: "Range = stretch", size: 22 },
+          { type: "text", fixed: true, x: 46, y: 120, text: `biggest ${high}`, size: 19 },
+          { type: "text", fixed: true, x: 46, y: 170, text: `smallest ${low}`, size: 19 },
+          { type: "line", fixed: true, x1: 46, y1: 194, x2: 250, y2: 194 },
+          { type: "text", fixed: true, x: 46, y: 246, text: `${high} - ${low} = ${range}`, size: 24 }
+        ]
+      },
+      checkStep(index, `Range is not the tallest tower. It is the gap between tallest and shortest.`)
+    ];
+  }
+
+  function timeStorySteps(example, narrative, index) {
+    const text = String(example?.prompt || "");
+    const start = text.match(/(\d{1,2}):(\d{2})/);
+    const startHour = Number(start?.[1] || 9);
+    const startMinute = Number(start?.[2] || 35);
+    const duration = Number(text.match(/lasts?\s+(\d+)\s+minutes?/i)?.[1] || 42);
+    const breakMinutes = Number(text.match(/(\d+)[-\s]?minute break/i)?.[1] || 12);
+    const testEnd = addMinutes(startHour, startMinute, duration);
+    const finalEnd = addMinutes(testEnd.hour, testEnd.minute, breakMinutes);
+    const firstJump = Math.min(60 - startMinute, duration);
+    const secondJump = duration - firstJump;
+    return [
+      {
+        say: `Let's make the clock into a little river. We do not count every minute like tiny pebbles. We jump to useful rocks. Start at ${formatTime(startHour, startMinute)}, then the test lasts ${duration} minutes.`,
+        commands: [
+          { type: "text", x: 52, y: 64, text: "Clock river", size: 34 },
+          { type: "line", x1: 90, y1: 260, x2: 900, y2: 260 },
+          { type: "text", x: 90, y: 314, text: formatTime(startHour, startMinute), size: 28 },
+          { type: "text", x: 370, y: 314, text: formatTime(startHour + 1, 0), size: 28 },
+          { type: "text", x: 650, y: 314, text: formatTime(testEnd.hour, testEnd.minute), size: 28 },
+          { type: "arrow", x1: 150, y1: 228, x2: 420, y2: 228 },
+          { type: "text", x: 236, y: 202, text: `+${firstJump}`, size: 24 },
+          { type: "arrow", x1: 456, y1: 228, x2: 696, y2: 228 },
+          { type: "text", x: 546, y: 202, text: `+${secondJump}`, size: 24 }
+        ]
+      },
+      {
+        say: `Careful: the question is not finished when the test ends. There is a ${breakMinutes} minute break after that. So from ${formatTime(testEnd.hour, testEnd.minute)} we hop ${breakMinutes} more minutes, and we land at ${formatTime(finalEnd.hour, finalEnd.minute)}.`,
+        commands: [
+          { type: "erase" },
+          { type: "text", x: 52, y: 64, text: "The break happens after the test", size: 34 },
+          { type: "line", x1: 120, y1: 260, x2: 780, y2: 260 },
+          { type: "text", x: 110, y: 314, text: formatTime(testEnd.hour, testEnd.minute), size: 30 },
+          { type: "arrow", x1: 220, y1: 228, x2: 560, y2: 228 },
+          { type: "text", x: 350, y: 202, text: `+${breakMinutes}`, size: 26 },
+          { type: "text", x: 590, y: 314, text: formatTime(finalEnd.hour, finalEnd.minute), size: 34 },
+          { type: "circle", x: 650, y: 304, r: 78 }
+        ]
+      },
+      checkStep(index, `Clock questions are journeys. Stop at each station in order.`)
+    ];
+  }
+
+  function moneyStorySteps(example, narrative, index) {
+    const amounts = moneyAmountsFrom(example?.prompt);
+    const priceA = amounts[0] ?? 4.5;
+    const priceB = amounts[1] ?? 2.25;
+    const paid = amounts[2] ?? 10;
+    const total = roundMoney(priceA + priceB);
+    const change = roundMoney(paid - total);
+    return [
+      {
+        say: `Let's turn this into a tiny shop counter. I can see two price tags, ${money(priceA)} and ${money(priceB)}. Before we talk about change, we need to know how much money actually left the pocket.`,
+        commands: [
+          { type: "text", x: 52, y: 64, text: "Shop counter", size: 34 },
+          { type: "box", x: 100, y: 148, w: 250, h: 118 },
+          { type: "text", x: 136, y: 218, text: `item A ${money(priceA)}`, size: 27 },
+          { type: "box", x: 430, y: 148, w: 250, h: 118 },
+          { type: "text", x: 466, y: 218, text: `item B ${money(priceB)}`, size: 27 },
+          { type: "arrow", x1: 276, y1: 310, x2: 510, y2: 310 },
+          { type: "text", x: 160, y: 376, text: `${money(priceA)} + ${money(priceB)} = ${money(total)}`, size: 38 }
+        ]
+      },
+      {
+        say: `Now the customer pays with ${money(paid)}. Change is the money that comes marching back. So I take away the ${money(total)} that was spent, and ${money(change)} walks back.`,
+        commands: [
+          { type: "erase" },
+          { type: "text", x: 52, y: 64, text: "Money leaving, money coming back", size: 34 },
+          { type: "box", x: 110, y: 144, w: 240, h: 110 },
+          { type: "text", x: 152, y: 210, text: `paid ${money(paid)}`, size: 29 },
+          { type: "arrow", x1: 380, y1: 198, x2: 560, y2: 198 },
+          { type: "box", x: 590, y: 144, w: 270, h: 110 },
+          { type: "text", x: 628, y: 210, text: `spent ${money(total)}`, size: 29 },
+          { type: "line", x1: 140, y1: 316, x2: 700, y2: 316 },
+          { type: "text", x: 154, y: 388, text: `${money(paid)} - ${money(total)} = ${money(change)} change`, size: 38, max: 900 }
+        ]
+      },
+      checkStep(index, `Change is what comes back after the price is paid.`)
+    ];
+  }
+
+  function patternStorySteps(example, narrative, index) {
+    const text = String(example?.prompt || "");
+    const nums = numbersFrom(text);
+    const start = Number(text.match(/starts with\s+(\d+)/i)?.[1] || nums[0] || 2);
+    const step = Number(text.match(/adds?\s+(\d+)/i)?.[1] || Math.abs((nums[1] || 6) - start) || 4);
+    const target = Number(text.match(/(\d+)(?:st|nd|rd|th)\s+term/i)?.[1] || 8);
+    const answer = start + step * (target - 1);
+    return [
+      {
+        say: `This pattern is like stepping stones. The first stone says ${start}. Every jump adds ${step}. The question is not asking for the next stone we can see. It asks for stone number ${target}.`,
+        commands: [
+          { type: "text", x: 52, y: 64, text: "Pattern stepping stones", size: 34 },
+          ...stoneCommands(start, step, Math.min(target, 8)),
+          { type: "text", x: 86, y: 430, text: `Count the stones, not just the gaps.`, size: 30, max: 840 }
+        ]
+      },
+      {
+        say: `Watch the count. Stone 1 is ${start}. Then we jump ${step} seven times to reach stone 8. That lands on ${answer}.`,
+        commands: [
+          { type: "erase" },
+          { type: "text", x: 52, y: 64, text: "Count the term numbers", size: 34 },
+          { type: "text", x: 108, y: 160, text: `Term ${target} = ${start} + ${step} x ${target - 1}`, size: 34 },
+          { type: "line", x1: 108, y1: 194, x2: 670, y2: 194 },
+          { type: "text", x: 108, y: 272, text: `${start} + ${step * (target - 1)} = ${answer}`, size: 44 },
+          { type: "circle", x: 402, y: 260, r: 76 }
+        ]
+      },
+      checkStep(index, `For a term number, count the first term before counting jumps.`)
+    ];
+  }
+
+  function multiStepStorySteps(example, narrative, index) {
+    const nums = numbersFrom(example?.prompt);
+    const rows = nums[0] || 18;
+    const seats = nums[1] || 16;
+    const empty = nums[2] || 73;
+    const total = rows * seats;
+    const seated = total - empty;
+    return [
+      {
+        say: `This is a theatre picture. First we build the theatre: ${rows} rows, with ${seats} seats in each row. So before anyone leaves a seat empty, the theatre has ${total} seats.`,
+        commands: [
+          { type: "text", x: 52, y: 64, text: "Build the theatre first", size: 34 },
+          { type: "box", x: 98, y: 142, w: 360, h: 190 },
+          { type: "line", x1: 98, y1: 190, x2: 458, y2: 190 },
+          { type: "line", x1: 98, y1: 238, x2: 458, y2: 238 },
+          { type: "line", x1: 98, y1: 286, x2: 458, y2: 286 },
+          { type: "text", x: 548, y: 190, text: `${rows} rows x ${seats} seats`, size: 32 },
+          { type: "text", x: 548, y: 270, text: `= ${total} seats`, size: 38 }
+        ]
+      },
+      {
+        say: `Now ${empty} seats are empty. I rub those away from the full theatre, not from one row. ${total} minus ${empty} leaves ${seated} people seated.`,
+        commands: [
+          { type: "erase" },
+          { type: "text", x: 52, y: 64, text: "Now remove the empty seats", size: 34 },
+          { type: "text", x: 108, y: 160, text: `${total} seats altogether`, size: 34 },
+          { type: "text", x: 108, y: 230, text: `- ${empty} empty seats`, size: 34 },
+          { type: "line", x1: 108, y1: 260, x2: 560, y2: 260 },
+          { type: "text", x: 108, y: 340, text: `${seated} people seated`, size: 42 }
+        ]
+      },
+      checkStep(index, `Build the full theatre first, then remove the empty seats.`)
+    ];
+  }
+
+  function subtractionStorySteps(example, narrative, index) {
+    return [
+      {
+        say: `Imagine a theatre with 723 empty seats. Two waves of people book seats. If we only remove one wave, the theatre picture is wrong, so let's put both waves on the board.`,
+        commands: [
+          { type: "text", x: 52, y: 64, text: "The theatre seats", size: 34 },
+          { type: "box", x: 86, y: 140, w: 280, h: 130 },
+          { type: "text", x: 134, y: 216, text: "723 seats", size: 32 },
+          { type: "arrow", x1: 410, y1: 172, x2: 610, y2: 172 },
+          { type: "text", x: 444, y: 144, text: "246 booked", size: 24 },
+          { type: "arrow", x1: 410, y1: 238, x2: 610, y2: 238 },
+          { type: "text", x: 444, y: 286, text: "157 booked", size: 24 }
+        ]
+      },
+      {
+        say: `Now I bundle the two booked groups together first. Two hundred forty-six plus one hundred fifty-seven is four hundred three. Then I take that away from 723. That leaves 320 seats.`,
+        commands: [
+          { type: "erase" },
+          { type: "text", x: 52, y: 64, text: "Both groups leave the seat pile", size: 34 },
+          { type: "text", x: 102, y: 160, text: "246 + 157 = 403 booked", size: 34 },
+          { type: "line", x1: 100, y1: 190, x2: 640, y2: 190 },
+          { type: "text", x: 102, y: 270, text: "723 - 403 = 320 empty", size: 40 },
+          { type: "circle", x: 620, y: 258, r: 70 }
+        ]
+      },
+      checkStep(index, `When two groups are used, bundle them before subtracting.`)
+    ];
+  }
+
+  function logicStorySteps(example, narrative, index) {
+    return [
+      {
+        say: `This is a detective question. The word must is very strict. It does not ask what might be true. It asks what cannot escape the clues.`,
+        commands: [
+          { type: "text", x: 52, y: 64, text: "Detective word: MUST", size: 36 },
+          { type: "box", x: 90, y: 140, w: 470, h: 90 },
+          { type: "text", x: 122, y: 198, text: "All glims are blue", size: 30 },
+          { type: "box", x: 90, y: 282, w: 470, h: 90 },
+          { type: "text", x: 122, y: 340, text: "Some blue things are round", size: 28 }
+        ]
+      },
+      {
+        say: `Watch this. The first clue ties every glim to blue. But the second clue only says some blue things are round. It never says glims are round. So the only safe answer is: all glims are blue.`,
+        commands: [
+          { type: "erase" },
+          { type: "text", x: 52, y: 64, text: "What is guaranteed?", size: 34 },
+          { type: "circle", x: 230, y: 220, r: 112 },
+          { type: "text", x: 190, y: 228, text: "blue", size: 28 },
+          { type: "circle", x: 230, y: 220, r: 48 },
+          { type: "text", x: 198, y: 286, text: "glims", size: 22 },
+          { type: "text", x: 440, y: 210, text: "safe answer:", size: 28 },
+          { type: "text", x: 440, y: 270, text: "All glims are blue.", size: 34, max: 620 }
+        ]
+      },
+      checkStep(index, `Must means guaranteed by the clues.`)
+    ];
+  }
+
+  function geometryStorySteps(example, narrative, index) {
+    return [
+      {
+        say: `Here the square is trying to copy the rectangle's fence. Not the same shape, not the same sides. Just the same walk all the way around.`,
+        commands: [
+          { type: "text", x: 52, y: 64, text: "Same fence, different shape", size: 34 },
+          { type: "box", x: 100, y: 148, w: 340, h: 190 },
+          { type: "text", x: 210, y: 126, text: "9", size: 26 },
+          { type: "text", x: 62, y: 246, text: "5", size: 26 },
+          { type: "text", x: 520, y: 210, text: "walk around: 9 + 5 + 9 + 5", size: 30, max: 620 }
+        ]
+      },
+      {
+        say: `The rectangle's fence is 28 centimetres. A square has four equal sides, so I share that fence into four equal pieces. Twenty-eight divided by four is seven.`,
+        commands: [
+          { type: "erase" },
+          { type: "text", x: 52, y: 64, text: "Share the fence into 4 equal sides", size: 34 },
+          { type: "text", x: 110, y: 150, text: "9 + 5 + 9 + 5 = 28", size: 34 },
+          { type: "box", x: 210, y: 240, w: 220, h: 220 },
+          { type: "text", x: 286, y: 226, text: "7", size: 28 },
+          { type: "text", x: 102, y: 540, text: "28 / 4 = 7 cm", size: 42 }
+        ]
+      },
+      checkStep(index, `Same perimeter means same outside walk, not same side lengths.`)
+    ];
+  }
+
+  function checkStep(index, closeLine) {
+    return {
+      say: `Tiny check. Say this back in your own words: ${closeLine} Nice. That is the bit we want your brain to remember next time.`,
+      commands: [
+        { type: "erase" },
+        { type: "text", x: 54, y: 72, text: "Tiny check", size: 34 },
+        { type: "box", x: 90, y: 150, w: 900, h: 146 },
+        { type: "text", x: 124, y: 210, text: closeLine, size: 28, max: 820 },
+        { type: "text", x: 126, y: 380, text: index < 2 ? "Ready for the next little lesson." : "That is a strong finish.", size: 30, max: 780 }
+      ],
+      mobileCommands: [
+        { type: "erase" },
+        { type: "text", fixed: true, x: 24, y: 40, text: "Tiny check", size: 22 },
+        { type: "box", fixed: true, x: 30, y: 92, w: 306, h: 128 },
+        { type: "text", fixed: true, x: 46, y: 130, text: shorten(closeLine, 94), size: 16, max: 276 },
+        { type: "text", fixed: true, x: 44, y: 288, text: "Say it back once.", size: 18 }
+      ]
+    };
+  }
+
+  function numbersFrom(text) {
+    return String(text || "").match(/\d+(?:\.\d+)?/g)?.map(Number) || [];
+  }
+
+  function moneyAmountsFrom(text) {
+    return String(text || "").match(/\$?\d+(?:\.\d+)?/g)?.map((item) => Number(item.replace("$", ""))) || [];
+  }
+
+  function roundMoney(value) {
+    return Math.round(value * 100) / 100;
+  }
+
+  function money(value) {
+    return `$${roundMoney(value).toFixed(2).replace(/\.00$/, "")}`;
+  }
+
+  function addMinutes(hour, minute, add) {
+    const total = hour * 60 + minute + add;
+    return { hour: Math.floor(total / 60), minute: total % 60 };
+  }
+
+  function formatTime(hour, minute) {
+    const normalizedHour = ((hour - 1) % 12) + 1;
+    return `${normalizedHour}:${String(minute).padStart(2, "0")}`;
+  }
+
+  function tableRowCommands(count, x, y, label) {
+    const commands = [];
+    const cols = Math.min(4, count);
+    for (let i = 0; i < count; i += 1) {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      const px = x + col * 142;
+      const py = y + row * 92;
+      commands.push({ type: "box", x: px, y: py, w: 106, h: 58 });
+      commands.push({ type: "text", x: px + 24, y: py + 38, text: label ? `T${i + 1}: ${label}` : `T${i + 1}`, size: 17 });
+    }
+    return commands;
+  }
+
+  function barCommands(values, low, high) {
+    const max = Math.max(...values);
+    const labels = ["3A", "3B", "3C", "3D"];
+    return values.flatMap((value, index) => {
+      const h = 90 + (value / max) * 180;
+      const x = 108 + index * 172;
+      const y = 350 - h;
+      const commands = [
+        { type: "box", x, y, w: 88, h },
+        { type: "text", x: x + 8, y: y - 14, text: String(value), size: 22 },
+        { type: "text", x: x + 18, y: 390, text: labels[index] || `C${index + 1}`, size: 22 }
+      ];
+      if (value === low || value === high) commands.push({ type: "circle", x: x + 44, y: y - 24, r: 42 });
+      return commands;
+    });
+  }
+
+  function stoneCommands(start, step, count) {
+    return Array.from({ length: count }, (_, index) => {
+      const x = 92 + index * 118;
+      const value = start + step * index;
+      return [
+        { type: "circle", x, y: 220, r: 42 },
+        { type: "text", x: x - 16, y: 228, text: String(value), size: 22 },
+        { type: "text", x: x - 22, y: 298, text: `#${index + 1}`, size: 18 },
+        ...(index < count - 1 ? [{ type: "arrow", x1: x + 44, y1: 220, x2: x + 74, y2: 220 }] : [])
+      ];
+    }).flat();
   }
 
   function mobileThinkingCommands(skill) {
