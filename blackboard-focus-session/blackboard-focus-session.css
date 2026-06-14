@@ -7,6 +7,8 @@
   --green-deep: #091815;
   --amber: #f5c76a;
   --cyan: #78e4eb;
+  --rose: #ff6f91;
+  --violet: #c978ff;
   --panel: rgba(7, 22, 22, 0.86);
   --line: rgba(245, 239, 220, 0.2);
 }
@@ -22,9 +24,9 @@ body {
 body {
   overflow-x: hidden;
   background:
-    radial-gradient(circle at 16% 12%, rgba(98, 214, 196, 0.18), transparent 34%),
-    radial-gradient(circle at 84% 0%, rgba(245, 199, 106, 0.12), transparent 28%),
-    linear-gradient(135deg, #05100f, #12332d 52%, #071413);
+    radial-gradient(circle at 16% 12%, rgba(98, 214, 196, 0.16), transparent 34%),
+    radial-gradient(circle at 84% 0%, rgba(255, 111, 145, 0.12), transparent 28%),
+    linear-gradient(135deg, #020605, #102820 52%, #050909);
   color: var(--ink);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
@@ -228,7 +230,7 @@ button {
 
 .module-button.active {
   border-color: rgba(120, 228, 235, 0.72);
-  background: linear-gradient(135deg, rgba(120, 228, 235, 0.2), rgba(245, 199, 106, 0.12));
+  background: linear-gradient(135deg, rgba(120, 228, 235, 0.2), rgba(255, 111, 145, 0.12), rgba(245, 199, 106, 0.1));
 }
 
 .module-button strong,
@@ -266,9 +268,9 @@ button {
   border: 18px solid #6f492b;
   border-radius: 24px;
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03), transparent 22%, rgba(255, 255, 255, 0.02) 70%, transparent),
-    radial-gradient(circle at 20% 8%, rgba(255, 255, 255, 0.08), transparent 28%),
-    #102d28;
+    linear-gradient(90deg, rgba(120, 228, 235, 0.035), transparent 22%, rgba(255, 111, 145, 0.025) 70%, transparent),
+    radial-gradient(circle at 20% 8%, rgba(255, 255, 255, 0.06), transparent 28%),
+    #071412;
   box-shadow:
     inset 0 0 0 2px rgba(255, 240, 190, 0.18),
     0 26px 80px rgba(0, 0, 0, 0.44);

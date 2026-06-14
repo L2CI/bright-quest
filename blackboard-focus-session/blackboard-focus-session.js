@@ -527,7 +527,7 @@
     if (!steps.length) return steps;
     const opened = [...steps];
     const first = { ...opened[0] };
-    first.say = `${topicOpener(skill, example)} ${first.say}`;
+    first.say = `${topicOpener(skill, example)} Ready? Watch the board. ${first.say}`;
     opened[0] = first;
     const lastIndex = opened.length - 1;
     if (opened[lastIndex] && !opened[lastIndex].practice) {
@@ -1081,10 +1081,10 @@
   function solutionCommands(title, lines) {
     return [
       { type: "erase" },
-      { type: "text", x: 54, y: 72, text: title, size: 34, max: 1000 },
+      { type: "text", x: 54, y: 72, text: title, size: 34, max: 1000, color: "cyan" },
       ...lines.flatMap((line, index) => [
-        { type: "box", x: 88, y: 140 + index * 104, w: 760, h: 66 },
-        { type: "text", x: 118, y: 184 + index * 104, text: line, size: 28, max: 700 }
+        { type: "box", x: 88, y: 140 + index * 104, w: 760, h: 66, color: index === lines.length - 1 ? "amber" : "violet" },
+        { type: "text", x: 118, y: 184 + index * 104, text: line, size: 28, max: 700, color: index === lines.length - 1 ? "amber" : "chalk" }
       ])
     ];
   }
@@ -1472,7 +1472,7 @@
   function scheduleAutoAdvance(spokenText) {
     if (!lessonState.playing || lessonState.paused || lessonState.completed) return;
     if (lessonState.awaitingPractice) return;
-    const delay = Math.min(3600, Math.max(1400, String(spokenText || "").length * 18));
+    const delay = Math.min(1800, Math.max(650, String(spokenText || "").length * 9));
     clearAutoTimer();
     lessonState.autoTimer = setTimeout(() => {
       lessonState.autoTimer = null;
@@ -1754,7 +1754,7 @@
       const command = queue.shift();
       if (!command) return;
       drawCommand(command, true);
-      setTimeout(run, command.type === "erase" ? 180 : 260 / lessonState.speed);
+      setTimeout(run, command.type === "erase" ? 90 : 145 / lessonState.speed);
     };
     run();
   }
@@ -1781,7 +1781,7 @@
     ctx.clearRect(0, 0, el.canvas.width, el.canvas.height);
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     ctx.clearRect(0, 0, rect.width, rect.height);
-    ctx.fillStyle = "rgba(8, 34, 30, 0.24)";
+    ctx.fillStyle = "rgba(3, 12, 11, 0.3)";
     ctx.fillRect(0, 0, rect.width, rect.height);
   }
 
@@ -1810,10 +1810,11 @@
     ctx.globalAlpha = command.type === "highlight" ? 0.25 : 0.92;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
-    ctx.strokeStyle = command.type === "highlight" ? "#f5c76a" : "#f8f1dd";
-    ctx.fillStyle = command.type === "highlight" ? "#f5c76a" : "#f8f1dd";
-    ctx.shadowColor = "rgba(255, 255, 255, 0.28)";
-    ctx.shadowBlur = 1.5;
+    const color = chalkColor(command.color, command.type);
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = command.color ? 5 : 1.5;
     if (command.type === "text") chalkText(c.text, c.x, c.y, c.size || 22, c.max ? c.max * scale : undefined);
     if (command.type === "line") chalkLine(c.x1, c.y1, c.x2, c.y2, jitter);
     if (command.type === "arrow") chalkArrow(c.x1, c.y1, c.x2, c.y2, jitter);
@@ -1827,6 +1828,16 @@
 
   function boardScale() {
     return el.canvas.getBoundingClientRect().width / 1280;
+  }
+
+  function chalkColor(name, type) {
+    if (type === "highlight") return "#f5c76a";
+    if (name === "cyan") return "#62e6ff";
+    if (name === "amber") return "#ffd56d";
+    if (name === "rose") return "#ff6f91";
+    if (name === "violet") return "#c978ff";
+    if (name === "green") return "#7cf4b4";
+    return "#f8f1dd";
   }
 
   function chalkText(text, x, y, size, maxWidth) {
@@ -1951,8 +1962,8 @@
   function playBrowserVoice(text, token, after) {
     if ("speechSynthesis" in window) {
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = lessonState.speed === 1 ? 0.92 : 0.78;
-      utterance.pitch = 0.92;
+      utterance.rate = lessonState.speed === 1 ? 1.02 : 0.86;
+      utterance.pitch = 0.96;
       utterance.volume = 0.95;
       utterance.voice = chooseTeacherVoice();
       lessonState.currentUtterance = utterance;

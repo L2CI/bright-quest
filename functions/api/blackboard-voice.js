@@ -18,11 +18,11 @@ export async function onRequestPost(context) {
       voice: "onyx",
       input,
       instructions: [
-        "Speak like a warm, lively primary school teacher tutoring an 8-year-old one-on-one.",
-        "Use the same steady friendly male voice, but add curiosity, smiles, and gentle energy.",
-        "Sound interested in what happens next, especially on phrases like 'watch this' and 'here is the sneaky bit'.",
-        "Keep the pace clear, with small pauses after questions and discoveries.",
-        "Do not sound robotic, theatrical, or like an announcement."
+        "Speak like an enthusiastic one-on-one maths explainer for an 8-year-old: bright, curious, and genuinely excited by the reveal.",
+        "Use a friendly adult male tutor tone with more forward motion than a normal classroom read-aloud.",
+        "Give phrases like 'ready?', 'watch this', 'sneaky bit', and 'now the interesting part' a small lift, as if inviting the student into a discovery.",
+        "Keep the pace brisk but clear. Use tiny pauses only before reveals, answers, or a question the child should think about.",
+        "Sound natural and animated, not robotic, not theatrical, and not like a sports announcer."
       ].join(" "),
       response_format: "mp3"
     },
