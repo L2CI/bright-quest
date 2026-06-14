@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#102c28" />
     <title>Blackboard Focus Session | Bright Quest</title>
     <link rel="icon" href="data:," />
-    <link rel="stylesheet" href="blackboard-focus-session.css?v=blackboard-002" />
+    <link rel="stylesheet" href="blackboard-focus-session.css?v=blackboard-003" />
   </head>
   <body>
     <main class="classroom-shell">
@@ -28,13 +28,6 @@
           </div>
           <div class="teacher-console">
             <button class="primary-control" id="startLessonButton" type="button">Start lesson</button>
-            <button class="soft-control" id="slowerButton" type="button">Slower</button>
-            <button class="soft-control" id="repeatButton" type="button">Repeat</button>
-            <button class="soft-control" id="nextStepButton" type="button">Next chalk step</button>
-            <label class="voice-toggle">
-              <input id="voiceToggle" type="checkbox" checked />
-              <span>Teacher voice</span>
-            </label>
             <span class="api-status" id="apiStatus">Local teaching ready</span>
           </div>
         </section>
@@ -52,7 +45,7 @@
             <form id="questionForm" class="question-form">
               <textarea id="studentQuestion" rows="4" placeholder="Ask or tap Speak. Example: why was my answer wrong?"></textarea>
               <div class="ask-actions">
-                <button class="mic-control" id="micButton" type="button">Speak</button>
+                <button class="mic-control" id="micButton" type="button"><span aria-hidden="true">🎙</span> Speak</button>
                 <button class="primary-control" id="askButton" type="submit">Ask</button>
               </div>
             </form>
@@ -83,6 +76,6 @@
     <script src="../app-data.js"></script>
     <script src="../final-test-data.js"></script>
     <script src="../international-tests-data.js"></script>
-    <script src="blackboard-focus-session.js?v=blackboard-002"></script>
+    <script src="blackboard-focus-session.js?v=blackboard-003"></script>
   </body>
 </html>

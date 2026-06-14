@@ -284,16 +284,15 @@ button {
 }
 
 .teacher-console {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(210px, max-content) 1fr;
   gap: 10px;
   align-items: center;
   margin-top: 10px;
 }
 
 .primary-control,
-.soft-control,
-.voice-toggle {
+.soft-control {
   min-height: 46px;
   padding: 0 18px;
   font-weight: 950;
@@ -305,14 +304,15 @@ button {
   color: #13221c;
 }
 
-.soft-control {
-  background: rgba(11, 33, 34, 0.82);
+.teacher-console .primary-control {
+  min-width: 210px;
+  min-height: 54px;
+  border-radius: 20px;
+  font-size: 1.02rem;
 }
 
-.voice-toggle {
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
+.soft-control {
+  background: rgba(11, 33, 34, 0.82);
 }
 
 .api-status {
@@ -361,17 +361,29 @@ button {
 
 .ask-actions {
   display: grid;
-  grid-template-columns: 0.75fr 1fr;
+  grid-template-columns: 1.15fr 0.85fr;
   gap: 10px;
 }
 
 .mic-control {
-  min-height: 46px;
-  border: 1px solid rgba(120, 228, 235, 0.38);
-  border-radius: 18px;
-  background: rgba(120, 228, 235, 0.11);
-  color: var(--ink);
-  font-weight: 950;
+  display: inline-flex;
+  min-height: 58px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1px solid rgba(120, 228, 235, 0.58);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 24% 24%, rgba(255, 255, 255, 0.24), transparent 30%),
+    linear-gradient(135deg, rgba(120, 228, 235, 0.28), rgba(245, 199, 106, 0.16));
+  color: #fff9e8;
+  font-weight: 1000;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 14px 34px rgba(0, 0, 0, 0.24);
+}
+
+.mic-control span {
+  font-size: 1.28rem;
+  line-height: 1;
 }
 
 .mic-control.listening {
@@ -447,18 +459,15 @@ button {
   }
 
   .teacher-console {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 
   .teacher-console .primary-control,
-  .teacher-console .soft-control,
-  .teacher-console .voice-toggle {
+  .teacher-console .soft-control {
     width: 100%;
     justify-content: center;
   }
 
-  .teacher-console .voice-toggle,
   .api-status {
     grid-column: 1 / -1;
   }

@@ -2,6 +2,7 @@
   const autosaveIntervalMs = 5000;
   const cloudIntervalMs = 8000;
   const draftVersion = 1;
+  const autoResumeDrafts = false;
   let autosaveTimer = null;
   let lastCloudSaveAt = 0;
   let resuming = false;
@@ -143,6 +144,7 @@
   }
 
   function maybeAutoResumeDraft() {
+    if (!autoResumeDrafts) return;
     if (!state.profile?.activeDraft || resuming) return;
     if (!resumeAllowedProfiles.has(state.profile.id)) return;
     if (resumedProfiles.has(state.profile.id)) return;

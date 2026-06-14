@@ -15,10 +15,6 @@
     planTitle: document.querySelector("#planTitle"),
     planSummary: document.querySelector("#planSummary"),
     start: document.querySelector("#startLessonButton"),
-    slower: document.querySelector("#slowerButton"),
-    repeat: document.querySelector("#repeatButton"),
-    next: document.querySelector("#nextStepButton"),
-    voice: document.querySelector("#voiceToggle"),
     apiStatus: document.querySelector("#apiStatus"),
     mic: document.querySelector("#micButton"),
     ask: document.querySelector("#askButton"),
@@ -34,6 +30,11 @@
     moduleIndex: 0,
     stepIndex: 0,
     playing: false,
+    paused: false,
+    completed: false,
+    autoTimer: null,
+    currentUtterance: null,
+    animationToken: 0,
     speed: 1,
     memory: ["Current objective: find one clear pattern, then practise it."],
     interruptedFrom: null,
@@ -41,20 +42,15 @@
     transcript: [],
     recognition: null,
     listening: false,
-    apiAvailable: true
+    apiAvailable: true,
+    voicesReady: false
   };
 
   init();
 
   async function init() {
     el.back.addEventListener("click", () => { window.location.href = "../"; });
-    el.start.addEventListener("click", startTeaching);
-    el.slower.addEventListener("click", () => {
-      lessonState.speed = lessonState.speed === 1 ? 0.62 : 1;
-      teach(lessonState.speed === 1 ? "Back to normal teaching speed." : "Slowing down. I will use smaller steps.");
-    });
-    el.repeat.addEventListener("click", () => replayStep());
-    el.next.addEventListener("click", () => playNextStep());
+    el.start.addEventListener("click", handleLessonControl);
     el.form.addEventListener("submit", handleQuestion);
     el.mic.addEventListener("click", toggleMic);
     document.querySelectorAll("[data-question]").forEach((button) => {
@@ -66,6 +62,7 @@
 
     fitCanvas();
     window.addEventListener("resize", fitCanvas);
+    prepareVoices();
     lessonState.profile = await loadProfile();
     lessonState.plan = buildPlan(lessonState.profile);
     renderPlan();
@@ -312,14 +309,14 @@
           { type: "text", x: 88, y: 354, text: "We learn from the exact stumble.", size: 25 }
         ],
         mobileCommands: [
-          { type: "text", fixed: true, x: 24, y: 34, text: `Focus: ${shorten(skill, 24)}`, size: 21, max: 310 },
-          { type: "text", fixed: true, x: 26, y: 64, text: shorten(narrative.intro, 78), size: 13, max: 308 },
-          { type: "box", fixed: true, x: 24, y: 88, w: 318, h: 148 },
-          { type: "text", fixed: true, x: 38, y: 116, text: shorten(prompt, 92), size: 14, max: 290 },
-          { type: "text", fixed: true, x: 38, y: 172, text: shorten(selectedLine, 42), size: 13, max: 278 },
-          { type: "text", fixed: true, x: 38, y: 198, text: shorten(answerLine, 48), size: 13, max: 278 },
-          { type: "highlight", fixed: true, x: 32, y: 256, w: 262, h: 28 },
-          { type: "text", fixed: true, x: 42, y: 278, text: "Learn from the exact stumble.", size: 17, max: 280 }
+          { type: "text", fixed: true, x: 24, y: 32, text: `Focus: ${shorten(skill, 18)}`, size: 18, max: 308 },
+          { type: "text", fixed: true, x: 26, y: 72, text: shorten(narrative.intro, 72), size: 13, max: 306 },
+          { type: "box", fixed: true, x: 24, y: 116, w: 318, h: 138 },
+          { type: "text", fixed: true, x: 38, y: 144, text: shorten(prompt, 84), size: 14, max: 290 },
+          { type: "text", fixed: true, x: 38, y: 200, text: shorten(selectedLine, 40), size: 13, max: 278 },
+          { type: "text", fixed: true, x: 38, y: 226, text: shorten(answerLine, 44), size: 13, max: 278 },
+          { type: "line", fixed: true, x1: 38, y1: 286, x2: 304, y2: 286 },
+          { type: "text", fixed: true, x: 42, y: 318, text: "Now we practise the step.", size: 17, max: 280 }
         ]
       },
       {
@@ -489,7 +486,7 @@
       { type: "box", x: 448, y: 168, w: 220, h: 90 }, { type: "text", x: 482, y: 222, text: "Name move", size: 24 },
       { type: "arrow", x1: 674, y1: 212, x2: 804, y2: 212 },
       { type: "box", x: 812, y: 168, w: 220, h: 90 }, { type: "text", x: 858, y: 222, text: "Answer", size: 24 },
-      { type: "text", x: 102, y: 372, text: "Slow is fine while learning. Smooth comes after the pattern is clear.", size: 24, max: 820 }
+      { type: "text", x: 102, y: 372, text: "Use this same path on the next question.", size: 24, max: 820 }
     ];
   }
 
@@ -521,29 +518,82 @@
     lessonState.moduleIndex = index;
     lessonState.stepIndex = 0;
     lessonState.lastStep = null;
+    lessonState.completed = false;
+    lessonState.playing = false;
+    lessonState.paused = false;
+    clearAutoTimer();
+    cancelTeacherVoice();
     renderPlan();
     clearBoard();
     drawWelcomeBoard();
-    teach(`Ready for ${lessonState.plan.modules[index].title}. Press start teaching.`);
+    el.caption.textContent = `Ready for ${lessonState.plan.modules[index].title}. Press Start lesson.`;
+    updateLessonControl();
   }
 
-  function startTeaching() {
-    lessonState.playing = true;
-    playCurrentStep();
+  function handleLessonControl() {
+    if (lessonState.completed) {
+      lessonState.moduleIndex = 0;
+      lessonState.stepIndex = 0;
+      lessonState.completed = false;
+      lessonState.lastStep = null;
+      renderPlan();
+      clearBoard();
+      drawWelcomeBoard();
+    }
+
+    if (!lessonState.playing) {
+      lessonState.playing = true;
+      lessonState.paused = false;
+      updateLessonControl();
+      playCurrentStep();
+      return;
+    }
+
+    if (lessonState.paused) {
+      lessonState.paused = false;
+      updateLessonControl();
+      playCurrentStep();
+      return;
+    }
+
+    pauseLesson("Lesson paused. Press Continue when you are ready.");
+  }
+
+  function pauseLesson(message) {
+    lessonState.paused = true;
+    clearAutoTimer();
+    cancelTeacherVoice();
+    lessonState.animationToken += 1;
+    if (message) el.caption.textContent = message;
+    updateLessonControl();
+  }
+
+  function updateLessonControl() {
+    if (lessonState.completed) {
+      el.start.textContent = "Restart lesson";
+    } else if (!lessonState.playing) {
+      el.start.textContent = "Start lesson";
+    } else if (lessonState.paused) {
+      el.start.textContent = "Continue";
+    } else {
+      el.start.textContent = "Pause";
+    }
   }
 
   function playCurrentStep() {
     const step = currentStep();
-    if (!step) return;
+    if (!step || lessonState.paused) return;
+    clearAutoTimer();
     lessonState.lastStep = step;
     clearBoard();
     animateCommands(commandsForBoard(step));
-    teach(step.say);
+    teach(step.say, () => scheduleAutoAdvance(step.say));
   }
 
   function playNextStep() {
     const module = currentModule();
     if (!module) return;
+    if (lessonState.paused) return;
     if (lessonState.stepIndex < module.steps.length - 1) {
       lessonState.stepIndex += 1;
     } else if (lessonState.moduleIndex < lessonState.plan.modules.length - 1) {
@@ -551,7 +601,10 @@
       lessonState.stepIndex = 0;
       renderPlan();
     } else {
-      teach("That is today's focused classroom session. Stop here while it still feels clear.");
+      lessonState.playing = false;
+      lessonState.completed = true;
+      updateLessonControl();
+      teach("That is today's lesson. We can stop here or restart from the beginning.");
       lessonState.memory.push("Completed today's short blackboard session.");
       renderMemory();
       return;
@@ -559,11 +612,19 @@
     playCurrentStep();
   }
 
-  function replayStep() {
-    const step = currentStep();
-    if (!step) return;
-    teach("Of course. I will draw that step again.");
-    setTimeout(() => playCurrentStep(), 500);
+  function scheduleAutoAdvance(spokenText) {
+    if (!lessonState.playing || lessonState.paused || lessonState.completed) return;
+    const delay = Math.min(3600, Math.max(1400, String(spokenText || "").length * 18));
+    clearAutoTimer();
+    lessonState.autoTimer = setTimeout(() => {
+      lessonState.autoTimer = null;
+      playNextStep();
+    }, delay);
+  }
+
+  function clearAutoTimer() {
+    if (lessonState.autoTimer) clearTimeout(lessonState.autoTimer);
+    lessonState.autoTimer = null;
   }
 
   function currentModule() {
@@ -578,6 +639,7 @@
     event.preventDefault();
     const question = el.question.value.trim();
     if (!question) return;
+    pauseLesson();
     const savedPosition = { moduleIndex: lessonState.moduleIndex, stepIndex: lessonState.stepIndex };
     lessonState.interruptedFrom = savedPosition;
     lessonState.memory.push(`Open question: ${question}`);
@@ -633,7 +695,7 @@
       lessonState.memory.push("AI follow-up added to the interruption.");
       renderMemory();
       animateCommands(aiCommands(body));
-      teach(`One extra teacher note: ${body.teacherText}`);
+      teach(body.teacherText);
     } catch (error) {
       el.apiStatus.textContent = error.name === "AbortError"
         ? "AI follow-up skipped to keep lesson fast"
@@ -680,7 +742,7 @@
     if (lessonState.listening) {
       lessonState.recognition.stop();
     } else {
-      window.speechSynthesis?.cancel();
+      pauseLesson("Listening. Ask your question, then press Ask.");
       lessonState.recognition.start();
     }
   }
@@ -697,13 +759,22 @@
 
   function aiCommands(body) {
     const text = body.boardText || body.teacherText || "Use the clue, then make the move.";
+    if (isNarrowBoard()) {
+      return [
+        { type: "erase" },
+        { type: "text", fixed: true, x: 24, y: 38, text: "Teacher answer", size: 22 },
+        { type: "box", fixed: true, x: 28, y: 76, w: 306, h: 128 },
+        { type: "text", fixed: true, x: 44, y: 108, text: shorten(text, 120), size: 14, max: 276 },
+        { type: "text", fixed: true, x: 36, y: 250, text: shorten(body.checkQuestion || "What would you do first?", 78), size: 17, max: 298 }
+      ];
+    }
     return [
       { type: "erase" },
-      { type: "text", x: 52, y: 70, text: "Teacher follow-up", size: 34 },
-      { type: "box", x: 62, y: 128, w: 940, h: 160 },
-      { type: "text", x: 92, y: 178, text: text, size: 25, max: 860 },
-      { type: "highlight", x: 84, y: 330, w: 520, h: 36 },
-      { type: "text", x: 96, y: 360, text: body.checkQuestion || "Can you say the move back?", size: 28, max: 820 }
+      { type: "text", x: 52, y: 70, text: "Teacher answer", size: 34 },
+      { type: "box", x: 62, y: 126, w: 980, h: 170 },
+      { type: "text", x: 92, y: 176, text: shorten(text, 210), size: 24, max: 880 },
+      { type: "line", x1: 92, y1: 352, x2: 780, y2: 352 },
+      { type: "text", x: 96, y: 402, text: shorten(body.checkQuestion || "What would you do first?", 130), size: 26, max: 820 }
     ];
   }
 
@@ -735,21 +806,23 @@
       };
     }
     return {
-      say: `Yes. Put simply: ${stripTrailingPunctuation(module?.objective || "find the clue, name the move, then answer")}. We are not trying to be clever fast. We are trying to be clear first.`,
+      say: `Yes. Put simply: ${stripTrailingPunctuation(module?.objective || "find the clue, name the move, then answer")}. Let's say the first step out loud, then try it on the question.`,
       commands: [
         { type: "erase" }, { type: "text", x: 54, y: 72, text: "Simpler version", size: 34 },
         { type: "text", x: 82, y: 164, text: "1. Find the clue.", size: 28 },
         { type: "text", x: 82, y: 228, text: "2. Name the move.", size: 28 },
         { type: "text", x: 82, y: 292, text: "3. Check the answer.", size: 28 },
-        { type: "highlight", x: 76, y: 320, w: 520, h: 34 },
-        { type: "text", x: 92, y: 348, text: "Clear first. Speed later.", size: 30 }
+        { type: "line", x1: 82, y1: 334, x2: 560, y2: 334 },
+        { type: "text", x: 92, y: 384, text: "Say the first step.", size: 30 }
       ]
     };
   }
 
   function animateCommands(commands) {
     const queue = [...commands];
+    const token = ++lessonState.animationToken;
     const run = () => {
+      if (token !== lessonState.animationToken) return;
       const command = queue.shift();
       if (!command) return;
       drawCommand(command, true);
@@ -772,7 +845,8 @@
     return el.canvas.getBoundingClientRect().width < 560;
   }
 
-  function clearBoard() {
+  function clearBoard(options = {}) {
+    if (!options.keepAnimation) lessonState.animationToken += 1;
     const ratio = window.devicePixelRatio || 1;
     const rect = el.canvas.getBoundingClientRect();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -796,7 +870,7 @@
 
   function drawCommand(command, jitter) {
     if (command.type === "erase") {
-      clearBoard();
+      clearBoard({ keepAnimation: true });
       return;
     }
     const scale = command.fixed ? 1 : boardScale();
@@ -890,21 +964,47 @@
   function teach(text, after) {
     el.caption.textContent = text;
     lessonState.transcript.push({ role: "teacher", text });
-    if (el.voice.checked && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
+    cancelTeacherVoice();
+    if ("speechSynthesis" in window) {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.rate = lessonState.speed === 1 ? 1.02 : 0.78;
       utterance.pitch = 1.05;
       utterance.volume = 0.95;
       utterance.voice = chooseTeacherVoice();
-      utterance.onend = () => after?.();
+      lessonState.currentUtterance = utterance;
+      utterance.onend = () => {
+        if (lessonState.currentUtterance === utterance) lessonState.currentUtterance = null;
+        if (!lessonState.paused) after?.();
+      };
+      utterance.onerror = () => {
+        if (lessonState.currentUtterance === utterance) lessonState.currentUtterance = null;
+        if (!lessonState.paused) setTimeout(() => after?.(), 800);
+      };
       window.speechSynthesis.speak(utterance);
     } else {
-      setTimeout(() => after?.(), Math.min(2400, 900 + text.length * 22));
+      setTimeout(() => {
+        if (!lessonState.paused) after?.();
+      }, Math.min(2400, 900 + text.length * 22));
     }
   }
 
+  function cancelTeacherVoice() {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+    lessonState.currentUtterance = null;
+  }
+
+  function prepareVoices() {
+    if (!("speechSynthesis" in window)) return;
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = () => {
+      lessonState.voicesReady = true;
+    };
+  }
+
   function chooseTeacherVoice() {
+    if (!("speechSynthesis" in window)) return null;
     const voices = window.speechSynthesis.getVoices();
     return voices.find((voice) => /Natural|Neural|Premium|Daniel|Ryan|George|David|Guy/i.test(voice.name) && /en/i.test(voice.lang))
       || voices.find((voice) => /en-AU|en-GB|en-US/i.test(voice.lang))

@@ -81,6 +81,9 @@ function buildPrompt(body) {
         "Respond to the interruption in under 80 spoken words.",
         "Use the actual saved question evidence where helpful.",
         "Do not sound like a chatbot. Do not use jargon. Do not introduce a new topic unless the child asked.",
+        "Avoid slogan-like lines such as clear first speed later, great job, keep practicing, or you will do great.",
+        "boardText must be one short chalkboard line under 14 words.",
+        "checkQuestion must be one direct question under 12 words.",
         "After answering, gently return to the original blackboard lesson.",
         "Return strict JSON only."
       ].join(" ")
