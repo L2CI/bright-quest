@@ -34,15 +34,19 @@
     completed: false,
     autoTimer: null,
     currentUtterance: null,
+    currentAudio: null,
+    voiceToken: 0,
+    voiceCache: new Map(),
     animationToken: 0,
     speed: 1,
-    memory: ["Current objective: find one clear pattern, then practise it."],
+    memory: ["Current objective: teach from the exact saved questions, then practise one move."],
     interruptedFrom: null,
     lastStep: null,
     transcript: [],
     recognition: null,
     listening: false,
     apiAvailable: true,
+    cloudVoiceAvailable: true,
     voicesReady: false
   };
 
@@ -68,6 +72,7 @@
     renderPlan();
     clearBoard();
     drawWelcomeBoard();
+    el.apiStatus.textContent = canUseCloudVoice() ? "AI teacher voice ready" : "Local preview uses browser voice";
   }
 
   function fitCanvas() {
@@ -118,9 +123,21 @@
 
   function buildPlan(profile) {
     const attempts = profile.attempts || [];
+    const seenQuestions = new Set();
     const questionStats = attempts.flatMap((attempt) =>
       (attempt.questionStats || []).map((question) => ({ ...question, attempt }))
-    );
+    ).filter((question) => {
+      const key = [
+        question.skill || "",
+        question.prompt || "",
+        question.selectedText || question.answerText || "",
+        question.correctText || "",
+        question.correct
+      ].join("|");
+      if (seenQuestions.has(key)) return false;
+      seenQuestions.add(key);
+      return true;
+    });
     const timedChoice = questionStats.filter((question) => question.format !== "writing");
     const slowCutoff = timedChoice.length
       ? Math.max(45, percentile(timedChoice.map((question) => question.secondsSpent || 0), 0.72))
@@ -223,17 +240,21 @@
     const first = examples[0];
     const missed = examples.filter((item) => item.correct === false).length;
     const slow = examples.filter((item) => item.secondsSpent >= slowCutoff).length;
+    const evidence = evidenceSentence(first);
+    const diagnosis = diagnosisFor(group.skill, first);
+    const thinkAloud = thinkAloudFor(group.skill, first);
+    const rehearsal = rehearsalFor(group.skill, first);
     const intro = missed
-      ? `${group.skill} is worth a focus lesson because it led to ${missed} missed answer${missed === 1 ? "" : "s"}.`
-      : `${group.skill} is worth a focus lesson because it took time, even when the answer was right.`;
+      ? `${group.skill} needs a short lesson because ${missed} saved answer${missed === 1 ? "" : "s"} got stuck at this exact move.`
+      : `${group.skill} needs a short lesson because ${slow || 1} saved question${slow === 1 ? "" : "s"} took longer than it should.`;
     const actual = first
-      ? `For example, one saved question was: "${first.prompt}"${first.selectedText ? ` Aarin chose "${first.selectedText}"` : ""}${first.correctText ? `, while the best answer was "${first.correctText}"` : ""}.`
-      : `We will use a similar Grade 5 style question as the example.`;
-    const misconception = misconceptionFor(group.skill, first);
+      ? `Saved example: ${evidence}`
+      : `I will use a Grade 5 style example, then show the same move on the board.`;
+    const misconception = diagnosis;
     const move = moduleObjective(group.skill);
-    const practice = `The training move is: ${stripTrailingPunctuation(move)}. Then check by asking, "Does my answer match the job of the question?"`;
-    const bridge = `This also strengthens ${adjacent[0]} and ${adjacent[1]}, so it helps more than one test area.`;
-    const story = [intro, actual, misconception, practice, bridge];
+    const practice = `The rehearsal is: ${rehearsal}`;
+    const bridge = `This same move also helps ${adjacent[0]} and ${adjacent[1]}.`;
+    const story = [intro, actual, diagnosis, thinkAloud, practice, bridge];
     return {
       intro,
       actual,
@@ -241,27 +262,92 @@
       move,
       practice,
       bridge,
+      diagnosis,
+      thinkAloud,
+      rehearsal,
       story,
       short: story.join(" ")
     };
   }
 
-  function misconceptionFor(skill, example) {
+  function evidenceSentence(example) {
+    if (!example) return "No saved example is attached yet.";
+    const parts = [`"${shorten(example.prompt, 120)}"`];
+    if (example.selectedText) parts.push(`Aarin chose "${shorten(example.selectedText, 48)}"`);
+    if (example.correctText) parts.push(`the best answer was "${shorten(example.correctText, 48)}"`);
+    if (example.explain) parts.push(`because ${stripTrailingPunctuation(example.explain)}`);
+    if (example.secondsSpent) parts.push(`after ${example.secondsSpent} seconds`);
+    return `${parts.join("; ")}.`;
+  }
+
+  function diagnosisFor(skill, example) {
     const lower = String(skill).toLowerCase();
-    if (lower.includes("inference")) return "The trap is choosing an answer that sounds nice but is not proved by the words in the passage.";
-    if (lower.includes("fraction")) return "The trap is looking at the numbers before checking whether the parts are equal.";
-    if (lower.includes("sequence") || lower.includes("pattern")) return "The trap is guessing the next number before comparing neighbouring numbers.";
-    if (lower.includes("money")) return "The trap is stopping after adding the prices, before finding the change.";
-    if (lower.includes("time")) return "The trap is counting minute by minute instead of jumping to the next easy time.";
-    if (lower.includes("analogy")) return "The trap is matching words that feel related, instead of matching the exact relationship.";
-    if (lower.includes("grammar")) return "The trap is reading the sentence by sound only, instead of checking subject and verb.";
+    if (lower.includes("division")) return "This story asks for each table's share, and then adds extra border tiles to that share.";
+    if (lower.includes("data")) return "Range is not the biggest number; it is biggest minus smallest.";
+    if (lower.includes("subtraction")) return "Both booked groups must be removed before we can know what is still empty.";
+    if (lower.includes("deduction") || lower.includes("logic")) return "The word 'must' means only the statement guaranteed by the clues can survive.";
+    if (lower.includes("geometry")) return "Same perimeter means the distance around is equal, not that the side lengths stay the same.";
+    if (lower.includes("text structure")) return "Claim plus evidence plus final judgement belongs to argument writing, not story writing.";
+    if (lower.includes("inference")) return "This is not about a clever guess; the answer has to be tied to words in the passage.";
+    if (lower.includes("fraction")) return "The first check is whether the parts are equal; the numbers only make sense after that.";
+    if (lower.includes("sequence") || lower.includes("pattern")) return "The useful evidence is the step rule, and term numbers count how many times to use it.";
+    if (lower.includes("money")) return "A change question has two jobs: find the total spent, then subtract it from the money paid.";
+    if (lower.includes("time")) return "A time question is a little journey on a clock, so jumps are safer than counting one minute at a time.";
+    if (lower.includes("analogy")) return "An analogy is a sentence relationship; matching words by theme is not enough.";
+    if (lower.includes("grammar")) return "The sentence has an owner and an action; the action has to match the owner.";
+    if (lower.includes("multi")) return "The story contains two smaller questions, and the second answer depends on the first.";
     return example?.correct === false
-      ? "The trap is answering before naming the exact job of the question."
-      : "The trap is spending too much working-memory on a question that needs a shorter routine.";
+      ? "The answer went in before the question's exact job was named."
+      : "The work was probably correct but too heavy; we need a shorter routine.";
+  }
+
+  function thinkAloudFor(skill, example) {
+    const lower = String(skill).toLowerCase();
+    const promptHint = example?.prompt ? `I look at "${shorten(example.prompt, 64)}" and ask myself: ` : "I ask myself: ";
+    if (lower.includes("division")) return `${promptHint}what does one table get before the extra tiles are added?`;
+    if (lower.includes("data")) return `${promptHint}which value is biggest, which is smallest, and what is the difference?`;
+    if (lower.includes("subtraction")) return `${promptHint}what has already been taken away, and what is left?`;
+    if (lower.includes("deduction") || lower.includes("logic")) return `${promptHint}which answer is forced by every clue, not just possible?`;
+    if (lower.includes("geometry")) return `${promptHint}what is the perimeter first, then what side makes that perimeter?`;
+    if (lower.includes("text structure")) return `${promptHint}is this telling events, or proving a point with evidence?`;
+    if (lower.includes("inference")) return `${promptHint}which exact words prove the answer?`;
+    if (lower.includes("fraction")) return `${promptHint}are the parts equal before I count them?`;
+    if (lower.includes("sequence") || lower.includes("pattern")) return `${promptHint}what are the jumps between each pair?`;
+    if (lower.includes("money")) return `${promptHint}what was spent, and what is left?`;
+    if (lower.includes("time")) return `${promptHint}where is the next easy clock stop?`;
+    if (lower.includes("analogy")) return `${promptHint}can I say the relationship as a sentence?`;
+    if (lower.includes("grammar")) return `${promptHint}who is doing the action, and does the verb match?`;
+    if (lower.includes("multi")) return `${promptHint}what is the first tiny question inside this story?`;
+    return `${promptHint}what clue tells me the first move?`;
+  }
+
+  function rehearsalFor(skill) {
+    const lower = String(skill).toLowerCase();
+    if (lower.includes("division")) return "divide the shared total first, then add the extra amount each group receives.";
+    if (lower.includes("data")) return "circle the biggest and smallest values, then subtract smallest from biggest.";
+    if (lower.includes("subtraction")) return "add what was used, subtract that from the starting amount, then check the left-over.";
+    if (lower.includes("deduction") || lower.includes("logic")) return "test each option against every clue and cross out anything not guaranteed.";
+    if (lower.includes("geometry")) return "find the matching perimeter, divide by the number of equal sides, then label the side.";
+    if (lower.includes("text structure")) return "look for claim, evidence, and judgement; if they are present, call it an argument.";
+    if (lower.includes("inference")) return "underline the proof words, say what they suggest, then choose the only answer they support.";
+    if (lower.includes("fraction")) return "check equal parts, count the shaded parts, then count the total parts.";
+    if (lower.includes("sequence") || lower.includes("pattern")) return "write the gaps above the numbers, name the rule, then continue once.";
+    if (lower.includes("money")) return "add the prices in one line, subtract from the money paid in the next line.";
+    if (lower.includes("time")) return "jump to the next hour or half-hour, then add the remaining minutes.";
+    if (lower.includes("analogy")) return "turn the first pair into a sentence, then test each option in the same sentence.";
+    if (lower.includes("grammar")) return "circle the subject, tap the verb, then read them together.";
+    if (lower.includes("multi")) return "write Step 1 and Step 2 before doing any arithmetic.";
+    return "find the clue, say the move, answer, then check against the question.";
   }
 
   function moduleObjective(skill) {
     const lower = skill.toLowerCase();
+    if (lower.includes("division")) return "Find one group's share, then add any extra amount.";
+    if (lower.includes("data")) return "Find range by subtracting the smallest value from the biggest.";
+    if (lower.includes("subtraction")) return "Add what is used first, then subtract from the starting total.";
+    if (lower.includes("deduction") || lower.includes("logic")) return "Choose only what the clues force to be true.";
+    if (lower.includes("geometry")) return "Match the perimeter first, then find the missing side.";
+    if (lower.includes("text structure")) return "Use structure clues to name the type of writing.";
     if (lower.includes("fraction")) return "See the equal parts before choosing the answer.";
     if (lower.includes("time")) return "Use jumps to the next hour instead of counting one minute at a time.";
     if (lower.includes("money")) return "Add the cost first, then find the change.";
@@ -275,6 +361,12 @@
 
   function adjacentSkills(skill) {
     const lower = String(skill).toLowerCase();
+    if (lower.includes("division")) return ["Multiplication facts", "Multi-step arithmetic", "Equal groups"];
+    if (lower.includes("data")) return ["Subtraction", "Graph reading", "Compare values"];
+    if (lower.includes("subtraction")) return ["Addition check", "Multi-step word problem", "Regrouping"];
+    if (lower.includes("deduction") || lower.includes("logic")) return ["Elimination", "Must be true", "Careful reading"];
+    if (lower.includes("geometry")) return ["Perimeter", "Multiplication", "Division"];
+    if (lower.includes("text structure")) return ["Reading comprehension", "Persuasive writing", "Evidence"];
     if (lower.includes("fraction")) return ["Division as sharing", "Equal parts", "Simplifying"];
     if (lower.includes("time")) return ["Addition", "Number line jumps", "Elapsed time"];
     if (lower.includes("money")) return ["Decimals", "Subtraction", "Change"];
@@ -297,16 +389,16 @@
       : "Chosen answer was not saved.";
     return [
       {
-        say: `${narrative.intro} I am going to teach it from the actual saved question, not from a made-up example.`,
+        say: `${narrative.intro} We will start with the saved question, because that is where the useful learning is.`,
         commands: [
           { type: "text", x: 52, y: 64, text: `Focus: ${skill}`, size: 36 },
-          { type: "text", x: 56, y: 112, text: `Why: ${narrative.intro}`, size: 20, max: 1000 },
-          { type: "box", x: 60, y: 164, w: 960, h: 150 },
+          { type: "text", x: 56, y: 112, text: shorten(narrative.intro, 130), size: 20, max: 1000 },
+          { type: "box", x: 60, y: 164, w: 960, h: 162 },
           { type: "text", x: 88, y: 206, text: prompt, size: 22, max: 880 },
-          { type: "text", x: 88, y: 272, text: selectedLine, size: 19, max: 420 },
-          { type: "text", x: 540, y: 272, text: answerLine, size: 19, max: 430 },
-          { type: "highlight", x: 78, y: 326, w: 360, h: 34 },
-          { type: "text", x: 88, y: 354, text: "We learn from the exact stumble.", size: 25 }
+          { type: "text", x: 88, y: 278, text: selectedLine, size: 19, max: 420 },
+          { type: "text", x: 540, y: 278, text: answerLine, size: 19, max: 430 },
+          { type: "line", x1: 88, y1: 360, x2: 760, y2: 360 },
+          { type: "text", x: 88, y: 405, text: "We learn from the exact moment the thinking changed.", size: 24, max: 880 }
         ],
         mobileCommands: [
           { type: "text", fixed: true, x: 24, y: 32, text: `Focus: ${shorten(skill, 18)}`, size: 18, max: 308 },
@@ -320,33 +412,37 @@
         ]
       },
       {
-        say: `${narrative.misconception} So first we mark the job of the question before choosing an answer.`,
+        say: `${narrative.diagnosis} Listen to my teacher-thought: ${narrative.thinkAloud}`,
         commands: [
           { type: "erase" },
-          { type: "text", x: 52, y: 64, text: "Step 1: name the job", size: 34 },
-          { type: "box", x: 62, y: 118, w: 470, h: 120 },
-          { type: "text", x: 88, y: 165, text: "Question words", size: 25 },
-          { type: "text", x: 88, y: 204, text: "What is it asking me to do?", size: 20, max: 390 },
-          { type: "arrow", x1: 542, y1: 178, x2: 704, y2: 178 },
-          { type: "box", x: 720, y: 118, w: 420, h: 120 },
-          { type: "text", x: 748, y: 165, text: section || "Skill family", size: 25 },
-          { type: "text", x: 748, y: 204, text: skill, size: 21, max: 350 },
-          { type: "text", x: 74, y: 320, text: narrative.misconception, size: 24, max: 960 }
+          { type: "text", x: 52, y: 64, text: "Teacher think-aloud", size: 34 },
+          { type: "box", x: 62, y: 124, w: 1030, h: 112 },
+          { type: "text", x: 92, y: 176, text: shorten(narrative.thinkAloud, 120), size: 25, max: 960 },
+          { type: "arrow", x1: 184, y1: 292, x2: 412, y2: 292 },
+          { type: "arrow", x1: 552, y1: 292, x2: 780, y2: 292 },
+          { type: "box", x: 70, y: 334, w: 250, h: 88 },
+          { type: "text", x: 102, y: 388, text: "question job", size: 22 },
+          { type: "box", x: 404, y: 334, w: 250, h: 88 },
+          { type: "text", x: 452, y: 388, text: "evidence", size: 22 },
+          { type: "box", x: 738, y: 334, w: 250, h: 88 },
+          { type: "text", x: 792, y: 388, text: "answer", size: 22 }
         ],
         mobileCommands: [
           { type: "erase" },
-          { type: "text", fixed: true, x: 24, y: 38, text: "Step 1: name the job", size: 20, max: 310 },
-          { type: "box", fixed: true, x: 28, y: 72, w: 300, h: 70 },
-          { type: "text", fixed: true, x: 44, y: 100, text: "Question words", size: 16 },
-          { type: "text", fixed: true, x: 44, y: 124, text: "What must I do?", size: 14, max: 260 },
-          { type: "arrow", fixed: true, x1: 178, y1: 158, x2: 178, y2: 194 },
-          { type: "box", fixed: true, x: 28, y: 206, w: 300, h: 70 },
-          { type: "text", fixed: true, x: 44, y: 234, text: shorten(skill, 30), size: 16, max: 260 },
-          { type: "text", fixed: true, x: 30, y: 318, text: shorten(narrative.misconception, 92), size: 15, max: 306 }
+          { type: "text", fixed: true, x: 24, y: 38, text: "Teacher thinking", size: 20, max: 310 },
+          { type: "box", fixed: true, x: 28, y: 76, w: 300, h: 104 },
+          { type: "text", fixed: true, x: 44, y: 106, text: shorten(narrative.thinkAloud, 86), size: 14, max: 272 },
+          { type: "box", fixed: true, x: 34, y: 218, w: 86, h: 54 },
+          { type: "text", fixed: true, x: 50, y: 250, text: "job", size: 14 },
+          { type: "arrow", fixed: true, x1: 124, y1: 244, x2: 168, y2: 244 },
+          { type: "box", fixed: true, x: 174, y: 218, w: 96, h: 54 },
+          { type: "text", fixed: true, x: 194, y: 250, text: "proof", size: 14 },
+          { type: "arrow", fixed: true, x1: 274, y1: 244, x2: 314, y2: 244 },
+          { type: "text", fixed: true, x: 34, y: 324, text: shorten(narrative.diagnosis, 72), size: 14, max: 296 }
         ]
       },
       {
-        say: `Now we use the move. ${narrative.practice}`,
+        say: `Now we rehearse the move. ${narrative.practice}`,
         commands: thinkingCommands(skill),
         mobileCommands: mobileThinkingCommands(skill)
       },
@@ -427,6 +523,27 @@
 
   function mobileThinkingCommands(skill) {
     const lower = String(skill).toLowerCase();
+    if (lower.includes("division")) {
+      return [
+        { type: "erase" },
+        { type: "text", fixed: true, x: 24, y: 38, text: "Share, then add", size: 22 },
+        { type: "text", fixed: true, x: 44, y: 104, text: "104 / 8 = 13", size: 18 },
+        { type: "arrow", fixed: true, x1: 116, y1: 130, x2: 116, y2: 174 },
+        { type: "text", fixed: true, x: 44, y: 210, text: "13 + 6 = 19", size: 18 },
+        { type: "box", fixed: true, x: 36, y: 246, w: 260, h: 58 },
+        { type: "text", fixed: true, x: 58, y: 282, text: "each table gets 19", size: 16 }
+      ];
+    }
+    if (lower.includes("data")) {
+      return [
+        { type: "erase" },
+        { type: "text", fixed: true, x: 24, y: 38, text: "Range", size: 22 },
+        { type: "text", fixed: true, x: 46, y: 106, text: "biggest 152", size: 17 },
+        { type: "text", fixed: true, x: 46, y: 154, text: "smallest 119", size: 17 },
+        { type: "line", fixed: true, x1: 46, y1: 176, x2: 220, y2: 176 },
+        { type: "text", fixed: true, x: 46, y: 224, text: "152 - 119 = 33", size: 18 }
+      ];
+    }
     if (lower.includes("inference")) {
       return [
         { type: "erase" },
@@ -455,6 +572,65 @@
 
   function thinkingCommands(skill) {
     const lower = String(skill).toLowerCase();
+    if (lower.includes("division")) {
+      return [
+        { type: "erase" }, { type: "text", x: 54, y: 72, text: "Division story: one table first", size: 32 },
+        { type: "box", x: 92, y: 150, w: 240, h: 88 }, { type: "text", x: 124, y: 204, text: "104 shared", size: 24 },
+        { type: "arrow", x1: 340, y1: 194, x2: 520, y2: 194 },
+        { type: "box", x: 536, y: 150, w: 240, h: 88 }, { type: "text", x: 580, y: 204, text: "8 tables", size: 24 },
+        { type: "text", x: 116, y: 314, text: "104 / 8 = 13", size: 30 },
+        { type: "arrow", x1: 356, y1: 306, x2: 514, y2: 306 },
+        { type: "text", x: 556, y: 314, text: "13 + 6 border = 19", size: 30 }
+      ];
+    }
+    if (lower.includes("data")) {
+      return [
+        { type: "erase" }, { type: "text", x: 54, y: 72, text: "Data: range", size: 32 },
+        { type: "text", x: 100, y: 154, text: "3A 128   3B 146   3C 119   3D 152", size: 26 },
+        { type: "circle", x: 276, y: 148, r: 42 }, { type: "text", x: 248, y: 226, text: "smallest", size: 22 },
+        { type: "circle", x: 626, y: 148, r: 42 }, { type: "text", x: 600, y: 226, text: "biggest", size: 22 },
+        { type: "line", x1: 118, y1: 294, x2: 700, y2: 294 },
+        { type: "text", x: 126, y: 352, text: "range = biggest - smallest = 152 - 119 = 33", size: 28, max: 980 }
+      ];
+    }
+    if (lower.includes("subtraction")) {
+      return [
+        { type: "erase" }, { type: "text", x: 54, y: 72, text: "Subtraction: what is left?", size: 32 },
+        { type: "text", x: 108, y: 156, text: "723 seats", size: 28 },
+        { type: "text", x: 108, y: 222, text: "246 + 157 = 403 booked", size: 28 },
+        { type: "line", x1: 108, y1: 250, x2: 620, y2: 250 },
+        { type: "text", x: 108, y: 318, text: "723 - 403 = 320 empty", size: 32 }
+      ];
+    }
+    if (lower.includes("deduction") || lower.includes("logic")) {
+      return [
+        { type: "erase" }, { type: "text", x: 54, y: 72, text: "Logic: must be true", size: 32 },
+        { type: "box", x: 90, y: 140, w: 430, h: 88 }, { type: "text", x: 118, y: 194, text: "All glims are blue", size: 25 },
+        { type: "box", x: 90, y: 270, w: 430, h: 88 }, { type: "text", x: 118, y: 324, text: "Some blue things are round", size: 25 },
+        { type: "arrow", x1: 550, y1: 208, x2: 720, y2: 264 },
+        { type: "text", x: 742, y: 272, text: "Only the first clue is guaranteed.", size: 26, max: 420 }
+      ];
+    }
+    if (lower.includes("geometry")) {
+      return [
+        { type: "erase" }, { type: "text", x: 54, y: 72, text: "Geometry: same perimeter", size: 32 },
+        { type: "box", x: 92, y: 150, w: 300, h: 168 }, { type: "text", x: 148, y: 348, text: "9 cm by 5 cm", size: 24 },
+        { type: "text", x: 470, y: 180, text: "perimeter = 9 + 5 + 9 + 5 = 28", size: 26, max: 700 },
+        { type: "arrow", x1: 640, y1: 228, x2: 640, y2: 300 },
+        { type: "text", x: 470, y: 360, text: "square side = 28 / 4 = 7 cm", size: 30 }
+      ];
+    }
+    if (lower.includes("text structure")) {
+      return [
+        { type: "erase" }, { type: "text", x: 54, y: 72, text: "Text structure: argument", size: 32 },
+        { type: "box", x: 84, y: 150, w: 260, h: 82 }, { type: "text", x: 130, y: 202, text: "claim", size: 26 },
+        { type: "arrow", x1: 354, y1: 192, x2: 450, y2: 192 },
+        { type: "box", x: 462, y: 150, w: 260, h: 82 }, { type: "text", x: 548, y: 202, text: "evidence", size: 26 },
+        { type: "arrow", x1: 732, y1: 192, x2: 828, y2: 192 },
+        { type: "box", x: 840, y: 150, w: 260, h: 82 }, { type: "text", x: 890, y: 202, text: "judgement", size: 26 },
+        { type: "text", x: 100, y: 334, text: "That is proving a point, so it is an argument.", size: 28, max: 860 }
+      ];
+    }
     if (lower.includes("fraction")) {
       return [
         { type: "erase" }, { type: "text", x: 54, y: 72, text: "Fractions: equal parts", size: 32 },
@@ -780,38 +956,46 @@
 
   function localTeacherAnswer(question, module) {
     const lower = question.toLowerCase();
+    const example = module?.examples?.[0];
     if (lower.includes("example")) {
       return {
-        say: `Let's use a tiny example. Suppose the skill is ${module?.title || "this idea"}. I draw one clue, one move, and one answer. That is the whole path.`,
+        say: example
+          ? `Let's use your saved example. The question was: ${example.prompt} The best answer was ${example.correctText || "the one supported by the evidence"}. I want you to notice the exact clue before choosing.`
+          : `Let's use a tiny example from this skill. I will draw the question job, the evidence, and then the answer.`,
         commands: [
-          { type: "erase" }, { type: "text", x: 54, y: 72, text: "Quick example", size: 34 },
-          { type: "box", x: 90, y: 160, w: 220, h: 90 }, { type: "text", x: 138, y: 214, text: "clue", size: 28 },
-          { type: "arrow", x1: 316, y1: 205, x2: 450, y2: 205 },
-          { type: "box", x: 458, y: 160, w: 220, h: 90 }, { type: "text", x: 510, y: 214, text: "move", size: 28 },
-          { type: "arrow", x1: 684, y1: 205, x2: 818, y2: 205 },
-          { type: "box", x: 826, y: 160, w: 220, h: 90 }, { type: "text", x: 872, y: 214, text: "answer", size: 28 }
+          { type: "erase" }, { type: "text", x: 54, y: 72, text: "Saved example", size: 34 },
+          { type: "box", x: 70, y: 138, w: 980, h: 140 },
+          { type: "text", x: 96, y: 184, text: example ? shorten(example.prompt, 140) : samplePromptFor(module?.title || ""), size: 22, max: 900 },
+          { type: "text", x: 96, y: 244, text: example?.correctText ? `Best answer: ${shorten(example.correctText, 64)}` : "Best answer: prove it from the question.", size: 21, max: 780 },
+          { type: "arrow", x1: 180, y1: 360, x2: 420, y2: 360 },
+          { type: "arrow", x1: 560, y1: 360, x2: 800, y2: 360 },
+          { type: "text", x: 96, y: 410, text: "question asks", size: 22 },
+          { type: "text", x: 456, y: 410, text: "evidence says", size: 22 },
+          { type: "text", x: 836, y: 410, text: "answer fits", size: 22 }
         ]
       };
     }
     if (lower.includes("why")) {
       return {
-        say: `It matters because tests often repeat the same thinking move with different decorations. If you recognise the move, the question feels less scary.`,
+        say: example
+          ? `Because the saved question was not asking for a nice-sounding answer. It was asking for the answer that the words or numbers prove. I would pause, point to the proof, and only then choose.`
+          : `Because this skill repeats in different-looking questions. If you name what the question asks first, the answer has less room to wobble.`,
         commands: [
-          { type: "erase" }, { type: "text", x: 54, y: 72, text: "Why it matters", size: 34 },
-          { type: "circle", x: 220, y: 242, r: 76 }, { type: "text", x: 178, y: 248, text: "new story", size: 20 },
-          { type: "circle", x: 528, y: 242, r: 76 }, { type: "text", x: 488, y: 248, text: "same move", size: 20 },
-          { type: "circle", x: 836, y: 242, r: 76 }, { type: "text", x: 790, y: 248, text: "calmer", size: 22 },
-          { type: "arrow", x1: 296, y1: 242, x2: 452, y2: 242 }, { type: "arrow", x1: 604, y1: 242, x2: 760, y2: 242 }
+          { type: "erase" }, { type: "text", x: 54, y: 72, text: "Why this answer changed", size: 34 },
+          { type: "box", x: 92, y: 146, w: 320, h: 96 }, { type: "text", x: 126, y: 202, text: "not: sounds right", size: 24 },
+          { type: "arrow", x1: 430, y1: 194, x2: 560, y2: 194 },
+          { type: "box", x: 578, y: 146, w: 360, h: 96 }, { type: "text", x: 620, y: 202, text: "yes: proof matches", size: 24 },
+          { type: "text", x: 96, y: 326, text: module?.narrative?.thinkAloud || "What words or numbers prove it?", size: 26, max: 900 }
         ]
       };
     }
     return {
-      say: `Yes. Put simply: ${stripTrailingPunctuation(module?.objective || "find the clue, name the move, then answer")}. Let's say the first step out loud, then try it on the question.`,
+      say: `Yes. For this lesson, the first step is: ${stripTrailingPunctuation(module?.objective || "find the clue, name the move, then answer")}. I would say that step before touching the answer choices.`,
       commands: [
         { type: "erase" }, { type: "text", x: 54, y: 72, text: "Simpler version", size: 34 },
-        { type: "text", x: 82, y: 164, text: "1. Find the clue.", size: 28 },
-        { type: "text", x: 82, y: 228, text: "2. Name the move.", size: 28 },
-        { type: "text", x: 82, y: 292, text: "3. Check the answer.", size: 28 },
+        { type: "text", x: 82, y: 164, text: `1. ${shorten(module?.objective || "Find the clue.", 70)}`, size: 28, max: 880 },
+        { type: "text", x: 82, y: 228, text: "2. Point to the proof.", size: 28 },
+        { type: "text", x: 82, y: 292, text: "3. Choose the answer that fits.", size: 28 },
         { type: "line", x1: 82, y1: 334, x2: 560, y2: 334 },
         { type: "text", x: 92, y: 384, text: "Say the first step.", size: 30 }
       ]
@@ -965,34 +1149,98 @@
     el.caption.textContent = text;
     lessonState.transcript.push({ role: "teacher", text });
     cancelTeacherVoice();
+    const token = ++lessonState.voiceToken;
+    if (canUseCloudVoice() && lessonState.cloudVoiceAvailable) {
+      playOpenAiVoice(text, token, after);
+      return;
+    }
+    playBrowserVoice(text, token, after);
+  }
+
+  async function playOpenAiVoice(text, token, after) {
+    try {
+      const audioUrl = await getVoiceUrl(text, token);
+      if (token !== lessonState.voiceToken || lessonState.paused) return;
+      const audio = new Audio(audioUrl);
+      audio.preload = "auto";
+      audio.volume = 0.95;
+      lessonState.currentAudio = audio;
+      audio.onended = () => {
+        if (lessonState.currentAudio === audio) lessonState.currentAudio = null;
+        if (token === lessonState.voiceToken && !lessonState.paused) after?.();
+      };
+      audio.onerror = () => {
+        if (lessonState.currentAudio === audio) lessonState.currentAudio = null;
+        playBrowserVoice(text, token, after);
+      };
+      el.apiStatus.textContent = "AI teacher voice speaking";
+      await audio.play();
+    } catch {
+      if (token !== lessonState.voiceToken || lessonState.paused) return;
+      lessonState.cloudVoiceAvailable = false;
+      el.apiStatus.textContent = "Browser voice fallback";
+      playBrowserVoice(text, token, after);
+    }
+  }
+
+  async function getVoiceUrl(text, token) {
+    const cacheKey = text.slice(0, 900);
+    if (lessonState.voiceCache.has(cacheKey)) return lessonState.voiceCache.get(cacheKey);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 7000);
+    const response = await fetch("/api/blackboard-voice", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ text: cacheKey }),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    if (token !== lessonState.voiceToken) throw new Error("stale voice request");
+    if (!response.ok) throw new Error(`voice unavailable: ${response.status}`);
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    lessonState.voiceCache.set(cacheKey, url);
+    return url;
+  }
+
+  function playBrowserVoice(text, token, after) {
     if ("speechSynthesis" in window) {
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = lessonState.speed === 1 ? 1.02 : 0.78;
-      utterance.pitch = 1.05;
+      utterance.rate = lessonState.speed === 1 ? 0.92 : 0.78;
+      utterance.pitch = 0.92;
       utterance.volume = 0.95;
       utterance.voice = chooseTeacherVoice();
       lessonState.currentUtterance = utterance;
       utterance.onend = () => {
         if (lessonState.currentUtterance === utterance) lessonState.currentUtterance = null;
-        if (!lessonState.paused) after?.();
+        if (token === lessonState.voiceToken && !lessonState.paused) after?.();
       };
       utterance.onerror = () => {
         if (lessonState.currentUtterance === utterance) lessonState.currentUtterance = null;
-        if (!lessonState.paused) setTimeout(() => after?.(), 800);
+        if (token === lessonState.voiceToken && !lessonState.paused) setTimeout(() => after?.(), 800);
       };
       window.speechSynthesis.speak(utterance);
     } else {
       setTimeout(() => {
-        if (!lessonState.paused) after?.();
+        if (token === lessonState.voiceToken && !lessonState.paused) after?.();
       }, Math.min(2400, 900 + text.length * 22));
     }
   }
 
   function cancelTeacherVoice() {
+    lessonState.voiceToken += 1;
+    if (lessonState.currentAudio) {
+      lessonState.currentAudio.pause();
+      lessonState.currentAudio = null;
+    }
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
     }
     lessonState.currentUtterance = null;
+  }
+
+  function canUseCloudVoice() {
+    return !["127.0.0.1", "localhost", ""].includes(window.location.hostname) || window.__blackboardAllowLocalAI;
   }
 
   function prepareVoices() {
