@@ -370,6 +370,50 @@ button {
   font-weight: 800;
 }
 
+.practice-panel {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+  border: 1px solid rgba(245, 199, 106, 0.32);
+  border-radius: 18px;
+  background: rgba(6, 19, 18, 0.86);
+  padding: 13px;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.24);
+}
+
+.practice-panel[hidden] {
+  display: none;
+}
+
+.practice-panel strong {
+  color: #fff9e8;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.practice-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.practice-row input {
+  min-height: 46px;
+  border: 1px solid rgba(245, 239, 220, 0.22);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff9e8;
+  padding: 0 14px;
+  font-weight: 900;
+}
+
+.practice-panel p {
+  min-height: 20px;
+  margin: 0;
+  color: var(--muted);
+  font-weight: 850;
+}
+
 .quick-prompts {
   display: grid;
   grid-template-columns: 1fr;
@@ -519,6 +563,10 @@ button {
 
   .teacher-console {
     grid-template-columns: 1fr auto;
+  }
+
+  .practice-row {
+    grid-template-columns: 1fr;
   }
 
   .teacher-console .primary-control,

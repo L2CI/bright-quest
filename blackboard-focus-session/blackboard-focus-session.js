@@ -11,6 +11,10 @@
     captionToggle: document.querySelector("#captionToggleButton"),
     missedQuestionStrip: document.querySelector("#missedQuestionStrip"),
     missedQuestionText: document.querySelector("#missedQuestionText"),
+    practicePanel: document.querySelector("#practicePanel"),
+    practicePrompt: document.querySelector("#practicePrompt"),
+    practiceAnswer: document.querySelector("#practiceAnswer"),
+    practiceFeedback: document.querySelector("#practiceFeedback"),
     studentPill: document.querySelector("#studentPill"),
     moduleList: document.querySelector("#moduleList"),
     evidenceList: document.querySelector("#evidenceList"),
@@ -43,6 +47,8 @@
     animationToken: 0,
     speed: 1,
     captionsVisible: false,
+    currentPractice: null,
+    awaitingPractice: false,
     memory: ["Current objective: teach from the exact saved questions, then practise one move."],
     interruptedFrom: null,
     lastStep: null,
@@ -60,6 +66,7 @@
     el.back.addEventListener("click", () => { window.location.href = "../"; });
     el.start.addEventListener("click", handleLessonControl);
     el.captionToggle.addEventListener("click", toggleCaptions);
+    el.practicePanel.addEventListener("submit", handlePracticeSubmit);
     el.caption.hidden = true;
     el.captionToggle.setAttribute("aria-pressed", "false");
     el.form.addEventListener("submit", handleQuestion);
@@ -395,7 +402,7 @@
     const example = examples[0];
     const secondExample = examples[1];
     const concreteSteps = concreteStorySteps(skill, example, narrative, index);
-    if (concreteSteps.length) return concreteSteps;
+    if (concreteSteps.length) return addTopicOpener(concreteSteps, skill, example);
     const prompt = example?.prompt ? shorten(example.prompt, 138) : samplePromptFor(skill);
     const answerLine = example?.correctText
       ? `Best answer: ${shorten(example.correctText, 52)}`
@@ -403,7 +410,7 @@
     const selectedLine = example?.selectedText
       ? `Chosen: ${shorten(example.selectedText, 56)}`
       : "Chosen answer was not saved.";
-    return [
+    return addTopicOpener([
       {
         say: `${narrative.intro} We will start with the saved question, because that is where the useful learning is.`,
         commands: [
@@ -510,31 +517,46 @@
         ]
       },
       {
-        say: `Check point. Say the move back in your own words. If it still feels fuzzy, interrupt me now and we will slow it down.`,
-        commands: [
-          { type: "erase" },
-          { type: "text", x: 54, y: 72, text: "Check understanding", size: 32 },
-          { type: "box", x: 72, y: 140, w: 460, h: 92 },
-          { type: "text", x: 96, y: 178, text: "1. What is the question asking?", size: 22 },
-          { type: "box", x: 72, y: 262, w: 460, h: 92 },
-          { type: "text", x: 96, y: 300, text: "2. What is the one clear move?", size: 22 },
-          { type: "box", x: 72, y: 384, w: 460, h: 92 },
-          { type: "text", x: 96, y: 422, text: "3. How will I check?", size: 22 },
-          { type: "text", x: 636, y: 252, text: index < 2 ? "Then we continue." : "Then we finish strong.", size: 30 }
-        ],
-        mobileCommands: [
-          { type: "erase" },
-          { type: "text", fixed: true, x: 24, y: 40, text: "Check understanding", size: 21 },
-          { type: "box", fixed: true, x: 30, y: 82, w: 300, h: 56 },
-          { type: "text", fixed: true, x: 46, y: 116, text: "1. What is it asking?", size: 15 },
-          { type: "box", fixed: true, x: 30, y: 158, w: 300, h: 56 },
-          { type: "text", fixed: true, x: 46, y: 192, text: "2. What is the move?", size: 15 },
-          { type: "box", fixed: true, x: 30, y: 234, w: 300, h: 56 },
-          { type: "text", fixed: true, x: 46, y: 268, text: "3. How will I check?", size: 15 },
-          { type: "text", fixed: true, x: 58, y: 338, text: index < 2 ? "Then we continue." : "Then we finish strong.", size: 18, max: 270 }
-        ]
+        ...checkStep(index, moduleObjective(skill)),
+        practice: practiceFor(skill, example)
       }
-    ];
+    ], skill, example);
+  }
+
+  function addTopicOpener(steps, skill, example) {
+    if (!steps.length) return steps;
+    const opened = [...steps];
+    const first = { ...opened[0] };
+    first.say = `${topicOpener(skill, example)} ${first.say}`;
+    opened[0] = first;
+    const lastIndex = opened.length - 1;
+    if (opened[lastIndex] && !opened[lastIndex].practice) {
+      opened[lastIndex] = { ...opened[lastIndex], practice: practiceFor(skill, example) };
+    }
+    return opened;
+  }
+
+  function topicOpener(skill, example) {
+    const lower = String(skill || "").toLowerCase();
+    if (lower.includes("multi")) return "Now we are exploring theatre-seat problems: build the whole place first, then remove what is empty.";
+    if (lower.includes("division")) return "Now we are exploring fair-share problems: share first, then add the extra piece.";
+    if (lower.includes("data")) return "Now we are exploring data-range questions: find the biggest and smallest, then measure the gap.";
+    if (lower.includes("time")) return "Now we are exploring clock-journey questions: hop in useful chunks instead of counting tiny minutes.";
+    if (lower.includes("subtraction")) return "Now we are exploring left-over problems: collect everything used, then subtract once.";
+    if (lower.includes("geometry")) {
+      const prompt = String(example?.prompt || "");
+      if (/length/i.test(prompt) && /width/i.test(prompt)) return "Now we are exploring rectangle fence problems: halve the perimeter, then find the missing side.";
+      return "Now we are exploring same-perimeter geometry: keep the outside walk the same, even when the shape changes.";
+    }
+    if (lower.includes("logic") || lower.includes("deduction")) return "Now we are exploring detective logic: only choose what every clue forces to be true.";
+    if (lower.includes("pattern") || lower.includes("sequence")) return "Now we are exploring pattern journeys: count the first term before counting the jumps.";
+    if (lower.includes("money")) return "Now we are exploring shop-counter questions: add the cost first, then find the change.";
+    if (lower.includes("inference")) return "Now we are exploring clue-reading questions: join the text clue to the sensible thought.";
+    if (lower.includes("grammar")) return "Now we are exploring sentence-match questions: find the owner, then match the action.";
+    if (lower.includes("fraction")) return "Now we are exploring equal-part questions: check the pieces before choosing numbers.";
+    if (lower.includes("text structure")) return "Now we are exploring writing-structure questions: spot whether the writer is proving a point.";
+    if (lower.includes("analogy")) return "Now we are exploring word-relationship questions: say the relationship as a sentence.";
+    return "Now we are exploring one saved question type and practising the same thinking move.";
   }
 
   function concreteStorySteps(skill, example, narrative, index) {
@@ -936,22 +958,153 @@
     ];
   }
 
+  function practiceFor(skill, example) {
+    const lower = String(skill || "").toLowerCase();
+    const prompt = String(example?.prompt || "");
+    if (lower.includes("division")) {
+      return {
+        prompt: "Try this: 96 tiles are shared between 8 tables. Each table also gets 5 border tiles. How many tiles are on each table?",
+        answers: ["17"],
+        praise: "Yes. Lovely work. You shared first, then added the extra border tiles.",
+        explain: "Good try. Watch the two-step move. First, 96 shared between 8 tables is 12 each. Then each table receives 5 border tiles. Twelve plus five is seventeen.",
+        solutionCommands: solutionCommands("Share, then add", ["96 / 8 = 12", "12 + 5 = 17", "Answer: 17 tiles"])
+      };
+    }
+    if (lower.includes("data")) {
+      return {
+        prompt: "Try this: Four classes collected 84, 97, 76 and 91 cans. What is the range?",
+        answers: ["21"],
+        praise: "Exactly. You found the biggest and smallest, then measured the gap.",
+        explain: "Good try. Range is the gap. The biggest number is 97. The smallest is 76. Ninety-seven minus seventy-six is twenty-one.",
+        solutionCommands: solutionCommands("Range = biggest - smallest", ["Biggest: 97", "Smallest: 76", "97 - 76 = 21"])
+      };
+    }
+    if (lower.includes("time")) {
+      return {
+        prompt: "Try this: A quiz starts at 8:45, lasts 35 minutes, then has a 10-minute break. What time is it after the break?",
+        answers: ["9:30", "930"],
+        praise: "Spot on. You treated the clock like a journey with stops.",
+        explain: "Good try. Start at 8:45. Add 15 minutes to reach 9:00. There are 20 quiz minutes left, so the quiz ends at 9:20. Then add the 10-minute break. That lands at 9:30.",
+        solutionCommands: solutionCommands("Clock journey", ["8:45 + 15 = 9:00", "9:00 + 20 = 9:20", "9:20 + 10 = 9:30"])
+      };
+    }
+    if (lower.includes("money")) {
+      return {
+        prompt: "Try this: A snack costs $3.50 and a drink costs $2.00. You pay with $10. How much change do you get?",
+        answers: ["4.50", "$4.50", "4.5", "$4.5"],
+        praise: "Beautiful. You added the cost before finding the change.",
+        explain: "Good try. First add the prices: three dollars fifty plus two dollars is five dollars fifty. Then subtract from ten dollars. Ten dollars minus five dollars fifty is four dollars fifty.",
+        solutionCommands: solutionCommands("Add cost, then change", ["$3.50 + $2.00 = $5.50", "$10.00 - $5.50 = $4.50", "Answer: $4.50"])
+      };
+    }
+    if (lower.includes("pattern") || lower.includes("sequence")) {
+      return {
+        prompt: "Try this: A pattern starts with 3 and adds 5 each time. What is the 6th term?",
+        answers: ["28"],
+        praise: "Yes. You counted term 1 first, then made five jumps.",
+        explain: "Good try. Term 1 is already 3. To reach term 6, we need five jumps. Five jumps of 5 make 25. Three plus twenty-five is twenty-eight.",
+        solutionCommands: solutionCommands("Count the term numbers", ["Term 1 = 3", "Need 5 jumps", "3 + 5 x 5 = 28"])
+      };
+    }
+    if (lower.includes("multi")) {
+      return {
+        prompt: "Try this: A cinema has 12 rows with 14 seats in each row. 28 seats are empty. How many people are seated?",
+        answers: ["140"],
+        praise: "Excellent. You built the whole cinema first, then removed the empty seats.",
+        explain: "Good try. First build the whole cinema: twelve rows times fourteen seats is one hundred sixty-eight seats. Then remove the twenty-eight empty seats. One hundred sixty-eight minus twenty-eight is one hundred forty.",
+        solutionCommands: solutionCommands("Build, then remove", ["12 x 14 = 168 seats", "168 - 28 empty", "Answer: 140 people"])
+      };
+    }
+    if (lower.includes("subtraction")) {
+      return {
+        prompt: "Try this: There are 650 seats. 180 seats and 95 seats are booked. How many seats are left?",
+        answers: ["375"],
+        praise: "Nice. You bundled both booked groups before subtracting.",
+        explain: "Good try. First bundle the two booked groups: one hundred eighty plus ninety-five is two hundred seventy-five. Then subtract from six hundred fifty. Six hundred fifty minus two hundred seventy-five is three hundred seventy-five.",
+        solutionCommands: solutionCommands("Bundle, then subtract", ["180 + 95 = 275 booked", "650 - 275 = 375", "Answer: 375 seats"])
+      };
+    }
+    if (lower.includes("logic") || lower.includes("deduction")) {
+      return {
+        prompt: "Try this: All zibs are green. Some green things are shiny. Which must be true: A) All zibs are green, B) All green things are zibs, C) All zibs are shiny?",
+        answers: ["a", "all zibs are green"],
+        praise: "Sharp detective work. You picked only what the clues guarantee.",
+        explain: "Good try. The first clue directly says every zib is green, so A must be true. The shiny clue only says some green things are shiny. It does not force zibs to be shiny.",
+        solutionCommands: solutionCommands("Must means guaranteed", ["Clue 1: all zibs -> green", "Clue 2: some green -> shiny", "Only A is forced"])
+      };
+    }
+    if (lower.includes("geometry")) {
+      if (/length/i.test(prompt) && /width/i.test(prompt)) {
+        return {
+          prompt: "Try this: A rectangle has perimeter 34 cm and length 12 cm. What is its width?",
+          answers: ["5", "5 cm"],
+          praise: "Great fence thinking. You halved the perimeter before finding the width.",
+          explain: "Good try. A rectangle has two lengths and two widths. Half the perimeter is one length plus one width. Half of 34 is 17. If the length is 12, then the width is 17 minus 12, which is 5 centimetres.",
+          solutionCommands: solutionCommands("Rectangle fence walk", ["34 / 2 = 17", "12 + width = 17", "width = 5 cm"])
+        };
+      }
+      return {
+        prompt: "Try this: A rectangle is 8 cm by 6 cm. A square has the same perimeter. What is one side of the square?",
+        answers: ["7", "7 cm"],
+        praise: "Yes. Same outside walk, then share it into four equal square sides.",
+        explain: "Good try. First find the rectangle's outside walk: eight plus six plus eight plus six is twenty-eight. A square has four equal sides, so twenty-eight divided by four is seven.",
+        solutionCommands: solutionCommands("Same perimeter", ["8 + 6 + 8 + 6 = 28", "28 / 4 = 7", "Answer: 7 cm"])
+      };
+    }
+    if (lower.includes("grammar")) {
+      return {
+        prompt: "Try this: Choose the correct sentence: A) Each of the players has a badge. B) Each of the players have a badge.",
+        answers: ["a", "has", "each of the players has a badge"],
+        praise: "Yes. You matched the verb to 'each'.",
+        explain: "Good try. The important word is each. Each means one at a time, so the verb is has, not have.",
+        solutionCommands: solutionCommands("Match the owner and action", ["Subject: each", "Each = one", "Correct: has"])
+      };
+    }
+    if (lower.includes("inference")) {
+      return {
+        prompt: "Try this: Mia stared at her spelling test and hid it under her book. Is she proud, worried, or bored?",
+        answers: ["worried"],
+        praise: "Exactly. You used the clue instead of guessing the mood.",
+        explain: "Good try. The proof words are stared and hid it. People usually hide a test when they feel worried or disappointed, not proud.",
+        solutionCommands: solutionCommands("Clue plus thinking", ["Clue: stared at test", "Clue: hid it", "Best thought: worried"])
+      };
+    }
+    return {
+      prompt: "Try this: What is the first move you would make on this kind of question?",
+      answers: ["find the clue", "name the move", "read the question"],
+      praise: "Good. Naming the first move keeps the question calm.",
+      explain: "Good try. First find the clue, then name the move, then answer. We do not rush to the answer first.",
+      solutionCommands: solutionCommands("First move", ["1. Find the clue", "2. Name the move", "3. Then answer"])
+    };
+  }
+
+  function solutionCommands(title, lines) {
+    return [
+      { type: "erase" },
+      { type: "text", x: 54, y: 72, text: title, size: 34, max: 1000 },
+      ...lines.flatMap((line, index) => [
+        { type: "box", x: 88, y: 140 + index * 104, w: 760, h: 66 },
+        { type: "text", x: 118, y: 184 + index * 104, text: line, size: 28, max: 700 }
+      ])
+    ];
+  }
+
   function checkStep(index, closeLine) {
     return {
-      say: `Tiny check. Say this back in your own words: ${closeLine} Nice. That is the bit we want your brain to remember next time.`,
+      say: `Your turn. I am giving you a similar question now, using the same thinking move: ${closeLine}`,
       commands: [
         { type: "erase" },
-        { type: "text", x: 54, y: 72, text: "Tiny check", size: 34 },
+        { type: "text", x: 54, y: 72, text: "Your turn", size: 34 },
         { type: "box", x: 90, y: 150, w: 900, h: 146 },
-        { type: "text", x: 124, y: 210, text: closeLine, size: 28, max: 820 },
-        { type: "text", x: 126, y: 380, text: index < 2 ? "Ready for the next little lesson." : "That is a strong finish.", size: 30, max: 780 }
+        { type: "text", x: 124, y: 210, text: "Try the practice question below the board.", size: 30, max: 820 },
+        { type: "text", x: 126, y: 380, text: index < 2 ? "Same move, new numbers." : "Let's finish strong.", size: 30, max: 780 }
       ],
       mobileCommands: [
         { type: "erase" },
-        { type: "text", fixed: true, x: 24, y: 40, text: "Tiny check", size: 22 },
+        { type: "text", fixed: true, x: 24, y: 40, text: "Your turn", size: 22 },
         { type: "box", fixed: true, x: 30, y: 92, w: 306, h: 128 },
-        { type: "text", fixed: true, x: 46, y: 130, text: shorten(closeLine, 94), size: 16, max: 276 },
-        { type: "text", fixed: true, x: 44, y: 288, text: "Say it back once.", size: 18 }
+        { type: "text", fixed: true, x: 46, y: 130, text: "Try the practice question below.", size: 16, max: 276 },
+        { type: "text", fixed: true, x: 44, y: 288, text: "Same move, new numbers.", size: 18, max: 280 }
       ]
     };
   }
@@ -1219,6 +1372,7 @@
     lessonState.completed = false;
     lessonState.playing = false;
     lessonState.paused = false;
+    hidePracticePanel();
     clearAutoTimer();
     cancelTeacherVoice();
     renderPlan();
@@ -1282,9 +1436,14 @@
     const step = currentStep();
     if (!step || lessonState.paused) return;
     clearAutoTimer();
+    hidePracticePanel();
     lessonState.lastStep = step;
     clearBoard();
     animateCommands(commandsForBoard(step));
+    if (step.practice) {
+      teach(step.say, () => showPractice(step.practice));
+      return;
+    }
     teach(step.say, () => scheduleAutoAdvance(step.say));
   }
 
@@ -1312,6 +1471,7 @@
 
   function scheduleAutoAdvance(spokenText) {
     if (!lessonState.playing || lessonState.paused || lessonState.completed) return;
+    if (lessonState.awaitingPractice) return;
     const delay = Math.min(3600, Math.max(1400, String(spokenText || "").length * 18));
     clearAutoTimer();
     lessonState.autoTimer = setTimeout(() => {
@@ -1331,6 +1491,68 @@
 
   function currentStep() {
     return currentModule()?.steps?.[lessonState.stepIndex];
+  }
+
+  function showPractice(practice) {
+    if (!lessonState.playing || lessonState.paused) return;
+    lessonState.currentPractice = practice;
+    lessonState.awaitingPractice = true;
+    el.practicePrompt.textContent = practice.prompt;
+    el.practiceAnswer.value = "";
+    el.practiceAnswer.placeholder = practice.placeholder || "Type your answer";
+    el.practiceFeedback.textContent = "";
+    el.practicePanel.hidden = false;
+    el.practiceAnswer.focus();
+    el.apiStatus.textContent = "Try the similar question";
+  }
+
+  function hidePracticePanel() {
+    lessonState.currentPractice = null;
+    lessonState.awaitingPractice = false;
+    if (!el.practicePanel) return;
+    el.practicePanel.hidden = true;
+    el.practiceFeedback.textContent = "";
+  }
+
+  function handlePracticeSubmit(event) {
+    event.preventDefault();
+    const practice = lessonState.currentPractice;
+    if (!practice) return;
+    const response = el.practiceAnswer.value.trim();
+    if (!response) {
+      el.practiceFeedback.textContent = "Have a go first. One small answer is enough.";
+      return;
+    }
+    if (answerMatches(response, practice)) {
+      el.practiceFeedback.textContent = practice.praise || "Brilliant. That is the same move in a new coat.";
+      lessonState.awaitingPractice = false;
+      teach(practice.praise || "Brilliant. You used the same thinking move on a fresh question.", () => {
+        hidePracticePanel();
+        playNextStep();
+      });
+      return;
+    }
+    el.practiceFeedback.textContent = "Good try. Watch the board and we will repair the step.";
+    lessonState.awaitingPractice = false;
+    clearBoard();
+    animateCommands(practice.solutionCommands || []);
+    teach(practice.explain || "Good try. Let's walk through it carefully, one step at a time.", () => {
+      hidePracticePanel();
+      playNextStep();
+    });
+  }
+
+  function answerMatches(response, practice) {
+    const clean = normalizeAnswer(response);
+    return (practice.answers || []).some((answer) => clean === normalizeAnswer(answer));
+  }
+
+  function normalizeAnswer(value) {
+    return String(value || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9.:/-]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
   }
 
   async function handleQuestion(event) {
