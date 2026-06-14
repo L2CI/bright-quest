@@ -44,6 +44,7 @@
     currentAudio: null,
     voiceToken: 0,
     voiceCache: new Map(),
+    voicePrefetches: new Map(),
     animationToken: 0,
     speed: 1,
     captionsVisible: false,
@@ -87,6 +88,7 @@
     clearBoard();
     drawWelcomeBoard();
     el.apiStatus.textContent = canUseCloudVoice() ? "AI teacher voice ready" : "Local preview uses browser voice";
+    warmModuleVoice(0);
   }
 
   function fitCanvas() {
@@ -779,25 +781,49 @@
     const start = Number(text.match(/starts with\s+(\d+)/i)?.[1] || nums[0] || 2);
     const step = Number(text.match(/adds?\s+(\d+)/i)?.[1] || Math.abs((nums[1] || 6) - start) || 4);
     const target = Number(text.match(/(\d+)(?:st|nd|rd|th)\s+term/i)?.[1] || 8);
+    const jumps = target - 1;
     const answer = start + step * (target - 1);
     return [
       {
         say: `This pattern is like stepping stones. The first stone says ${start}. Every jump adds ${step}. The question is not asking for the next stone we can see. It asks for stone number ${target}.`,
         commands: [
-          { type: "text", x: 52, y: 64, text: "Pattern stepping stones", size: 34 },
-          ...stoneCommands(start, step, Math.min(target, 8)),
-          { type: "text", x: 86, y: 430, text: `Count the stones, not just the gaps.`, size: 30, max: 840 }
+          { type: "text", x: 52, y: 64, text: "Pattern stepping stones", size: 38, color: "cyan" },
+          { type: "line", x1: 86, y1: 246, x2: 1040, y2: 246, color: "cyan" },
+          ...stoneCommands(start, step, Math.min(target, 8), target),
+          { type: "box", x: 100, y: 392, w: 860, h: 108, color: "violet" },
+          { type: "text", x: 132, y: 452, text: `Count stones, not gaps. Goal: stone #${target}.`, size: 30, max: 780, color: "amber" }
+        ],
+        mobileCommands: [
+          { type: "text", fixed: true, x: 24, y: 38, text: "Pattern stones", size: 22, color: "cyan" },
+          { type: "line", fixed: true, x1: 34, y1: 160, x2: 330, y2: 160, color: "cyan" },
+          ...mobileStoneCommands(start, step, Math.min(target, 5)),
+          { type: "text", fixed: true, x: 34, y: 270, text: `Goal: stone #${target}`, size: 18, max: 280, color: "amber" },
+          { type: "text", fixed: true, x: 34, y: 318, text: "Count stones, not gaps.", size: 16, max: 280 }
         ]
       },
       {
-        say: `Watch the count. Stone 1 is ${start}. Then we jump ${step} seven times to reach stone 8. That lands on ${answer}.`,
+        say: `Watch the count. Stone 1 is ${start}. To reach stone ${target}, we make ${jumps} jumps. ${jumps} jumps of ${step} makes ${step * jumps}, and ${start} plus ${step * jumps} lands on ${answer}.`,
         commands: [
           { type: "erase" },
-          { type: "text", x: 52, y: 64, text: "Count the term numbers", size: 34 },
-          { type: "text", x: 108, y: 160, text: `Term ${target} = ${start} + ${step} x ${target - 1}`, size: 34 },
-          { type: "line", x1: 108, y1: 194, x2: 670, y2: 194 },
-          { type: "text", x: 108, y: 272, text: `${start} + ${step * (target - 1)} = ${answer}`, size: 44 },
-          { type: "circle", x: 402, y: 260, r: 76 }
+          { type: "text", x: 52, y: 64, text: "Count the term numbers", size: 38, color: "cyan" },
+          { type: "box", x: 86, y: 126, w: 292, h: 92, color: "violet" },
+          { type: "text", x: 118, y: 184, text: `Term 1 = ${start}`, size: 30, color: "chalk" },
+          { type: "arrow", x1: 390, y1: 172, x2: 558, y2: 172, color: "amber" },
+          { type: "box", x: 580, y: 126, w: 330, h: 92, color: "violet" },
+          { type: "text", x: 612, y: 184, text: `${target} needs ${jumps} jumps`, size: 30, color: "chalk" },
+          { type: "text", x: 108, y: 300, text: `${start} + ${step} x ${jumps}`, size: 46, color: "rose" },
+          { type: "line", x1: 108, y1: 326, x2: 590, y2: 326, color: "rose" },
+          { type: "text", x: 108, y: 420, text: `${start} + ${step * jumps} = ${answer}`, size: 54, color: "amber" },
+          { type: "circle", x: 510, y: 402, r: 86, color: "amber" }
+        ],
+        mobileCommands: [
+          { type: "erase" },
+          { type: "text", fixed: true, x: 24, y: 38, text: "Term count", size: 22, color: "cyan" },
+          { type: "box", fixed: true, x: 34, y: 84, w: 292, h: 58, color: "violet" },
+          { type: "text", fixed: true, x: 52, y: 122, text: `Term 1 = ${start}`, size: 18 },
+          { type: "text", fixed: true, x: 40, y: 198, text: `${target} needs ${jumps} jumps`, size: 19, color: "amber" },
+          { type: "text", fixed: true, x: 40, y: 258, text: `${start} + ${step} x ${jumps}`, size: 22, color: "rose" },
+          { type: "text", fixed: true, x: 40, y: 326, text: `= ${answer}`, size: 30, color: "amber" }
         ]
       },
       checkStep(index, `For a term number, count the first term before counting jumps.`)
@@ -1166,15 +1192,34 @@
     });
   }
 
-  function stoneCommands(start, step, count) {
+  function stoneCommands(start, step, count, target) {
     return Array.from({ length: count }, (_, index) => {
       const x = 92 + index * 118;
       const value = start + step * index;
+      const isGoal = index + 1 === target;
+      const color = isGoal ? "amber" : index % 2 ? "violet" : "cyan";
       return [
-        { type: "circle", x, y: 220, r: 42 },
-        { type: "text", x: x - 16, y: 228, text: String(value), size: 22 },
-        { type: "text", x: x - 22, y: 298, text: `#${index + 1}`, size: 18 },
-        ...(index < count - 1 ? [{ type: "arrow", x1: x + 44, y1: 220, x2: x + 74, y2: 220 }] : [])
+        { type: "dot", x, y: 246, r: isGoal ? 48 : 40, color },
+        { type: "text", x: x - 18, y: 254, text: String(value), size: 22, color: "chalk" },
+        { type: "text", x: x - 24, y: 330, text: `#${index + 1}`, size: 19, color },
+        ...(index < count - 1 ? [
+          { type: "arrow", x1: x + 48, y1: 246, x2: x + 72, y2: 246, color: "amber" },
+          { type: "text", x: x + 48, y: 212, text: `+${step}`, size: 16, color: "amber" }
+        ] : [])
+      ];
+    }).flat();
+  }
+
+  function mobileStoneCommands(start, step, count) {
+    return Array.from({ length: count }, (_, index) => {
+      const x = 50 + index * 66;
+      const value = start + step * index;
+      const color = index % 2 ? "violet" : "cyan";
+      return [
+        { type: "dot", fixed: true, x, y: 160, r: 24, color },
+        { type: "text", fixed: true, x: x - 10, y: 166, text: String(value), size: 13 },
+        { type: "text", fixed: true, x: x - 12, y: 216, text: `#${index + 1}`, size: 12, color },
+        ...(index < count - 1 ? [{ type: "arrow", fixed: true, x1: x + 26, y1: 160, x2: x + 40, y2: 160, color: "amber" }] : [])
       ];
     }).flat();
   }
@@ -1380,6 +1425,7 @@
     drawWelcomeBoard();
     el.caption.textContent = `Ready for ${lessonState.plan.modules[index].title}. Press Start lesson.`;
     updateLessonControl();
+    warmModuleVoice(index);
   }
 
   function handleLessonControl() {
@@ -1440,6 +1486,7 @@
     lessonState.lastStep = step;
     clearBoard();
     animateCommands(commandsForBoard(step));
+    warmNearbyVoice();
     if (step.practice) {
       teach(step.say, () => showPractice(step.practice));
       return;
@@ -1457,6 +1504,7 @@
       lessonState.moduleIndex += 1;
       lessonState.stepIndex = 0;
       renderPlan();
+      warmModuleVoice(lessonState.moduleIndex);
     } else {
       lessonState.playing = false;
       lessonState.completed = true;
@@ -1493,6 +1541,38 @@
     return currentModule()?.steps?.[lessonState.stepIndex];
   }
 
+  function warmModuleVoice(moduleIndex) {
+    if (!canUseCloudVoice() || !lessonState.cloudVoiceAvailable) return;
+    const module = lessonState.plan?.modules?.[moduleIndex];
+    if (!module) return;
+    module.steps.slice(0, 3).forEach((step) => prefetchVoice(step.say));
+  }
+
+  function warmNearbyVoice() {
+    if (!canUseCloudVoice() || !lessonState.cloudVoiceAvailable) return;
+    const module = currentModule();
+    if (!module) return;
+    [lessonState.stepIndex, lessonState.stepIndex + 1].forEach((index) => {
+      const step = module.steps[index];
+      if (step?.say) prefetchVoice(step.say);
+      if (step?.practice?.praise) prefetchVoice(step.practice.praise);
+      if (step?.practice?.explain) prefetchVoice(step.practice.explain);
+    });
+  }
+
+  function voiceCacheKey(text) {
+    return String(text || "").slice(0, 900);
+  }
+
+  function prefetchVoice(text) {
+    const cacheKey = voiceCacheKey(text);
+    if (!cacheKey || lessonState.voiceCache.has(cacheKey) || lessonState.voicePrefetches.has(cacheKey)) return;
+    const promise = fetchVoiceUrl(cacheKey)
+      .catch(() => null)
+      .finally(() => lessonState.voicePrefetches.delete(cacheKey));
+    lessonState.voicePrefetches.set(cacheKey, promise);
+  }
+
   function showPractice(practice) {
     if (!lessonState.playing || lessonState.paused) return;
     lessonState.currentPractice = practice;
@@ -1526,6 +1606,7 @@
     if (answerMatches(response, practice)) {
       el.practiceFeedback.textContent = practice.praise || "Brilliant. That is the same move in a new coat.";
       lessonState.awaitingPractice = false;
+      el.apiStatus.textContent = "Nice answer";
       teach(practice.praise || "Brilliant. You used the same thinking move on a fresh question.", () => {
         hidePracticePanel();
         playNextStep();
@@ -1533,9 +1614,10 @@
       return;
     }
     el.practiceFeedback.textContent = "Good try. Watch the board and we will repair the step.";
+    el.apiStatus.textContent = "Drawing the worked solution";
     lessonState.awaitingPractice = false;
     clearBoard();
-    animateCommands(practice.solutionCommands || []);
+    drawCommandsNow(practice.solutionCommands || []);
     teach(practice.explain || "Good try. Let's walk through it carefully, one step at a time.", () => {
       hidePracticePanel();
       playNextStep();
@@ -1751,12 +1833,21 @@
     const token = ++lessonState.animationToken;
     const run = () => {
       if (token !== lessonState.animationToken) return;
-      const command = queue.shift();
-      if (!command) return;
-      drawCommand(command, true);
-      setTimeout(run, command.type === "erase" ? 90 : 145 / lessonState.speed);
+      let delay = 42;
+      for (let i = 0; i < 4; i += 1) {
+        const command = queue.shift();
+        if (!command) return;
+        drawCommand(command, true);
+        if (command.type === "erase") delay = 55;
+      }
+      setTimeout(run, delay / lessonState.speed);
     };
     run();
+  }
+
+  function drawCommandsNow(commands) {
+    lessonState.animationToken += 1;
+    commands.forEach((command) => drawCommand(command, false));
   }
 
   function renderStaticStep(step) {
@@ -1807,19 +1898,20 @@
       if (typeof c[key] === "number") c[key] *= scale;
     });
     ctx.save();
-    ctx.globalAlpha = command.type === "highlight" ? 0.25 : 0.92;
+    ctx.globalAlpha = command.type === "highlight" ? 0.22 : 0.98;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     const color = chalkColor(command.color, command.type);
     ctx.strokeStyle = color;
     ctx.fillStyle = color;
     ctx.shadowColor = color;
-    ctx.shadowBlur = command.color ? 5 : 1.5;
+    ctx.shadowBlur = command.type === "highlight" ? 0 : command.color ? 1.2 : 0;
     if (command.type === "text") chalkText(c.text, c.x, c.y, c.size || 22, c.max ? c.max * scale : undefined);
     if (command.type === "line") chalkLine(c.x1, c.y1, c.x2, c.y2, jitter);
     if (command.type === "arrow") chalkArrow(c.x1, c.y1, c.x2, c.y2, jitter);
     if (command.type === "box") chalkBox(c.x, c.y, c.w, c.h, jitter);
     if (command.type === "circle") chalkCircle(c.x, c.y, c.r, jitter);
+    if (command.type === "dot") chalkDot(c.x, c.y, c.r, jitter);
     if (command.type === "highlight") {
       ctx.fillRect(c.x, c.y, c.w, c.h);
     }
@@ -1841,7 +1933,7 @@
   }
 
   function chalkText(text, x, y, size, maxWidth) {
-    ctx.font = `700 ${Math.max(13, size)}px "Comic Sans MS", "Trebuchet MS", sans-serif`;
+    ctx.font = `800 ${Math.max(13, size)}px "Trebuchet MS", "Segoe UI", Arial, sans-serif`;
     const words = String(text).split(" ");
     let line = "";
     let lineY = y;
@@ -1860,14 +1952,14 @@
   }
 
   function roughFillText(text, x, y) {
-    ctx.fillText(text, x + rand(-0.7, 0.7), y + rand(-0.7, 0.7));
-    ctx.globalAlpha *= 0.34;
-    ctx.fillText(text, x + rand(-1.3, 1.3), y + rand(-1.3, 1.3));
-    ctx.globalAlpha = Math.min(0.92, ctx.globalAlpha / 0.34);
+    ctx.fillText(text, x, y);
+    ctx.globalAlpha *= 0.18;
+    ctx.fillText(text, x + 0.65, y + 0.55);
+    ctx.globalAlpha = Math.min(0.98, ctx.globalAlpha / 0.18);
   }
 
   function chalkLine(x1, y1, x2, y2, jitter) {
-    ctx.lineWidth = Math.max(2, 3 * boardScale());
+    ctx.lineWidth = Math.max(2.2, 3.2 * boardScale());
     for (let pass = 0; pass < 2; pass += 1) {
       ctx.beginPath();
       ctx.moveTo(x1 + randJ(jitter), y1 + randJ(jitter));
@@ -1892,12 +1984,22 @@
   }
 
   function chalkCircle(x, y, r, jitter) {
-    ctx.lineWidth = Math.max(2, 3 * boardScale());
+    ctx.lineWidth = Math.max(2.2, 3.2 * boardScale());
     for (let pass = 0; pass < 2; pass += 1) {
       ctx.beginPath();
       ctx.ellipse(x + randJ(jitter), y + randJ(jitter), r + randJ(jitter), r * 0.96 + randJ(jitter), rand(-0.05, 0.05), 0, Math.PI * 2);
       ctx.stroke();
     }
+  }
+
+  function chalkDot(x, y, r, jitter) {
+    ctx.save();
+    ctx.globalAlpha *= 0.2;
+    ctx.beginPath();
+    ctx.ellipse(x + randJ(jitter), y + randJ(jitter), r, r * 0.92, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    chalkCircle(x, y, r, jitter);
   }
 
   function teach(text, after) {
@@ -1906,9 +2008,14 @@
     lessonState.transcript.push({ role: "teacher", text });
     cancelTeacherVoice();
     const token = ++lessonState.voiceToken;
-    if (canUseCloudVoice() && lessonState.cloudVoiceAvailable) {
+    const cacheKey = voiceCacheKey(text);
+    if (canUseCloudVoice() && lessonState.cloudVoiceAvailable && lessonState.voiceCache.has(cacheKey)) {
       playOpenAiVoice(text, token, after);
       return;
+    }
+    if (canUseCloudVoice() && lessonState.cloudVoiceAvailable) {
+      prefetchVoice(text);
+      el.apiStatus.textContent = "Speaking now; premium voice warming";
     }
     playBrowserVoice(text, token, after);
   }
@@ -1940,10 +2047,18 @@
   }
 
   async function getVoiceUrl(text, token) {
-    const cacheKey = text.slice(0, 900);
+    const cacheKey = voiceCacheKey(text);
     if (lessonState.voiceCache.has(cacheKey)) return lessonState.voiceCache.get(cacheKey);
+    if (lessonState.voicePrefetches.has(cacheKey)) {
+      const prefetched = await lessonState.voicePrefetches.get(cacheKey);
+      if (prefetched) return prefetched;
+    }
+    return fetchVoiceUrl(cacheKey, token);
+  }
+
+  async function fetchVoiceUrl(cacheKey, token) {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 7000);
+    const timeout = setTimeout(() => controller.abort(), 5200);
     const response = await fetch("/api/blackboard-voice", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -1951,7 +2066,7 @@
       signal: controller.signal
     });
     clearTimeout(timeout);
-    if (token !== lessonState.voiceToken) throw new Error("stale voice request");
+    if (token && token !== lessonState.voiceToken) throw new Error("stale voice request");
     if (!response.ok) throw new Error(`voice unavailable: ${response.status}`);
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
@@ -2047,7 +2162,7 @@
   }
 
   function randJ(enabled) {
-    return enabled ? rand(-1.6, 1.6) : 0;
+    return enabled ? rand(-0.45, 0.45) : 0;
   }
 
   window.__blackboardFocusDebug = {
