@@ -1,0 +1,353 @@
+:root {
+  color-scheme: dark;
+  --ink: #f8f1dd;
+  --muted: #c9d2c5;
+  --chalk: #f5efdc;
+  --green: #142f2a;
+  --green-deep: #091815;
+  --amber: #f5c76a;
+  --cyan: #78e4eb;
+  --panel: rgba(7, 22, 22, 0.86);
+  --line: rgba(245, 239, 220, 0.2);
+}
+
+* { box-sizing: border-box; }
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 16% 12%, rgba(98, 214, 196, 0.18), transparent 34%),
+    radial-gradient(circle at 84% 0%, rgba(245, 199, 106, 0.12), transparent 28%),
+    linear-gradient(135deg, #05100f, #12332d 52%, #071413);
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+button,
+textarea,
+input {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.classroom-shell {
+  min-height: 100vh;
+  padding: clamp(14px, 2vw, 28px);
+}
+
+.classroom-topbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 16px;
+  align-items: center;
+  max-width: 1660px;
+  margin: 0 auto 16px;
+}
+
+.classroom-topbar p,
+.rail-label {
+  margin: 0 0 4px;
+  color: var(--cyan);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.classroom-topbar h1,
+.rail-card h2 {
+  margin: 0;
+  color: #fff9e8;
+  letter-spacing: 0;
+}
+
+.classroom-topbar h1 {
+  font-size: clamp(1.35rem, 3vw, 2.35rem);
+  line-height: 1.02;
+}
+
+.back-button,
+.student-pill,
+.soft-control,
+.primary-control,
+.voice-toggle {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(7, 20, 22, 0.78);
+  color: var(--ink);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.28);
+}
+
+.back-button {
+  min-height: 48px;
+  padding: 0 18px;
+  font-weight: 900;
+}
+
+.student-pill {
+  max-width: 260px;
+  padding: 12px 16px;
+  color: #fff6de;
+  font-weight: 900;
+}
+
+.lesson-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 0.72fr) minmax(520px, 1.8fr) minmax(270px, 0.8fr);
+  gap: 16px;
+  max-width: 1660px;
+  margin: 0 auto;
+  align-items: stretch;
+}
+
+.lesson-rail,
+.student-panel {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
+.rail-card {
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--panel);
+  padding: 18px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(14px);
+}
+
+.rail-card p {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.module-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.module-button {
+  width: 100%;
+  border: 1px solid rgba(245, 239, 220, 0.18);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.055);
+  color: var(--ink);
+  padding: 12px;
+  text-align: left;
+}
+
+.module-button.active {
+  border-color: rgba(120, 228, 235, 0.72);
+  background: linear-gradient(135deg, rgba(120, 228, 235, 0.2), rgba(245, 199, 106, 0.12));
+}
+
+.module-button strong,
+.module-button span {
+  display: block;
+}
+
+.module-button strong {
+  font-size: 0.98rem;
+}
+
+.module-button span {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.evidence-card ul,
+.memory-card ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.blackboard-stage {
+  min-width: 0;
+}
+
+.board-frame {
+  position: relative;
+  overflow: hidden;
+  border: 18px solid #6f492b;
+  border-radius: 24px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03), transparent 22%, rgba(255, 255, 255, 0.02) 70%, transparent),
+    radial-gradient(circle at 20% 8%, rgba(255, 255, 255, 0.08), transparent 28%),
+    #102d28;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 240, 190, 0.18),
+    0 26px 80px rgba(0, 0, 0, 0.44);
+}
+
+.board-frame::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0 23px, rgba(255, 255, 255, 0.018) 24px),
+    repeating-linear-gradient(90deg, transparent 0 31px, rgba(255, 255, 255, 0.012) 32px);
+  mix-blend-mode: screen;
+}
+
+#chalkboard {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+.chalk-dust {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 22% 28%, rgba(255, 255, 255, 0.05), transparent 12%),
+    radial-gradient(circle at 74% 42%, rgba(255, 255, 255, 0.035), transparent 18%);
+  opacity: 0.8;
+}
+
+.teacher-caption {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+  max-width: 780px;
+  border: 1px solid rgba(245, 239, 220, 0.2);
+  border-radius: 16px;
+  background: rgba(3, 14, 13, 0.72);
+  padding: 12px 16px;
+  color: #fff9e8;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.teacher-console {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.primary-control,
+.soft-control,
+.voice-toggle {
+  min-height: 46px;
+  padding: 0 18px;
+  font-weight: 950;
+}
+
+.primary-control {
+  border-color: rgba(245, 199, 106, 0.5);
+  background: linear-gradient(135deg, #ffe7a7, #f1bd54 48%, #5fe0ca);
+  color: #13221c;
+}
+
+.soft-control {
+  background: rgba(11, 33, 34, 0.82);
+}
+
+.voice-toggle {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.quick-prompts {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.quick-prompts button {
+  border: 1px solid rgba(120, 228, 235, 0.26);
+  border-radius: 14px;
+  background: rgba(120, 228, 235, 0.08);
+  color: var(--ink);
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 850;
+}
+
+.question-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.question-form textarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid rgba(245, 239, 220, 0.2);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ink);
+  padding: 12px;
+  line-height: 1.45;
+}
+
+.question-form textarea::placeholder {
+  color: rgba(248, 241, 221, 0.58);
+}
+
+@media (max-width: 1120px) {
+  .lesson-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .lesson-rail,
+  .student-panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .classroom-shell {
+    padding: 10px;
+  }
+
+  .classroom-topbar {
+    grid-template-columns: auto 1fr;
+  }
+
+  .student-pill {
+    grid-column: 1 / -1;
+    max-width: none;
+  }
+
+  .lesson-rail,
+  .student-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .board-frame {
+    border-width: 10px;
+    border-radius: 18px;
+  }
+
+  #chalkboard {
+    aspect-ratio: 10 / 12;
+  }
+
+  .teacher-caption {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    font-size: 0.9rem;
+  }
+}

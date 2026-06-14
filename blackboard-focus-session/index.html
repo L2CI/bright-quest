@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#102c28" />
+    <title>Blackboard Focus Session | Bright Quest</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="blackboard-focus-session.css?v=blackboard-001" />
+  </head>
+  <body>
+    <main class="classroom-shell">
+      <header class="classroom-topbar">
+        <button class="back-button" id="backButton" type="button">Back</button>
+        <div>
+          <p>Bright Quest</p>
+          <h1>Blackboard Focus Session</h1>
+        </div>
+        <div class="student-pill" id="studentPill">Loading profile</div>
+      </header>
+
+      <section class="lesson-layout">
+        <aside class="lesson-rail">
+          <div class="rail-card plan-card">
+            <p class="rail-label">Today's plan</p>
+            <h2 id="planTitle">Building a focus lesson</h2>
+            <p id="planSummary">Reading Aarin's latest attempts and finding the smallest useful next steps.</p>
+            <div class="module-list" id="moduleList"></div>
+          </div>
+
+          <div class="rail-card evidence-card">
+            <p class="rail-label">Why this lesson</p>
+            <div id="evidenceList"></div>
+          </div>
+        </aside>
+
+        <section class="blackboard-stage" aria-label="AI classroom blackboard">
+          <div class="board-frame">
+            <canvas id="chalkboard" width="1280" height="720"></canvas>
+            <div class="chalk-dust" aria-hidden="true"></div>
+            <div class="teacher-caption" id="teacherCaption">The teacher is preparing the board...</div>
+          </div>
+          <div class="teacher-console">
+            <button class="primary-control" id="startLessonButton" type="button">Start teaching</button>
+            <button class="soft-control" id="slowerButton" type="button">Slower</button>
+            <button class="soft-control" id="repeatButton" type="button">Repeat</button>
+            <button class="soft-control" id="nextStepButton" type="button">Next step</button>
+            <label class="voice-toggle">
+              <input id="voiceToggle" type="checkbox" checked />
+              <span>Teacher voice</span>
+            </label>
+          </div>
+        </section>
+
+        <aside class="student-panel">
+          <div class="rail-card ask-card">
+            <p class="rail-label">Ask the teacher</p>
+            <h2>Interrupt anytime</h2>
+            <p>The lesson pauses, answers the question, then returns to the same place.</p>
+            <div class="quick-prompts">
+              <button type="button" data-question="Can you explain that more simply?">Simpler</button>
+              <button type="button" data-question="Can you give me an example?">Example</button>
+              <button type="button" data-question="Why does this matter in a test?">Why it matters</button>
+            </div>
+            <form id="questionForm" class="question-form">
+              <textarea id="studentQuestion" rows="4" placeholder="Ask a question, like: why did I get this wrong?"></textarea>
+              <button class="primary-control" type="submit">Ask</button>
+            </form>
+          </div>
+
+          <div class="rail-card memory-card">
+            <p class="rail-label">Lesson memory</p>
+            <ul id="memoryList"></ul>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <script src="../app-data.js"></script>
+    <script src="../final-test-data.js"></script>
+    <script src="../international-tests-data.js"></script>
+    <script src="blackboard-focus-session.js?v=blackboard-001"></script>
+  </body>
+</html>

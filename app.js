@@ -73,6 +73,7 @@ const starTotal = document.querySelector("#starTotal");
 const switchProfileButton = document.querySelector("#switchProfileButton");
 const grammarGymButton = document.querySelector("#grammarGymButton");
 const gamesListButton = document.querySelector("#gamesListButton");
+const blackboardFocusButton = document.querySelector("#blackboardFocusButton");
 const internationalTestsButton = document.querySelector("#internationalTestsButton");
 const academyGrammarButton = document.querySelector("#academyGrammarButton");
 const academyGamesButton = document.querySelector("#academyGamesButton");
@@ -176,6 +177,7 @@ switchProfileButton.addEventListener("click", () => {
 });
 
 gamesListButton.addEventListener("click", openGamesList);
+blackboardFocusButton.addEventListener("click", openBlackboardFocusSession);
 grammarGymButton.addEventListener("click", openGrammarGym);
 internationalTestsButton.addEventListener("click", openInternationalArena);
 academyGrammarButton.addEventListener("click", openGrammarGym);
@@ -694,6 +696,10 @@ function renderTrainingQueue() {
 function openInternationalArena() {
   renderInternationalArena();
   showScreen("international");
+}
+
+function openBlackboardFocusSession() {
+  window.location.href = "blackboard-focus-session/";
 }
 
 function renderInternationalArena() {

@@ -77,7 +77,8 @@
       grammar: () => window.openGrammarGym ? window.openGrammarGym() : clickFirst('#academyGrammarButton'),
       reasoning: () => clickFirst('[data-zone-level="4"]'),
       world: openWorldArena,
-      arcade: () => window.openGamesList ? window.openGamesList() : clickFirst('#academyGamesButton')
+      arcade: () => window.openGamesList ? window.openGamesList() : clickFirst('#academyGamesButton'),
+      blackboard: () => { window.location.href = 'blackboard-focus-session/'; }
     };
     actions[zone]?.();
   }
@@ -116,6 +117,7 @@
           ${quickAction('bolt', 'Build Streaks')}
           ${quickAction('shield', 'Unlock Badges')}
           ${quickAction('gift', 'Play & Win', 'arcade')}
+          ${quickAction('chalk', 'Blackboard', 'blackboard')}
           ${quickAction('chart', 'Track Progress')}
         </div>
       </header>
