@@ -8,6 +8,9 @@
   const el = {
     canvas: document.querySelector("#chalkboard"),
     caption: document.querySelector("#teacherCaption"),
+    captionToggle: document.querySelector("#captionToggleButton"),
+    missedQuestionStrip: document.querySelector("#missedQuestionStrip"),
+    missedQuestionText: document.querySelector("#missedQuestionText"),
     studentPill: document.querySelector("#studentPill"),
     moduleList: document.querySelector("#moduleList"),
     evidenceList: document.querySelector("#evidenceList"),
@@ -39,6 +42,7 @@
     voiceCache: new Map(),
     animationToken: 0,
     speed: 1,
+    captionsVisible: false,
     memory: ["Current objective: teach from the exact saved questions, then practise one move."],
     interruptedFrom: null,
     lastStep: null,
@@ -55,6 +59,9 @@
   async function init() {
     el.back.addEventListener("click", () => { window.location.href = "../"; });
     el.start.addEventListener("click", handleLessonControl);
+    el.captionToggle.addEventListener("click", toggleCaptions);
+    el.caption.hidden = true;
+    el.captionToggle.setAttribute("aria-pressed", "false");
     el.form.addEventListener("submit", handleQuestion);
     el.mic.addEventListener("click", toggleMic);
     document.querySelectorAll("[data-question]").forEach((button) => {
@@ -166,7 +173,7 @@
       { skill: "Number sequences", section: "Reasoning", wrong: 0, slow: 0, seconds: 0, examples: [] }
     ];
 
-    const modules = seedSkills.slice(0, 8).map((item, index) => makeModule(item, index, attempts.length, slowCutoff));
+    const modules = seedSkills.slice(0, 14).map((item, index) => makeModule(item, index, attempts.length, slowCutoff));
     return {
       attempts,
       wrongCount: wrong.length,
@@ -175,6 +182,13 @@
       modules,
       evidence: buildEvidence(profile, attempts, wrong, slow, modules)
     };
+  }
+
+  function toggleCaptions() {
+    lessonState.captionsVisible = !lessonState.captionsVisible;
+    el.caption.hidden = !lessonState.captionsVisible;
+    el.captionToggle.setAttribute("aria-pressed", String(lessonState.captionsVisible));
+    el.captionToggle.classList.toggle("active", lessonState.captionsVisible);
   }
 
   function makeModule(item, index, attemptCount, slowCutoff) {
@@ -862,6 +876,40 @@
   }
 
   function geometryStorySteps(example, narrative, index) {
+    const prompt = String(example?.prompt || "");
+    const nums = numbersFrom(prompt);
+    if (/perimeter of/i.test(prompt) && /length/i.test(prompt) && /width/i.test(prompt)) {
+      const perimeter = nums[0] || 30;
+      const length = nums[1] || 10;
+      const halfPerimeter = perimeter / 2;
+      const width = halfPerimeter - length;
+      return [
+        {
+          say: `This rectangle question is a fence walk. The whole fence is ${perimeter} centimetres. A rectangle has two lengths and two widths, so I first fold the fence in half.`,
+          commands: [
+            { type: "text", x: 52, y: 64, text: "Rectangle fence walk", size: 34 },
+            { type: "box", x: 110, y: 148, w: 360, h: 190 },
+            { type: "text", x: 218, y: 130, text: `${length} cm`, size: 26 },
+            { type: "text", x: 530, y: 190, text: `perimeter ${perimeter} cm`, size: 32 },
+            { type: "arrow", x1: 620, y1: 226, x2: 620, y2: 304 },
+            { type: "text", x: 520, y: 360, text: `half fence = ${perimeter} / 2 = ${halfPerimeter}`, size: 31, max: 680 }
+          ]
+        },
+        {
+          say: `Half the fence is one length plus one width. So ${halfPerimeter} is ${length} plus the missing width. That means the width is ${width} centimetres.`,
+          commands: [
+            { type: "erase" },
+            { type: "text", x: 52, y: 64, text: "One length plus one width", size: 34 },
+            { type: "text", x: 110, y: 162, text: `${length} + width = ${halfPerimeter}`, size: 40 },
+            { type: "line", x1: 110, y1: 198, x2: 600, y2: 198 },
+            { type: "text", x: 110, y: 286, text: `${halfPerimeter} - ${length} = ${width}`, size: 44 },
+            { type: "circle", x: 498, y: 274, r: 72 },
+            { type: "text", x: 602, y: 286, text: "cm wide", size: 30 }
+          ]
+        },
+        checkStep(index, `For rectangle perimeter, halve the fence first: length plus width.`)
+      ];
+    }
     return [
       {
         say: `Here the square is trying to copy the rectangle's fence. Not the same shape, not the same sides. Just the same walk all the way around.`,
@@ -1133,18 +1181,35 @@
     const plan = lessonState.plan;
     el.studentPill.textContent = `${profile.name || "Aarin"} / ${plan.attempts.length} saved test${plan.attempts.length === 1 ? "" : "s"}`;
     el.planTitle.textContent = plan.modules[0]?.title || "Focus lesson";
-    el.planSummary.textContent = plan.modules[lessonState.moduleIndex]?.narrative?.short || plan.modules[0]?.childReason || "A short classroom lesson is ready.";
+    const activeModule = plan.modules[lessonState.moduleIndex] || plan.modules[0];
+    el.planSummary.textContent = activeModule?.example?.prompt
+      ? "One missed question is on the board."
+      : "Pick a lesson or press Start.";
     el.moduleList.innerHTML = plan.modules.map((module, index) => `
       <button class="module-button ${index === lessonState.moduleIndex ? "active" : ""}" type="button" data-module="${index}">
         <strong>${escapeHtml(module.title)}</strong>
-        <span>${escapeHtml(module.childReason)} ${module.example?.prompt ? `Example: ${escapeHtml(shorten(module.example.prompt, 88))}` : escapeHtml(module.objective)}</span>
+        <span>${escapeHtml(module.section || "Mixed")} ${module.example?.correct === false ? "missed" : "slow"}</span>
       </button>
     `).join("");
     el.evidenceList.innerHTML = `<ul>${plan.evidence.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+    renderMissedQuestion();
     renderMemory();
     el.moduleList.querySelectorAll("[data-module]").forEach((button) => {
       button.addEventListener("click", () => selectModule(Number(button.dataset.module)));
     });
+  }
+
+  function renderMissedQuestion() {
+    const example = currentModule()?.examples?.find((item) => item.correct === false) || currentModule()?.example;
+    if (!example?.prompt) {
+      el.missedQuestionStrip.hidden = true;
+      el.missedQuestionText.textContent = "";
+      return;
+    }
+    const chosen = example.selectedText ? ` Chose: ${example.selectedText}.` : "";
+    const correct = example.correctText ? ` Answer: ${example.correctText}.` : "";
+    el.missedQuestionText.textContent = `${example.prompt}${chosen}${correct}`;
+    el.missedQuestionStrip.hidden = false;
   }
 
   function selectModule(index) {
@@ -1604,6 +1669,7 @@
 
   function teach(text, after) {
     el.caption.textContent = text;
+    el.caption.hidden = !lessonState.captionsVisible;
     lessonState.transcript.push({ role: "teacher", text });
     cancelTeacherVoice();
     const token = ++lessonState.voiceToken;

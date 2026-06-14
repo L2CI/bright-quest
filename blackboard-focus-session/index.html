@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#102c28" />
     <title>Blackboard Focus Session | Bright Quest</title>
     <link rel="icon" href="data:," />
-    <link rel="stylesheet" href="blackboard-focus-session.css?v=blackboard-006" />
+    <link rel="stylesheet" href="blackboard-focus-session.css?v=blackboard-007" />
   </head>
   <body>
     <main class="classroom-shell">
@@ -21,13 +21,18 @@
 
       <section class="lesson-layout">
         <section class="blackboard-stage" aria-label="AI classroom blackboard">
+          <div class="missed-question-strip" id="missedQuestionStrip" hidden>
+            <span>Missed question</span>
+            <strong id="missedQuestionText"></strong>
+          </div>
           <div class="board-frame">
             <canvas id="chalkboard" width="1280" height="720"></canvas>
             <div class="chalk-dust" aria-hidden="true"></div>
-            <div class="teacher-caption" id="teacherCaption">The teacher is preparing the board...</div>
+            <div class="teacher-caption" id="teacherCaption" hidden>The teacher is preparing the board...</div>
           </div>
           <div class="teacher-console">
             <button class="primary-control" id="startLessonButton" type="button">Start lesson</button>
+            <button class="cc-control" id="captionToggleButton" type="button" aria-pressed="false">CC</button>
             <span class="api-status" id="apiStatus">Local teaching ready</span>
           </div>
         </section>
@@ -53,19 +58,19 @@
         </aside>
 
         <aside class="lesson-rail">
-          <div class="rail-card plan-card">
-            <p class="rail-label">Today's plan</p>
-            <h2 id="planTitle">Building a focus lesson</h2>
-            <p id="planSummary">Reading Aarin's latest attempts and finding the smallest useful next steps.</p>
+          <div class="rail-card plan-card toc-card">
+            <p class="rail-label">Contents</p>
+            <h2 id="planTitle">Today's path</h2>
+            <p id="planSummary">Pick a lesson or press Start.</p>
             <div class="module-list" id="moduleList"></div>
           </div>
 
-          <div class="rail-card evidence-card">
+          <div class="rail-card evidence-card" hidden>
             <p class="rail-label">Why this lesson</p>
             <div id="evidenceList"></div>
           </div>
 
-          <div class="rail-card memory-card">
+          <div class="rail-card memory-card" hidden>
             <p class="rail-label">Lesson memory</p>
             <ul id="memoryList"></ul>
           </div>
@@ -76,6 +81,6 @@
     <script src="../app-data.js"></script>
     <script src="../final-test-data.js"></script>
     <script src="../international-tests-data.js"></script>
-    <script src="blackboard-focus-session.js?v=blackboard-006"></script>
+    <script src="blackboard-focus-session.js?v=blackboard-007"></script>
   </body>
 </html>

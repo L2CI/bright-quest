@@ -80,7 +80,8 @@ button {
 .student-pill,
 .soft-control,
 .primary-control,
-.voice-toggle {
+.voice-toggle,
+.cc-control {
   border: 1px solid var(--line);
   border-radius: 18px;
   background: rgba(7, 20, 22, 0.78);
@@ -114,6 +115,35 @@ button {
   align-items: start;
 }
 
+.missed-question-strip {
+  display: grid;
+  gap: 4px;
+  margin: 0 0 10px;
+  border: 1px solid rgba(245, 199, 106, 0.32);
+  border-radius: 16px;
+  background: rgba(6, 19, 18, 0.78);
+  padding: 12px 14px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+}
+
+.missed-question-strip[hidden] {
+  display: none;
+}
+
+.missed-question-strip span {
+  color: var(--amber);
+  font-size: 0.68rem;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.missed-question-strip strong {
+  color: #fff9e8;
+  font-size: clamp(0.92rem, 1.2vw, 1.05rem);
+  line-height: 1.32;
+}
+
 .lesson-rail,
 .student-panel {
   display: grid;
@@ -123,7 +153,7 @@ button {
 
 .lesson-rail {
   grid-area: rail;
-  grid-template-columns: minmax(260px, 0.55fr) minmax(260px, 0.45fr) minmax(220px, 0.38fr);
+  grid-template-columns: minmax(240px, 1fr);
 }
 
 .student-panel {
@@ -182,17 +212,17 @@ button {
 
 .module-list {
   display: grid;
-  gap: 10px;
-  margin-top: 16px;
+  gap: 6px;
+  margin-top: 12px;
 }
 
 .module-button {
   width: 100%;
   border: 1px solid rgba(245, 239, 220, 0.18);
-  border-radius: 16px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.055);
   color: var(--ink);
-  padding: 12px;
+  padding: 9px 10px;
   text-align: left;
 }
 
@@ -207,13 +237,13 @@ button {
 }
 
 .module-button strong {
-  font-size: 0.98rem;
+  font-size: 0.92rem;
 }
 
 .module-button span {
-  margin-top: 4px;
+  margin-top: 2px;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.74rem;
   line-height: 1.35;
 }
 
@@ -288,7 +318,7 @@ button {
 
 .teacher-console {
   display: grid;
-  grid-template-columns: minmax(210px, max-content) 1fr;
+  grid-template-columns: minmax(210px, max-content) auto 1fr;
   gap: 10px;
   align-items: center;
   margin-top: 10px;
@@ -312,6 +342,21 @@ button {
   min-height: 54px;
   border-radius: 20px;
   font-size: 1.02rem;
+}
+
+.cc-control {
+  min-width: 58px;
+  min-height: 46px;
+  padding: 0 12px;
+  border-radius: 16px;
+  color: rgba(248, 241, 221, 0.82);
+  font-weight: 950;
+}
+
+.cc-control.active {
+  border-color: rgba(120, 228, 235, 0.72);
+  background: rgba(120, 228, 235, 0.16);
+  color: #fff9e8;
 }
 
 .soft-control {
@@ -425,6 +470,18 @@ button {
   }
 }
 
+@media (min-width: 1180px) {
+  .lesson-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(230px, 320px);
+    grid-template-areas: "board rail";
+  }
+
+  .lesson-rail {
+    position: sticky;
+    top: 14px;
+  }
+}
+
 @media (max-width: 720px) {
   .classroom-shell {
     padding: 10px;
@@ -461,7 +518,7 @@ button {
   }
 
   .teacher-console {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr auto;
   }
 
   .teacher-console .primary-control,
