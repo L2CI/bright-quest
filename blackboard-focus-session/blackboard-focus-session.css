@@ -107,7 +107,6 @@ button {
   grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
     "board"
-    "ask"
     "rail";
   gap: 16px;
   max-width: 1660px;
@@ -133,6 +132,10 @@ button {
   z-index: 1;
   width: auto;
   grid-template-columns: 1fr;
+}
+
+.student-panel[hidden] {
+  display: none;
 }
 
 .rail-card {
@@ -396,7 +399,6 @@ button {
     grid-template-columns: 1fr;
     grid-template-areas:
       "board"
-      "ask"
       "rail";
   }
 
