@@ -42,7 +42,7 @@ button {
 
 .classroom-shell {
   min-height: 100vh;
-  padding: clamp(14px, 2vw, 28px);
+  padding: clamp(10px, 1.45vw, 22px);
 }
 
 .classroom-topbar {
@@ -102,12 +102,17 @@ button {
 }
 
 .lesson-layout {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(250px, 0.72fr) minmax(520px, 1.8fr) minmax(270px, 0.8fr);
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "board"
+    "ask"
+    "rail";
   gap: 16px;
   max-width: 1660px;
   margin: 0 auto;
-  align-items: stretch;
+  align-items: start;
 }
 
 .lesson-rail,
@@ -117,6 +122,19 @@ button {
   align-content: start;
 }
 
+.lesson-rail {
+  grid-area: rail;
+  grid-template-columns: minmax(260px, 0.55fr) minmax(260px, 0.45fr) minmax(220px, 0.38fr);
+}
+
+.student-panel {
+  grid-area: ask;
+  position: static;
+  z-index: 1;
+  width: auto;
+  grid-template-columns: 1fr;
+}
+
 .rail-card {
   border: 1px solid var(--line);
   border-radius: 22px;
@@ -124,6 +142,34 @@ button {
   padding: 18px;
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(14px);
+}
+
+.student-panel .rail-card {
+  background: rgba(7, 22, 22, 0.9);
+}
+
+.ask-card {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.8fr) minmax(220px, 0.7fr) minmax(280px, 0.8fr);
+  gap: 12px 18px;
+  align-items: start;
+}
+
+.ask-card .rail-label,
+.ask-card h2,
+.ask-card > p {
+  grid-column: 1;
+}
+
+.ask-card .quick-prompts {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+}
+
+.ask-card .question-form {
+  grid-column: 3;
+  grid-row: 1 / span 3;
+  margin-top: 0;
 }
 
 .rail-card p {
@@ -177,6 +223,7 @@ button {
 }
 
 .blackboard-stage {
+  grid-area: board;
   min-width: 0;
 }
 
@@ -208,7 +255,7 @@ button {
 #chalkboard {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 8.55;
 }
 
 .chalk-dust {
@@ -241,7 +288,7 @@ button {
   flex-wrap: wrap;
   gap: 10px;
   align-items: center;
-  margin-top: 12px;
+  margin-top: 10px;
 }
 
 .primary-control,
@@ -266,6 +313,13 @@ button {
   display: inline-flex;
   gap: 8px;
   align-items: center;
+}
+
+.api-status {
+  margin-left: auto;
+  color: rgba(248, 241, 221, 0.68);
+  font-size: 0.8rem;
+  font-weight: 800;
 }
 
 .quick-prompts {
@@ -305,14 +359,55 @@ button {
   color: rgba(248, 241, 221, 0.58);
 }
 
+.ask-actions {
+  display: grid;
+  grid-template-columns: 0.75fr 1fr;
+  gap: 10px;
+}
+
+.mic-control {
+  min-height: 46px;
+  border: 1px solid rgba(120, 228, 235, 0.38);
+  border-radius: 18px;
+  background: rgba(120, 228, 235, 0.11);
+  color: var(--ink);
+  font-weight: 950;
+}
+
+.mic-control.listening {
+  border-color: rgba(245, 199, 106, 0.88);
+  background: linear-gradient(135deg, rgba(245, 199, 106, 0.24), rgba(120, 228, 235, 0.16));
+}
+
 @media (max-width: 1120px) {
   .lesson-layout {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "board"
+      "ask"
+      "rail";
   }
 
-  .lesson-rail,
+  .lesson-rail {
+    grid-template-columns: 1fr;
+  }
+
   .student-panel {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: auto;
+    grid-template-columns: 1fr;
+  }
+
+  .ask-card {
+    grid-template-columns: 1fr;
+  }
+
+  .ask-card .rail-label,
+  .ask-card h2,
+  .ask-card > p,
+  .ask-card .quick-prompts,
+  .ask-card .question-form {
+    grid-column: auto;
+    grid-row: auto;
   }
 }
 
@@ -341,13 +436,35 @@ button {
   }
 
   #chalkboard {
-    aspect-ratio: 10 / 12;
+    aspect-ratio: 10 / 11;
   }
 
   .teacher-caption {
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
+    position: static;
+    max-width: none;
+    margin: 10px;
     font-size: 0.9rem;
+  }
+
+  .teacher-console {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .teacher-console .primary-control,
+  .teacher-console .soft-control,
+  .teacher-console .voice-toggle {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .teacher-console .voice-toggle,
+  .api-status {
+    grid-column: 1 / -1;
+  }
+
+  .api-status {
+    margin-left: 0;
+    text-align: right;
   }
 }

@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#102c28" />
     <title>Blackboard Focus Session | Bright Quest</title>
     <link rel="icon" href="data:," />
-    <link rel="stylesheet" href="blackboard-focus-session.css?v=blackboard-001" />
+    <link rel="stylesheet" href="blackboard-focus-session.css?v=blackboard-002" />
   </head>
   <body>
     <main class="classroom-shell">
@@ -20,6 +20,45 @@
       </header>
 
       <section class="lesson-layout">
+        <section class="blackboard-stage" aria-label="AI classroom blackboard">
+          <div class="board-frame">
+            <canvas id="chalkboard" width="1280" height="720"></canvas>
+            <div class="chalk-dust" aria-hidden="true"></div>
+            <div class="teacher-caption" id="teacherCaption">The teacher is preparing the board...</div>
+          </div>
+          <div class="teacher-console">
+            <button class="primary-control" id="startLessonButton" type="button">Start lesson</button>
+            <button class="soft-control" id="slowerButton" type="button">Slower</button>
+            <button class="soft-control" id="repeatButton" type="button">Repeat</button>
+            <button class="soft-control" id="nextStepButton" type="button">Next chalk step</button>
+            <label class="voice-toggle">
+              <input id="voiceToggle" type="checkbox" checked />
+              <span>Teacher voice</span>
+            </label>
+            <span class="api-status" id="apiStatus">Local teaching ready</span>
+          </div>
+        </section>
+
+        <aside class="student-panel">
+          <div class="rail-card ask-card">
+            <p class="rail-label">Interrupt</p>
+            <h2>Ask during the lesson</h2>
+            <p>The board pauses, answers from the current lesson context, then returns to the same chalk step.</p>
+            <div class="quick-prompts">
+              <button type="button" data-question="Can you explain that more simply?">Simpler</button>
+              <button type="button" data-question="Can you use one of my actual missed questions?">Use my question</button>
+              <button type="button" data-question="Can you give me a test trick for this?">Test trick</button>
+            </div>
+            <form id="questionForm" class="question-form">
+              <textarea id="studentQuestion" rows="4" placeholder="Ask or tap Speak. Example: why was my answer wrong?"></textarea>
+              <div class="ask-actions">
+                <button class="mic-control" id="micButton" type="button">Speak</button>
+                <button class="primary-control" id="askButton" type="submit">Ask</button>
+              </div>
+            </form>
+          </div>
+        </aside>
+
         <aside class="lesson-rail">
           <div class="rail-card plan-card">
             <p class="rail-label">Today's plan</p>
@@ -31,41 +70,6 @@
           <div class="rail-card evidence-card">
             <p class="rail-label">Why this lesson</p>
             <div id="evidenceList"></div>
-          </div>
-        </aside>
-
-        <section class="blackboard-stage" aria-label="AI classroom blackboard">
-          <div class="board-frame">
-            <canvas id="chalkboard" width="1280" height="720"></canvas>
-            <div class="chalk-dust" aria-hidden="true"></div>
-            <div class="teacher-caption" id="teacherCaption">The teacher is preparing the board...</div>
-          </div>
-          <div class="teacher-console">
-            <button class="primary-control" id="startLessonButton" type="button">Start teaching</button>
-            <button class="soft-control" id="slowerButton" type="button">Slower</button>
-            <button class="soft-control" id="repeatButton" type="button">Repeat</button>
-            <button class="soft-control" id="nextStepButton" type="button">Next step</button>
-            <label class="voice-toggle">
-              <input id="voiceToggle" type="checkbox" checked />
-              <span>Teacher voice</span>
-            </label>
-          </div>
-        </section>
-
-        <aside class="student-panel">
-          <div class="rail-card ask-card">
-            <p class="rail-label">Ask the teacher</p>
-            <h2>Interrupt anytime</h2>
-            <p>The lesson pauses, answers the question, then returns to the same place.</p>
-            <div class="quick-prompts">
-              <button type="button" data-question="Can you explain that more simply?">Simpler</button>
-              <button type="button" data-question="Can you give me an example?">Example</button>
-              <button type="button" data-question="Why does this matter in a test?">Why it matters</button>
-            </div>
-            <form id="questionForm" class="question-form">
-              <textarea id="studentQuestion" rows="4" placeholder="Ask a question, like: why did I get this wrong?"></textarea>
-              <button class="primary-control" type="submit">Ask</button>
-            </form>
           </div>
 
           <div class="rail-card memory-card">
@@ -79,6 +83,6 @@
     <script src="../app-data.js"></script>
     <script src="../final-test-data.js"></script>
     <script src="../international-tests-data.js"></script>
-    <script src="blackboard-focus-session.js?v=blackboard-001"></script>
+    <script src="blackboard-focus-session.js?v=blackboard-002"></script>
   </body>
 </html>

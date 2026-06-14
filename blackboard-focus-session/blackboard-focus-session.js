@@ -19,6 +19,9 @@
     repeat: document.querySelector("#repeatButton"),
     next: document.querySelector("#nextStepButton"),
     voice: document.querySelector("#voiceToggle"),
+    apiStatus: document.querySelector("#apiStatus"),
+    mic: document.querySelector("#micButton"),
+    ask: document.querySelector("#askButton"),
     form: document.querySelector("#questionForm"),
     question: document.querySelector("#studentQuestion"),
     back: document.querySelector("#backButton")
@@ -34,7 +37,11 @@
     speed: 1,
     memory: ["Current objective: find one clear pattern, then practise it."],
     interruptedFrom: null,
-    lastStep: null
+    lastStep: null,
+    transcript: [],
+    recognition: null,
+    listening: false,
+    apiAvailable: true
   };
 
   init();
@@ -49,6 +56,7 @@
     el.repeat.addEventListener("click", () => replayStep());
     el.next.addEventListener("click", () => playNextStep());
     el.form.addEventListener("submit", handleQuestion);
+    el.mic.addEventListener("click", toggleMic);
     document.querySelectorAll("[data-question]").forEach((button) => {
       button.addEventListener("click", () => {
         el.question.value = button.dataset.question;
@@ -116,19 +124,23 @@
     const questionStats = attempts.flatMap((attempt) =>
       (attempt.questionStats || []).map((question) => ({ ...question, attempt }))
     );
-    const wrong = questionStats.filter((question) => question.correct === false);
-    const slow = questionStats
-      .filter((question) => question.format !== "writing")
-      .sort((a, b) => (b.secondsSpent || 0) - (a.secondsSpent || 0))
-      .slice(0, 10);
+    const timedChoice = questionStats.filter((question) => question.format !== "writing");
+    const slowCutoff = timedChoice.length
+      ? Math.max(45, percentile(timedChoice.map((question) => question.secondsSpent || 0), 0.72))
+      : 45;
+    const wrong = timedChoice.filter((question) => question.correct === false);
+    const slow = timedChoice.filter((question) => (question.secondsSpent || 0) >= slowCutoff);
     const skillScores = {};
-    [...wrong, ...slow].forEach((question) => {
+    timedChoice.forEach((question) => {
+      const isWrong = question.correct === false;
+      const isSlow = (question.secondsSpent || 0) >= slowCutoff;
+      if (!isWrong && !isSlow) return;
       const key = question.skill || "Careful reasoning";
       skillScores[key] ||= { skill: key, section: question.section || "Mixed", wrong: 0, slow: 0, seconds: 0, examples: [] };
-      if (question.correct === false) skillScores[key].wrong += 1;
-      if ((question.secondsSpent || 0) >= 45) skillScores[key].slow += 1;
+      if (isWrong) skillScores[key].wrong += 1;
+      if (isSlow) skillScores[key].slow += 1;
       skillScores[key].seconds += question.secondsSpent || 0;
-      if (skillScores[key].examples.length < 2) skillScores[key].examples.push(question);
+      if (skillScores[key].examples.length < 4) skillScores[key].examples.push(normalizeQuestionExample(question));
     });
 
     const ranked = Object.values(skillScores)
@@ -140,17 +152,18 @@
       { skill: "Number sequences", section: "Reasoning", wrong: 0, slow: 0, seconds: 0, examples: [] }
     ];
 
-    const modules = seedSkills.slice(0, 4).map((item, index) => makeModule(item, index, attempts.length));
+    const modules = seedSkills.slice(0, 8).map((item, index) => makeModule(item, index, attempts.length, slowCutoff));
     return {
       attempts,
       wrongCount: wrong.length,
-      slowCount: slow.filter((item) => (item.secondsSpent || 0) >= 45).length,
+      slowCount: slow.length,
+      slowCutoff,
       modules,
       evidence: buildEvidence(profile, attempts, wrong, slow, modules)
     };
   }
 
-  function makeModule(item, index, attemptCount) {
+  function makeModule(item, index, attemptCount, slowCutoff) {
     const adjacent = adjacentSkills(item.skill);
     const example = item.examples?.[0];
     const title = item.skill;
@@ -161,6 +174,7 @@
         : attemptCount
           ? "This is a useful next stretch from the latest work."
           : "This is a gentle starting skill.";
+    const narrative = createNarrative({ ...item, examples: item.examples || [] }, adjacent, slowCutoff);
 
     return {
       title,
@@ -168,8 +182,10 @@
       childReason,
       adjacent,
       example,
+      examples: item.examples || [],
       objective: moduleObjective(title),
-      steps: buildTeachingSteps(title, item.section, example, adjacent, index)
+      narrative,
+      steps: buildTeachingSteps(title, item.section, item.examples || [], adjacent, index, narrative)
     };
   }
 
@@ -179,10 +195,72 @@
       `${profile.name || "Aarin"} has ${attempts.length} saved test attempt${attempts.length === 1 ? "" : "s"}.`,
       latest ? `Latest result: ${latest.levelName || latest.level} at ${latest.percent}%.` : "No saved attempt yet, so this starts with foundation lessons.",
       wrong.length ? `${wrong.length} missed question${wrong.length === 1 ? "" : "s"} found across saved results.` : "No missed answers found in the current saved profile.",
-      slow.length ? `Slowest recent skills are included so speed improves gently.` : "No timing records found yet."
+      slow.length ? `${slow.length} slow question${slow.length === 1 ? "" : "s"} included, even when correct.` : "No timing records found yet."
     ];
     if (modules[0]) rows.push(`First focus: ${modules[0].title}.`);
     return rows;
+  }
+
+  function normalizeQuestionExample(question) {
+    return {
+      section: question.section || "Mixed",
+      skill: question.skill || "Careful reasoning",
+      prompt: String(question.prompt || "").replace(/\s+/g, " ").trim(),
+      secondsSpent: question.secondsSpent || 0,
+      correct: question.correct,
+      selectedText: question.selectedText || question.answerText || "",
+      correctText: question.correctText || "",
+      levelName: question.attempt?.levelName || question.attempt?.name || question.attempt?.level || "Saved test",
+      explain: question.explain || question.attempt?.wrong?.find((item) => item.prompt === question.prompt)?.explain || ""
+    };
+  }
+
+  function percentile(values, p) {
+    const sorted = values.filter((value) => Number.isFinite(value)).sort((a, b) => a - b);
+    if (!sorted.length) return 45;
+    return sorted[Math.min(sorted.length - 1, Math.max(0, Math.floor(sorted.length * p)))];
+  }
+
+  function createNarrative(group, adjacent, slowCutoff) {
+    const examples = group.examples || [];
+    const first = examples[0];
+    const missed = examples.filter((item) => item.correct === false).length;
+    const slow = examples.filter((item) => item.secondsSpent >= slowCutoff).length;
+    const intro = missed
+      ? `${group.skill} is worth a focus lesson because it led to ${missed} missed answer${missed === 1 ? "" : "s"}.`
+      : `${group.skill} is worth a focus lesson because it took time, even when the answer was right.`;
+    const actual = first
+      ? `For example, one saved question was: "${first.prompt}"${first.selectedText ? ` Aarin chose "${first.selectedText}"` : ""}${first.correctText ? `, while the best answer was "${first.correctText}"` : ""}.`
+      : `We will use a similar Grade 5 style question as the example.`;
+    const misconception = misconceptionFor(group.skill, first);
+    const move = moduleObjective(group.skill);
+    const practice = `The training move is: ${stripTrailingPunctuation(move)}. Then check by asking, "Does my answer match the job of the question?"`;
+    const bridge = `This also strengthens ${adjacent[0]} and ${adjacent[1]}, so it helps more than one test area.`;
+    const story = [intro, actual, misconception, practice, bridge];
+    return {
+      intro,
+      actual,
+      misconception,
+      move,
+      practice,
+      bridge,
+      story,
+      short: story.join(" ")
+    };
+  }
+
+  function misconceptionFor(skill, example) {
+    const lower = String(skill).toLowerCase();
+    if (lower.includes("inference")) return "The trap is choosing an answer that sounds nice but is not proved by the words in the passage.";
+    if (lower.includes("fraction")) return "The trap is looking at the numbers before checking whether the parts are equal.";
+    if (lower.includes("sequence") || lower.includes("pattern")) return "The trap is guessing the next number before comparing neighbouring numbers.";
+    if (lower.includes("money")) return "The trap is stopping after adding the prices, before finding the change.";
+    if (lower.includes("time")) return "The trap is counting minute by minute instead of jumping to the next easy time.";
+    if (lower.includes("analogy")) return "The trap is matching words that feel related, instead of matching the exact relationship.";
+    if (lower.includes("grammar")) return "The trap is reading the sentence by sound only, instead of checking subject and verb.";
+    return example?.correct === false
+      ? "The trap is answering before naming the exact job of the question."
+      : "The trap is spending too much working-memory on a question that needs a shorter routine.";
   }
 
   function moduleObjective(skill) {
@@ -210,56 +288,120 @@
     return ["Careful reading", "Working memory", "Checking"];
   }
 
-  function buildTeachingSteps(skill, section, example, adjacent, index) {
-    const prompt = example?.prompt ? shorten(example.prompt, 110) : samplePromptFor(skill);
+  function buildTeachingSteps(skill, section, examples, adjacent, index, narrative) {
+    const example = examples[0];
+    const secondExample = examples[1];
+    const prompt = example?.prompt ? shorten(example.prompt, 138) : samplePromptFor(skill);
+    const answerLine = example?.correctText
+      ? `Best answer: ${shorten(example.correctText, 52)}`
+      : "Best answer: prove it from the question.";
+    const selectedLine = example?.selectedText
+      ? `Chosen: ${shorten(example.selectedText, 56)}`
+      : "Chosen answer was not saved.";
     return [
       {
-        say: `Let's work on ${skill}. This is a short focus session, so we will learn one move really well.`,
+        say: `${narrative.intro} I am going to teach it from the actual saved question, not from a made-up example.`,
         commands: [
-          { type: "text", x: 54, y: 72, text: `Focus: ${skill}`, size: 34 },
-          { type: "text", x: 58, y: 118, text: `Goal: ${moduleObjective(skill)}`, size: 20 },
-          { type: "box", x: 52, y: 150, w: 370, h: 92 },
-          { type: "text", x: 76, y: 188, text: "One clear move", size: 24 },
-          { type: "arrow", x1: 424, y1: 195, x2: 560, y2: 195 },
-          { type: "circle", x: 645, y: 196, r: 62 },
-          { type: "text", x: 602, y: 204, text: "calm answer", size: 18 }
+          { type: "text", x: 52, y: 64, text: `Focus: ${skill}`, size: 36 },
+          { type: "text", x: 56, y: 112, text: `Why: ${narrative.intro}`, size: 20, max: 1000 },
+          { type: "box", x: 60, y: 164, w: 960, h: 150 },
+          { type: "text", x: 88, y: 206, text: prompt, size: 22, max: 880 },
+          { type: "text", x: 88, y: 272, text: selectedLine, size: 19, max: 420 },
+          { type: "text", x: 540, y: 272, text: answerLine, size: 19, max: 430 },
+          { type: "highlight", x: 78, y: 326, w: 360, h: 34 },
+          { type: "text", x: 88, y: 354, text: "We learn from the exact stumble.", size: 25 }
+        ],
+        mobileCommands: [
+          { type: "text", fixed: true, x: 24, y: 34, text: `Focus: ${shorten(skill, 24)}`, size: 21, max: 310 },
+          { type: "text", fixed: true, x: 26, y: 64, text: shorten(narrative.intro, 78), size: 13, max: 308 },
+          { type: "box", fixed: true, x: 24, y: 88, w: 318, h: 148 },
+          { type: "text", fixed: true, x: 38, y: 116, text: shorten(prompt, 92), size: 14, max: 290 },
+          { type: "text", fixed: true, x: 38, y: 172, text: shorten(selectedLine, 42), size: 13, max: 278 },
+          { type: "text", fixed: true, x: 38, y: 198, text: shorten(answerLine, 48), size: 13, max: 278 },
+          { type: "highlight", fixed: true, x: 32, y: 256, w: 262, h: 28 },
+          { type: "text", fixed: true, x: 42, y: 278, text: "Learn from the exact stumble.", size: 17, max: 280 }
         ]
       },
       {
-        say: `Here is the kind of question that caused effort. We will not rush it. First, we find what the question is really asking.`,
-        commands: [
-          { type: "erase" },
-          { type: "text", x: 54, y: 72, text: "Question type", size: 32 },
-          { type: "box", x: 58, y: 116, w: 840, h: 116 },
-          { type: "text", x: 80, y: 158, text: prompt, size: 21, max: 760 },
-          { type: "highlight", x: 78, y: 181, w: 280, h: 20 },
-          { type: "text", x: 78, y: 292, text: "Ask: what is the job?", size: 26 },
-          { type: "arrow", x1: 360, y1: 284, x2: 540, y2: 235 },
-          { type: "text", x: 588, y: 292, text: section || "Mixed skill", size: 24 }
-        ]
-      },
-      {
-        say: `Now I draw the thinking path. A good test answer is usually not magic. It is a small chain of steps.`,
-        commands: thinkingCommands(skill)
-      },
-      {
-        say: `This skill sits next to ${adjacent[0]} and ${adjacent[1]}. When those are stronger, this question type gets easier too.`,
+        say: `${narrative.misconception} So first we mark the job of the question before choosing an answer.`,
         commands: [
           { type: "erase" },
-          { type: "text", x: 54, y: 72, text: "Adjacent learning", size: 32 },
-          { type: "circle", x: 234, y: 260, r: 86 },
-          { type: "text", x: 180, y: 268, text: skill, size: 18, max: 120 },
-          { type: "circle", x: 530, y: 170, r: 72 },
-          { type: "text", x: 485, y: 176, text: adjacent[0], size: 18, max: 110 },
-          { type: "circle", x: 594, y: 392, r: 72 },
-          { type: "text", x: 550, y: 398, text: adjacent[1], size: 18, max: 110 },
-          { type: "arrow", x1: 318, y1: 238, x2: 458, y2: 184 },
-          { type: "arrow", x1: 318, y1: 294, x2: 520, y2: 372 },
-          { type: "text", x: 745, y: 284, text: "Practise the neighbours, not only the final question.", size: 22, max: 330 }
+          { type: "text", x: 52, y: 64, text: "Step 1: name the job", size: 34 },
+          { type: "box", x: 62, y: 118, w: 470, h: 120 },
+          { type: "text", x: 88, y: 165, text: "Question words", size: 25 },
+          { type: "text", x: 88, y: 204, text: "What is it asking me to do?", size: 20, max: 390 },
+          { type: "arrow", x1: 542, y1: 178, x2: 704, y2: 178 },
+          { type: "box", x: 720, y: 118, w: 420, h: 120 },
+          { type: "text", x: 748, y: 165, text: section || "Skill family", size: 25 },
+          { type: "text", x: 748, y: 204, text: skill, size: 21, max: 350 },
+          { type: "text", x: 74, y: 320, text: narrative.misconception, size: 24, max: 960 }
+        ],
+        mobileCommands: [
+          { type: "erase" },
+          { type: "text", fixed: true, x: 24, y: 38, text: "Step 1: name the job", size: 20, max: 310 },
+          { type: "box", fixed: true, x: 28, y: 72, w: 300, h: 70 },
+          { type: "text", fixed: true, x: 44, y: 100, text: "Question words", size: 16 },
+          { type: "text", fixed: true, x: 44, y: 124, text: "What must I do?", size: 14, max: 260 },
+          { type: "arrow", fixed: true, x1: 178, y1: 158, x2: 178, y2: 194 },
+          { type: "box", fixed: true, x: 28, y: 206, w: 300, h: 70 },
+          { type: "text", fixed: true, x: 44, y: 234, text: shorten(skill, 30), size: 16, max: 260 },
+          { type: "text", fixed: true, x: 30, y: 318, text: shorten(narrative.misconception, 92), size: 15, max: 306 }
         ]
       },
       {
-        say: `Check point. Before we move on, can you say the move in your own words? If not, ask me. That is exactly what this classroom is for.`,
+        say: `Now we use the move. ${narrative.practice}`,
+        commands: thinkingCommands(skill),
+        mobileCommands: mobileThinkingCommands(skill)
+      },
+      {
+        say: secondExample
+          ? `Here is another saved example from the same pattern. Notice that the decoration changes, but the thinking move stays the same.`
+          : `Now I show how the same move travels to nearby skills. This is how one lesson helps more than one test question.`,
+        commands: [
+          { type: "erase" },
+          { type: "text", x: 52, y: 64, text: secondExample ? "Same pattern, another question" : "Adjacent learning", size: 32 },
+          ...(secondExample ? [
+            { type: "box", x: 62, y: 120, w: 980, h: 142 },
+            { type: "text", x: 88, y: 164, text: shorten(secondExample.prompt, 142), size: 22, max: 900 },
+            { type: "text", x: 88, y: 228, text: secondExample.correctText ? `Best answer: ${shorten(secondExample.correctText, 76)}` : "Use the same move as before.", size: 20, max: 820 },
+            { type: "arrow", x1: 250, y1: 330, x2: 520, y2: 330 },
+            { type: "text", x: 92, y: 338, text: "different words", size: 22 },
+            { type: "text", x: 560, y: 338, text: "same move", size: 24 }
+          ] : [
+            { type: "circle", x: 234, y: 260, r: 86 },
+            { type: "text", x: 180, y: 268, text: skill, size: 18, max: 120 },
+            { type: "circle", x: 530, y: 170, r: 72 },
+            { type: "text", x: 485, y: 176, text: adjacent[0], size: 18, max: 110 },
+            { type: "circle", x: 594, y: 392, r: 72 },
+            { type: "text", x: 550, y: 398, text: adjacent[1], size: 18, max: 110 },
+            { type: "arrow", x1: 318, y1: 238, x2: 458, y2: 184 },
+            { type: "arrow", x1: 318, y1: 294, x2: 520, y2: 372 }
+          ])
+        ],
+        mobileCommands: secondExample ? [
+          { type: "erase" },
+          { type: "text", fixed: true, x: 24, y: 38, text: "Same pattern", size: 21 },
+          { type: "box", fixed: true, x: 28, y: 78, w: 306, h: 120 },
+          { type: "text", fixed: true, x: 42, y: 108, text: shorten(secondExample.prompt, 96), size: 14, max: 278 },
+          { type: "text", fixed: true, x: 42, y: 174, text: secondExample.correctText ? `Best: ${shorten(secondExample.correctText, 44)}` : "Use the same move.", size: 14, max: 278 },
+          { type: "arrow", fixed: true, x1: 90, y1: 248, x2: 256, y2: 248 },
+          { type: "text", fixed: true, x: 46, y: 232, text: "new words", size: 14 },
+          { type: "text", fixed: true, x: 234, y: 232, text: "same move", size: 14 }
+        ] : [
+          { type: "erase" },
+          { type: "text", fixed: true, x: 24, y: 38, text: "Adjacent learning", size: 21 },
+          { type: "circle", fixed: true, x: 176, y: 120, r: 54 },
+          { type: "text", fixed: true, x: 132, y: 126, text: shorten(skill, 18), size: 14, max: 88 },
+          { type: "box", fixed: true, x: 36, y: 210, w: 122, h: 62 },
+          { type: "text", fixed: true, x: 48, y: 246, text: shorten(adjacent[0], 18), size: 13, max: 96 },
+          { type: "box", fixed: true, x: 204, y: 210, w: 122, h: 62 },
+          { type: "text", fixed: true, x: 216, y: 246, text: shorten(adjacent[1], 18), size: 13, max: 96 },
+          { type: "arrow", fixed: true, x1: 146, y1: 170, x2: 96, y2: 210 },
+          { type: "arrow", fixed: true, x1: 204, y1: 170, x2: 264, y2: 210 }
+        ]
+      },
+      {
+        say: `Check point. Say the move back in your own words. If it still feels fuzzy, interrupt me now and we will slow it down.`,
         commands: [
           { type: "erase" },
           { type: "text", x: 54, y: 72, text: "Check understanding", size: 32 },
@@ -270,8 +412,47 @@
           { type: "box", x: 72, y: 384, w: 460, h: 92 },
           { type: "text", x: 96, y: 422, text: "3. How will I check?", size: 22 },
           { type: "text", x: 636, y: 252, text: index < 2 ? "Then we continue." : "Then we finish strong.", size: 30 }
+        ],
+        mobileCommands: [
+          { type: "erase" },
+          { type: "text", fixed: true, x: 24, y: 40, text: "Check understanding", size: 21 },
+          { type: "box", fixed: true, x: 30, y: 82, w: 300, h: 56 },
+          { type: "text", fixed: true, x: 46, y: 116, text: "1. What is it asking?", size: 15 },
+          { type: "box", fixed: true, x: 30, y: 158, w: 300, h: 56 },
+          { type: "text", fixed: true, x: 46, y: 192, text: "2. What is the move?", size: 15 },
+          { type: "box", fixed: true, x: 30, y: 234, w: 300, h: 56 },
+          { type: "text", fixed: true, x: 46, y: 268, text: "3. How will I check?", size: 15 },
+          { type: "text", fixed: true, x: 58, y: 338, text: index < 2 ? "Then we continue." : "Then we finish strong.", size: 18, max: 270 }
         ]
       }
+    ];
+  }
+
+  function mobileThinkingCommands(skill) {
+    const lower = String(skill).toLowerCase();
+    if (lower.includes("inference")) {
+      return [
+        { type: "erase" },
+        { type: "text", fixed: true, x: 24, y: 38, text: "Inference", size: 22 },
+        { type: "box", fixed: true, x: 32, y: 82, w: 126, h: 68 },
+        { type: "text", fixed: true, x: 54, y: 122, text: "text clue", size: 15 },
+        { type: "arrow", fixed: true, x1: 164, y1: 116, x2: 204, y2: 116 },
+        { type: "box", fixed: true, x: 210, y: 82, w: 126, h: 68 },
+        { type: "text", fixed: true, x: 226, y: 122, text: "thinking", size: 15 },
+        { type: "arrow", fixed: true, x1: 272, y1: 154, x2: 272, y2: 210 },
+        { type: "circle", fixed: true, x: 272, y: 266, r: 42 },
+        { type: "text", fixed: true, x: 242, y: 272, text: "answer", size: 14 }
+      ];
+    }
+    return [
+      { type: "erase" },
+      { type: "text", fixed: true, x: 24, y: 38, text: "Thinking path", size: 22 },
+      { type: "box", fixed: true, x: 34, y: 86, w: 294, h: 54 },
+      { type: "text", fixed: true, x: 52, y: 120, text: "1. Find the clue", size: 15 },
+      { type: "box", fixed: true, x: 34, y: 160, w: 294, h: 54 },
+      { type: "text", fixed: true, x: 52, y: 194, text: "2. Name the move", size: 15 },
+      { type: "box", fixed: true, x: 34, y: 234, w: 294, h: 54 },
+      { type: "text", fixed: true, x: 52, y: 268, text: "3. Answer and check", size: 15 }
     ];
   }
 
@@ -322,11 +503,11 @@
     const plan = lessonState.plan;
     el.studentPill.textContent = `${profile.name || "Aarin"} / ${plan.attempts.length} saved test${plan.attempts.length === 1 ? "" : "s"}`;
     el.planTitle.textContent = plan.modules[0]?.title || "Focus lesson";
-    el.planSummary.textContent = plan.modules[0]?.childReason || "A short classroom lesson is ready.";
+    el.planSummary.textContent = plan.modules[lessonState.moduleIndex]?.narrative?.short || plan.modules[0]?.childReason || "A short classroom lesson is ready.";
     el.moduleList.innerHTML = plan.modules.map((module, index) => `
       <button class="module-button ${index === lessonState.moduleIndex ? "active" : ""}" type="button" data-module="${index}">
         <strong>${escapeHtml(module.title)}</strong>
-        <span>${escapeHtml(module.objective)}</span>
+        <span>${escapeHtml(module.childReason)} ${module.example?.prompt ? `Example: ${escapeHtml(shorten(module.example.prompt, 88))}` : escapeHtml(module.objective)}</span>
       </button>
     `).join("");
     el.evidenceList.innerHTML = `<ul>${plan.evidence.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
@@ -356,7 +537,7 @@
     if (!step) return;
     lessonState.lastStep = step;
     clearBoard();
-    animateCommands(step.commands || []);
+    animateCommands(commandsForBoard(step));
     teach(step.say);
   }
 
@@ -393,23 +574,137 @@
     return currentModule()?.steps?.[lessonState.stepIndex];
   }
 
-  function handleQuestion(event) {
+  async function handleQuestion(event) {
     event.preventDefault();
     const question = el.question.value.trim();
     if (!question) return;
     const savedPosition = { moduleIndex: lessonState.moduleIndex, stepIndex: lessonState.stepIndex };
     lessonState.interruptedFrom = savedPosition;
     lessonState.memory.push(`Open question: ${question}`);
+    lessonState.transcript.push({ role: "student", text: question });
     renderMemory();
     const answer = localTeacherAnswer(question, currentModule());
+    el.apiStatus.textContent = "Answering now; AI follow-up checking...";
+    el.ask.disabled = true;
     animateCommands(answer.commands);
     teach(answer.say, () => {
       lessonState.moduleIndex = savedPosition.moduleIndex;
       lessonState.stepIndex = savedPosition.stepIndex;
-      lessonState.memory.push(`Returned to ${currentModule()?.title || "the lesson"}.`);
+      lessonState.memory.push(`Returned to ${currentModule()?.title || "the lesson"} after the interruption.`);
       renderMemory();
     });
+    enrichInterruptionWithAI(question, savedPosition);
     el.question.value = "";
+    el.ask.disabled = false;
+  }
+
+  async function enrichInterruptionWithAI(question, savedPosition) {
+    const localStaticPreview = ["127.0.0.1", "localhost", ""].includes(window.location.hostname) && !window.__blackboardAllowLocalAI;
+    if (localStaticPreview) {
+      el.apiStatus.textContent = "Local preview: AI follow-up disabled";
+      return;
+    }
+    const module = currentModule();
+    const payload = {
+      question,
+      studentName: lessonState.profile?.name || "Aarin",
+      age: 8,
+      module: summarizeModuleForAI(module),
+      currentStep: currentStep()?.say || "",
+      transcript: lessonState.transcript.slice(-8)
+    };
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 3200);
+      const response = await fetch("/api/blackboard-teacher", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
+      if (!response.ok) throw new Error(`AI unavailable: ${response.status}`);
+      const body = await response.json();
+      if (!body?.teacherText) throw new Error("AI response missing teacherText");
+      if (lessonState.moduleIndex !== savedPosition.moduleIndex || lessonState.stepIndex !== savedPosition.stepIndex) {
+        return;
+      }
+      el.apiStatus.textContent = `ChatGPT follow-up ready in ${body.latencyMs || "?"}ms`;
+      lessonState.memory.push("AI follow-up added to the interruption.");
+      renderMemory();
+      animateCommands(aiCommands(body));
+      teach(`One extra teacher note: ${body.teacherText}`);
+    } catch (error) {
+      el.apiStatus.textContent = error.name === "AbortError"
+        ? "AI follow-up skipped to keep lesson fast"
+        : "Local teaching used; AI not needed";
+    }
+  }
+
+  function toggleMic() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      el.apiStatus.textContent = "Mic not supported here; type the question instead";
+      el.question.focus();
+      return;
+    }
+    if (!lessonState.recognition) {
+      const recognition = new SpeechRecognition();
+      recognition.lang = "en-AU";
+      recognition.interimResults = true;
+      recognition.continuous = false;
+      recognition.onstart = () => {
+        lessonState.listening = true;
+        el.mic.classList.add("listening");
+        el.mic.textContent = "Listening...";
+        el.apiStatus.textContent = "Listening for the interruption";
+      };
+      recognition.onresult = (event) => {
+        const text = Array.from(event.results).map((result) => result[0]?.transcript || "").join(" ").trim();
+        if (text) el.question.value = text;
+      };
+      recognition.onend = () => {
+        lessonState.listening = false;
+        el.mic.classList.remove("listening");
+        el.mic.textContent = "Speak";
+        el.apiStatus.textContent = el.question.value.trim() ? "Speech captured; press Ask" : "Mic stopped";
+      };
+      recognition.onerror = () => {
+        lessonState.listening = false;
+        el.mic.classList.remove("listening");
+        el.mic.textContent = "Speak";
+        el.apiStatus.textContent = "Mic had trouble; type the question";
+      };
+      lessonState.recognition = recognition;
+    }
+    if (lessonState.listening) {
+      lessonState.recognition.stop();
+    } else {
+      window.speechSynthesis?.cancel();
+      lessonState.recognition.start();
+    }
+  }
+
+  function summarizeModuleForAI(module) {
+    return {
+      title: module?.title || "",
+      section: module?.section || "",
+      objective: module?.objective || "",
+      narrative: module?.narrative?.short || "",
+      examples: (module?.examples || []).slice(0, 3)
+    };
+  }
+
+  function aiCommands(body) {
+    const text = body.boardText || body.teacherText || "Use the clue, then make the move.";
+    return [
+      { type: "erase" },
+      { type: "text", x: 52, y: 70, text: "Teacher follow-up", size: 34 },
+      { type: "box", x: 62, y: 128, w: 940, h: 160 },
+      { type: "text", x: 92, y: 178, text: text, size: 25, max: 860 },
+      { type: "highlight", x: 84, y: 330, w: 520, h: 36 },
+      { type: "text", x: 96, y: 360, text: body.checkQuestion || "Can you say the move back?", size: 28, max: 820 }
+    ];
   }
 
   function localTeacherAnswer(question, module) {
@@ -465,7 +760,16 @@
 
   function renderStaticStep(step) {
     clearBoard();
-    (step.commands || []).forEach((command) => drawCommand(command, false));
+    commandsForBoard(step).forEach((command) => drawCommand(command, false));
+  }
+
+  function commandsForBoard(step) {
+    if (isNarrowBoard() && Array.isArray(step.mobileCommands)) return step.mobileCommands;
+    return step.commands || [];
+  }
+
+  function isNarrowBoard() {
+    return el.canvas.getBoundingClientRect().width < 560;
   }
 
   function clearBoard() {
@@ -482,12 +786,12 @@
   function drawWelcomeBoard() {
     drawCommand({ type: "text", x: 54, y: 78, text: "Blackboard Focus Session", size: 34 }, false);
     drawCommand({ type: "text", x: 58, y: 128, text: "Short lessons from real test results.", size: 22 }, false);
-    drawCommand({ type: "box", x: 60, y: 180, w: 460, h: 112 }, false);
+    drawCommand({ type: "box", x: 60, y: 180, w: 500, h: 142 }, false);
     drawCommand({ type: "text", x: 88, y: 224, text: "1. Teach with chalk", size: 25 }, false);
-    drawCommand({ type: "text", x: 88, y: 262, text: "2. Pause for questions", size: 25 }, false);
-    drawCommand({ type: "arrow", x1: 550, y1: 236, x2: 760, y2: 236 }, false);
-    drawCommand({ type: "circle", x: 850, y: 236, r: 72 }, false);
-    drawCommand({ type: "text", x: 807, y: 244, text: "learn", size: 26 }, false);
+    drawCommand({ type: "text", x: 88, y: 278, text: "2. Pause for questions", size: 25 }, false);
+    drawCommand({ type: "arrow", x1: 590, y1: 250, x2: 760, y2: 250 }, false);
+    drawCommand({ type: "circle", x: 850, y: 250, r: 72 }, false);
+    drawCommand({ type: "text", x: 807, y: 258, text: "learn", size: 26 }, false);
   }
 
   function drawCommand(command, jitter) {
@@ -495,7 +799,7 @@
       clearBoard();
       return;
     }
-    const scale = boardScale();
+    const scale = command.fixed ? 1 : boardScale();
     const c = { ...command };
     ["x", "y", "x1", "y1", "x2", "y2", "w", "h", "r", "size"].forEach((key) => {
       if (typeof c[key] === "number") c[key] *= scale;
@@ -585,19 +889,27 @@
 
   function teach(text, after) {
     el.caption.textContent = text;
+    lessonState.transcript.push({ role: "teacher", text });
     if (el.voice.checked && "speechSynthesis" in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = lessonState.speed === 1 ? 0.9 : 0.72;
-      utterance.pitch = 0.94;
-      utterance.volume = 0.9;
-      const voices = window.speechSynthesis.getVoices();
-      utterance.voice = voices.find((voice) => /Daniel|Google UK English Male|Microsoft David|Microsoft George|Male/i.test(voice.name)) || voices.find((voice) => /English/i.test(voice.lang)) || null;
+      utterance.rate = lessonState.speed === 1 ? 1.02 : 0.78;
+      utterance.pitch = 1.05;
+      utterance.volume = 0.95;
+      utterance.voice = chooseTeacherVoice();
       utterance.onend = () => after?.();
       window.speechSynthesis.speak(utterance);
     } else {
       setTimeout(() => after?.(), Math.min(2400, 900 + text.length * 22));
     }
+  }
+
+  function chooseTeacherVoice() {
+    const voices = window.speechSynthesis.getVoices();
+    return voices.find((voice) => /Natural|Neural|Premium|Daniel|Ryan|George|David|Guy/i.test(voice.name) && /en/i.test(voice.lang))
+      || voices.find((voice) => /en-AU|en-GB|en-US/i.test(voice.lang))
+      || voices.find((voice) => /English/i.test(voice.lang))
+      || null;
   }
 
   function renderMemory() {
@@ -639,6 +951,7 @@
       profile: lessonState.profile?.name,
       attempts: lessonState.plan?.attempts?.length || 0,
       modules: lessonState.plan?.modules?.map((module) => module.title) || [],
+      narratives: lessonState.plan?.modules?.map((module) => module.narrative?.short) || [],
       moduleIndex: lessonState.moduleIndex,
       stepIndex: lessonState.stepIndex,
       caption: el.caption.textContent
