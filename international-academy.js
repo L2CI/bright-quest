@@ -30,7 +30,7 @@
       <div class="academy-copy">
         <p class="eyebrow">Training academy</p>
         <h3>Pick today's power-up.</h3>
-        <p>Build test courage through quests, mini-lessons, world challenges, and reward games.</p>
+        <p>Pick a focused activity for today.</p>
         <div class="academy-actions">
           <button class="academy-zone maths" type="button" data-zone-level="1"><span aria-hidden="true">+</span><strong>Maths Mountain</strong><small>Number speed</small></button>
           <button class="academy-zone english" type="button" id="academyGrammarButton2"><span aria-hidden="true">G</span><strong>Grammar Gym</strong><small>Sentence power</small></button>

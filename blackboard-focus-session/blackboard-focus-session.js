@@ -4,6 +4,7 @@
   const finalTest = window.BrightQuestFinalTest;
   const internationalTests = window.BrightQuestInternationalTests || [];
   const allTests = [...(data.levels || []), ...(finalTest ? [finalTest] : []), ...internationalTests];
+  const voiceMode = "browser";
 
   const el = {
     canvas: document.querySelector("#chalkboard"),
@@ -87,7 +88,7 @@
     renderPlan();
     clearBoard();
     drawWelcomeBoard();
-    el.apiStatus.textContent = canUseCloudVoice() ? "AI teacher voice ready" : "Local preview uses browser voice";
+    el.apiStatus.textContent = "Teacher voice ready";
     warmModuleVoice(0);
   }
 
@@ -738,37 +739,69 @@
   }
 
   function moneyStorySteps(example, narrative, index) {
-    const amounts = moneyAmountsFrom(example?.prompt);
-    const priceA = amounts[0] ?? 4.5;
-    const priceB = amounts[1] ?? 2.25;
-    const paid = amounts[2] ?? 10;
-    const total = roundMoney(priceA + priceB);
-    const change = roundMoney(paid - total);
+    const scenario = moneyScenarioFrom(example?.prompt);
+    const { unitPrice, quantity, extraPrice, paid, total, change, isQuantity } = scenario;
+    const operation = isQuantity
+      ? `${quantity} x ${money(unitPrice)} = ${money(total)}`
+      : `${money(unitPrice)} + ${money(extraPrice)} = ${money(total)}`;
     return [
       {
-        say: `Let's turn this into a tiny shop counter. I can see two price tags, ${money(priceA)} and ${money(priceB)}. Before we talk about change, we need to know how much money actually left the pocket.`,
+        say: `Let's turn this into a tiny shop. Watch the counter appear first, because money questions make more sense when we can see the place.`,
         commands: [
-          { type: "text", x: 52, y: 64, text: "Shop counter", size: 34 },
-          { type: "box", x: 100, y: 148, w: 250, h: 118 },
-          { type: "text", x: 136, y: 218, text: `item A ${money(priceA)}`, size: 27 },
-          { type: "box", x: 430, y: 148, w: 250, h: 118 },
-          { type: "text", x: 466, y: 218, text: `item B ${money(priceB)}`, size: 27 },
-          { type: "arrow", x1: 276, y1: 310, x2: 510, y2: 310 },
-          { type: "text", x: 160, y: 376, text: `${money(priceA)} + ${money(priceB)} = ${money(total)}`, size: 38 }
+          { type: "text", x: 52, y: 64, text: "Shop counter", size: 34, color: "cyan" },
+          { type: "box", x: 110, y: 142, w: 700, h: 260 },
+          { type: "line", x1: 110, y1: 142, x2: 184, y2: 96 },
+          { type: "line", x1: 810, y1: 142, x2: 736, y2: 96 },
+          { type: "line", x1: 184, y1: 96, x2: 736, y2: 96 },
+          { type: "line", x1: 110, y1: 248, x2: 810, y2: 248 },
+          { type: "text", x: 250, y: 204, text: "Bright Snacks", size: 34, color: "amber" },
+          { type: "box", x: 178, y: 292, w: 560, h: 76 },
+          { type: "text", x: 300, y: 342, text: "counter", size: 28 }
         ]
       },
       {
-        say: `Now the customer pays with ${money(paid)}. Change is the money that comes marching back. So I take away the ${money(total)} that was spent, and ${money(change)} walks back.`,
+        say: isQuantity
+          ? `Now the price tag arrives. One snack costs ${money(unitPrice)}, and there are ${quantity} snacks. Before we ask about change, we need to know the total spent.`
+          : `Now the two price tags arrive. I can see ${money(unitPrice)} and ${money(extraPrice)}. Before we ask about change, we need to know how much money was spent.`,
         commands: [
           { type: "erase" },
-          { type: "text", x: 52, y: 64, text: "Money leaving, money coming back", size: 34 },
-          { type: "box", x: 110, y: 144, w: 240, h: 110 },
+          { type: "text", x: 52, y: 64, text: isQuantity ? "Price tag and quantity" : "Two price tags", size: 34, color: "cyan" },
+          { type: "box", x: 110, y: 136, w: 310, h: 170 },
+          { type: "text", x: 156, y: 212, text: "Snack 1", size: 28 },
+          { type: "text", x: 160, y: 262, text: money(unitPrice), size: 42, color: "amber" },
+          { type: "box", x: 500, y: 136, w: 310, h: 170 },
+          { type: "text", x: 546, y: 212, text: isQuantity ? "How many?" : "Snack 2", size: 28 },
+          { type: "text", x: 550, y: 262, text: isQuantity ? `${quantity} snacks` : money(extraPrice), size: 42, color: "amber" },
+          { type: "arrow", x1: 352, y1: 366, x2: 580, y2: 366 },
+          { type: "text", x: 176, y: 444, text: isQuantity ? "First job: find total cost" : "First job: add the prices", size: 34, color: "rose" }
+        ]
+      },
+      {
+        say: isQuantity
+          ? `Here comes the thinking move. ${quantity} snacks at ${money(unitPrice)} each gives ${money(total)}. That is the amount that actually left the pocket.`
+          : `Here comes the thinking move. ${money(unitPrice)} plus ${money(extraPrice)} gives ${money(total)}. That is the amount that actually left the pocket.`,
+        commands: [
+          { type: "erase" },
+          { type: "text", x: 52, y: 64, text: "First: find the total spent", size: 34, color: "cyan" },
+          { type: "text", x: 140, y: 176, text: operation, size: 48, color: "amber", max: 880 },
+          { type: "line", x1: 126, y1: 224, x2: 930, y2: 224, color: "rose" },
+          { type: "box", x: 168, y: 306, w: 720, h: 98, color: "violet" },
+          { type: "text", x: 208, y: 368, text: `${money(total)} is the money spent`, size: 34, max: 650 }
+        ]
+      },
+      {
+        say: `Now the customer pays with ${money(paid)}. Change is the money that comes back. So ${money(paid)} minus ${money(total)} leaves ${money(change)} change.`,
+        commands: [
+          { type: "erase" },
+          { type: "text", x: 52, y: 64, text: "Then: find the change", size: 34, color: "cyan" },
+          { type: "box", x: 110, y: 144, w: 240, h: 110, color: "amber" },
           { type: "text", x: 152, y: 210, text: `paid ${money(paid)}`, size: 29 },
-          { type: "arrow", x1: 380, y1: 198, x2: 560, y2: 198 },
+          { type: "arrow", x1: 380, y1: 198, x2: 560, y2: 198, color: "rose" },
           { type: "box", x: 590, y: 144, w: 270, h: 110 },
           { type: "text", x: 628, y: 210, text: `spent ${money(total)}`, size: 29 },
-          { type: "line", x1: 140, y1: 316, x2: 700, y2: 316 },
-          { type: "text", x: 154, y: 388, text: `${money(paid)} - ${money(total)} = ${money(change)} change`, size: 38, max: 900 }
+          { type: "line", x1: 140, y1: 316, x2: 820, y2: 316 },
+          { type: "text", x: 154, y: 388, text: `${money(paid)} - ${money(total)} = ${money(change)} change`, size: 38, max: 900, color: "amber" },
+          { type: "circle", x: 744, y: 372, r: 86, color: "amber" }
         ]
       },
       checkStep(index, `Change is what comes back after the price is paid.`)
@@ -1141,6 +1174,29 @@
 
   function moneyAmountsFrom(text) {
     return String(text || "").match(/\$?\d+(?:\.\d+)?/g)?.map((item) => Number(item.replace("$", ""))) || [];
+  }
+
+  function moneyScenarioFrom(text) {
+    const prompt = String(text || "");
+    const moneyMatches = [...prompt.matchAll(/\$(\d+(?:\.\d+)?)/g)].map((match) => Number(match[1]));
+    const costMatch = prompt.match(/costs?\s+\$(\d+(?:\.\d+)?)/i);
+    const quantityMatch = prompt.match(/\b(?:buy|bought|buys|get|gets|has)\s+(\d+)\b/i);
+    const paidMatch = prompt.match(/\bpay(?:s|ing)?\s+with\s+\$(\d+(?:\.\d+)?)/i);
+
+    if (costMatch && quantityMatch) {
+      const unitPrice = Number(costMatch[1]);
+      const quantity = Number(quantityMatch[1]);
+      const paid = paidMatch ? Number(paidMatch[1]) : (moneyMatches.find((value) => value > unitPrice) || 10);
+      const total = roundMoney(unitPrice * quantity);
+      return { unitPrice, quantity, extraPrice: 0, paid, total, change: roundMoney(paid - total), isQuantity: true };
+    }
+
+    const amounts = moneyAmountsFrom(prompt);
+    const unitPrice = amounts[0] ?? 4.5;
+    const extraPrice = amounts[1] ?? 2.25;
+    const paid = amounts.find((value, index) => index > 1 && value > unitPrice + extraPrice) ?? amounts[2] ?? 10;
+    const total = roundMoney(unitPrice + extraPrice);
+    return { unitPrice, quantity: 1, extraPrice, paid, total, change: roundMoney(paid - total), isQuantity: false };
   }
 
   function roundMoney(value) {
@@ -1872,7 +1928,7 @@
     ctx.clearRect(0, 0, el.canvas.width, el.canvas.height);
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     ctx.clearRect(0, 0, rect.width, rect.height);
-    ctx.fillStyle = "rgba(3, 12, 11, 0.3)";
+    ctx.fillStyle = "rgba(3, 62, 106, 0.34)";
     ctx.fillRect(0, 0, rect.width, rect.height);
   }
 
@@ -1880,8 +1936,8 @@
     drawCommand({ type: "text", x: 54, y: 78, text: "Blackboard Focus Session", size: 34 }, false);
     drawCommand({ type: "text", x: 58, y: 128, text: "Short lessons from real test results.", size: 22 }, false);
     drawCommand({ type: "box", x: 60, y: 180, w: 500, h: 142 }, false);
-    drawCommand({ type: "text", x: 88, y: 224, text: "1. Teach with chalk", size: 25 }, false);
-    drawCommand({ type: "text", x: 88, y: 278, text: "2. Pause for questions", size: 25 }, false);
+    drawCommand({ type: "text", x: 88, y: 224, text: "1. Listen to the idea", size: 25 }, false);
+    drawCommand({ type: "text", x: 88, y: 278, text: "2. Try one quick question", size: 25 }, false);
     drawCommand({ type: "arrow", x1: 590, y1: 250, x2: 760, y2: 250 }, false);
     drawCommand({ type: "circle", x: 850, y: 250, r: 72 }, false);
     drawCommand({ type: "text", x: 807, y: 258, text: "learn", size: 26 }, false);
@@ -1924,7 +1980,7 @@
 
   function chalkColor(name, type) {
     if (type === "highlight") return "#f5c76a";
-    if (name === "cyan") return "#62e6ff";
+    if (name === "cyan") return "#9bf1ff";
     if (name === "amber") return "#ffd56d";
     if (name === "rose") return "#ff6f91";
     if (name === "violet") return "#c978ff";
@@ -2015,7 +2071,7 @@
     }
     if (canUseCloudVoice() && lessonState.cloudVoiceAvailable) {
       prefetchVoice(text);
-      el.apiStatus.textContent = "Speaking now; premium voice warming";
+      el.apiStatus.textContent = "Teacher voice speaking";
     }
     playBrowserVoice(text, token, after);
   }
@@ -2036,12 +2092,12 @@
         if (lessonState.currentAudio === audio) lessonState.currentAudio = null;
         playBrowserVoice(text, token, after);
       };
-      el.apiStatus.textContent = "AI teacher voice speaking";
+      el.apiStatus.textContent = "Teacher voice speaking";
       await audio.play();
     } catch {
       if (token !== lessonState.voiceToken || lessonState.paused) return;
       lessonState.cloudVoiceAvailable = false;
-      el.apiStatus.textContent = "Browser voice fallback";
+      el.apiStatus.textContent = "Teacher voice speaking";
       playBrowserVoice(text, token, after);
     }
   }
@@ -2077,8 +2133,8 @@
   function playBrowserVoice(text, token, after) {
     if ("speechSynthesis" in window) {
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = lessonState.speed === 1 ? 1.02 : 0.86;
-      utterance.pitch = 0.96;
+      utterance.rate = lessonState.speed === 1 ? 1.04 : 0.88;
+      utterance.pitch = 0.98;
       utterance.volume = 0.95;
       utterance.voice = chooseTeacherVoice();
       lessonState.currentUtterance = utterance;
@@ -2090,6 +2146,7 @@
         if (lessonState.currentUtterance === utterance) lessonState.currentUtterance = null;
         if (token === lessonState.voiceToken && !lessonState.paused) setTimeout(() => after?.(), 800);
       };
+      el.apiStatus.textContent = "Teacher voice speaking";
       window.speechSynthesis.speak(utterance);
     } else {
       setTimeout(() => {
@@ -2111,7 +2168,8 @@
   }
 
   function canUseCloudVoice() {
-    return !["127.0.0.1", "localhost", ""].includes(window.location.hostname) || window.__blackboardAllowLocalAI;
+    return voiceMode === "cloud"
+      && (!["127.0.0.1", "localhost", ""].includes(window.location.hostname) || window.__blackboardAllowLocalAI);
   }
 
   function prepareVoices() {
@@ -2125,8 +2183,22 @@
   function chooseTeacherVoice() {
     if (!("speechSynthesis" in window)) return null;
     const voices = window.speechSynthesis.getVoices();
-    return voices.find((voice) => /Natural|Neural|Premium|Daniel|Ryan|George|David|Guy/i.test(voice.name) && /en/i.test(voice.lang))
-      || voices.find((voice) => /en-AU|en-GB|en-US/i.test(voice.lang))
+    const rankedNames = [
+      /Microsoft David/i,
+      /Microsoft Guy/i,
+      /Google US English/i,
+      /Daniel/i,
+      /Ryan/i,
+      /George/i,
+      /Natural/i,
+      /Neural/i,
+      /Premium/i
+    ];
+    for (const pattern of rankedNames) {
+      const voice = voices.find((candidate) => pattern.test(candidate.name) && /en/i.test(candidate.lang));
+      if (voice) return voice;
+    }
+    return voices.find((voice) => /en-US|en-GB|en-AU/i.test(voice.lang))
       || voices.find((voice) => /English/i.test(voice.lang))
       || null;
   }

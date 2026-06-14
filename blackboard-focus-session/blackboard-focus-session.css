@@ -1,16 +1,16 @@
 :root {
-  color-scheme: dark;
-  --ink: #f8f1dd;
-  --muted: #c9d2c5;
-  --chalk: #f5efdc;
-  --green: #142f2a;
-  --green-deep: #091815;
+  color-scheme: light;
+  --ink: #17324d;
+  --muted: #60758d;
+  --chalk: #f3fbff;
+  --blue: #0f67a8;
+  --blue-deep: #073b68;
   --amber: #f5c76a;
-  --cyan: #78e4eb;
+  --cyan: #14b8d8;
   --rose: #ff6f91;
   --violet: #c978ff;
-  --panel: rgba(7, 22, 22, 0.86);
-  --line: rgba(245, 239, 220, 0.2);
+  --panel: rgba(255, 255, 255, 0.94);
+  --line: rgba(31, 104, 161, 0.18);
 }
 
 * { box-sizing: border-box; }
@@ -24,9 +24,9 @@ body {
 body {
   overflow-x: hidden;
   background:
-    radial-gradient(circle at 16% 12%, rgba(98, 214, 196, 0.16), transparent 34%),
-    radial-gradient(circle at 84% 0%, rgba(255, 111, 145, 0.12), transparent 28%),
-    linear-gradient(135deg, #020605, #102820 52%, #050909);
+    radial-gradient(circle at 12% 8%, rgba(88, 197, 255, 0.16), transparent 34%),
+    radial-gradient(circle at 86% 10%, rgba(105, 220, 186, 0.13), transparent 30%),
+    linear-gradient(180deg, #ffffff 0%, #f4fbff 48%, #edf7ff 100%);
   color: var(--ink);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
@@ -59,7 +59,7 @@ button {
 .classroom-topbar p,
 .rail-label {
   margin: 0 0 4px;
-  color: var(--cyan);
+  color: #087fb5;
   font-size: 0.72rem;
   font-weight: 900;
   letter-spacing: 0.12em;
@@ -69,7 +69,7 @@ button {
 .classroom-topbar h1,
 .rail-card h2 {
   margin: 0;
-  color: #fff9e8;
+  color: #13324e;
   letter-spacing: 0;
 }
 
@@ -86,9 +86,9 @@ button {
 .cc-control {
   border: 1px solid var(--line);
   border-radius: 18px;
-  background: rgba(7, 20, 22, 0.78);
+  background: rgba(255, 255, 255, 0.92);
   color: var(--ink);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 14px 30px rgba(28, 86, 130, 0.12);
 }
 
 .back-button {
@@ -100,7 +100,7 @@ button {
 .student-pill {
   max-width: 260px;
   padding: 12px 16px;
-  color: #fff6de;
+  color: #17324d;
   font-weight: 900;
 }
 
@@ -123,9 +123,9 @@ button {
   margin: 0 0 10px;
   border: 1px solid rgba(245, 199, 106, 0.32);
   border-radius: 16px;
-  background: rgba(6, 19, 18, 0.78);
+  background: rgba(255, 255, 255, 0.94);
   padding: 12px 14px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 12px 30px rgba(28, 86, 130, 0.1);
 }
 
 .missed-question-strip[hidden] {
@@ -141,7 +141,7 @@ button {
 }
 
 .missed-question-strip strong {
-  color: #fff9e8;
+  color: #17324d;
   font-size: clamp(0.92rem, 1.2vw, 1.05rem);
   line-height: 1.32;
 }
@@ -175,12 +175,12 @@ button {
   border-radius: 22px;
   background: var(--panel);
   padding: 18px;
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 18px 45px rgba(35, 95, 140, 0.12);
   backdrop-filter: blur(14px);
 }
 
 .student-panel .rail-card {
-  background: rgba(7, 22, 22, 0.9);
+  background: rgba(255, 255, 255, 0.96);
 }
 
 .ask-card {
@@ -220,17 +220,17 @@ button {
 
 .module-button {
   width: 100%;
-  border: 1px solid rgba(245, 239, 220, 0.18);
+  border: 1px solid rgba(31, 104, 161, 0.16);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.055);
+  background: rgba(239, 248, 255, 0.8);
   color: var(--ink);
   padding: 9px 10px;
   text-align: left;
 }
 
 .module-button.active {
-  border-color: rgba(120, 228, 235, 0.72);
-  background: linear-gradient(135deg, rgba(120, 228, 235, 0.2), rgba(255, 111, 145, 0.12), rgba(245, 199, 106, 0.1));
+  border-color: rgba(14, 126, 181, 0.62);
+  background: linear-gradient(135deg, rgba(20, 184, 216, 0.16), rgba(255, 213, 109, 0.2));
 }
 
 .module-button strong,
@@ -265,15 +265,15 @@ button {
 .board-frame {
   position: relative;
   overflow: hidden;
-  border: 18px solid #6f492b;
+  border: 18px solid #1a6da9;
   border-radius: 24px;
   background:
-    linear-gradient(90deg, rgba(120, 228, 235, 0.035), transparent 22%, rgba(255, 111, 145, 0.025) 70%, transparent),
-    radial-gradient(circle at 20% 8%, rgba(255, 255, 255, 0.06), transparent 28%),
-    #071412;
+    linear-gradient(90deg, rgba(255, 255, 255, 0.055), transparent 22%, rgba(120, 228, 235, 0.045) 70%, transparent),
+    radial-gradient(circle at 20% 8%, rgba(255, 255, 255, 0.09), transparent 28%),
+    #074675;
   box-shadow:
-    inset 0 0 0 2px rgba(255, 240, 190, 0.18),
-    0 26px 80px rgba(0, 0, 0, 0.44);
+    inset 0 0 0 2px rgba(255, 255, 255, 0.22),
+    0 26px 80px rgba(31, 104, 161, 0.22);
 }
 
 .board-frame::before {
@@ -309,11 +309,11 @@ button {
   right: 18px;
   bottom: 18px;
   max-width: 780px;
-  border: 1px solid rgba(245, 239, 220, 0.2);
+  border: 1px solid rgba(235, 247, 255, 0.28);
   border-radius: 16px;
-  background: rgba(3, 14, 13, 0.72);
+  background: rgba(4, 45, 76, 0.82);
   padding: 12px 16px;
-  color: #fff9e8;
+  color: #f3fbff;
   font-weight: 800;
   line-height: 1.35;
 }
@@ -334,8 +334,8 @@ button {
 }
 
 .primary-control {
-  border-color: rgba(245, 199, 106, 0.5);
-  background: linear-gradient(135deg, #ffe7a7, #f1bd54 48%, #5fe0ca);
+  border-color: rgba(20, 184, 216, 0.38);
+  background: linear-gradient(135deg, #ffe08a, #f4c24f 45%, #5fe0ca);
   color: #13221c;
 }
 
@@ -351,23 +351,23 @@ button {
   min-height: 46px;
   padding: 0 12px;
   border-radius: 16px;
-  color: rgba(248, 241, 221, 0.82);
+  color: #17324d;
   font-weight: 950;
 }
 
 .cc-control.active {
-  border-color: rgba(120, 228, 235, 0.72);
-  background: rgba(120, 228, 235, 0.16);
-  color: #fff9e8;
+  border-color: rgba(14, 126, 181, 0.62);
+  background: rgba(20, 184, 216, 0.16);
+  color: #17324d;
 }
 
 .soft-control {
-  background: rgba(11, 33, 34, 0.82);
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .api-status {
   margin-left: auto;
-  color: rgba(248, 241, 221, 0.68);
+  color: rgba(23, 50, 77, 0.62);
   font-size: 0.8rem;
   font-weight: 800;
 }
@@ -376,11 +376,11 @@ button {
   display: grid;
   gap: 10px;
   margin-top: 10px;
-  border: 1px solid rgba(245, 199, 106, 0.32);
+  border: 1px solid rgba(20, 184, 216, 0.24);
   border-radius: 18px;
-  background: rgba(6, 19, 18, 0.86);
+  background: rgba(255, 255, 255, 0.95);
   padding: 13px;
-  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.24);
+  box-shadow: 0 16px 38px rgba(35, 95, 140, 0.12);
 }
 
 .practice-panel[hidden] {
@@ -388,7 +388,7 @@ button {
 }
 
 .practice-panel strong {
-  color: #fff9e8;
+  color: #17324d;
   font-size: 1rem;
   line-height: 1.35;
 }
@@ -401,10 +401,10 @@ button {
 
 .practice-row input {
   min-height: 46px;
-  border: 1px solid rgba(245, 239, 220, 0.22);
+  border: 1px solid rgba(31, 104, 161, 0.2);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.07);
-  color: #fff9e8;
+  background: #f7fbff;
+  color: #17324d;
   padding: 0 14px;
   font-weight: 900;
 }
@@ -423,9 +423,9 @@ button {
 }
 
 .quick-prompts button {
-  border: 1px solid rgba(120, 228, 235, 0.26);
+  border: 1px solid rgba(20, 184, 216, 0.24);
   border-radius: 14px;
-  background: rgba(120, 228, 235, 0.08);
+  background: rgba(20, 184, 216, 0.08);
   color: var(--ink);
   padding: 10px 12px;
   text-align: left;
@@ -441,16 +441,16 @@ button {
 .question-form textarea {
   width: 100%;
   resize: vertical;
-  border: 1px solid rgba(245, 239, 220, 0.2);
+  border: 1px solid rgba(31, 104, 161, 0.2);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.06);
+  background: #f7fbff;
   color: var(--ink);
   padding: 12px;
   line-height: 1.45;
 }
 
 .question-form textarea::placeholder {
-  color: rgba(248, 241, 221, 0.58);
+  color: rgba(23, 50, 77, 0.5);
 }
 
 .ask-actions {
@@ -465,12 +465,12 @@ button {
   align-items: center;
   justify-content: center;
   gap: 9px;
-  border: 1px solid rgba(120, 228, 235, 0.58);
+  border: 1px solid rgba(20, 184, 216, 0.48);
   border-radius: 20px;
   background:
     radial-gradient(circle at 24% 24%, rgba(255, 255, 255, 0.24), transparent 30%),
     linear-gradient(135deg, rgba(120, 228, 235, 0.28), rgba(245, 199, 106, 0.16));
-  color: #fff9e8;
+  color: #17324d;
   font-weight: 1000;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 14px 34px rgba(0, 0, 0, 0.24);
 }

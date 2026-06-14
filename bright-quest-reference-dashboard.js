@@ -78,7 +78,8 @@
       reasoning: () => clickFirst('[data-zone-level="4"]'),
       world: openWorldArena,
       arcade: () => window.openGamesList ? window.openGamesList() : clickFirst('#academyGamesButton'),
-      blackboard: () => { window.location.href = 'blackboard-focus-session/'; }
+      blackboard: () => { window.location.href = 'blackboard-focus-session/'; },
+      progress: openParentPrompt
     };
     actions[zone]?.();
   }
@@ -105,20 +106,17 @@
           <div class="reference-star-logo" aria-hidden="true"><span></span></div>
           <div>
             <h3>Learn. Practice. Level Up.</h3>
-            <p>An exciting adventure that builds skills, confidence and a love for learning.</p>
+            <p>Choose a test, a reward game, or a short teacher lesson.</p>
           </div>
         </div>
         <div class="reference-title" aria-label="Bright Quest">
           <span class="b">Bright</span> <span class="q">Quest</span>
-          <small>Grade 5 Entrance Test Prep Adventure</small>
+          <small>Practice. Play. Improve.</small>
         </div>
         <div class="reference-quick-actions">
-          ${quickAction('star', 'Earn Stars')}
-          ${quickAction('bolt', 'Build Streaks')}
-          ${quickAction('shield', 'Unlock Badges')}
           ${quickAction('gift', 'Play & Win', 'arcade')}
           ${quickAction('chalk', 'Blackboard', 'blackboard')}
-          ${quickAction('chart', 'Track Progress')}
+          ${quickAction('chart', 'Progress', 'progress')}
         </div>
       </header>
 
