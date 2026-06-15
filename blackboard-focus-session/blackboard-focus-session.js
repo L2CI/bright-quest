@@ -170,7 +170,7 @@
       const isWrong = question.correct === false;
       const isSlow = (question.secondsSpent || 0) >= slowCutoff;
       if (!isWrong && !isSlow) return;
-      const key = question.skill || "Careful reasoning";
+      const key = canonicalSkillTitle(question);
       skillScores[key] ||= { skill: key, section: question.section || "Mixed", wrong: 0, slow: 0, seconds: 0, examples: [] };
       if (isWrong) skillScores[key].wrong += 1;
       if (isSlow) skillScores[key].slow += 1;
@@ -180,6 +180,11 @@
 
     const ranked = Object.values(skillScores)
       .sort((a, b) => (b.wrong * 4 + b.slow * 2 + b.seconds / 45) - (a.wrong * 4 + a.slow * 2 + a.seconds / 45));
+    const geometryIndex = ranked.findIndex((item) => isGeometryTopic(item.skill, item.examples?.[0]));
+    if (geometryIndex > 2) {
+      const [geometryItem] = ranked.splice(geometryIndex, 1);
+      ranked.splice(Math.min(2, ranked.length), 0, geometryItem);
+    }
 
     const seedSkills = ranked.length ? ranked : [
       { skill: "Multi-step word problem", section: "Maths", wrong: 0, slow: 0, seconds: 0, examples: [] },
@@ -308,13 +313,29 @@
     return `${parts.join("; ")}.`;
   }
 
+  function isGeometryTopic(skill, example) {
+    const text = `${skill || ""} ${example?.prompt || ""} ${example?.explain || ""}`.toLowerCase();
+    return /\b(geometry|perimeter|area|shape|shapes|angle|angles|rectangle|rectangular|square|triangle|circle|symmetry|side lengths?|length and width|width|parallel|polygon|rotation|rotate|rotates|quarter-turn)\b/.test(text);
+  }
+
+  function canonicalSkillTitle(question) {
+    const raw = question.skill || "Careful reasoning";
+    if (!isGeometryTopic(raw, question)) return raw;
+    const text = `${raw} ${question.prompt || ""} ${question.explain || ""}`.toLowerCase();
+    if (text.includes("perimeter")) return "Geometry: Perimeter";
+    if (text.includes("area")) return "Geometry: Area";
+    if (/rotate|rotation|quarter-turn|angle/.test(text)) return "Geometry: Rotations";
+    if (/shape|triangle|square|circle|polygon|sides/.test(text)) return "Geometry: Shapes";
+    return raw.toLowerCase().includes("geometry") ? raw : `Geometry: ${raw}`;
+  }
+
   function diagnosisFor(skill, example) {
     const lower = String(skill).toLowerCase();
     if (lower.includes("division")) return "This story asks for each table's share, and then adds extra border tiles to that share.";
     if (lower.includes("data")) return "Range is not the biggest number; it is biggest minus smallest.";
     if (lower.includes("subtraction")) return "Both booked groups must be removed before we can know what is still empty.";
     if (lower.includes("deduction") || lower.includes("logic")) return "The word 'must' means only the statement guaranteed by the clues can survive.";
-    if (lower.includes("geometry")) return "Same perimeter means the distance around is equal, not that the side lengths stay the same.";
+    if (isGeometryTopic(skill, example)) return "Same perimeter means the distance around is equal, not that the side lengths stay the same.";
     if (lower.includes("text structure")) return "Claim plus evidence plus final judgement belongs to argument writing, not story writing.";
     if (lower.includes("inference")) return "This is not about a clever guess; the answer has to be tied to words in the passage.";
     if (lower.includes("fraction")) return "The first check is whether the parts are equal; the numbers only make sense after that.";
@@ -336,7 +357,7 @@
     if (lower.includes("data")) return `${promptHint}which value is biggest, which is smallest, and what is the difference?`;
     if (lower.includes("subtraction")) return `${promptHint}what has already been taken away, and what is left?`;
     if (lower.includes("deduction") || lower.includes("logic")) return `${promptHint}which answer is forced by every clue, not just possible?`;
-    if (lower.includes("geometry")) return `${promptHint}what is the perimeter first, then what side makes that perimeter?`;
+    if (isGeometryTopic(skill, example)) return `${promptHint}what is the perimeter first, then what side makes that perimeter?`;
     if (lower.includes("text structure")) return `${promptHint}is this telling events, or proving a point with evidence?`;
     if (lower.includes("inference")) return `${promptHint}which exact words prove the answer?`;
     if (lower.includes("fraction")) return `${promptHint}are the parts equal before I count them?`;
@@ -355,7 +376,7 @@
     if (lower.includes("data")) return "circle the biggest and smallest values, then subtract smallest from biggest.";
     if (lower.includes("subtraction")) return "add what was used, subtract that from the starting amount, then check the left-over.";
     if (lower.includes("deduction") || lower.includes("logic")) return "test each option against every clue and cross out anything not guaranteed.";
-    if (lower.includes("geometry")) return "find the matching perimeter, divide by the number of equal sides, then label the side.";
+    if (isGeometryTopic(skill)) return "find the matching perimeter, divide by the number of equal sides, then label the side.";
     if (lower.includes("text structure")) return "look for claim, evidence, and judgement; if they are present, call it an argument.";
     if (lower.includes("inference")) return "underline the proof words, say what they suggest, then choose the only answer they support.";
     if (lower.includes("fraction")) return "check equal parts, count the shaded parts, then count the total parts.";
@@ -374,7 +395,7 @@
     if (lower.includes("data")) return "Find range by subtracting the smallest value from the biggest.";
     if (lower.includes("subtraction")) return "Add what is used first, then subtract from the starting total.";
     if (lower.includes("deduction") || lower.includes("logic")) return "Choose only what the clues force to be true.";
-    if (lower.includes("geometry")) return "Match the perimeter first, then find the missing side.";
+    if (isGeometryTopic(skill)) return "Match the perimeter first, then find the missing side.";
     if (lower.includes("text structure")) return "Use structure clues to name the type of writing.";
     if (lower.includes("fraction")) return "See the equal parts before choosing the answer.";
     if (lower.includes("time")) return "Use jumps to the next hour instead of counting one minute at a time.";
@@ -393,7 +414,7 @@
     if (lower.includes("data")) return ["Subtraction", "Graph reading", "Compare values"];
     if (lower.includes("subtraction")) return ["Addition check", "Multi-step word problem", "Regrouping"];
     if (lower.includes("deduction") || lower.includes("logic")) return ["Elimination", "Must be true", "Careful reading"];
-    if (lower.includes("geometry")) return ["Perimeter", "Multiplication", "Division"];
+    if (isGeometryTopic(skill)) return ["Perimeter", "Multiplication", "Division"];
     if (lower.includes("text structure")) return ["Reading comprehension", "Persuasive writing", "Evidence"];
     if (lower.includes("fraction")) return ["Division as sharing", "Equal parts", "Simplifying"];
     if (lower.includes("time")) return ["Addition", "Number line jumps", "Elapsed time"];
@@ -550,7 +571,7 @@
     if (lower.includes("data")) return "Now we are exploring data-range questions: find the biggest and smallest, then measure the gap.";
     if (lower.includes("time")) return "Now we are exploring clock-journey questions: hop in useful chunks instead of counting tiny minutes.";
     if (lower.includes("subtraction")) return "Now we are exploring left-over problems: collect everything used, then subtract once.";
-    if (lower.includes("geometry")) {
+    if (isGeometryTopic(skill, example)) {
       const prompt = String(example?.prompt || "");
       if (/length/i.test(prompt) && /width/i.test(prompt)) return "Now we are exploring rectangle fence problems: halve the perimeter, then find the missing side.";
       return "Now we are exploring same-perimeter geometry: keep the outside walk the same, even when the shape changes.";
@@ -576,7 +597,7 @@
     if (lower.includes("multi")) return multiStepStorySteps(example, narrative, index);
     if (lower.includes("subtraction")) return subtractionStorySteps(example, narrative, index);
     if (lower.includes("deduction") || lower.includes("logic")) return logicStorySteps(example, narrative, index);
-    if (lower.includes("geometry")) return geometryStorySteps(example, narrative, index);
+    if (isGeometryTopic(skill, example)) return geometryStorySteps(example, narrative, index);
     return [];
   }
 
@@ -1087,7 +1108,7 @@
         solutionCommands: solutionCommands("Must means guaranteed", ["Clue 1: all zibs -> green", "Clue 2: some green -> shiny", "Only A is forced"])
       };
     }
-    if (lower.includes("geometry")) {
+    if (isGeometryTopic(skill, example)) {
       if (/length/i.test(prompt) && /width/i.test(prompt)) {
         return {
           prompt: "Try this: A rectangle has perimeter 34 cm and length 12 cm. What is its width?",
@@ -1365,7 +1386,7 @@
         { type: "text", x: 742, y: 272, text: "Only the first clue is guaranteed.", size: 26, max: 420 }
       ];
     }
-    if (lower.includes("geometry")) {
+    if (isGeometryTopic(skill)) {
       return [
         { type: "erase" }, { type: "text", x: 54, y: 72, text: "Geometry: same perimeter", size: 32 },
         { type: "box", x: 92, y: 150, w: 300, h: 168 }, { type: "text", x: 148, y: 348, text: "9 cm by 5 cm", size: 24 },
@@ -1922,7 +1943,7 @@
     lessonState.animating = true;
     lessonState.animationToken += 1;
     const token = lessonState.animationToken;
-    const totalMs = 12100;
+    const totalMs = 5600;
     el.sceneLayer.hidden = false;
     el.sceneLayer.innerHTML = shopSvgMarkup();
     requestAnimationFrame(() => {
@@ -1951,10 +1972,7 @@
 
   function shopSvgMarkup() {
     const line = "#f5f5f0";
-    const amber = "#f5d36e";
-    const rose = "#ff8aa8";
-    const cyan = "#9be8f3";
-    const green = "#96e8b6";
+    const shadow = "#dbe8d9";
     const draw = (extra, delay, dur = 1) => `class="draw-path" pathLength="100" style="--delay:${delay}s;--dur:${dur}s" ${extra}`;
     return `
       <svg class="shop-svg" viewBox="0 0 1280 684" role="img" aria-label="Animated chalk drawing of a snack shop counter" xmlns="http://www.w3.org/2000/svg">
@@ -1973,41 +1991,17 @@
         </defs>
         <rect width="1280" height="684" fill="#2d4a2d"/>
         <rect width="1280" height="684" fill="#ffffff" opacity="0.07" filter="url(#boardNoise)"/>
-        <g class="shop-drawing" transform="translate(-60 -50) scale(1.28)">
+        <g class="shop-drawing" transform="translate(0 0)">
         <g fill="none" stroke="${line}" stroke-linecap="round" stroke-linejoin="round" filter="url(#chalkRough)">
-          <path ${draw(`d="M250 176 L386 96 C502 92 604 96 742 98 L874 178" stroke="${line}" stroke-width="3.4"`, 0, 1)} />
-          <path ${draw(`d="M278 178 C432 184 624 181 842 178" stroke="${line}" stroke-width="3.1"`, 1.25, 0.85)} />
-
-          <path ${draw(`d="M304 180 L304 444" stroke="${line}" stroke-width="3.1"`, 2.4, 0.8)} />
-          <path ${draw(`d="M828 180 L824 444" stroke="${line}" stroke-width="3.1"`, 2.55, 0.8)} />
-          <path ${draw(`d="M304 444 C474 452 644 452 824 444" stroke="${line}" stroke-width="3.1"`, 2.72, 0.9)} />
-
-          <path ${draw(`d="M328 210 C424 216 562 216 806 210" stroke="${amber}" stroke-width="3.3"`, 3.75, 0.75)} />
-          <path ${draw(`d="M360 212 L334 252" stroke="${amber}" stroke-width="3.1"`, 4.72, 0.32)} />
-          <path ${draw(`d="M438 212 L412 252" stroke="${rose}" stroke-width="3.1"`, 4.88, 0.32)} />
-          <path ${draw(`d="M516 212 L490 252" stroke="${amber}" stroke-width="3.1"`, 5.04, 0.32)} />
-          <path ${draw(`d="M594 212 L568 252" stroke="${rose}" stroke-width="3.1"`, 5.2, 0.32)} />
-          <path ${draw(`d="M672 212 L646 252" stroke="${amber}" stroke-width="3.1"`, 5.36, 0.32)} />
-          <path ${draw(`d="M750 212 L724 252" stroke="${rose}" stroke-width="3.1"`, 5.52, 0.32)} />
-
-          <path ${draw(`d="M352 272 C414 266 526 268 606 274 L606 370 C520 376 432 374 352 370 Z" stroke="${cyan}" stroke-width="3.2"`, 5.95, 1)} />
-          <path ${draw(`d="M374 338 C440 345 516 344 584 338" stroke="${line}" stroke-width="2.4"`, 7.05, 0.45)} />
-          <circle ${draw(`cx="404" cy="310" r="22" stroke="${amber}" stroke-width="3.1"`, 7.46, 0.55)} />
-          <circle ${draw(`cx="468" cy="310" r="22" stroke="${rose}" stroke-width="3.1"`, 7.62, 0.55)} />
-          <circle ${draw(`cx="532" cy="310" r="22" stroke="${green}" stroke-width="3.1"`, 7.78, 0.55)} />
-
-          <path ${draw(`d="M346 408 C462 414 640 414 790 408 L812 460 C640 470 464 468 326 458 Z" stroke="${line}" stroke-width="3.4"`, 8.2, 1)} />
-          <path ${draw(`d="M374 454 L380 522 C492 536 668 536 782 520 L790 458" stroke="${line}" stroke-width="3.1"`, 9.0, 0.9)} />
-          <path ${draw(`d="M408 472 L744 472 M410 492 L742 492 M414 512 L734 512" stroke="${line}" stroke-width="1.9" opacity="0.72"`, 9.55, 0.55)} />
-
-          <path ${draw(`d="M678 342 L770 342 L792 384 L650 384 Z" stroke="${amber}" stroke-width="3.1"`, 10.05, 0.7)} />
-          <path ${draw(`d="M662 384 L804 384 L804 430 L662 430 Z" stroke="${amber}" stroke-width="3.1"`, 10.45, 0.65)} />
-          <path ${draw(`d="M690 402 L724 402 M742 402 L776 402" stroke="${line}" stroke-width="2"`, 10.85, 0.4)} />
+          <path ${draw(`d="M214 520 L214 382 L188 382 L260 264 L742 264 L814 382 L788 382 L788 520 L214 520 M228 382 L774 382 M270 382 C270 424 326 424 326 382 C326 424 382 424 382 382 C382 424 438 424 438 382 C438 424 494 424 494 382 C494 424 550 424 550 382 C550 424 606 424 606 382 C606 424 662 424 662 382 C662 424 718 424 718 382" stroke="${line}" stroke-width="4.2"`, 0, 1.6)} />
+          <path ${draw(`d="M300 446 L430 446 L430 520 L300 520 Z M326 478 H404 M516 420 L642 420 L642 520 L516 520 Z M552 470 H604" stroke="${shadow}" stroke-width="3.4"`, 1.82, 0.82)} />
+          <path ${draw(`d="M782 476 H1032 L1070 520 V558 H742 V520 L782 476 Z M742 520 H1070 M772 544 H1040 M838 558 V520 M990 558 V520" stroke="${line}" stroke-width="4"`, 2.82, 0.82)} />
+          <path ${draw(`d="M884 404 V430 M856 404 H912 V430 H856 Z M846 430 H988 L1008 462 H828 Z M840 462 H1016 V500 H840 Z M874 484 H928 M952 484 H996" stroke="${line}" stroke-width="3.35"`, 3.74, 0.72)} />
         </g>
-        <g class="draw-text" style="--delay:11.2s" fill="${line}" filter="url(#chalkRough)" font-family="Caveat, 'Patrick Hand', 'Comic Sans MS', cursive">
-          <text x="520" y="156" font-size="58" text-anchor="middle">Snack Shop</text>
-          <text x="562" y="500" font-size="34" text-anchor="middle">counter</text>
-          <text x="734" y="421" font-size="25" text-anchor="middle">till</text>
+        <g class="draw-text" style="--delay:4.78s" fill="${line}" filter="url(#chalkRough)" font-family="Caveat, 'Patrick Hand', 'Comic Sans MS', cursive">
+          <text x="502" y="304" font-size="50" text-anchor="middle">Snack Shop</text>
+          <text x="906" y="590" font-size="30" text-anchor="middle">cash counter</text>
+          <text x="928" y="490" font-size="23" text-anchor="middle">till</text>
         </g>
         </g>
       </svg>
