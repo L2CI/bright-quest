@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Blackboard Voice Audition | Bright Quest</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --blue: #0b5f93;
+        --ink: #0f2d4a;
+        --muted: #5b7188;
+        --gold: #ffd96a;
+        --mint: #70dfbf;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 28px;
+        background:
+          radial-gradient(circle at 18% 12%, rgba(112, 223, 191, 0.25), transparent 28%),
+          radial-gradient(circle at 86% 18%, rgba(255, 217, 106, 0.28), transparent 24%),
+          linear-gradient(135deg, #f7fcff, #e8f6ff);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      main {
+        width: min(880px, 100%);
+        border: 1px solid rgba(42, 115, 166, 0.18);
+        border-radius: 28px;
+        padding: clamp(24px, 5vw, 44px);
+        background: rgba(255, 255, 255, 0.86);
+        box-shadow: 0 28px 80px rgba(35, 96, 143, 0.16);
+      }
+
+      p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 18px;
+        line-height: 1.45;
+      }
+
+      .eyebrow {
+        color: var(--blue);
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-size: 13px;
+      }
+
+      h1 {
+        margin: 10px 0 12px;
+        font-size: clamp(36px, 6vw, 62px);
+        line-height: 0.95;
+        letter-spacing: 0;
+      }
+
+      .sample-text {
+        margin: 28px 0;
+        padding: 20px;
+        border-radius: 18px;
+        background: #0b4d79;
+        color: #effbff;
+        font-size: 18px;
+        line-height: 1.55;
+        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.12);
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        align-items: center;
+      }
+
+      button {
+        min-width: 170px;
+        border: 0;
+        border-radius: 999px;
+        padding: 16px 22px;
+        color: #082640;
+        font: inherit;
+        font-weight: 900;
+        cursor: pointer;
+        background: linear-gradient(135deg, var(--gold), var(--mint));
+        box-shadow: 0 12px 28px rgba(20, 104, 150, 0.2);
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      button.secondary {
+        background: #eaf6ff;
+        box-shadow: inset 0 0 0 1px rgba(11, 95, 147, 0.18);
+      }
+
+      button:disabled {
+        cursor: wait;
+        opacity: 0.65;
+      }
+
+      .status {
+        margin-top: 18px;
+        min-height: 24px;
+        font-weight: 800;
+        color: var(--blue);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">Voice audition only</p>
+      <h1>Premium Tutor Sample</h1>
+      <p>This does not change the Blackboard lesson page. It tests a more energetic OpenAI voice with a light generated music bed.</p>
+      <div class="sample-text" id="sampleText">
+        Alright Aarin, watch this. The snack costs one dollar forty five, and we are buying three of them. So I am going to stack the prices like three little snack boxes. One forty five, plus one forty five, plus one forty five. Now here comes the neat bit: that makes four dollars thirty five. If we paid with ten dollars, the change is what is left after the shopkeeper takes four dollars thirty five. Ready? Ten dollars minus four thirty five gives five dollars sixty five. That is the move.
+      </div>
+      <div class="controls">
+        <button id="sparkButton" type="button">Play Spark</button>
+        <button class="secondary" id="calmButton" type="button">Play Calm</button>
+      </div>
+      <p class="status" id="status">Ready.</p>
+    </main>
+
+    <script>
+      const statusEl = document.querySelector("#status");
+      const sampleText = document.querySelector("#sampleText").textContent.trim();
+      const buttons = [...document.querySelectorAll("button")];
+      let currentAudio = null;
+      let musicStop = null;
+      let audioContext = null;
+
+      document.querySelector("#sparkButton").addEventListener("click", () => playSample("spark"));
+      document.querySelector("#calmButton").addEventListener("click", () => playSample("calm"));
+
+      async function playSample(style) {
+        stopCurrent();
+        setBusy(true, `Generating ${style} sample...`);
+        try {
+          const response = await fetch("/api/blackboard-voice-sample", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ text: sampleText, style })
+          });
+          if (!response.ok) throw new Error(`Voice sample failed: ${response.status}`);
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+          currentAudio = new Audio(url);
+          currentAudio.volume = 0.96;
+          musicStop = startMusicBed();
+          currentAudio.onended = () => {
+            stopMusic();
+            setBusy(false, `Finished. Cache: ${response.headers.get("x-bq-voice-cache") || "unknown"}, voice: ${response.headers.get("x-bq-voice-name") || "unknown"}.`);
+          };
+          currentAudio.onerror = () => {
+            stopMusic();
+            setBusy(false, "Audio playback failed.");
+          };
+          await currentAudio.play();
+          setBusy(false, `Playing ${style}. Cache: ${response.headers.get("x-bq-voice-cache") || "unknown"}, voice: ${response.headers.get("x-bq-voice-name") || "unknown"}.`);
+        } catch (error) {
+          stopMusic();
+          setBusy(false, error.message || "Could not play sample.");
+        }
+      }
+
+      function setBusy(isBusy, message) {
+        buttons.forEach((button) => { button.disabled = isBusy; });
+        statusEl.textContent = message;
+      }
+
+      function stopCurrent() {
+        if (currentAudio) {
+          currentAudio.pause();
+          currentAudio = null;
+        }
+        stopMusic();
+      }
+
+      function getAudioContext() {
+        if (audioContext) return audioContext;
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return null;
+        audioContext = new AudioContextClass();
+        return audioContext;
+      }
+
+      function startMusicBed() {
+        const audio = getAudioContext();
+        if (!audio) return null;
+        if (audio.state === "suspended") audio.resume().catch(() => {});
+        const master = audio.createGain();
+        master.gain.value = 0.075;
+        master.connect(audio.destination);
+        const timers = [];
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        const start = audio.currentTime + 0.02;
+        notes.forEach((note, index) => playBell(audio, master, start + index * 0.12, note));
+        let beat = 0;
+        const loop = setInterval(() => {
+          const now = audio.currentTime + 0.02;
+          playBell(audio, master, now, notes[beat % notes.length] * (beat % 3 === 0 ? 0.5 : 1));
+          beat += 1;
+        }, 1450);
+        timers.push(loop);
+        return () => {
+          timers.forEach(clearInterval);
+          master.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + 0.35);
+          setTimeout(() => master.disconnect(), 450);
+        };
+      }
+
+      function playBell(audio, output, start, frequency) {
+        const osc = audio.createOscillator();
+        const gain = audio.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(frequency, start);
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.35, start + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.62);
+        osc.connect(gain);
+        gain.connect(output);
+        osc.start(start);
+        osc.stop(start + 0.68);
+      }
+
+      function stopMusic() {
+        if (musicStop) musicStop();
+        musicStop = null;
+      }
+    </script>
+  </body>
+</html>
