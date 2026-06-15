@@ -51,6 +51,7 @@
     voiceDiskCache: null,
     audioContext: null,
     introPlayed: false,
+    teacherMusicStop: null,
     animationToken: 0,
     animating: false,
     speed: 1,
@@ -2377,14 +2378,17 @@
       lessonState.currentAudio = audio;
       audio.onended = () => {
         if (lessonState.currentAudio === audio) lessonState.currentAudio = null;
+        stopTeacherMusicBed();
         if (token === lessonState.voiceToken && !lessonState.paused) after?.();
       };
       audio.onerror = () => {
         if (lessonState.currentAudio === audio) lessonState.currentAudio = null;
+        stopTeacherMusicBed();
         playBrowserVoice(text, token, after);
       };
       el.apiStatus.textContent = "Teacher voice speaking";
       await audio.play();
+      startTeacherMusicBed();
     } catch {
       if (token !== lessonState.voiceToken || lessonState.paused) return;
       lessonState.cloudVoiceAvailable = false;
@@ -2519,6 +2523,7 @@
       lessonState.currentAudio.pause();
       lessonState.currentAudio = null;
     }
+    stopTeacherMusicBed();
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
     }
@@ -2547,6 +2552,59 @@
     playTone(audio, now + 0.45, 783.99, 0.32, 0.035, "sine");
     playWhoosh(audio, now + 0.12, 0.75);
     await wait(950);
+  }
+
+  function startTeacherMusicBed() {
+    stopTeacherMusicBed();
+    const audio = getAudioContext();
+    if (!audio || audio.state === "suspended") return;
+    const master = audio.createGain();
+    master.gain.setValueAtTime(0.0001, audio.currentTime);
+    master.gain.exponentialRampToValueAtTime(0.035, audio.currentTime + 0.45);
+    master.connect(audio.destination);
+
+    const notes = [392, 523.25, 659.25, 783.99];
+    let beat = 0;
+    const playNext = () => {
+      if (!lessonState.currentAudio || lessonState.currentAudio.paused) return;
+      const note = notes[beat % notes.length] * (beat % 4 === 0 ? 0.5 : 1);
+      playBellTone(audio, master, audio.currentTime + 0.02, note, 0.12);
+      beat += 1;
+    };
+    playNext();
+    const timer = setInterval(playNext, 1650);
+    lessonState.teacherMusicStop = () => {
+      clearInterval(timer);
+      try {
+        master.gain.cancelScheduledValues(audio.currentTime);
+        master.gain.setValueAtTime(Math.max(0.0001, master.gain.value), audio.currentTime);
+        master.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + 0.35);
+        setTimeout(() => master.disconnect(), 450);
+      } catch {
+        try { master.disconnect(); } catch {}
+      }
+    };
+  }
+
+  function stopTeacherMusicBed() {
+    if (!lessonState.teacherMusicStop) return;
+    const stop = lessonState.teacherMusicStop;
+    lessonState.teacherMusicStop = null;
+    stop();
+  }
+
+  function playBellTone(audio, output, start, frequency, gainLevel) {
+    const oscillator = audio.createOscillator();
+    const gain = audio.createGain();
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(frequency, start);
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(gainLevel, start + 0.035);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.58);
+    oscillator.connect(gain);
+    gain.connect(output);
+    oscillator.start(start);
+    oscillator.stop(start + 0.64);
   }
 
   function getAudioContext() {

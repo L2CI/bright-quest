@@ -10,11 +10,13 @@ export async function onRequestPost(context) {
   if (!input) return json({ error: "Missing text" }, 400);
 
   const primaryInstructions = [
-    "Speak like a premium one-on-one primary-school tutor recording a short classroom lesson for an 8-year-old.",
-    "Use a warm adult male voice with calm authority, clear diction, and genuine curiosity.",
-    "Keep the energy alive: smile in the voice, lift key discovery words, and make 'watch this' moments feel exciting.",
-    "Do not sound robotic, sleepy, theatrical, game-show-like, or like an audiobook reader.",
-    "Use natural teacher pauses before the important thinking move or final answer, but keep the pace moving.",
+    "You are recording premium narration for an 8-year-old's chalkboard tutoring app.",
+    "Sound like a real private teacher: warm, bright, confident, and alive.",
+    "Use a slightly deeper baritone adult male tone, with calm authority and clear diction.",
+    "Keep the energy at 7.5 out of 10: enthusiastic and teacher-like, never cartoonish.",
+    "Smile in the voice. Lift discovery words like 'watch this', 'here comes the neat bit', 'ready', and the final answer.",
+    "Use expressive rhythm and short natural pauses before important reveals.",
+    "Do not drone, mumble, sound sleepy, sound robotic, or read like an audiobook.",
     "Treat every sentence as if it is being spoken while chalk is being drawn on a board."
   ].join(" ");
 
@@ -63,7 +65,8 @@ export async function onRequestPost(context) {
           "content-type": "audio/mpeg",
           "cache-control": "public, max-age=2592000, immutable",
           "x-bq-voice-cache": "MISS",
-          "x-bq-voice-model": payload.model
+          "x-bq-voice-model": payload.model,
+          "x-bq-voice-name": payload.voice
         }
       });
       writeVoiceCache(cacheRequest, audioResponse.clone(), context);
@@ -85,7 +88,7 @@ function cleanInput(value) {
 async function makeVoiceCacheRequest(originalRequest, input, instructions) {
   const url = new URL(originalRequest.url);
   const hash = await sha256(JSON.stringify({
-    version: "blackboard-teacher-openai-voice-002",
+    version: "blackboard-teacher-openai-voice-003",
     model: "gpt-4o-mini-tts",
     fallback: "tts-1",
     voice: "onyx",
