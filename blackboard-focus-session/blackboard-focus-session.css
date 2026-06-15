@@ -293,9 +293,64 @@ button {
   aspect-ratio: 16 / 8.55;
 }
 
+.chalk-scene-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.chalk-scene-layer[hidden] {
+  display: none;
+}
+
+.chalk-scene-layer svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.chalk-scene-layer .draw-path {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: chalkDraw var(--dur, 1s) ease-out var(--delay, 0s) forwards;
+}
+
+.chalk-scene-layer .draw-text {
+  opacity: 0;
+  animation: chalkFade 0.65s ease-out var(--delay, 0s) forwards;
+}
+
+.chalk-scene-layer .shop-svg.static .draw-path {
+  stroke-dashoffset: 0;
+  animation: none;
+}
+
+.chalk-scene-layer .shop-svg.static .draw-text {
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+
+@keyframes chalkDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes chalkFade {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .chalk-dust {
   position: absolute;
   inset: 0;
+  z-index: 2;
   pointer-events: none;
   background:
     radial-gradient(circle at 22% 28%, rgba(255, 255, 255, 0.05), transparent 12%),
@@ -305,6 +360,7 @@ button {
 
 .teacher-caption {
   position: absolute;
+  z-index: 3;
   left: 18px;
   right: 18px;
   bottom: 18px;

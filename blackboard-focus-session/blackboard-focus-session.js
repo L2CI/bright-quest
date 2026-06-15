@@ -5,6 +5,7 @@
   const internationalTests = window.BrightQuestInternationalTests || [];
   const allTests = [...(data.levels || []), ...(finalTest ? [finalTest] : []), ...internationalTests];
   const voiceMode = "browser";
+  const chalkHandSpeed = 1.05;
 
   const el = {
     canvas: document.querySelector("#chalkboard"),
@@ -20,6 +21,7 @@
     moduleList: document.querySelector("#moduleList"),
     evidenceList: document.querySelector("#evidenceList"),
     memoryList: document.querySelector("#memoryList"),
+    sceneLayer: document.querySelector("#chalkSceneLayer"),
     planTitle: document.querySelector("#planTitle"),
     planSummary: document.querySelector("#planSummary"),
     start: document.querySelector("#startLessonButton"),
@@ -47,6 +49,7 @@
     voiceCache: new Map(),
     voicePrefetches: new Map(),
     animationToken: 0,
+    animating: false,
     speed: 1,
     captionsVisible: false,
     currentPractice: null,
@@ -93,6 +96,7 @@
   }
 
   function fitCanvas() {
+    if (lessonState.animating) return;
     const ratio = window.devicePixelRatio || 1;
     const rect = el.canvas.getBoundingClientRect();
     el.canvas.width = Math.max(320, Math.floor(rect.width * ratio));
@@ -746,18 +750,9 @@
       : `${money(unitPrice)} + ${money(extraPrice)} = ${money(total)}`;
     return [
       {
-        say: `Let's turn this into a tiny shop. Watch the counter appear first, because money questions make more sense when we can see the place.`,
-        commands: [
-          { type: "text", x: 52, y: 64, text: "Shop counter", size: 34, color: "cyan" },
-          { type: "box", x: 110, y: 142, w: 700, h: 260 },
-          { type: "line", x1: 110, y1: 142, x2: 184, y2: 96 },
-          { type: "line", x1: 810, y1: 142, x2: 736, y2: 96 },
-          { type: "line", x1: 184, y1: 96, x2: 736, y2: 96 },
-          { type: "line", x1: 110, y1: 248, x2: 810, y2: 248 },
-          { type: "text", x: 250, y: 204, text: "Bright Snacks", size: 34, color: "amber" },
-          { type: "box", x: 178, y: 292, w: 560, h: 76 },
-          { type: "text", x: 300, y: 342, text: "counter", size: 28 }
-        ]
+        say: `Let's turn this into a tiny snack shop. I am drawing the awning, the window, the snacks, the counter, and the cash register, because this is where the change comes back.`,
+        svgScene: "shop",
+        commands: []
       },
       {
         say: isQuantity
@@ -1518,6 +1513,7 @@
     clearAutoTimer();
     cancelTeacherVoice();
     lessonState.animationToken += 1;
+    lessonState.animating = false;
     if (message) el.caption.textContent = message;
     updateLessonControl();
   }
@@ -1540,14 +1536,14 @@
     clearAutoTimer();
     hidePracticePanel();
     lessonState.lastStep = step;
-    clearBoard();
-    animateCommands(commandsForBoard(step));
+    if (!step.keepBoard) clearBoard();
+    const drawingDone = drawStepVisual(step);
     warmNearbyVoice();
     if (step.practice) {
-      teach(step.say, () => showPractice(step.practice));
+      teach(step.say, () => drawingDone.then(() => showPractice(step.practice)));
       return;
     }
-    teach(step.say, () => scheduleAutoAdvance(step.say));
+    teach(step.say, () => drawingDone.then(() => scheduleAutoAdvance(step.say)));
   }
 
   function playNextStep() {
@@ -1887,28 +1883,183 @@
   function animateCommands(commands) {
     const queue = [...commands];
     const token = ++lessonState.animationToken;
-    const run = () => {
-      if (token !== lessonState.animationToken) return;
-      let delay = 42;
-      for (let i = 0; i < 4; i += 1) {
+    return new Promise((resolve) => {
+      lessonState.animating = true;
+      const finish = () => {
+        if (token === lessonState.animationToken) lessonState.animating = false;
+        resolve();
+      };
+      const run = () => {
+        if (token !== lessonState.animationToken) {
+          finish();
+          return;
+        }
         const command = queue.shift();
-        if (!command) return;
-        drawCommand(command, true);
-        if (command.type === "erase") delay = 55;
+        if (!command) {
+          finish();
+          return;
+        }
+        animateCommand(command, token, () => {
+          if (token !== lessonState.animationToken) {
+            finish();
+            return;
+          }
+          setTimeout(run, ((command.pause || 52) * chalkHandSpeed) / lessonState.speed);
+        });
+      };
+      run();
+    });
+  }
+
+  function drawStepVisual(step) {
+    if (step.svgScene === "shop") return drawShop();
+    hideSvgScene();
+    return animateCommands(commandsForBoard(step));
+  }
+
+  function drawShop() {
+    if (!el.sceneLayer) return animateCommands([]);
+    lessonState.animating = true;
+    lessonState.animationToken += 1;
+    const token = lessonState.animationToken;
+    const totalMs = 12100;
+    el.sceneLayer.hidden = false;
+    el.sceneLayer.innerHTML = shopSvgMarkup();
+    requestAnimationFrame(() => {
+      el.sceneLayer.querySelector(".shop-svg")?.classList.add("is-drawing");
+    });
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        if (token === lessonState.animationToken) lessonState.animating = false;
+        resolve();
+      }, totalMs / lessonState.speed);
+    });
+  }
+
+  function hideSvgScene() {
+    if (!el.sceneLayer) return;
+    el.sceneLayer.hidden = true;
+    el.sceneLayer.innerHTML = "";
+  }
+
+  function showShopStatic() {
+    if (!el.sceneLayer) return;
+    el.sceneLayer.hidden = false;
+    el.sceneLayer.innerHTML = shopSvgMarkup();
+    el.sceneLayer.querySelector(".shop-svg")?.classList.add("static");
+  }
+
+  function shopSvgMarkup() {
+    const line = "#f5f5f0";
+    const amber = "#f5d36e";
+    const rose = "#ff8aa8";
+    const cyan = "#9be8f3";
+    const green = "#96e8b6";
+    const draw = (extra, delay, dur = 1) => `class="draw-path" pathLength="100" style="--delay:${delay}s;--dur:${dur}s" ${extra}`;
+    return `
+      <svg class="shop-svg" viewBox="0 0 1280 684" role="img" aria-label="Animated chalk drawing of a snack shop counter" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="chalkRough" x="-4%" y="-4%" width="108%" height="108%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.88" numOctaves="2" seed="7" result="noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.15"/>
+          </filter>
+          <filter id="boardNoise" x="0" y="0" width="100%" height="100%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="4" seed="11"/>
+            <feColorMatrix type="saturate" values="0"/>
+            <feComponentTransfer>
+              <feFuncA type="table" tableValues="0 0.18"/>
+            </feComponentTransfer>
+          </filter>
+        </defs>
+        <rect width="1280" height="684" fill="#2d4a2d"/>
+        <rect width="1280" height="684" fill="#ffffff" opacity="0.07" filter="url(#boardNoise)"/>
+        <g class="shop-drawing" transform="translate(-60 -50) scale(1.28)">
+        <g fill="none" stroke="${line}" stroke-linecap="round" stroke-linejoin="round" filter="url(#chalkRough)">
+          <path ${draw(`d="M250 176 L386 96 C502 92 604 96 742 98 L874 178" stroke="${line}" stroke-width="3.4"`, 0, 1)} />
+          <path ${draw(`d="M278 178 C432 184 624 181 842 178" stroke="${line}" stroke-width="3.1"`, 1.25, 0.85)} />
+
+          <path ${draw(`d="M304 180 L304 444" stroke="${line}" stroke-width="3.1"`, 2.4, 0.8)} />
+          <path ${draw(`d="M828 180 L824 444" stroke="${line}" stroke-width="3.1"`, 2.55, 0.8)} />
+          <path ${draw(`d="M304 444 C474 452 644 452 824 444" stroke="${line}" stroke-width="3.1"`, 2.72, 0.9)} />
+
+          <path ${draw(`d="M328 210 C424 216 562 216 806 210" stroke="${amber}" stroke-width="3.3"`, 3.75, 0.75)} />
+          <path ${draw(`d="M360 212 L334 252" stroke="${amber}" stroke-width="3.1"`, 4.72, 0.32)} />
+          <path ${draw(`d="M438 212 L412 252" stroke="${rose}" stroke-width="3.1"`, 4.88, 0.32)} />
+          <path ${draw(`d="M516 212 L490 252" stroke="${amber}" stroke-width="3.1"`, 5.04, 0.32)} />
+          <path ${draw(`d="M594 212 L568 252" stroke="${rose}" stroke-width="3.1"`, 5.2, 0.32)} />
+          <path ${draw(`d="M672 212 L646 252" stroke="${amber}" stroke-width="3.1"`, 5.36, 0.32)} />
+          <path ${draw(`d="M750 212 L724 252" stroke="${rose}" stroke-width="3.1"`, 5.52, 0.32)} />
+
+          <path ${draw(`d="M352 272 C414 266 526 268 606 274 L606 370 C520 376 432 374 352 370 Z" stroke="${cyan}" stroke-width="3.2"`, 5.95, 1)} />
+          <path ${draw(`d="M374 338 C440 345 516 344 584 338" stroke="${line}" stroke-width="2.4"`, 7.05, 0.45)} />
+          <circle ${draw(`cx="404" cy="310" r="22" stroke="${amber}" stroke-width="3.1"`, 7.46, 0.55)} />
+          <circle ${draw(`cx="468" cy="310" r="22" stroke="${rose}" stroke-width="3.1"`, 7.62, 0.55)} />
+          <circle ${draw(`cx="532" cy="310" r="22" stroke="${green}" stroke-width="3.1"`, 7.78, 0.55)} />
+
+          <path ${draw(`d="M346 408 C462 414 640 414 790 408 L812 460 C640 470 464 468 326 458 Z" stroke="${line}" stroke-width="3.4"`, 8.2, 1)} />
+          <path ${draw(`d="M374 454 L380 522 C492 536 668 536 782 520 L790 458" stroke="${line}" stroke-width="3.1"`, 9.0, 0.9)} />
+          <path ${draw(`d="M408 472 L744 472 M410 492 L742 492 M414 512 L734 512" stroke="${line}" stroke-width="1.9" opacity="0.72"`, 9.55, 0.55)} />
+
+          <path ${draw(`d="M678 342 L770 342 L792 384 L650 384 Z" stroke="${amber}" stroke-width="3.1"`, 10.05, 0.7)} />
+          <path ${draw(`d="M662 384 L804 384 L804 430 L662 430 Z" stroke="${amber}" stroke-width="3.1"`, 10.45, 0.65)} />
+          <path ${draw(`d="M690 402 L724 402 M742 402 L776 402" stroke="${line}" stroke-width="2"`, 10.85, 0.4)} />
+        </g>
+        <g class="draw-text" style="--delay:11.2s" fill="${line}" filter="url(#chalkRough)" font-family="Caveat, 'Patrick Hand', 'Comic Sans MS', cursive">
+          <text x="520" y="156" font-size="58" text-anchor="middle">Snack Shop</text>
+          <text x="562" y="500" font-size="34" text-anchor="middle">counter</text>
+          <text x="734" y="421" font-size="25" text-anchor="middle">till</text>
+        </g>
+        </g>
+      </svg>
+    `;
+  }
+
+  function animateCommand(command, token, done) {
+    if (command.type === "erase") {
+      drawCommand(command, true);
+      setTimeout(done, (80 * chalkHandSpeed) / lessonState.speed);
+      return;
+    }
+    const duration = (commandDuration(command) * chalkHandSpeed) / lessonState.speed;
+    const started = performance.now();
+    const tick = (now) => {
+      if (token !== lessonState.animationToken) return;
+      const progress = Math.min(1, (now - started) / duration);
+      drawCommand(command, true, progress);
+      if (progress < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        done();
       }
-      setTimeout(run, delay / lessonState.speed);
     };
-    run();
+    requestAnimationFrame(tick);
+  }
+
+  function commandDuration(command) {
+    if (command.duration) return command.duration;
+    if (command.type === "text") return Math.min(1100, Math.max(320, String(command.text || "").length * 24));
+    if (command.type === "box") return 560;
+    if (command.type === "arrow") return 500;
+    if (command.type === "line") return 360;
+    if (command.type === "circle") return 420;
+    if (command.type === "dot") return 190;
+    return 260;
   }
 
   function drawCommandsNow(commands) {
     lessonState.animationToken += 1;
+    lessonState.animating = false;
+    hideSvgScene();
     commands.forEach((command) => drawCommand(command, false));
   }
 
   function renderStaticStep(step) {
     clearBoard();
-    commandsForBoard(step).forEach((command) => drawCommand(command, false));
+    if (step?.svgScene === "shop") {
+      showShopStatic();
+      return;
+    }
+    commandsForStaticStep(step).forEach((command) => drawCommand(command, false));
   }
 
   function commandsForBoard(step) {
@@ -1916,12 +2067,25 @@
     return step.commands || [];
   }
 
+  function commandsForStaticStep(step) {
+    const module = currentModule();
+    if (!step?.keepBoard || !module) return commandsForBoard(step);
+    const index = Math.max(0, module.steps.indexOf(step));
+    let start = index;
+    while (start > 0 && module.steps[start]?.keepBoard) start -= 1;
+    return module.steps.slice(start, index + 1).flatMap((item) => commandsForBoard(item));
+  }
+
   function isNarrowBoard() {
     return el.canvas.getBoundingClientRect().width < 560;
   }
 
   function clearBoard(options = {}) {
-    if (!options.keepAnimation) lessonState.animationToken += 1;
+    if (!options.keepAnimation) {
+      lessonState.animationToken += 1;
+      lessonState.animating = false;
+    }
+    if (!options.keepSvg) hideSvgScene();
     const ratio = window.devicePixelRatio || 1;
     const rect = el.canvas.getBoundingClientRect();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -1943,7 +2107,7 @@
     drawCommand({ type: "text", x: 807, y: 258, text: "learn", size: 26 }, false);
   }
 
-  function drawCommand(command, jitter) {
+  function drawCommand(command, jitter, progress = 1) {
     if (command.type === "erase") {
       clearBoard({ keepAnimation: true });
       return;
@@ -1962,16 +2126,26 @@
     ctx.fillStyle = color;
     ctx.shadowColor = color;
     ctx.shadowBlur = command.type === "highlight" ? 0 : command.color ? 1.2 : 0;
-    if (command.type === "text") chalkText(c.text, c.x, c.y, c.size || 22, c.max ? c.max * scale : undefined);
-    if (command.type === "line") chalkLine(c.x1, c.y1, c.x2, c.y2, jitter);
-    if (command.type === "arrow") chalkArrow(c.x1, c.y1, c.x2, c.y2, jitter);
-    if (command.type === "box") chalkBox(c.x, c.y, c.w, c.h, jitter);
-    if (command.type === "circle") chalkCircle(c.x, c.y, c.r, jitter);
+    if (command.type === "text") chalkText(partialText(c.text, progress), c.x, c.y, c.size || 22, c.max ? c.max * scale : undefined);
+    if (command.type === "line") chalkLine(c.x1, c.y1, lerp(c.x1, c.x2, progress), lerp(c.y1, c.y2, progress), jitter);
+    if (command.type === "arrow") chalkArrow(c.x1, c.y1, c.x2, c.y2, jitter, progress);
+    if (command.type === "box") chalkBox(c.x, c.y, c.w, c.h, jitter, progress);
+    if (command.type === "circle") chalkCircle(c.x, c.y, c.r, jitter, progress);
     if (command.type === "dot") chalkDot(c.x, c.y, c.r, jitter);
     if (command.type === "highlight") {
-      ctx.fillRect(c.x, c.y, c.w, c.h);
+      ctx.fillRect(c.x, c.y, c.w * progress, c.h);
     }
     ctx.restore();
+  }
+
+  function partialText(text, progress) {
+    const value = String(text || "");
+    if (progress >= 1) return value;
+    return value.slice(0, Math.max(1, Math.ceil(value.length * progress)));
+  }
+
+  function lerp(a, b, progress) {
+    return a + (b - a) * progress;
   }
 
   function boardScale() {
@@ -2024,27 +2198,54 @@
     }
   }
 
-  function chalkArrow(x1, y1, x2, y2, jitter) {
-    chalkLine(x1, y1, x2, y2, jitter);
+  function chalkArrow(x1, y1, x2, y2, jitter, progress = 1) {
+    const shaftProgress = Math.min(1, progress / 0.82);
+    const sx = lerp(x1, x2, shaftProgress);
+    const sy = lerp(y1, y2, shaftProgress);
+    chalkLine(x1, y1, sx, sy, jitter);
+    if (progress < 0.82) return;
     const angle = Math.atan2(y2 - y1, x2 - x1);
     const len = 18 * boardScale();
     chalkLine(x2, y2, x2 - Math.cos(angle - 0.52) * len, y2 - Math.sin(angle - 0.52) * len, jitter);
     chalkLine(x2, y2, x2 - Math.cos(angle + 0.52) * len, y2 - Math.sin(angle + 0.52) * len, jitter);
   }
 
-  function chalkBox(x, y, w, h, jitter) {
-    chalkLine(x, y, x + w, y, jitter);
-    chalkLine(x + w, y, x + w, y + h, jitter);
-    chalkLine(x + w, y + h, x, y + h, jitter);
-    chalkLine(x, y + h, x, y, jitter);
+  function chalkBox(x, y, w, h, jitter, progress = 1) {
+    chalkPolyline([
+      [x, y],
+      [x + w, y],
+      [x + w, y + h],
+      [x, y + h],
+      [x, y]
+    ], jitter, progress);
   }
 
-  function chalkCircle(x, y, r, jitter) {
+  function chalkCircle(x, y, r, jitter, progress = 1) {
     ctx.lineWidth = Math.max(2.2, 3.2 * boardScale());
     for (let pass = 0; pass < 2; pass += 1) {
       ctx.beginPath();
-      ctx.ellipse(x + randJ(jitter), y + randJ(jitter), r + randJ(jitter), r * 0.96 + randJ(jitter), rand(-0.05, 0.05), 0, Math.PI * 2);
+      ctx.ellipse(x + randJ(jitter), y + randJ(jitter), r + randJ(jitter), r * 0.96 + randJ(jitter), rand(-0.05, 0.05), -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * progress);
       ctx.stroke();
+    }
+  }
+
+  function chalkPolyline(points, jitter, progress = 1) {
+    if (points.length < 2) return;
+    const segments = [];
+    let total = 0;
+    for (let i = 0; i < points.length - 1; i += 1) {
+      const [x1, y1] = points[i];
+      const [x2, y2] = points[i + 1];
+      const length = Math.hypot(x2 - x1, y2 - y1);
+      total += length;
+      segments.push({ x1, y1, x2, y2, length });
+    }
+    let remaining = total * progress;
+    for (const segment of segments) {
+      if (remaining <= 0) return;
+      const amount = Math.min(1, remaining / segment.length);
+      chalkLine(segment.x1, segment.y1, lerp(segment.x1, segment.x2, amount), lerp(segment.y1, segment.y2, amount), jitter);
+      remaining -= segment.length;
     }
   }
 
@@ -2253,4 +2454,5 @@
       el.form.requestSubmit();
     }
   };
+  window.drawShop = drawShop;
 })();
