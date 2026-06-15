@@ -512,12 +512,12 @@
             { type: "text", x: 92, y: 338, text: "different words", size: 22 },
             { type: "text", x: 560, y: 338, text: "same move", size: 24 }
           ] : [
-            { type: "circle", x: 234, y: 260, r: 86 },
-            { type: "text", x: 180, y: 268, text: skill, size: 18, max: 120 },
-            { type: "circle", x: 530, y: 170, r: 72 },
-            { type: "text", x: 485, y: 176, text: adjacent[0], size: 18, max: 110 },
-            { type: "circle", x: 594, y: 392, r: 72 },
-            { type: "text", x: 550, y: 398, text: adjacent[1], size: 18, max: 110 },
+            { type: "box", x: 138, y: 204, w: 192, h: 96 },
+            { type: "text", x: 178, y: 262, text: skill, size: 18, max: 128 },
+            { type: "box", x: 434, y: 118, w: 192, h: 90 },
+            { type: "text", x: 482, y: 172, text: adjacent[0], size: 18, max: 118 },
+            { type: "box", x: 498, y: 340, w: 192, h: 90 },
+            { type: "text", x: 548, y: 394, text: adjacent[1], size: 18, max: 118 },
             { type: "arrow", x1: 318, y1: 238, x2: 458, y2: 184 },
             { type: "arrow", x1: 318, y1: 294, x2: 520, y2: 372 }
           ])
@@ -534,8 +534,8 @@
         ] : [
           { type: "erase" },
           { type: "text", fixed: true, x: 24, y: 38, text: "Adjacent learning", size: 21 },
-          { type: "circle", fixed: true, x: 176, y: 120, r: 54 },
-          { type: "text", fixed: true, x: 132, y: 126, text: shorten(skill, 18), size: 14, max: 88 },
+          { type: "box", fixed: true, x: 86, y: 88, w: 180, h: 64 },
+          { type: "text", fixed: true, x: 116, y: 128, text: shorten(skill, 18), size: 14, max: 120 },
           { type: "box", fixed: true, x: 36, y: 210, w: 122, h: 62 },
           { type: "text", fixed: true, x: 48, y: 246, text: shorten(adjacent[0], 18), size: 13, max: 96 },
           { type: "box", fixed: true, x: 204, y: 210, w: 122, h: 62 },
@@ -756,7 +756,8 @@
           { type: "arrow", x1: 220, y1: 228, x2: 560, y2: 228 },
           { type: "text", x: 350, y: 202, text: `+${breakMinutes}`, size: 26 },
           { type: "text", x: 590, y: 314, text: formatTime(finalEnd.hour, finalEnd.minute), size: 34 },
-          { type: "circle", x: 650, y: 304, r: 78 }
+          { type: "text", x: 590, y: 394, text: `Finish = ${formatTime(finalEnd.hour, finalEnd.minute)}`, size: 42, color: "amber" },
+          { type: "line", x1: 590, y1: 420, x2: 862, y2: 420, color: "amber" }
         ]
       },
       checkStep(index, `Clock questions are journeys. Stop at each station in order.`)
@@ -817,7 +818,8 @@
           { type: "text", x: 628, y: 210, text: `spent ${money(total)}`, size: 29 },
           { type: "line", x1: 140, y1: 316, x2: 820, y2: 316 },
           { type: "text", x: 154, y: 388, text: `${money(paid)} - ${money(total)} = ${money(change)} change`, size: 38, max: 900, color: "amber" },
-          { type: "circle", x: 744, y: 372, r: 86, color: "amber" }
+          { type: "text", x: 154, y: 470, text: `Change = ${money(change)}`, size: 48, color: "amber" },
+          { type: "line", x1: 154, y1: 496, x2: 492, y2: 496, color: "amber" }
         ]
       },
       checkStep(index, `Change is what comes back after the price is paid.`)
@@ -863,7 +865,8 @@
           { type: "text", x: 108, y: 300, text: `${start} + ${step} x ${jumps}`, size: 46, color: "rose" },
           { type: "line", x1: 108, y1: 326, x2: 590, y2: 326, color: "rose" },
           { type: "text", x: 108, y: 420, text: `${start} + ${step * jumps} = ${answer}`, size: 54, color: "amber" },
-          { type: "circle", x: 510, y: 402, r: 86, color: "amber" }
+          { type: "text", x: 108, y: 510, text: `Answer = ${answer}`, size: 46, color: "amber" },
+          { type: "line", x1: 108, y1: 536, x2: 404, y2: 536, color: "amber" }
         ],
         mobileCommands: [
           { type: "erase" },
@@ -936,7 +939,8 @@
           { type: "text", x: 102, y: 160, text: "246 + 157 = 403 booked", size: 34 },
           { type: "line", x1: 100, y1: 190, x2: 640, y2: 190 },
           { type: "text", x: 102, y: 270, text: "723 - 403 = 320 empty", size: 40 },
-          { type: "circle", x: 620, y: 258, r: 70 }
+          { type: "text", x: 102, y: 360, text: "Left = 320 seats", size: 44, color: "amber" },
+          { type: "line", x1: 102, y1: 386, x2: 430, y2: 386, color: "amber" }
         ]
       },
       checkStep(index, `When two groups are used, bundle them before subtracting.`)
@@ -1010,8 +1014,8 @@
             { type: "text", x: 110, y: 162, text: `${length} + width = ${halfPerimeter}`, size: 40 },
             { type: "line", x1: 110, y1: 198, x2: 600, y2: 198 },
             { type: "text", x: 110, y: 286, text: `${halfPerimeter} - ${length} = ${width}`, size: 44 },
-            { type: "circle", x: 498, y: 274, r: 72 },
-            { type: "text", x: 602, y: 286, text: "cm wide", size: 30 }
+            { type: "text", x: 110, y: 380, text: `Width = ${width} cm`, size: 48, color: "amber" },
+            { type: "line", x1: 110, y1: 406, x2: 430, y2: 406, color: "amber" }
           ],
           mobileCommands: [
             { type: "erase" },
@@ -1023,7 +1027,7 @@
             { type: "text", fixed: true, x: 214, y: 152, text: `= ${halfPerimeter}`, size: 22, color: "amber" },
             { type: "line", fixed: true, x1: 54, y1: 222, x2: 292, y2: 222, color: "rose" },
             { type: "text", fixed: true, x: 60, y: 266, text: `${halfPerimeter} - ${length} = ${width}`, size: 25, color: "amber" },
-            { type: "circle", fixed: true, x: 196, y: 256, r: 38, color: "amber" }
+            { type: "text", fixed: true, x: 60, y: 324, text: `width = ${width} cm`, size: 24, color: "amber" }
           ]
         },
         checkStep(index, `For rectangle perimeter, halve the fence first: length plus width.`)
@@ -1368,8 +1372,8 @@
         { type: "box", fixed: true, x: 210, y: 82, w: 126, h: 68 },
         { type: "text", fixed: true, x: 226, y: 122, text: "thinking", size: 15 },
         { type: "arrow", fixed: true, x1: 272, y1: 154, x2: 272, y2: 210 },
-        { type: "circle", fixed: true, x: 272, y: 266, r: 42 },
-        { type: "text", fixed: true, x: 242, y: 272, text: "answer", size: 14 }
+        { type: "box", fixed: true, x: 218, y: 234, w: 108, h: 58 },
+        { type: "text", fixed: true, x: 242, y: 270, text: "answer", size: 14 }
       ];
     }
     return [
@@ -1474,7 +1478,7 @@
         { type: "erase" }, { type: "text", x: 54, y: 72, text: "Inference = clue + thinking", size: 32 },
         { type: "box", x: 86, y: 160, w: 300, h: 120 }, { type: "text", x: 120, y: 222, text: "Text clue", size: 28 },
         { type: "arrow", x1: 390, y1: 220, x2: 510, y2: 220 }, { type: "box", x: 520, y: 160, w: 300, h: 120 }, { type: "text", x: 556, y: 222, text: "Sensible idea", size: 28 },
-        { type: "arrow", x1: 670, y1: 284, x2: 670, y2: 388 }, { type: "circle", x: 670, y: 462, r: 74 }, { type: "text", x: 632, y: 468, text: "answer", size: 24 }
+        { type: "arrow", x1: 670, y1: 284, x2: 670, y2: 388 }, { type: "box", x: 582, y: 420, w: 176, h: 84 }, { type: "text", x: 626, y: 472, text: "answer", size: 24 }
       ];
     }
     return [
@@ -2161,8 +2165,8 @@
     drawCommand({ type: "text", x: 88, y: 224, text: "1. Listen to the idea", size: 25 }, false);
     drawCommand({ type: "text", x: 88, y: 278, text: "2. Try one quick question", size: 25 }, false);
     drawCommand({ type: "arrow", x1: 590, y1: 250, x2: 760, y2: 250 }, false);
-    drawCommand({ type: "circle", x: 850, y: 250, r: 72 }, false);
-    drawCommand({ type: "text", x: 807, y: 258, text: "learn", size: 26 }, false);
+    drawCommand({ type: "box", x: 780, y: 190, w: 150, h: 112 }, false);
+    drawCommand({ type: "text", x: 820, y: 258, text: "learn", size: 26 }, false);
   }
 
   function drawCommand(command, jitter, progress = 1) {
