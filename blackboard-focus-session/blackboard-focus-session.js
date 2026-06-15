@@ -990,6 +990,16 @@
             { type: "text", x: 530, y: 190, text: `perimeter ${perimeter} cm`, size: 32 },
             { type: "arrow", x1: 620, y1: 226, x2: 620, y2: 304 },
             { type: "text", x: 520, y: 360, text: `half fence = ${perimeter} / 2 = ${halfPerimeter}`, size: 31, max: 680 }
+          ],
+          mobileCommands: [
+            { type: "text", fixed: true, x: 24, y: 38, text: "Rectangle fence", size: 21, color: "cyan" },
+            { type: "box", fixed: true, x: 42, y: 92, w: 154, h: 92 },
+            { type: "text", fixed: true, x: 94, y: 82, text: `${length} cm`, size: 16, color: "amber" },
+            { type: "text", fixed: true, x: 222, y: 112, text: `whole fence`, size: 16 },
+            { type: "text", fixed: true, x: 222, y: 142, text: `${perimeter} cm`, size: 21, color: "amber" },
+            { type: "arrow", fixed: true, x1: 254, y1: 166, x2: 254, y2: 214, color: "rose" },
+            { type: "text", fixed: true, x: 62, y: 250, text: `${perimeter} / 2 = ${halfPerimeter}`, size: 21, color: "amber" },
+            { type: "text", fixed: true, x: 52, y: 304, text: "Half fence = one length + one width", size: 15, max: 274 }
           ]
         },
         {
@@ -1002,6 +1012,18 @@
             { type: "text", x: 110, y: 286, text: `${halfPerimeter} - ${length} = ${width}`, size: 44 },
             { type: "circle", x: 498, y: 274, r: 72 },
             { type: "text", x: 602, y: 286, text: "cm wide", size: 30 }
+          ],
+          mobileCommands: [
+            { type: "erase" },
+            { type: "text", fixed: true, x: 24, y: 38, text: "Find the missing width", size: 20, color: "cyan" },
+            { type: "box", fixed: true, x: 40, y: 90, w: 148, h: 82 },
+            { type: "text", fixed: true, x: 88, y: 82, text: `${length}`, size: 16, color: "amber" },
+            { type: "text", fixed: true, x: 22, y: 138, text: "?", size: 20, color: "rose" },
+            { type: "text", fixed: true, x: 214, y: 116, text: `${length} + width`, size: 17 },
+            { type: "text", fixed: true, x: 214, y: 152, text: `= ${halfPerimeter}`, size: 22, color: "amber" },
+            { type: "line", fixed: true, x1: 54, y1: 222, x2: 292, y2: 222, color: "rose" },
+            { type: "text", fixed: true, x: 60, y: 266, text: `${halfPerimeter} - ${length} = ${width}`, size: 25, color: "amber" },
+            { type: "circle", fixed: true, x: 196, y: 256, r: 38, color: "amber" }
           ]
         },
         checkStep(index, `For rectangle perimeter, halve the fence first: length plus width.`)
@@ -1016,6 +1038,14 @@
           { type: "text", x: 210, y: 126, text: "9", size: 26 },
           { type: "text", x: 62, y: 246, text: "5", size: 26 },
           { type: "text", x: 520, y: 210, text: "walk around: 9 + 5 + 9 + 5", size: 30, max: 620 }
+        ],
+        mobileCommands: [
+          { type: "text", fixed: true, x: 24, y: 38, text: "Same outside walk", size: 20, color: "cyan" },
+          { type: "box", fixed: true, x: 46, y: 96, w: 150, h: 88 },
+          { type: "text", fixed: true, x: 102, y: 86, text: "9", size: 17, color: "amber" },
+          { type: "text", fixed: true, x: 26, y: 150, text: "5", size: 17, color: "amber" },
+          { type: "text", fixed: true, x: 38, y: 238, text: "9 + 5 + 9 + 5", size: 20 },
+          { type: "text", fixed: true, x: 76, y: 286, text: "= 28 cm", size: 24, color: "amber" }
         ]
       },
       {
@@ -1027,6 +1057,15 @@
           { type: "box", x: 210, y: 240, w: 220, h: 220 },
           { type: "text", x: 286, y: 226, text: "7", size: 28 },
           { type: "text", x: 102, y: 540, text: "28 / 4 = 7 cm", size: 42 }
+        ],
+        mobileCommands: [
+          { type: "erase" },
+          { type: "text", fixed: true, x: 24, y: 38, text: "Square shares the fence", size: 20, color: "cyan" },
+          { type: "text", fixed: true, x: 44, y: 106, text: "28 cm outside walk", size: 20 },
+          { type: "arrow", fixed: true, x1: 118, y1: 132, x2: 118, y2: 180, color: "amber" },
+          { type: "box", fixed: true, x: 58, y: 198, w: 110, h: 110, color: "violet" },
+          { type: "text", fixed: true, x: 98, y: 190, text: "7", size: 18, color: "amber" },
+          { type: "text", fixed: true, x: 198, y: 252, text: "28 / 4 = 7", size: 22, color: "amber" }
         ]
       },
       checkStep(index, `Same perimeter means same outside walk, not same side lengths.`)
@@ -1388,11 +1427,19 @@
     }
     if (isGeometryTopic(skill)) {
       return [
-        { type: "erase" }, { type: "text", x: 54, y: 72, text: "Geometry: same perimeter", size: 32 },
-        { type: "box", x: 92, y: 150, w: 300, h: 168 }, { type: "text", x: 148, y: 348, text: "9 cm by 5 cm", size: 24 },
-        { type: "text", x: 470, y: 180, text: "perimeter = 9 + 5 + 9 + 5 = 28", size: 26, max: 700 },
-        { type: "arrow", x1: 640, y1: 228, x2: 640, y2: 300 },
-        { type: "text", x: 470, y: 360, text: "square side = 28 / 4 = 7 cm", size: 30 }
+        { type: "erase" },
+        { type: "text", x: 54, y: 72, text: "Geometry: walk around the fence", size: 32, color: "cyan" },
+        { type: "box", x: 104, y: 148, w: 360, h: 210 },
+        { type: "text", x: 236, y: 130, text: "9 cm", size: 24, color: "amber" },
+        { type: "text", x: 42, y: 266, text: "5 cm", size: 24, color: "amber" },
+        { type: "arrow", x1: 100, y1: 376, x2: 464, y2: 376, color: "rose" },
+        { type: "text", x: 118, y: 430, text: "outside walk = 9 + 5 + 9 + 5 = 28", size: 29, max: 760 },
+        { type: "arrow", x1: 648, y1: 198, x2: 648, y2: 302, color: "amber" },
+        { type: "text", x: 712, y: 198, text: "A square shares", size: 27, max: 430 },
+        { type: "text", x: 712, y: 252, text: "the same fence", size: 27, max: 430 },
+        { type: "box", x: 760, y: 330, w: 150, h: 150, color: "violet" },
+        { type: "text", x: 808, y: 314, text: "7", size: 26, color: "amber" },
+        { type: "text", x: 714, y: 532, text: "28 / 4 = 7 cm", size: 34, color: "amber" }
       ];
     }
     if (lower.includes("text structure")) {
@@ -1690,11 +1737,12 @@
     el.apiStatus.textContent = "Drawing the worked solution";
     lessonState.awaitingPractice = false;
     clearBoard();
-    drawCommandsNow(practice.solutionCommands || []);
-    teach(practice.explain || "Good try. Let's walk through it carefully, one step at a time.", () => {
+    const explanation = practice.explain || "Good try. Let's walk through it carefully, one step at a time.";
+    const drawingDone = animateCommands(practice.solutionCommands || [], explanation);
+    teach(explanation, () => drawingDone.then(() => {
       hidePracticePanel();
       playNextStep();
-    });
+    }));
   }
 
   function answerMatches(response, practice) {
@@ -1901,9 +1949,10 @@
     };
   }
 
-  function animateCommands(commands) {
+  function animateCommands(commands, spokenText = "") {
     const queue = [...commands];
     const token = ++lessonState.animationToken;
+    const timingScale = commandTimingScale(commands, spokenText);
     return new Promise((resolve) => {
       lessonState.animating = true;
       const finish = () => {
@@ -1920,12 +1969,12 @@
           finish();
           return;
         }
-        animateCommand(command, token, () => {
+        animateCommand(command, token, timingScale, () => {
           if (token !== lessonState.animationToken) {
             finish();
             return;
           }
-          setTimeout(run, ((command.pause || 52) * chalkHandSpeed) / lessonState.speed);
+          setTimeout(run, ((command.pause || 52) * chalkHandSpeed * timingScale) / lessonState.speed);
         });
       };
       run();
@@ -1935,7 +1984,7 @@
   function drawStepVisual(step) {
     if (step.svgScene === "shop") return drawShop();
     hideSvgScene();
-    return animateCommands(commandsForBoard(step));
+    return animateCommands(commandsForBoard(step), step.say);
   }
 
   function drawShop() {
@@ -2008,13 +2057,13 @@
     `;
   }
 
-  function animateCommand(command, token, done) {
+  function animateCommand(command, token, timingScale, done) {
     if (command.type === "erase") {
       drawCommand(command, true);
       setTimeout(done, (80 * chalkHandSpeed) / lessonState.speed);
       return;
     }
-    const duration = (commandDuration(command) * chalkHandSpeed) / lessonState.speed;
+    const duration = (commandDuration(command) * chalkHandSpeed * timingScale) / lessonState.speed;
     const started = performance.now();
     const tick = (now) => {
       if (token !== lessonState.animationToken) return;
@@ -2038,6 +2087,21 @@
     if (command.type === "circle") return 420;
     if (command.type === "dot") return 190;
     return 260;
+  }
+
+  function commandTimingScale(commands, spokenText) {
+    const drawable = commands.filter((command) => command.type !== "erase");
+    if (!drawable.length || !spokenText) return 1;
+    const nominal = drawable.reduce((sum, command) => sum + commandDuration(command) + (command.pause || 52), 0) * chalkHandSpeed;
+    const target = estimateSpeechMs(spokenText) * 0.92;
+    return Math.max(0.78, Math.min(1.65, target / Math.max(1, nominal)));
+  }
+
+  function estimateSpeechMs(text) {
+    const words = String(text || "").trim().split(/\s+/).filter(Boolean).length;
+    const base = 520;
+    const wordsPerMinute = lessonState.speed === 1 ? 168 : 142;
+    return base + (words / wordsPerMinute) * 60000;
   }
 
   function drawCommandsNow(commands) {
@@ -2106,11 +2170,20 @@
       clearBoard({ keepAnimation: true });
       return;
     }
-    const scale = command.fixed ? 1 : boardScale();
+    const metrics = boardMetrics();
+    const scale = command.fixed ? 1 : metrics.scale;
     const c = { ...command };
     ["x", "y", "x1", "y1", "x2", "y2", "w", "h", "r", "size"].forEach((key) => {
       if (typeof c[key] === "number") c[key] *= scale;
     });
+    if (!command.fixed) {
+      ["x", "x1", "x2"].forEach((key) => {
+        if (typeof c[key] === "number") c[key] += metrics.offsetX;
+      });
+      ["y", "y1", "y2"].forEach((key) => {
+        if (typeof c[key] === "number") c[key] += metrics.offsetY;
+      });
+    }
     ctx.save();
     ctx.globalAlpha = command.type === "highlight" ? 0.22 : 0.98;
     ctx.lineCap = "round";
@@ -2135,7 +2208,10 @@
   function partialText(text, progress) {
     const value = String(text || "");
     if (progress >= 1) return value;
-    return value.slice(0, Math.max(1, Math.ceil(value.length * progress)));
+    const tokens = value.match(/\S+\s*/g) || [];
+    if (!tokens.length) return "";
+    const visible = Math.max(1, Math.floor(tokens.length * progress));
+    return tokens.slice(0, visible).join("").trimEnd();
   }
 
   function lerp(a, b, progress) {
@@ -2143,7 +2219,19 @@
   }
 
   function boardScale() {
-    return el.canvas.getBoundingClientRect().width / 1280;
+    return boardMetrics().scale;
+  }
+
+  function boardMetrics() {
+    const rect = el.canvas.getBoundingClientRect();
+    const scale = Math.min(rect.width / 1280, rect.height / 684);
+    return {
+      scale,
+      offsetX: Math.max(0, (rect.width - 1280 * scale) / 2),
+      offsetY: Math.max(0, (rect.height - 684 * scale) / 2),
+      width: rect.width,
+      height: rect.height
+    };
   }
 
   function chalkColor(name, type) {
@@ -2331,7 +2419,14 @@
       utterance.rate = lessonState.speed === 1 ? 1.04 : 0.88;
       utterance.pitch = 0.98;
       utterance.volume = 0.95;
-      utterance.voice = chooseTeacherVoice();
+      const voice = chooseTeacherVoice();
+      if (voice) {
+        try {
+          utterance.voice = voice;
+        } catch {
+          // Some embedded browsers expose voice-like objects that native speech rejects.
+        }
+      }
       lessonState.currentUtterance = utterance;
       utterance.onend = () => {
         if (lessonState.currentUtterance === utterance) lessonState.currentUtterance = null;
