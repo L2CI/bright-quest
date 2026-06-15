@@ -4,7 +4,7 @@
   const finalTest = window.BrightQuestFinalTest;
   const internationalTests = window.BrightQuestInternationalTests || [];
   const allTests = [...(data.levels || []), ...(finalTest ? [finalTest] : []), ...internationalTests];
-  const voiceMode = "browser";
+  const voiceMode = "cloud";
   const chalkHandSpeed = 1.05;
 
   const el = {
@@ -48,6 +48,9 @@
     voiceToken: 0,
     voiceCache: new Map(),
     voicePrefetches: new Map(),
+    voiceDiskCache: null,
+    audioContext: null,
+    introPlayed: false,
     animationToken: 0,
     animating: false,
     speed: 1,
@@ -91,7 +94,8 @@
     renderPlan();
     clearBoard();
     drawWelcomeBoard();
-    el.apiStatus.textContent = "Teacher voice ready";
+    lessonState.voiceDiskCache = await openVoiceDiskCache();
+    el.apiStatus.textContent = canUseCloudVoice() ? "Teacher voice warming" : "Teacher voice ready";
     warmModuleVoice(0);
   }
 
@@ -1551,7 +1555,7 @@
     warmModuleVoice(index);
   }
 
-  function handleLessonControl() {
+  async function handleLessonControl() {
     if (lessonState.completed) {
       lessonState.moduleIndex = 0;
       lessonState.stepIndex = 0;
@@ -1566,6 +1570,11 @@
       lessonState.playing = true;
       lessonState.paused = false;
       updateLessonControl();
+      if (!lessonState.introPlayed) {
+        lessonState.introPlayed = true;
+        el.apiStatus.textContent = "Starting the lesson";
+        await playIntroSound();
+      }
       playCurrentStep();
       return;
     }
@@ -2351,14 +2360,9 @@
     lessonState.transcript.push({ role: "teacher", text });
     cancelTeacherVoice();
     const token = ++lessonState.voiceToken;
-    const cacheKey = voiceCacheKey(text);
-    if (canUseCloudVoice() && lessonState.cloudVoiceAvailable && lessonState.voiceCache.has(cacheKey)) {
+    if (canUseCloudVoice() && lessonState.cloudVoiceAvailable) {
       playOpenAiVoice(text, token, after);
       return;
-    }
-    if (canUseCloudVoice() && lessonState.cloudVoiceAvailable) {
-      prefetchVoice(text);
-      el.apiStatus.textContent = "Teacher voice speaking";
     }
     playBrowserVoice(text, token, after);
   }
@@ -2400,6 +2404,12 @@
   }
 
   async function fetchVoiceUrl(cacheKey, token) {
+    const cachedUrl = await readStoredVoice(cacheKey);
+    if (cachedUrl) {
+      lessonState.voiceCache.set(cacheKey, cachedUrl);
+      return cachedUrl;
+    }
+
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5200);
     const response = await fetch("/api/blackboard-voice", {
@@ -2412,9 +2422,63 @@
     if (token && token !== lessonState.voiceToken) throw new Error("stale voice request");
     if (!response.ok) throw new Error(`voice unavailable: ${response.status}`);
     const blob = await response.blob();
+    await storeVoice(cacheKey, blob);
     const url = URL.createObjectURL(blob);
     lessonState.voiceCache.set(cacheKey, url);
     return url;
+  }
+
+  async function openVoiceDiskCache() {
+    if (!("caches" in window) || !("crypto" in window) || !crypto.subtle) return null;
+    try {
+      return await caches.open("bright-quest-teacher-voice-v1");
+    } catch {
+      return null;
+    }
+  }
+
+  async function voiceRequest(cacheKey) {
+    const hash = await stableHash(cacheKey);
+    if (!hash) return null;
+    return new Request(`/blackboard-focus-session/voice-cache/${hash}.mp3`, { method: "GET" });
+  }
+
+  async function readStoredVoice(cacheKey) {
+    if (!lessonState.voiceDiskCache) return null;
+    try {
+      const request = await voiceRequest(cacheKey);
+      if (!request) return null;
+      const response = await lessonState.voiceDiskCache.match(request);
+      if (!response) return null;
+      return URL.createObjectURL(await response.blob());
+    } catch {
+      return null;
+    }
+  }
+
+  async function storeVoice(cacheKey, blob) {
+    if (!lessonState.voiceDiskCache) return;
+    try {
+      const request = await voiceRequest(cacheKey);
+      if (!request) return;
+      await lessonState.voiceDiskCache.put(request, new Response(blob, {
+        headers: {
+          "content-type": "audio/mpeg",
+          "cache-control": "private, max-age=604800"
+        }
+      }));
+    } catch {
+      // The in-memory audio cache still keeps the current lesson smooth.
+    }
+  }
+
+  async function stableHash(value) {
+    if (!crypto?.subtle) return "";
+    const bytes = new TextEncoder().encode(value);
+    const digest = await crypto.subtle.digest("SHA-256", bytes);
+    return Array.from(new Uint8Array(digest))
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
   }
 
   function playBrowserVoice(text, token, after) {
@@ -2459,6 +2523,87 @@
       window.speechSynthesis.cancel();
     }
     lessonState.currentUtterance = null;
+  }
+
+  async function playIntroSound() {
+    const audio = getAudioContext();
+    if (!audio) {
+      await wait(850);
+      return;
+    }
+    if (audio.state === "suspended") {
+      try {
+        await Promise.race([audio.resume(), wait(250)]);
+      } catch {
+        await wait(850);
+        return;
+      }
+    }
+
+    const now = audio.currentTime + 0.03;
+    playTone(audio, now, 392, 0.18, 0.035, "sine");
+    playTone(audio, now + 0.13, 523.25, 0.2, 0.04, "sine");
+    playTone(audio, now + 0.27, 659.25, 0.24, 0.04, "triangle");
+    playTone(audio, now + 0.45, 783.99, 0.32, 0.035, "sine");
+    playWhoosh(audio, now + 0.12, 0.75);
+    await wait(950);
+  }
+
+  function getAudioContext() {
+    if (lessonState.audioContext) return lessonState.audioContext;
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return null;
+    try {
+      lessonState.audioContext = new AudioContextClass();
+      return lessonState.audioContext;
+    } catch {
+      return null;
+    }
+  }
+
+  function playTone(audio, start, frequency, duration, volume, type) {
+    const oscillator = audio.createOscillator();
+    const gain = audio.createGain();
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, start);
+    oscillator.frequency.exponentialRampToValueAtTime(frequency * 1.012, start + duration);
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(volume, start + 0.035);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+    oscillator.connect(gain);
+    gain.connect(audio.destination);
+    oscillator.start(start);
+    oscillator.stop(start + duration + 0.04);
+  }
+
+  function playWhoosh(audio, start, duration) {
+    const sampleRate = audio.sampleRate;
+    const buffer = audio.createBuffer(1, Math.floor(sampleRate * duration), sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i += 1) {
+      const progress = i / data.length;
+      data[i] = (Math.random() * 2 - 1) * (1 - progress) * 0.16;
+    }
+    const source = audio.createBufferSource();
+    const filter = audio.createBiquadFilter();
+    const gain = audio.createGain();
+    source.buffer = buffer;
+    filter.type = "bandpass";
+    filter.frequency.setValueAtTime(320, start);
+    filter.frequency.exponentialRampToValueAtTime(1650, start + duration);
+    filter.Q.setValueAtTime(0.7, start);
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(0.055, start + 0.12);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(audio.destination);
+    source.start(start);
+    source.stop(start + duration + 0.03);
+  }
+
+  function wait(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   function canUseCloudVoice() {

@@ -1,7 +1,4 @@
 export async function onRequestPost(context) {
-  const apiKey = context.env.OPENAI_API_KEY;
-  if (!apiKey) return json({ error: "OPENAI_API_KEY is not configured" }, 503);
-
   let body;
   try {
     body = await context.request.json();
@@ -12,18 +9,32 @@ export async function onRequestPost(context) {
   const input = cleanInput(body.text);
   if (!input) return json({ error: "Missing text" }, 400);
 
+  const primaryInstructions = [
+    "Speak like a premium one-on-one primary-school tutor recording a short classroom lesson for an 8-year-old.",
+    "Use a warm adult male voice with calm authority, clear diction, and genuine curiosity.",
+    "Keep the energy alive: smile in the voice, lift key discovery words, and make 'watch this' moments feel exciting.",
+    "Do not sound robotic, sleepy, theatrical, game-show-like, or like an audiobook reader.",
+    "Use natural teacher pauses before the important thinking move or final answer, but keep the pace moving.",
+    "Treat every sentence as if it is being spoken while chalk is being drawn on a board."
+  ].join(" ");
+
+  const cacheRequest = await makeVoiceCacheRequest(context.request, input, primaryInstructions);
+  const cached = await readVoiceCache(cacheRequest);
+  if (cached) {
+    const headers = new Headers(cached.headers);
+    headers.set("x-bq-voice-cache", "HIT");
+    return new Response(cached.body, { status: cached.status, headers });
+  }
+
+  const apiKey = context.env.OPENAI_API_KEY;
+  if (!apiKey) return json({ error: "OPENAI_API_KEY is not configured" }, 503);
+
   const attempts = [
     {
       model: "gpt-4o-mini-tts",
       voice: "onyx",
       input,
-      instructions: [
-        "Speak like an enthusiastic one-on-one maths explainer for an 8-year-old: bright, curious, and genuinely excited by the reveal.",
-        "Use a friendly adult male tutor tone with more forward motion than a normal classroom read-aloud.",
-        "Give phrases like 'ready?', 'watch this', 'sneaky bit', and 'now the interesting part' a small lift, as if inviting the student into a discovery.",
-        "Keep the pace brisk but clear. Use tiny pauses only before reveals, answers, or a question the child should think about.",
-        "Sound natural and animated, not robotic, not theatrical, and not like a sports announcer."
-      ].join(" "),
+      instructions: primaryInstructions,
       response_format: "mp3"
     },
     {
@@ -46,12 +57,17 @@ export async function onRequestPost(context) {
     });
 
     if (response.ok) {
-      return new Response(await response.arrayBuffer(), {
+      const audio = await response.arrayBuffer();
+      const audioResponse = new Response(audio, {
         headers: {
           "content-type": "audio/mpeg",
-          "cache-control": "private, max-age=86400"
+          "cache-control": "public, max-age=2592000, immutable",
+          "x-bq-voice-cache": "MISS",
+          "x-bq-voice-model": payload.model
         }
       });
+      writeVoiceCache(cacheRequest, audioResponse.clone(), context);
+      return audioResponse;
     }
     lastError = await response.text();
   }
@@ -64,6 +80,46 @@ function cleanInput(value) {
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 1200);
+}
+
+async function makeVoiceCacheRequest(originalRequest, input, instructions) {
+  const url = new URL(originalRequest.url);
+  const hash = await sha256(JSON.stringify({
+    version: "blackboard-teacher-openai-voice-002",
+    model: "gpt-4o-mini-tts",
+    fallback: "tts-1",
+    voice: "onyx",
+    instructions,
+    input
+  }));
+  return new Request(`${url.origin}/__blackboard_voice_cache/${hash}.mp3`, { method: "GET" });
+}
+
+async function readVoiceCache(request) {
+  try {
+    if (!globalThis.caches?.default) return null;
+    return await caches.default.match(request);
+  } catch {
+    return null;
+  }
+}
+
+function writeVoiceCache(request, response, context) {
+  try {
+    if (!globalThis.caches?.default) return;
+    const task = caches.default.put(request, response).catch(() => {});
+    if (context.waitUntil) context.waitUntil(task);
+  } catch {
+    // Voice generation still succeeded; cache storage is an optimisation.
+  }
+}
+
+async function sha256(value) {
+  const data = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 function json(payload, status = 200) {
