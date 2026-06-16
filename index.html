@@ -136,8 +136,8 @@
           <h2 id="welcomeName">Bright Quest</h2>
           </div>
           <div class="header-actions">
-            <button class="button button-soft button-compact kid-action grammar-action" id="grammarGymButton" type="button"><span aria-hidden="true">B</span> Grammar Gym</button>
             <button class="button button-soft button-compact kid-action games-action" id="gamesListButton" type="button"><span aria-hidden="true">*</span> Games</button>
+            <button class="button button-soft button-compact kid-action english-grammar-action" id="englishGrammarButton" type="button"><span aria-hidden="true">E</span> English Grammar</button>
             <button class="button button-soft button-compact kid-action blackboard-action" id="blackboardFocusButton" type="button"><span aria-hidden="true">#</span> Blackboard</button>
             <div class="star-bank">
               <span id="starTotal">0</span>
@@ -153,7 +153,7 @@
             <p>Pick a focused activity for today.</p>
             <div class="academy-actions">
               <button class="academy-zone maths" type="button" data-zone-level="1"><span aria-hidden="true">+</span><strong>Maths Mountain</strong><small>Number speed</small></button>
-              <button class="academy-zone english" type="button" id="academyGrammarButton"><span aria-hidden="true">G</span><strong>Grammar Gym</strong><small>Sentence power</small></button>
+              <button class="academy-zone english" type="button" id="academyEnglishGrammarButton"><span aria-hidden="true">E</span><strong>English Grammar</strong><small>15 minute lesson</small></button>
               <button class="academy-zone reasoning" type="button" data-zone-level="4"><span aria-hidden="true">?</span><strong>Reasoning Lab</strong><small>Pattern moves</small></button>
               <button class="academy-zone world" type="button" id="internationalTestsButton"><span aria-hidden="true">W</span><strong>International Tests</strong><small>World arena</small></button>
               <button class="academy-zone arcade" type="button" id="academyGamesButton"><span aria-hidden="true">A</span><strong>Arcade Rewards</strong><small>Unlocked games</small></button>
@@ -350,20 +350,6 @@
           <button class="button button-soft" id="closeGamesListButton" type="button">Dashboard</button>
         </header>
         <section class="games-list" id="gamesList"></section>
-      </section>
-
-      <section class="screen hidden" id="grammarGymScreen">
-        <header class="app-header">
-          <div>
-            <p class="eyebrow">English power-up</p>
-            <h2>Grammar Gym</h2>
-          </div>
-          <button class="button button-soft" id="closeGrammarGymButton" type="button">Dashboard</button>
-        </header>
-        <section class="grammar-gym">
-          <article class="grammar-spotlight" id="grammarSpotlight"></article>
-          <div class="grammar-list" id="grammarLessonList"></div>
-        </section>
       </section>
 
       <section class="screen hidden" id="trainingScreen">

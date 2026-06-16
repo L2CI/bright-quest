@@ -419,6 +419,11 @@ textarea:focus {
   font-size: 1rem;
 }
 
+.english-grammar-action span {
+  background: linear-gradient(135deg, var(--mint), var(--blue));
+  font-size: 1rem;
+}
+
 .grammar-action span::before,
 .grammar-action span::after {
   content: "";
@@ -1316,77 +1321,6 @@ textarea:focus {
   gap: 16px;
 }
 
-.grammar-gym {
-  display: grid;
-  grid-template-columns: minmax(280px, 0.7fr) minmax(0, 1.3fr);
-  gap: 18px;
-}
-
-.grammar-spotlight,
-.grammar-card {
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  border-radius: 24px;
-  background: rgba(255, 250, 242, 0.88);
-  box-shadow: var(--shadow);
-}
-
-.grammar-spotlight {
-  padding: clamp(20px, 4vw, 32px);
-  background:
-    linear-gradient(135deg, rgba(124, 92, 255, 0.18), rgba(255, 191, 63, 0.18)),
-    rgba(255, 250, 242, 0.9);
-}
-
-.grammar-spotlight h3 {
-  margin-bottom: 12px;
-}
-
-.grammar-spotlight p {
-  color: var(--muted);
-  font-weight: 820;
-  line-height: 1.5;
-}
-
-.grammar-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-}
-
-.grammar-card {
-  min-height: 160px;
-  padding: 18px;
-}
-
-.grammar-card strong,
-.grammar-card span,
-.grammar-card small {
-  display: block;
-}
-
-.grammar-card strong {
-  margin-bottom: 8px;
-  font-size: 1.18rem;
-  font-weight: 1000;
-}
-
-.grammar-card span {
-  color: var(--muted);
-  font-weight: 820;
-  line-height: 1.45;
-}
-
-.grammar-card small {
-  margin-top: 12px;
-  color: var(--blue);
-  font-weight: 1000;
-}
-
-.grammar-card .button {
-  margin-top: 14px;
-  width: 100%;
-}
-
 .game-tile {
   min-height: 210px;
   border: 1px solid rgba(255, 255, 255, 0.7);
@@ -1564,9 +1498,7 @@ textarea:focus {
   .training-card,
   .parent-grid,
   .parent-grid.wide,
-  .games-list,
-  .grammar-gym,
-  .grammar-list {
+  .games-list {
     grid-template-columns: 1fr;
   }
 

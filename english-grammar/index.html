@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>English Grammar | Bright Quest</title>
+    <link rel="stylesheet" href="./english-grammar.css" />
+  </head>
+  <body>
+    <main class="grammar-app">
+      <header class="lesson-header">
+        <a class="back-link" href="../" aria-label="Back to Bright Quest">Bright Quest</a>
+        <div>
+          <p class="eyebrow">English Grammar</p>
+          <h1>Grade 4 Sentence Power</h1>
+        </div>
+        <div class="lesson-stat">
+          <strong id="remainingTime">15:00</strong>
+          <span>remaining</span>
+        </div>
+      </header>
+
+      <section class="lesson-stage" aria-label="Animated grammar blackboard lesson">
+        <div class="board-shell">
+          <div class="board-topline">
+            <div>
+              <p class="eyebrow" id="sceneCount">Scene 1 of 9</p>
+              <h2 id="sceneTitle">The Sentence Machine</h2>
+            </div>
+            <div class="scene-badge" id="sceneDuration">1:30</div>
+          </div>
+
+          <div class="blackboard" id="blackboard">
+            <svg class="chalk-scene" id="chalkScene" viewBox="0 0 1200 680" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="sceneTitle"></svg>
+            <div class="magic-hand" id="magicHand" aria-hidden="true">
+              <svg viewBox="0 0 120 120" focusable="false">
+                <path class="hand-sleeve" d="M15 94 C28 77 42 63 58 54 L83 94 C63 103 43 110 22 113 Z" />
+                <path class="hand-palm" d="M42 57 C47 42 60 35 75 38 C90 41 101 53 101 69 C101 89 84 103 65 100 C49 97 38 81 41 66 Z" />
+                <path class="hand-thumb" d="M55 73 C45 66 37 64 31 70 C25 77 28 87 39 92 C49 97 59 91 64 82 Z" />
+                <path class="hand-finger" d="M72 39 C76 24 91 26 93 41 L94 70 C94 79 82 81 80 72 Z" />
+                <path class="hand-finger" d="M84 44 C90 31 104 37 102 51 L99 77 C98 85 87 85 86 76 Z" />
+                <path class="hand-line" d="M57 64 C67 70 74 81 78 93 M68 56 C78 59 85 65 91 73" />
+                <rect class="hand-chalk" x="84" y="72" width="13" height="42" rx="6" transform="rotate(-22 90 92)" />
+                <circle class="chalk-tip" cx="98" cy="108" r="5" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <aside class="lesson-side" aria-label="Lesson controls">
+          <div class="side-card current-card">
+            <p class="eyebrow">Now Teaching</p>
+            <h3 id="lessonPoint">A sentence needs a who-or-what and a what-happened idea.</h3>
+            <p id="captionText">Press start and the board will draw while the teacher explains.</p>
+          </div>
+
+          <div class="control-card">
+            <button class="primary-control" id="playButton" type="button">Start</button>
+            <button class="rewind-control" id="rewindButton" type="button" aria-label="Rewind 15 seconds">Rewind 15s</button>
+          </div>
+
+          <div class="scene-list" id="sceneList" aria-label="Course scenes"></div>
+        </aside>
+      </section>
+
+      <footer class="timeline-wrap" aria-label="Lesson timeline">
+        <div class="timeline-meta">
+          <span id="elapsedTime">0:00 elapsed</span>
+          <span id="totalTime">15:00 total</span>
+        </div>
+        <input id="timeline" class="timeline" type="range" min="0" max="900" value="0" step="1" aria-label="Course timeline" />
+      </footer>
+    </main>
+
+    <script src="./english-grammar.js"></script>
+  </body>
+</html>

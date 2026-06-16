@@ -22,7 +22,6 @@ const screens = {
   result: document.querySelector("#resultScreen"),
   game: document.querySelector("#gameScreen"),
   gamesList: document.querySelector("#gamesListScreen"),
-  grammarGym: document.querySelector("#grammarGymScreen"),
   international: document.querySelector("#internationalScreen"),
   training: document.querySelector("#trainingScreen"),
   parent: document.querySelector("#parentScreen")
@@ -71,11 +70,11 @@ const savedProfiles = document.querySelector("#savedProfiles");
 const welcomeName = document.querySelector("#welcomeName");
 const starTotal = document.querySelector("#starTotal");
 const switchProfileButton = document.querySelector("#switchProfileButton");
-const grammarGymButton = document.querySelector("#grammarGymButton");
 const gamesListButton = document.querySelector("#gamesListButton");
+const englishGrammarButton = document.querySelector("#englishGrammarButton");
 const blackboardFocusButton = document.querySelector("#blackboardFocusButton");
 const internationalTestsButton = document.querySelector("#internationalTestsButton");
-const academyGrammarButton = document.querySelector("#academyGrammarButton");
+const academyEnglishGrammarButton = document.querySelector("#academyEnglishGrammarButton");
 const academyGamesButton = document.querySelector("#academyGamesButton");
 const closeInternationalButton = document.querySelector("#closeInternationalButton");
 const internationalList = document.querySelector("#internationalList");
@@ -126,9 +125,6 @@ const gameHelp = document.querySelector("#gameHelp");
 const exitGameButton = document.querySelector("#exitGameButton");
 const gamesList = document.querySelector("#gamesList");
 const closeGamesListButton = document.querySelector("#closeGamesListButton");
-const grammarSpotlight = document.querySelector("#grammarSpotlight");
-const grammarLessonList = document.querySelector("#grammarLessonList");
-const closeGrammarGymButton = document.querySelector("#closeGrammarGymButton");
 const parentRefreshButton = document.querySelector("#parentRefreshButton");
 const parentExitButton = document.querySelector("#parentExitButton");
 const parentResetButton = document.querySelector("#parentResetButton");
@@ -177,10 +173,10 @@ switchProfileButton.addEventListener("click", () => {
 });
 
 gamesListButton.addEventListener("click", openGamesList);
+englishGrammarButton.addEventListener("click", openEnglishGrammar);
 blackboardFocusButton.addEventListener("click", openBlackboardFocusSession);
-grammarGymButton.addEventListener("click", openGrammarGym);
 internationalTestsButton.addEventListener("click", openInternationalArena);
-academyGrammarButton.addEventListener("click", openGrammarGym);
+academyEnglishGrammarButton.addEventListener("click", openEnglishGrammar);
 academyGamesButton.addEventListener("click", openGamesList);
 closeInternationalButton.addEventListener("click", () => {
   renderDashboard();
@@ -213,10 +209,6 @@ reviewTrainingButton.addEventListener("click", () => {
 });
 playRewardButton.addEventListener("click", () => startRewardGame());
 closeGamesListButton.addEventListener("click", () => {
-  renderDashboard();
-  showScreen("dashboard");
-});
-closeGrammarGymButton.addEventListener("click", () => {
   renderDashboard();
   showScreen("dashboard");
 });
@@ -702,6 +694,10 @@ function openBlackboardFocusSession() {
   window.location.href = "blackboard-focus-session/";
 }
 
+function openEnglishGrammar() {
+  window.location.href = "english-grammar/";
+}
+
 function renderInternationalArena() {
   if (!internationalTests.length) {
     internationalList.innerHTML = `<div class="empty-state">International tests are not loaded yet.</div>`;
@@ -792,46 +788,6 @@ function gamePreviewArt(game) {
       <span class="preview-token three"></span>
     </div>
   `;
-}
-
-function openGrammarGym() {
-  const grammarSkills = [
-    "Grammar",
-    "Punctuation",
-    "Sentence logic",
-    "Spelling",
-    "Vocabulary",
-    "Reading comprehension",
-    "Inference",
-    "Written expression"
-  ];
-  const completed = state.profile.trainingCompleted || {};
-
-  grammarSpotlight.innerHTML = `
-    <p class="eyebrow">Coach path</p>
-    <h3>Train the sentence engine.</h3>
-    <p>Pick a grammar skill, learn the move, then try one fast practice question. Completed lessons add stars and appear in the parent dashboard.</p>
-  `;
-
-  grammarLessonList.innerHTML = grammarSkills.map((skill) => {
-    const lesson = data.lessons[skill];
-    const done = completed[skill];
-    return `
-      <article class="grammar-card">
-        <p class="eyebrow">${done ? "Practised" : "Ready"}</p>
-        <strong>${escapeHtml(skill)}</strong>
-        <span>${escapeHtml(lesson?.rule || "Build accuracy and confidence with this English skill.")}</span>
-        <small>${done ? `Completed ${done.count || 1} time(s)` : "Not tried yet"}</small>
-        <button class="button button-primary" type="button" data-grammar-skill="${escapeAttr(skill)}">Train</button>
-      </article>
-    `;
-  }).join("");
-
-  grammarLessonList.querySelectorAll("[data-grammar-skill]").forEach((button) => {
-    button.addEventListener("click", () => openTraining(button.dataset.grammarSkill));
-  });
-
-  showScreen("grammarGym");
 }
 
 function gameForLevel(level) {
