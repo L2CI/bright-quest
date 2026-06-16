@@ -5,6 +5,7 @@ const sceneCount = document.querySelector("#sceneCount");
 const sceneDuration = document.querySelector("#sceneDuration");
 const lessonPoint = document.querySelector("#lessonPoint");
 const captionText = document.querySelector("#captionText");
+const ccButton = document.querySelector("#ccButton");
 const playButton = document.querySelector("#playButton");
 const rewindButton = document.querySelector("#rewindButton");
 const sceneList = document.querySelector("#sceneList");
@@ -35,6 +36,7 @@ let completed = false;
 let captionTimer = null;
 let rafId = null;
 let courseElapsedAtSceneStart = 0;
+let captionsVisible = false;
 
 init();
 
@@ -79,6 +81,7 @@ function loadScene(index, offsetSeconds = 0, shouldPlay = playing) {
   lessonPoint.textContent = scene.point;
   captionText.textContent = captionFor(scene, offset);
   svg.innerHTML = renderers[scene.id] ? renderers[scene.id]() : baseSvg("");
+  updateBoardMoment(scene, offset);
   magicHand.style.setProperty("--hand-x", "8%");
   magicHand.style.setProperty("--hand-y", "28%");
   magicHand.style.setProperty("--hand-time", `${Math.min(24, scene.duration / 4)}s`);
@@ -113,10 +116,10 @@ function startPlayback() {
   completed = false;
   playing = true;
   board.classList.remove("paused");
-  playButton.textContent = "Pause";
+  setPlayState(true);
   audio.play().catch(() => {
     playing = false;
-    playButton.textContent = completed ? "Replay" : "Start";
+    setPlayState(false);
   });
   startCaptionLoop();
   startFrameLoop();
@@ -126,13 +129,13 @@ function pausePlayback() {
   playing = false;
   audio?.pause();
   board.classList.add("paused");
-  playButton.textContent = "Resume";
+  renderPlayButton("resume");
   stopFrameLoop();
 }
 
 function setPlayState(value) {
   playing = value;
-  playButton.textContent = completed ? "Replay" : value ? "Pause" : "Start";
+  renderPlayButton(completed ? "replay" : value ? "pause" : "play");
 }
 
 function playNextScene() {
@@ -143,7 +146,7 @@ function playNextScene() {
   completed = true;
   playing = false;
   setTimeline(courseTotal());
-  playButton.textContent = "Replay";
+  renderPlayButton("replay");
   stopFrameLoop();
   captionText.textContent = "Course complete. Grammar helps your ideas travel clearly.";
 }
@@ -180,6 +183,7 @@ function startFrameLoop() {
   const tick = () => {
     if (!playing) return;
     setTimeline(currentElapsed());
+    updateBoardMoment(scenes[activeSceneIndex], audio?.currentTime || 0);
     rafId = requestAnimationFrame(tick);
   };
   rafId = requestAnimationFrame(tick);
@@ -195,7 +199,17 @@ function startCaptionLoop() {
   if (!playing) return;
   const scene = scenes[activeSceneIndex];
   captionText.textContent = captionFor(scene, audio?.currentTime || 0);
+  updateBoardMoment(scene, audio?.currentTime || 0);
   captionTimer = window.setTimeout(startCaptionLoop, 500);
+}
+
+function updateBoardMoment(scene, seconds) {
+  if (scene.id !== "sentence-machine") {
+    board.classList.remove("show-maya-example", "dim-dog-example");
+    return;
+  }
+  board.classList.toggle("show-maya-example", seconds >= 62);
+  board.classList.toggle("dim-dog-example", seconds >= 62);
 }
 
 function captionFor(scene, seconds) {
@@ -228,6 +242,13 @@ playButton.addEventListener("click", () => {
 });
 
 rewindButton.addEventListener("click", () => rewind(15));
+
+ccButton.addEventListener("click", () => {
+  captionsVisible = !captionsVisible;
+  captionText.classList.toggle("hidden", !captionsVisible);
+  ccButton.classList.toggle("active", captionsVisible);
+  ccButton.setAttribute("aria-expanded", String(captionsVisible));
+});
 
 sceneList.addEventListener("click", (event) => {
   const button = event.target.closest("[data-scene]");
@@ -289,24 +310,34 @@ function wordBox(x, y, value, delay, color = "#f5f5f0", w = 150) {
 function grammarSentenceMachineSvg() {
   return baseSvg(`
     ${text(600, 58, "The Sentence Machine", 0.1, 34)}
-    ${rect(120, 170, 960, 360, 0.5, 1.0, "#8bd3dd", 6)}
+    ${rect(100, 145, 1000, 440, 0.5, 1.0, "#8bd3dd", 6)}
     ${text(600, 150, "A complete sentence needs three parts", 1.2, 27)}
-    ${circle(300, 315, 92, 1.8, 0.9, "#9fdf9f", 7)}
-    ${text(300, 302, "Subject", 2.5, 29, "#9fdf9f")}
-    ${smallText(300, 338, "who or what", 2.8)}
-    ${path("M390 315 L505 315", 3.2, 0.5, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
-    ${circle(600, 315, 92, 3.7, 0.9, "#f3d56b", 7)}
-    ${text(600, 302, "Predicate", 4.4, 27, "#f3d56b")}
-    ${smallText(600, 338, "what happened", 4.7)}
-    ${path("M690 315 L805 315", 5.1, 0.5, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
-    ${circle(900, 315, 92, 5.6, 0.9, "#f4a6b8", 7)}
-    ${text(900, 300, "Complete", 6.3, 27, "#f4a6b8")}
-    ${text(900, 336, "thought", 6.6, 27, "#f4a6b8")}
-    ${text(600, 462, "The curious dog chased the red ball.", 7.4, 32)}
-    ${path("M280 486 C355 538 430 538 505 486", 8.2, 0.7, "#9fdf9f")}
-    ${text(392, 560, "subject", 8.9, 24, "#9fdf9f")}
-    ${path("M520 486 C640 538 795 538 930 486", 9.4, 0.7, "#f3d56b")}
-    ${text(720, 560, "predicate", 10.1, 24, "#f3d56b")}
+    <g class="dog-example">
+      ${circle(300, 298, 78, 1.8, 0.9, "#9fdf9f", 7)}
+      ${text(300, 286, "Subject", 2.5, 27, "#9fdf9f")}
+      ${smallText(300, 321, "who or what", 2.8)}
+      ${path("M378 298 L502 298", 3.2, 0.5, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
+      ${circle(600, 298, 78, 3.7, 0.9, "#f3d56b", 7)}
+      ${text(600, 286, "Predicate", 4.4, 25, "#f3d56b")}
+      ${smallText(600, 321, "what happened", 4.7)}
+      ${path("M678 298 L802 298", 5.1, 0.5, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
+      ${circle(900, 298, 78, 5.6, 0.9, "#f4a6b8", 7)}
+      ${text(900, 286, "Complete", 6.3, 25, "#f4a6b8")}
+      ${text(900, 318, "thought", 6.6, 25, "#f4a6b8")}
+      ${text(600, 425, "The curious dog chased the red ball.", 7.4, 31)}
+      ${path("M280 448 C355 500 430 500 505 448", 8.2, 0.7, "#9fdf9f")}
+      ${text(392, 526, "subject", 8.9, 23, "#9fdf9f")}
+      ${path("M520 448 C640 500 795 500 930 448", 9.4, 0.7, "#f3d56b")}
+      ${text(720, 526, "predicate", 10.1, 23, "#f3d56b")}
+    </g>
+    <g class="board-moment maya-moment">
+      ${line(150, 606, 1050, 606, 0, 0.01, "rgba(245,245,240,0.34)", 4)}
+      ${text(600, 632, "Quick check: Maya reads a comic.", 0, 29, "#f5f5f0")}
+      ${path("M402 642 C440 670 488 670 526 642", 0, 0.01, "#9fdf9f", 5)}
+      ${text(464, 676, "subject", 0, 20, "#9fdf9f")}
+      ${path("M540 642 C628 670 754 670 842 642", 0, 0.01, "#f3d56b", 5)}
+      ${text(690, 676, "predicate", 0, 20, "#f3d56b")}
+    </g>
   `);
 }
 
@@ -465,6 +496,18 @@ function grammarRecapQuizSvg() {
 function formatTime(value) {
   const seconds = Math.max(0, Math.round(Number(value) || 0));
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+}
+
+function renderPlayButton(state) {
+  const labels = {
+    play: "Start lesson",
+    pause: "Pause lesson",
+    resume: "Resume lesson",
+    replay: "Replay lesson"
+  };
+  playButton.className = `primary-control icon-control ${state}-state`;
+  playButton.setAttribute("aria-label", labels[state] || labels.play);
+  playButton.innerHTML = `<span class="control-icon ${state}-icon" aria-hidden="true"></span><span class="control-label">${state === "replay" ? "Replay" : state === "pause" ? "Pause" : state === "resume" ? "Resume" : "Play"}</span>`;
 }
 
 function escapeHtml(value) {

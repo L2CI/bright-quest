@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>English Grammar | Bright Quest</title>
-    <link rel="stylesheet" href="./english-grammar.css" />
+    <link rel="stylesheet" href="./english-grammar.css?v=20260616c" />
   </head>
   <body>
     <main class="grammar-app">
@@ -49,14 +49,17 @@
 
         <aside class="lesson-side" aria-label="Lesson controls">
           <div class="side-card current-card">
-            <p class="eyebrow">Now Teaching</p>
+            <div class="lesson-card-top">
+              <p class="eyebrow">Now Teaching</p>
+              <button class="cc-button" id="ccButton" type="button" aria-expanded="false" aria-controls="captionText">CC</button>
+            </div>
             <h3 id="lessonPoint">A sentence needs a who-or-what and a what-happened idea.</h3>
-            <p id="captionText">Press start and the board will draw while the teacher explains.</p>
+            <p class="transcript hidden" id="captionText">Press start and the board will draw while the teacher explains.</p>
           </div>
 
           <div class="control-card">
-            <button class="primary-control" id="playButton" type="button">Start</button>
-            <button class="rewind-control" id="rewindButton" type="button" aria-label="Rewind 15 seconds">Rewind 15s</button>
+            <button class="primary-control icon-control" id="playButton" type="button" aria-label="Start lesson"></button>
+            <button class="rewind-control icon-control" id="rewindButton" type="button" aria-label="Rewind 15 seconds"><span class="control-icon rewind-icon" aria-hidden="true"></span><span class="control-label">15s</span></button>
           </div>
 
           <div class="scene-list" id="sceneList" aria-label="Course scenes"></div>
@@ -72,6 +75,6 @@
       </footer>
     </main>
 
-    <script src="./english-grammar.js"></script>
+    <script src="./english-grammar.js?v=20260616c"></script>
   </body>
 </html>

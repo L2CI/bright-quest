@@ -292,16 +292,44 @@ h3 {
   padding: 18px;
 }
 
-.side-card p:last-child {
+.lesson-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.cc-button {
+  min-width: 44px;
+  min-height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: #fff;
+  color: var(--navy);
+  font-size: 0.88rem;
+  font-weight: 1000;
+}
+
+.cc-button.active {
+  color: #fff;
+  background: var(--navy);
+}
+
+.transcript {
   margin-top: 12px;
   color: var(--muted);
   font-weight: 820;
   line-height: 1.45;
 }
 
+.hidden {
+  display: none !important;
+}
+
 .control-card {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 10px;
   padding: 12px;
 }
@@ -315,6 +343,10 @@ h3 {
 }
 
 .primary-control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   min-height: 60px;
   border-radius: 16px;
   background: linear-gradient(135deg, var(--blue), #7c5cff);
@@ -323,10 +355,85 @@ h3 {
 }
 
 .rewind-control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 92px;
   min-height: 48px;
   border-radius: 15px;
   background: #fff;
   border: 1px solid var(--line);
+}
+
+.control-icon {
+  position: relative;
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+}
+
+.play-icon::before,
+.resume-icon::before {
+  content: "";
+  position: absolute;
+  left: 9px;
+  top: 5px;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 17px solid currentColor;
+}
+
+.pause-icon::before,
+.pause-icon::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  width: 8px;
+  height: 20px;
+  border-radius: 3px;
+  background: currentColor;
+}
+
+.pause-icon::before {
+  left: 7px;
+}
+
+.pause-icon::after {
+  right: 7px;
+}
+
+.replay-icon::before,
+.rewind-icon::before {
+  content: "\21ba";
+  position: absolute;
+  inset: -3px 0 0;
+  font-size: 2rem;
+  line-height: 1;
+  text-align: center;
+}
+
+.rewind-icon::before {
+  content: "\21b6";
+}
+
+.control-label {
+  font-weight: 1000;
+}
+
+.board-moment {
+  opacity: 0;
+  transition: opacity 420ms ease;
+}
+
+.show-maya-example .maya-moment {
+  opacity: 1;
+}
+
+.dim-dog-example .dog-example {
+  opacity: 0.52;
+  transition: opacity 420ms ease;
 }
 
 .scene-list {
