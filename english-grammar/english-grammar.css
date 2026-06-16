@@ -31,9 +31,8 @@ body {
   margin: 0;
   color: var(--ink);
   background:
-    radial-gradient(circle at 10% 14%, rgba(255, 191, 63, 0.22), transparent 28%),
-    radial-gradient(circle at 88% 8%, rgba(34, 184, 207, 0.18), transparent 28%),
-    linear-gradient(135deg, #fff8df 0%, #e8fbff 50%, #f6efff 100%);
+    linear-gradient(120deg, rgba(9, 31, 47, 0.94), rgba(16, 52, 74, 0.78)),
+    url("../cave-river-quest/assets/generated/painted-cave-river.png") center / cover fixed;
 }
 
 button,
@@ -54,7 +53,7 @@ p {
 
 .grammar-app {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   min-height: 100vh;
   padding: clamp(12px, 2vw, 22px);
   gap: 12px;
@@ -65,6 +64,13 @@ p {
   grid-template-columns: auto 1fr auto;
   gap: 16px;
   align-items: center;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 22px;
+  padding: 12px 14px;
+  color: #fff;
+  background: rgba(7, 18, 32, 0.58);
+  box-shadow: 0 24px 68px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(18px);
 }
 
 .back-link {
@@ -80,7 +86,7 @@ p {
 }
 
 .eyebrow {
-  color: var(--blue);
+  color: #f3d56b;
   font-size: 0.76rem;
   font-weight: 1000;
   letter-spacing: 0.05em;
@@ -92,6 +98,7 @@ h1 {
   font-size: clamp(1.8rem, 3.8vw, 3.8rem);
   line-height: 0.95;
   letter-spacing: 0;
+  color: #fff;
 }
 
 h2 {
@@ -99,6 +106,7 @@ h2 {
   font-size: clamp(1.35rem, 2.6vw, 2.4rem);
   line-height: 1;
   letter-spacing: 0;
+  color: var(--ink);
 }
 
 h3 {
@@ -137,7 +145,7 @@ h3 {
 
 .lesson-stage {
   display: grid;
-  grid-template-columns: minmax(0, 4fr) minmax(260px, 0.85fr);
+  grid-template-columns: minmax(0, 5fr) minmax(250px, 0.95fr);
   gap: 14px;
   min-height: 0;
 }
@@ -157,7 +165,7 @@ h3 {
   border: 1px solid rgba(255, 255, 255, 0.75);
   border-radius: 18px;
   padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.76);
+  background: rgba(255, 255, 255, 0.9);
   color: var(--navy);
   text-align: left;
   box-shadow: 0 12px 28px rgba(18, 35, 63, 0.1);
@@ -201,12 +209,12 @@ h3 {
 .board-shell {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
-  min-height: min(80vh, 850px);
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  border-radius: 24px;
-  padding: 14px;
-  background: rgba(255, 255, 255, 0.76);
-  box-shadow: 0 24px 70px rgba(18, 35, 63, 0.16);
+  min-height: min(82vh, 920px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 26px;
+  padding: 12px;
+  background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(236,248,255,0.8));
+  box-shadow: 0 34px 86px rgba(0, 0, 0, 0.28);
   backdrop-filter: blur(16px);
 }
 
@@ -234,13 +242,26 @@ h3 {
   background:
     linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
     linear-gradient(0deg, rgba(255, 255, 255, 0.032) 1px, transparent 1px),
-    radial-gradient(circle at 48% 38%, rgba(245, 245, 240, 0.08), transparent 34%),
+    radial-gradient(circle at 52% 38%, rgba(245, 245, 240, 0.1), transparent 35%),
     linear-gradient(135deg, var(--board), var(--board-deep));
   background-size: 58px 58px, 58px 58px, auto, auto;
   box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.42), 0 18px 38px rgba(24, 42, 35, 0.22);
 }
 
+.blackboard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 24% 18%, rgba(255,255,255,0.06), transparent 13%),
+    linear-gradient(180deg, rgba(255,255,255,0.07), transparent 34%, rgba(0,0,0,0.16));
+  mix-blend-mode: screen;
+}
+
 .chalk-scene {
+  position: relative;
+  z-index: 1;
   display: block;
   width: 100%;
   height: 100%;
@@ -338,7 +359,7 @@ h3 {
 
 .control-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) 92px;
   gap: 10px;
   padding: 12px;
 }
@@ -358,7 +379,7 @@ h3 {
   gap: 12px;
   min-height: 60px;
   border-radius: 16px;
-  background: linear-gradient(135deg, var(--blue), #7c5cff);
+  background: linear-gradient(135deg, #087a8b, #1b9c75 58%, #d59b28);
   color: #fff;
   box-shadow: 0 14px 28px rgba(11, 111, 143, 0.24);
 }
@@ -588,6 +609,12 @@ h3 {
 .chalk-label {
   font-family: "Segoe Print", "Comic Sans MS", cursive;
   letter-spacing: 0;
+}
+
+.grammar-studio .draw-text {
+  paint-order: stroke fill;
+  stroke: rgba(7, 20, 32, 0.18);
+  stroke-width: 0.7px;
 }
 
 @keyframes chalkDraw {

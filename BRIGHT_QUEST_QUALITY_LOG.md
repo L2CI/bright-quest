@@ -36,3 +36,23 @@ Review Notes
 
 - App surfaces reviewed: role/profile login, kid dashboard, timed tests, parent cockpit, reward games, international arena, blackboard module, English grammar module, cave river quest, treasure quest, and street-smart rescue file surfaces.
 - Existing QA scripts are available in `C:\Users\gupta\OneDrive\Documents\New project 2\qa-*.cjs`.
+
+Holistic Redesign Backup
+
+- Git tag: `backup/pre-holistic-redesign-20260617-084609-10131c8`
+- Archive: `C:\Users\gupta\OneDrive\Documents\New project 2\bright-quest-backups\bright-quest-release-10131c8-20260617-084609.zip`
+- Release commit: `10131c8`
+
+2026-06-17 Holistic Redesign Notes
+
+- Added an asset-backed Bright Quest Studio banner to the kid dashboard using existing local visual assets rather than more abstract floating shapes.
+- Reworked English Grammar Step 2 and Step 3 from a generic fallback drawing into a `grammar-studio` scene system with mode-specific chalk diagrams: sort, repair, transform, hook, rhythm, split, ghost, balance, and diagram.
+- Fixed the grammar renderer invocation so scene-specific renderers receive the active scene object; this prevents title/content updates from leaving the board stuck on an older drawing.
+- Preserved all data paths: no D1 migrations, no profile storage changes, no generated audio deletion, no question data deletion.
+
+QA Evidence
+
+- Syntax checks: `node --check english-grammar\english-grammar.js`; `node --check bright-quest-quality-uplift.js`.
+- Automated QA passed: `qa-bright-quest.cjs`, `qa-bright-quest-games.cjs`, `qa-parent-cockpit.cjs`.
+- Browser QA screenshots: `C:\Users\gupta\AppData\Local\Temp\bright-quest-holistic-redesign`.
+- Console QA: English Grammar clean. Main app local static hosting only reports expected `/api/profiles` 404 and browser `favicon.ico` 404.

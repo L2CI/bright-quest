@@ -503,6 +503,148 @@ body.bq-premium-shell .game-keyboard-hint {
   box-shadow: 0 14px 28px rgba(13, 24, 84, 0.16);
 }
 
+body.bq-holistic-shell {
+  --studio-ink: #122036;
+  --studio-cyan: #1f9fc4;
+  --studio-violet: #604ee8;
+  --studio-leaf: #22a86f;
+  --studio-sun: #f2b33d;
+}
+
+body.bq-holistic-shell .reference-dashboard {
+  container-type: inline-size;
+}
+
+body.bq-holistic-shell .reference-topbar {
+  overflow: hidden;
+}
+
+body.bq-holistic-shell .learning-studio-banner {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.92fr) minmax(360px, 1fr) auto;
+  gap: 20px;
+  align-items: center;
+  margin: 0 0 18px;
+  min-height: 260px;
+  overflow: hidden;
+  border-radius: 32px;
+  padding: 24px;
+  color: #fff;
+  background:
+    linear-gradient(90deg, rgba(12, 22, 61, 0.94), rgba(21, 71, 117, 0.86) 48%, rgba(12, 22, 61, 0.88)),
+    url("cave-river-quest/assets/generated/painted-cave-river.png") center / cover;
+  box-shadow: 0 30px 74px rgba(17, 42, 102, 0.22);
+}
+
+body.bq-holistic-shell .learning-studio-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(7, 13, 39, 0.74), rgba(7, 13, 39, 0.22) 56%, rgba(7, 13, 39, 0.66)),
+    linear-gradient(180deg, rgba(255,255,255,0.16), transparent 46%);
+}
+
+body.bq-holistic-shell .studio-copy,
+body.bq-holistic-shell .studio-shot-stack,
+body.bq-holistic-shell .studio-actions {
+  position: relative;
+  z-index: 1;
+}
+
+body.bq-holistic-shell .studio-copy h3 {
+  max-width: 620px;
+  margin-top: 8px;
+  color: #fff;
+  font-size: clamp(2rem, 4vw, 4.5rem);
+  line-height: 0.96;
+}
+
+body.bq-holistic-shell .studio-copy p:last-child {
+  max-width: 560px;
+  margin-top: 12px;
+  color: rgba(255,255,255,0.82);
+  font-size: 1rem;
+  font-weight: 850;
+  line-height: 1.45;
+}
+
+body.bq-holistic-shell .learning-studio-banner .eyebrow {
+  color: #ffe59c;
+}
+
+body.bq-holistic-shell .studio-shot-stack {
+  display: grid;
+  min-height: 212px;
+}
+
+body.bq-holistic-shell .studio-shot {
+  grid-area: 1 / 1;
+  width: min(360px, 34vw);
+  aspect-ratio: 16 / 10;
+  border: 5px solid rgba(255,255,255,0.72);
+  border-radius: 24px;
+  background-position: center;
+  background-size: cover;
+  box-shadow: 0 22px 42px rgba(0,0,0,0.28);
+}
+
+body.bq-holistic-shell .studio-shot.cave {
+  background-image: url("cave-river-quest/assets/generated/journey-plate-4.png");
+  transform: translate(16px, 6px) rotate(3deg);
+}
+
+body.bq-holistic-shell .studio-shot.treasure {
+  background-image: url("treasure-quest/assets/treasure-islands.png");
+  transform: translate(-34px, 62px) scale(0.82) rotate(-5deg);
+}
+
+body.bq-holistic-shell .studio-shot.street {
+  background-image: url("street-smart-rescue/assets/generated/suburban-road-plate.png");
+  transform: translate(110px, 104px) scale(0.68) rotate(6deg);
+}
+
+body.bq-holistic-shell .studio-actions {
+  display: grid;
+  gap: 10px;
+  min-width: 172px;
+}
+
+body.bq-holistic-shell .studio-panel {
+  outline: 1px solid rgba(255,255,255,0.72);
+}
+
+body.bq-holistic-shell .studio-interactive {
+  transform-origin: 50% 85%;
+}
+
+body.bq-holistic-shell .studio-interactive:hover,
+body.bq-holistic-shell .studio-interactive:focus-visible {
+  transform: translateY(-8px) scale(1.025);
+}
+
+body.bq-holistic-shell .academy-tile-ref.grammar,
+body.bq-holistic-shell .label-grammar {
+  background:
+    radial-gradient(circle at 86% 20%, rgba(255,255,255,0.28), transparent 22%),
+    linear-gradient(135deg, #0f7d62, #20a6c7 56%, #604ee8) !important;
+  color: #fff !important;
+}
+
+body.bq-holistic-shell .academy-tile-ref.grammar small,
+body.bq-holistic-shell .academy-tile-ref.grammar i,
+body.bq-holistic-shell .label-grammar small {
+  color: rgba(255,255,255,0.88) !important;
+}
+
+body.bq-holistic-shell .reference-panel-title {
+  background-image:
+    linear-gradient(90deg, rgba(255,255,255,0.18), transparent),
+    linear-gradient(135deg, var(--studio-cyan), var(--studio-violet)) !important;
+}
+
 @keyframes premium-rocket {
   0%, 100% { transform: translate(0, 0) rotate(28deg); }
   50% { transform: translate(9px, -8px) rotate(34deg); }
@@ -729,6 +871,19 @@ body.bq-premium-shell .game-keyboard-hint {
 }
 
 @media (max-width: 980px) {
+  body.bq-holistic-shell .learning-studio-banner {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  body.bq-holistic-shell .studio-shot-stack {
+    min-height: 260px;
+  }
+
+  body.bq-holistic-shell .studio-shot {
+    width: min(440px, 72vw);
+  }
+
   .premium-dashboard .reference-topbar,
   .premium-dashboard .reference-layout,
   .premium-status-rail {

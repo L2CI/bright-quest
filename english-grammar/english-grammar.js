@@ -34,6 +34,247 @@ const renderers = {
   "recap-quiz": grammarRecapQuizSvg
 };
 
+[
+  "clauses-phrases",
+  "independent-dependent",
+  "relative-clauses",
+  "compound-complex",
+  "comma-clauses",
+  "subject-verb-agreement",
+  "pronoun-antecedents",
+  "misplaced-modifiers",
+  "parallel-structure",
+  "gerunds",
+  "participles",
+  "infinitives",
+  "active-passive",
+  "subjunctive-mood",
+  "appositives",
+  "ellipses-omission",
+  "sentence-variety",
+  "grammar-editing"
+].forEach((id) => {
+  renderers[id] = grammarStudioSvg;
+});
+
+const grammarStudioScenes = {
+  "clauses-phrases": {
+    mode: "sort",
+    sentence: "Under the old bridge, the river rushed.",
+    tokens: [
+      ["Under the old bridge", "phrase", "#8bd3dd"],
+      ["the river rushed", "clause", "#f3d56b"]
+    ],
+    lanes: [
+      { label: "phrase", copy: "adds detail, no subject + verb pair", color: "#8bd3dd" },
+      { label: "clause", copy: "subject + verb", color: "#f3d56b" }
+    ],
+    chant: "Subject plus verb makes a clause.",
+    check: "Does the group have both?"
+  },
+  "independent-dependent": {
+    mode: "balance",
+    sentence: "Because the team cheered, the coach smiled.",
+    tokens: [
+      ["Because the team cheered", "dependent", "#f4a6b8"],
+      ["the coach smiled", "independent", "#9fdf9f"]
+    ],
+    lanes: [
+      { label: "needs help", copy: "because makes us wait", color: "#f4a6b8" },
+      { label: "stands alone", copy: "a complete thought", color: "#9fdf9f" }
+    ],
+    chant: "Can it stand alone?",
+    check: "Remove because. Does the thought finish?"
+  },
+  "relative-clauses": {
+    mode: "hook",
+    sentence: "The book that Mia borrowed was exciting.",
+    tokens: [
+      ["The book", "noun", "#9fdf9f"],
+      ["that Mia borrowed", "relative clause", "#8bd3dd"],
+      ["was exciting", "predicate", "#f3d56b"]
+    ],
+    lanes: [
+      { label: "noun", copy: "book", color: "#9fdf9f" },
+      { label: "relative clause", copy: "tells which book", color: "#8bd3dd" }
+    ],
+    chant: "Who, which, that: point back to a noun.",
+    check: "Which noun is described?"
+  },
+  "compound-complex": {
+    mode: "compare",
+    sentence: "I packed my bag, and I checked the map.",
+    altSentence: "After I checked the map, I packed my bag.",
+    tokens: [
+      ["equal idea", "compound", "#8bd3dd"],
+      ["dependent opener", "complex", "#f4a6b8"],
+      ["main idea", "independent", "#9fdf9f"]
+    ],
+    chant: "Equal ideas compound. Dependent plus main is complex.",
+    check: "Equal or depending?"
+  },
+  "comma-clauses": {
+    mode: "repair",
+    sentence: "Because the path was muddy we wore boots.",
+    repaired: "Because the path was muddy, we wore boots.",
+    tokens: [
+      ["Because the path was muddy", "opening dependent clause", "#f4a6b8"],
+      [",", "comma gate", "#f3d56b"],
+      ["we wore boots", "main clause", "#9fdf9f"]
+    ],
+    chant: "Opening dependent clause? Pause with a comma.",
+    check: "Where does the opening idea end?"
+  },
+  "subject-verb-agreement": {
+    mode: "telescope",
+    sentence: "The box of pencils is on the desk.",
+    tokens: [
+      ["The box", "true subject", "#9fdf9f"],
+      ["of pencils", "extra phrase", "#8bd3dd"],
+      ["is", "matching verb", "#f3d56b"]
+    ],
+    chant: "Ignore the extra phrase. Match the true subject.",
+    check: "Box is singular, so choose is."
+  },
+  "pronoun-antecedents": {
+    mode: "repair",
+    sentence: "When Ava met Priya, she smiled.",
+    repaired: "When Ava met Priya, Ava smiled.",
+    tokens: [
+      ["Ava", "possible antecedent", "#9fdf9f"],
+      ["Priya", "possible antecedent", "#8bd3dd"],
+      ["she", "unclear pronoun", "#f4a6b8"]
+    ],
+    chant: "A pronoun must point clearly.",
+    check: "Could the reader be unsure?"
+  },
+  "misplaced-modifiers": {
+    mode: "repair",
+    sentence: "Sam saw the bus running down the path.",
+    repaired: "Running down the path, Sam saw the bus.",
+    tokens: [
+      ["Running down the path", "describing phrase", "#f4a6b8"],
+      ["Sam", "right noun", "#9fdf9f"],
+      ["the bus", "wrong target", "#8bd3dd"]
+    ],
+    chant: "Put the describing phrase beside its noun.",
+    check: "Who was running?"
+  },
+  "parallel-structure": {
+    mode: "rhythm",
+    sentence: "Mia likes swimming, reading, and drawing.",
+    tokens: [
+      ["swimming", "ing", "#9fdf9f"],
+      ["reading", "ing", "#9fdf9f"],
+      ["drawing", "ing", "#9fdf9f"]
+    ],
+    chant: "Same job, same shape.",
+    check: "Do the list items match?"
+  },
+  gerunds: {
+    mode: "diagram",
+    sentence: "Swimming is fun.",
+    tokens: [
+      ["Swimming", "gerund subject", "#8bd3dd"],
+      ["is", "linking verb", "#f3d56b"],
+      ["fun", "complement", "#9fdf9f"]
+    ],
+    chant: "An ing word can act like a noun.",
+    check: "Is it naming an activity?"
+  },
+  participles: {
+    mode: "hook",
+    sentence: "The barking dog woke us.",
+    tokens: [
+      ["barking", "participle", "#8bd3dd"],
+      ["dog", "noun described", "#9fdf9f"],
+      ["woke", "main verb", "#f3d56b"]
+    ],
+    chant: "Verb form describing a noun: participle.",
+    check: "Which noun is being described?"
+  },
+  infinitives: {
+    mode: "diagram",
+    sentence: "To win requires practice.",
+    tokens: [
+      ["To win", "infinitive phrase", "#8bd3dd"],
+      ["requires", "verb", "#f3d56b"],
+      ["practice", "object", "#9fdf9f"]
+    ],
+    chant: "To plus verb can do a noun job.",
+    check: "What job does the to phrase do?"
+  },
+  "active-passive": {
+    mode: "transform",
+    sentence: "The student solved the puzzle.",
+    repaired: "The puzzle was solved by the student.",
+    tokens: [
+      ["student", "doer", "#9fdf9f"],
+      ["solved", "action", "#f3d56b"],
+      ["puzzle", "receiver", "#8bd3dd"]
+    ],
+    chant: "Active puts the doer first.",
+    check: "Who is doing the action?"
+  },
+  "subjunctive-mood": {
+    mode: "split",
+    sentence: "If I were captain, I would choose a calm plan.",
+    tokens: [
+      ["If", "signal", "#f4a6b8"],
+      ["were", "unreal verb", "#f3d56b"],
+      ["would choose", "imagined result", "#8bd3dd"]
+    ],
+    chant: "Were can signal an unreal idea.",
+    check: "Real situation or imagined?"
+  },
+  appositives: {
+    mode: "hook",
+    sentence: "Leo, our team captain, gave the signal.",
+    tokens: [
+      ["Leo", "noun", "#9fdf9f"],
+      ["our team captain", "renamer", "#8bd3dd"],
+      ["gave the signal", "predicate", "#f3d56b"]
+    ],
+    chant: "An appositive renames beside the noun.",
+    check: "Which noun is being renamed?"
+  },
+  "ellipses-omission": {
+    mode: "ghost",
+    sentence: "Ava chose blue; Omar, green.",
+    repaired: "Ava chose blue; Omar chose green.",
+    tokens: [
+      ["Ava chose blue", "full pattern", "#9fdf9f"],
+      ["Omar, green", "missing verb", "#f4a6b8"],
+      ["chose", "understood", "#f3d56b"]
+    ],
+    chant: "The pattern can carry missing words.",
+    check: "What words are understood?"
+  },
+  "sentence-variety": {
+    mode: "rhythm",
+    sentence: "Rain fell. Because the wind rose, we hurried inside.",
+    tokens: [
+      ["Rain fell.", "short punch", "#f3d56b"],
+      ["Because the wind rose", "opening clause", "#8bd3dd"],
+      ["we hurried inside", "main idea", "#9fdf9f"]
+    ],
+    chant: "Mix sentence shapes for rhythm.",
+    check: "Does every sentence start the same way?"
+  },
+  "grammar-editing": {
+    mode: "repair",
+    sentence: "Moving the clause the meaning becomes clearer.",
+    repaired: "The meaning becomes clearer when we move the clause.",
+    tokens: [
+      ["move clause", "structure", "#8bd3dd"],
+      ["choose voice", "emphasis", "#f3d56b"],
+      ["trim words", "precision", "#9fdf9f"]
+    ],
+    chant: "Clarity first. Then rhythm. Then polish.",
+    check: "What change makes meaning clearest?"
+  }
+};
+
 const boardMomentTimes = {
   "sentence-machine": 62,
   "nouns-pronouns": 48,
@@ -159,7 +400,7 @@ function loadScene(index, offsetSeconds = 0, shouldPlay = playing) {
   sceneDuration.textContent = formatTime(scene.duration);
   lessonPoint.textContent = scene.point;
   captionText.textContent = captionFor(scene, offset);
-  svg.innerHTML = renderers[scene.id] ? renderers[scene.id]() : genericLessonSvg(scene);
+  svg.innerHTML = renderers[scene.id] ? renderers[scene.id](scene) : genericLessonSvg(scene);
   updateBoardMoment(scene, offset);
   renderSceneList();
 
@@ -497,6 +738,139 @@ function genericLessonSvg(scene) {
       ${multiText(600, 525, check, 0, 25, "#f3d56b")}
     </g>
   `);
+}
+
+function grammarStudioSvg(scene) {
+  const spec = grammarStudioScenes[scene.id] || {
+    mode: "diagram",
+    sentence: scene.visual?.example || scene.point,
+    tokens: [[scene.title, "pattern", "#8bd3dd"]],
+    chant: scene.point,
+    check: scene.visual?.check || scene.point
+  };
+  const modeLabel = {
+    sort: "sort",
+    balance: "test",
+    hook: "attach",
+    compare: "compare",
+    repair: "repair",
+    telescope: "focus",
+    rhythm: "rhythm",
+    diagram: "diagram",
+    transform: "transform",
+    split: "real / imagined",
+    ghost: "missing words"
+  }[spec.mode] || "diagram";
+
+  return baseSvg(`
+    <g class="grammar-studio">
+      ${grammarStudioBackdrop(scene, spec, modeLabel)}
+      ${grammarStudioMainSentence(spec)}
+      ${grammarStudioDiagram(spec)}
+      ${grammarStudioCheck(spec)}
+    </g>
+  `);
+}
+
+function grammarStudioBackdrop(scene, spec, modeLabel) {
+  return `
+    ${text(86, 62, modeLabel, 0.05, 19, "#f3d56b", "start", 900)}
+    ${text(600, 62, scene.title, 0.15, 33, "#f5f5f0")}
+    ${path("M86 92 C245 116 367 104 518 120 C690 139 808 108 1048 130", 0.5, 1.1, "#2b675e", 4)}
+    ${path("M970 78 C1020 42 1082 42 1122 84 C1087 92 1043 116 1010 148 C1006 113 992 94 970 78", 0.8, 0.7, "#f5f5f0", 4)}
+    ${circle(1052, 128, 24, 1.3, 0.42, "#f3d56b", 4)}
+    ${smallText(1052, 174, "idea compass", 1.7, "#f3d56b")}
+    ${line(88, 604, 1112, 604, 1.9, 0.9, "rgba(245,245,240,0.38)", 3)}
+    ${multiText(600, 642, wrapSvgText(spec.chant || scene.point, 58).slice(0, 2), 8.4, 25, "#f3d56b")}
+  `;
+}
+
+function grammarStudioMainSentence(spec) {
+  const sentenceLines = wrapSvgText(spec.sentence || "", 72).slice(0, 2);
+  const repairedLines = spec.repaired ? wrapSvgText(spec.repaired, 72).slice(0, 2) : [];
+  const altLines = spec.altSentence ? wrapSvgText(spec.altSentence, 68).slice(0, 2) : [];
+  const repair = repairedLines.length ? `
+    ${path("M600 250 L600 290", 3.65, 0.45, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
+    ${rect(138, 302, 924, 82, 4.0, 0.72, "#9fdf9f", 4)}
+    ${multiText(600, 342, repairedLines, 4.55, 25, "#9fdf9f")}
+  ` : "";
+  const alt = altLines.length ? `
+    ${rect(138, 302, 924, 82, 4.0, 0.72, "#f4a6b8", 4)}
+    ${multiText(600, 342, altLines, 4.55, 25, "#f4a6b8")}
+  ` : "";
+  return `
+    ${rect(120, 128, 960, repairedLines.length || altLines.length ? 128 : 154, 1.1, 0.8, "#8bd3dd", 5)}
+    ${smallText(600, 166, repairedLines.length ? "first draft" : "sentence under the magnifier", 1.7, "#8bd3dd")}
+    ${multiText(600, 212, sentenceLines, 2.2, 29, "#f5f5f0")}
+    ${grammarStudioUnderline(spec)}
+    ${repair}
+    ${alt}
+  `;
+}
+
+function grammarStudioUnderline(spec) {
+  const mode = spec.mode;
+  if (mode === "repair") return path("M180 238 C390 266 810 266 1020 238", 3.0, 0.75, "#f4a6b8", 6);
+  if (mode === "transform") return path("M280 248 C418 286 782 286 920 248", 3.0, 0.7, "#f3d56b", 6, 'marker-end="url(#arrowHead)"');
+  if (mode === "rhythm") return `${circle(330, 248, 18, 3.0, 0.35, "#f3d56b", 4)}${circle(600, 248, 18, 3.28, 0.35, "#8bd3dd", 4)}${circle(870, 248, 18, 3.56, 0.35, "#9fdf9f", 4)}`;
+  return path("M230 246 C360 276 470 276 600 246 C730 216 840 216 970 246", 3.0, 0.85, "#f3d56b", 5);
+}
+
+function grammarStudioDiagram(spec) {
+  const tokens = (spec.tokens || []).slice(0, 4);
+  const startX = tokens.length === 4 ? 146 : tokens.length === 3 ? 196 : 250;
+  const gap = tokens.length === 4 ? 235 : tokens.length === 3 ? 300 : 360;
+  const tokenMarkup = tokens.map(([value, label, color], index) => {
+    const x = startX + index * gap;
+    return `
+      ${rect(x, 430, tokens.length === 4 ? 200 : 240, 72, 5.25 + index * 0.28, 0.5, color, 4)}
+      ${multiText(x + (tokens.length === 4 ? 100 : 120), 460, wrapSvgText(value, tokens.length === 4 ? 16 : 20).slice(0, 2), 5.65 + index * 0.28, 22, color)}
+      ${path(`M${x + (tokens.length === 4 ? 100 : 120)} 410 L${x + (tokens.length === 4 ? 100 : 120)} 430`, 6.05 + index * 0.22, 0.28, color, 4)}
+      ${smallText(x + (tokens.length === 4 ? 100 : 120), 535, label, 6.35 + index * 0.24, color)}
+    `;
+  }).join("");
+  return `
+    ${line(160, 410, 1040, 410, 4.7, 0.75, "rgba(245,245,240,0.54)", 4)}
+    ${tokenMarkup}
+    ${grammarStudioModeMark(spec)}
+  `;
+}
+
+function grammarStudioModeMark(spec) {
+  if (spec.mode === "balance") {
+    return `
+      ${line(600, 394, 600, 330, 4.4, 0.55, "#f5f5f0", 5)}
+      ${path("M486 346 L714 346", 4.85, 0.5, "#f5f5f0", 5)}
+      ${path("M494 346 C508 392 560 392 574 346", 5.25, 0.55, "#f4a6b8", 5)}
+      ${path("M626 346 C640 392 692 392 706 346", 5.55, 0.55, "#9fdf9f", 5)}
+    `;
+  }
+  if (spec.mode === "hook" || spec.mode === "telescope") {
+    return path("M288 402 C378 338 472 338 562 402 C652 466 746 466 836 402", 4.65, 0.85, "#8bd3dd", 5);
+  }
+  if (spec.mode === "ghost") {
+    return `
+      ${rect(494, 338, 212, 52, 4.45, 0.6, "rgba(243,213,107,0.72)", 4)}
+      ${text(600, 374, "chose", 5.0, 24, "rgba(243,213,107,0.72)")}
+    `;
+  }
+  if (spec.mode === "split") {
+    return `
+      ${line(600, 332, 600, 580, 4.55, 0.8, "rgba(245,245,240,0.32)", 3)}
+      ${smallText(420, 374, "real", 4.95, "#9fdf9f")}
+      ${smallText(780, 374, "imagined", 5.25, "#f4a6b8")}
+    `;
+  }
+  return path("M220 394 C348 356 472 356 600 394 C728 432 852 432 980 394", 4.45, 0.85, "#9fdf9f", 4);
+}
+
+function grammarStudioCheck(spec) {
+  const check = wrapSvgText(spec.check || "", 32).slice(0, 2);
+  return `
+    ${rect(842, 548, 270, 86, 7.4, 0.55, "#f3d56b", 4)}
+    ${smallText(977, 574, "quick check", 7.85, "#f3d56b")}
+    ${multiText(977, 604, check, 8.15, 18, "#f5f5f0")}
+  `;
 }
 
 function multiText(x, y, lines, delay, size = 26, color = "#f5f5f0") {

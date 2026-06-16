@@ -9,6 +9,7 @@
   installGameKeyboardSupport();
   installProductionChips();
   installBestInClassSkin();
+  installHolisticRedesign();
 
   function installScreenReveal() {
     if (typeof showScreen !== "function" || window.__bqQualityShowScreenWrapped) return;
@@ -195,6 +196,53 @@
     upgradeDashboardSurface();
     upgradeTestSurface();
     upgradeParentSurface();
+  }
+
+  function installHolisticRedesign() {
+    document.body.classList.add("bq-holistic-shell");
+    const observer = new MutationObserver(() => {
+      window.clearTimeout(window.__bqHolisticTimer);
+      window.__bqHolisticTimer = window.setTimeout(upgradeLearningStudio, 60);
+    });
+    observer.observe(document.querySelector("#app") || document.body, { childList: true, subtree: true });
+    upgradeLearningStudio();
+  }
+
+  function upgradeLearningStudio() {
+    const dashboard = document.querySelector("#brightReferenceDashboard");
+    if (!dashboard) return;
+    if (!dashboard.querySelector(".learning-studio-banner")) {
+      const banner = document.createElement("section");
+      banner.className = "learning-studio-banner";
+      banner.innerHTML = `
+        <div class="studio-copy">
+          <p class="eyebrow">Bright Quest Studio</p>
+          <h3>Choose the lesson, test, or game that moves the story forward.</h3>
+          <p>Training, timed practice, and reward worlds now sit in one visual route so the next action is obvious.</p>
+        </div>
+        <div class="studio-shot-stack" aria-hidden="true">
+          <span class="studio-shot cave"></span>
+          <span class="studio-shot treasure"></span>
+          <span class="studio-shot street"></span>
+        </div>
+        <div class="studio-actions">
+          <button class="button button-primary" type="button" data-studio-grammar>English Grammar</button>
+          <button class="button button-soft" type="button" data-studio-games>Reward Games</button>
+        </div>
+      `;
+      const topbar = dashboard.querySelector(".reference-topbar");
+      topbar?.after(banner);
+      banner.querySelector("[data-studio-grammar]")?.addEventListener("click", () => { window.location.href = "english-grammar/"; });
+      banner.querySelector("[data-studio-games]")?.addEventListener("click", () => {
+        if (window.openGamesList) window.openGamesList();
+        else document.querySelector("#academyGamesButton")?.click();
+      });
+    }
+
+    dashboard.querySelectorAll(".reference-panel").forEach((panel) => panel.classList.add("studio-panel"));
+    dashboard.querySelectorAll(".academy-tile-ref, .island-label, .game-card-ref, .intl-card-ref, .core-test-chip-ref").forEach((item) => {
+      item.classList.add("studio-interactive");
+    });
   }
 
   function upgradeRoleSurface() {
