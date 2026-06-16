@@ -288,17 +288,42 @@
       const rail = document.createElement("div");
       rail.className = "premium-status-rail";
       rail.innerHTML = `
-        <span><b>Plan</b> choose mission</span>
-        <span><b>Learn</b> teacher lesson</span>
-        <span><b>Play</b> reward game</span>
-        <span><b>Review</b> parent cockpit</span>
+        <button type="button" data-rail-action="plan"><b>Plan</b><span>choose mission</span></button>
+        <button type="button" data-rail-action="learn"><b>Learn</b><span>teacher lesson</span></button>
+        <button type="button" data-rail-action="play"><b>Play</b><span>reward game</span></button>
+        <button type="button" data-rail-action="review"><b>Review</b><span>parent cockpit</span></button>
       `;
       topbar.append(rail);
+      wireStatusRail(rail);
     }
 
     dashboard.querySelectorAll(".academy-card-ref, .world-card-ref, .international-card-ref, .game-card-ref, .island-label, .quick-action-ref, .achievement-strip > *, .progress-dials-ref > *").forEach((item, index) => {
       item.classList.add("premium-tile");
       item.style.setProperty("--tile-index", index);
+    });
+  }
+
+  function wireStatusRail(rail) {
+    rail.querySelectorAll("[data-rail-action]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const action = button.dataset.railAction;
+        if (action === "plan") {
+          document.querySelector(".adventure-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+          return;
+        }
+        if (action === "learn") {
+          window.location.href = "english-grammar/";
+          return;
+        }
+        if (action === "play") {
+          if (window.openGamesList) window.openGamesList();
+          else document.querySelector("#academyGamesButton")?.click();
+          return;
+        }
+        if (action === "review") {
+          document.querySelector("[data-parent-jump]")?.click();
+        }
+      });
     });
   }
 

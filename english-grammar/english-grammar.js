@@ -536,6 +536,8 @@ function updateBoardMoment(scene, seconds) {
   const threshold = boardMomentTimes[scene.id] ?? Math.max(30, scene.duration * 0.54);
   const showMoment = seconds >= threshold;
   board.classList.toggle("show-board-moment", showMoment);
+  board.classList.toggle("show-board-build", seconds >= Math.max(16, threshold - 22));
+  board.classList.toggle("show-board-apply", seconds >= Math.max(28, threshold - 8));
   board.classList.toggle("dim-main-example", showMoment);
   board.classList.toggle("show-maya-example", scene.id === "sentence-machine" && showMoment);
   board.classList.toggle("dim-dog-example", scene.id === "sentence-machine" && showMoment);
@@ -774,14 +776,14 @@ function grammarStudioSvg(scene) {
 
 function grammarStudioBackdrop(scene, spec, modeLabel) {
   return `
-    ${text(86, 62, modeLabel, 0.05, 19, "#f3d56b", "start", 900)}
-    ${text(600, 62, scene.title, 0.15, 33, "#f5f5f0")}
-    ${path("M86 92 C245 116 367 104 518 120 C690 139 808 108 1048 130", 0.5, 1.1, "#2b675e", 4)}
-    ${path("M970 78 C1020 42 1082 42 1122 84 C1087 92 1043 116 1010 148 C1006 113 992 94 970 78", 0.8, 0.7, "#f5f5f0", 4)}
-    ${circle(1052, 128, 24, 1.3, 0.42, "#f3d56b", 4)}
-    ${smallText(1052, 174, "idea compass", 1.7, "#f3d56b")}
-    ${line(88, 604, 1112, 604, 1.9, 0.9, "rgba(245,245,240,0.38)", 3)}
-    ${multiText(600, 642, wrapSvgText(spec.chant || scene.point, 58).slice(0, 2), 8.4, 25, "#f3d56b")}
+    ${text(86, 62, modeLabel, 0.2, 19, "#f3d56b", "start", 900)}
+    ${text(600, 62, scene.title, 0.8, 33, "#f5f5f0")}
+    ${path("M86 92 C245 116 367 104 518 120 C690 139 808 108 1048 130", 2.2, 1.4, "#2b675e", 4)}
+    ${path("M970 78 C1020 42 1082 42 1122 84 C1087 92 1043 116 1010 148 C1006 113 992 94 970 78", 4.8, 0.8, "#f5f5f0", 4)}
+    ${circle(1052, 128, 24, 5.6, 0.5, "#f3d56b", 4)}
+    ${smallText(1052, 174, "idea compass", 6.4, "#f3d56b")}
+    ${line(88, 604, 1112, 604, 52.0, 1.0, "rgba(245,245,240,0.38)", 3)}
+    ${multiText(600, 642, wrapSvgText(spec.chant || scene.point, 58).slice(0, 2), 67.0, 25, "#f3d56b")}
   `;
 }
 
@@ -790,18 +792,18 @@ function grammarStudioMainSentence(spec) {
   const repairedLines = spec.repaired ? wrapSvgText(spec.repaired, 72).slice(0, 2) : [];
   const altLines = spec.altSentence ? wrapSvgText(spec.altSentence, 68).slice(0, 2) : [];
   const repair = repairedLines.length ? `
-    ${path("M600 250 L600 290", 3.65, 0.45, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
-    ${rect(138, 302, 924, 82, 4.0, 0.72, "#9fdf9f", 4)}
-    ${multiText(600, 342, repairedLines, 4.55, 25, "#9fdf9f")}
+    ${path("M600 250 L600 290", 33.0, 0.55, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
+    ${rect(138, 302, 924, 82, 35.0, 0.9, "#9fdf9f", 4)}
+    ${multiText(600, 342, repairedLines, 37.0, 25, "#9fdf9f")}
   ` : "";
   const alt = altLines.length ? `
-    ${rect(138, 302, 924, 82, 4.0, 0.72, "#f4a6b8", 4)}
-    ${multiText(600, 342, altLines, 4.55, 25, "#f4a6b8")}
+    ${rect(138, 302, 924, 82, 35.0, 0.9, "#f4a6b8", 4)}
+    ${multiText(600, 342, altLines, 37.0, 25, "#f4a6b8")}
   ` : "";
   return `
-    ${rect(120, 128, 960, repairedLines.length || altLines.length ? 128 : 154, 1.1, 0.8, "#8bd3dd", 5)}
-    ${smallText(600, 166, repairedLines.length ? "first draft" : "sentence under the magnifier", 1.7, "#8bd3dd")}
-    ${multiText(600, 212, sentenceLines, 2.2, 29, "#f5f5f0")}
+    ${rect(120, 128, 960, repairedLines.length || altLines.length ? 128 : 154, 8.0, 1.0, "#8bd3dd", 5)}
+    ${smallText(600, 166, repairedLines.length ? "first draft" : "sentence under the magnifier", 10.2, "#8bd3dd")}
+    ${multiText(600, 212, sentenceLines, 12.5, 29, "#f5f5f0")}
     ${grammarStudioUnderline(spec)}
     ${repair}
     ${alt}
@@ -810,10 +812,10 @@ function grammarStudioMainSentence(spec) {
 
 function grammarStudioUnderline(spec) {
   const mode = spec.mode;
-  if (mode === "repair") return path("M180 238 C390 266 810 266 1020 238", 3.0, 0.75, "#f4a6b8", 6);
-  if (mode === "transform") return path("M280 248 C418 286 782 286 920 248", 3.0, 0.7, "#f3d56b", 6, 'marker-end="url(#arrowHead)"');
-  if (mode === "rhythm") return `${circle(330, 248, 18, 3.0, 0.35, "#f3d56b", 4)}${circle(600, 248, 18, 3.28, 0.35, "#8bd3dd", 4)}${circle(870, 248, 18, 3.56, 0.35, "#9fdf9f", 4)}`;
-  return path("M230 246 C360 276 470 276 600 246 C730 216 840 216 970 246", 3.0, 0.85, "#f3d56b", 5);
+  if (mode === "repair") return path("M180 238 C390 266 810 266 1020 238", 20.0, 0.9, "#f4a6b8", 6);
+  if (mode === "transform") return path("M280 248 C418 286 782 286 920 248", 20.0, 0.9, "#f3d56b", 6, 'marker-end="url(#arrowHead)"');
+  if (mode === "rhythm") return `${circle(330, 248, 18, 20.0, 0.4, "#f3d56b", 4)}${circle(600, 248, 18, 22.0, 0.4, "#8bd3dd", 4)}${circle(870, 248, 18, 24.0, 0.4, "#9fdf9f", 4)}`;
+  return path("M230 246 C360 276 470 276 600 246 C730 216 840 216 970 246", 20.0, 1.0, "#f3d56b", 5);
 }
 
 function grammarStudioDiagram(spec) {
@@ -823,14 +825,14 @@ function grammarStudioDiagram(spec) {
   const tokenMarkup = tokens.map(([value, label, color], index) => {
     const x = startX + index * gap;
     return `
-      ${rect(x, 430, tokens.length === 4 ? 200 : 240, 72, 5.25 + index * 0.28, 0.5, color, 4)}
-      ${multiText(x + (tokens.length === 4 ? 100 : 120), 460, wrapSvgText(value, tokens.length === 4 ? 16 : 20).slice(0, 2), 5.65 + index * 0.28, 22, color)}
-      ${path(`M${x + (tokens.length === 4 ? 100 : 120)} 410 L${x + (tokens.length === 4 ? 100 : 120)} 430`, 6.05 + index * 0.22, 0.28, color, 4)}
-      ${smallText(x + (tokens.length === 4 ? 100 : 120), 535, label, 6.35 + index * 0.24, color)}
+      ${rect(x, 430, tokens.length === 4 ? 200 : 240, 72, 37.5 + index * 4.2, 0.65, color, 4)}
+      ${multiText(x + (tokens.length === 4 ? 100 : 120), 460, wrapSvgText(value, tokens.length === 4 ? 16 : 20).slice(0, 2), 39.0 + index * 4.2, 22, color)}
+      ${path(`M${x + (tokens.length === 4 ? 100 : 120)} 410 L${x + (tokens.length === 4 ? 100 : 120)} 430`, 42.0 + index * 3.8, 0.35, color, 4)}
+      ${smallText(x + (tokens.length === 4 ? 100 : 120), 535, label, 44.0 + index * 3.8, color)}
     `;
   }).join("");
   return `
-    ${line(160, 410, 1040, 410, 4.7, 0.75, "rgba(245,245,240,0.54)", 4)}
+    ${line(160, 410, 1040, 410, 30.0, 0.9, "rgba(245,245,240,0.54)", 4)}
     ${tokenMarkup}
     ${grammarStudioModeMark(spec)}
   `;
@@ -839,37 +841,37 @@ function grammarStudioDiagram(spec) {
 function grammarStudioModeMark(spec) {
   if (spec.mode === "balance") {
     return `
-      ${line(600, 394, 600, 330, 4.4, 0.55, "#f5f5f0", 5)}
-      ${path("M486 346 L714 346", 4.85, 0.5, "#f5f5f0", 5)}
-      ${path("M494 346 C508 392 560 392 574 346", 5.25, 0.55, "#f4a6b8", 5)}
-      ${path("M626 346 C640 392 692 392 706 346", 5.55, 0.55, "#9fdf9f", 5)}
+      ${line(600, 394, 600, 330, 28.0, 0.55, "#f5f5f0", 5)}
+      ${path("M486 346 L714 346", 29.2, 0.55, "#f5f5f0", 5)}
+      ${path("M494 346 C508 392 560 392 574 346", 46.0, 0.65, "#f4a6b8", 5)}
+      ${path("M626 346 C640 392 692 392 706 346", 52.0, 0.65, "#9fdf9f", 5)}
     `;
   }
   if (spec.mode === "hook" || spec.mode === "telescope") {
-    return path("M288 402 C378 338 472 338 562 402 C652 466 746 466 836 402", 4.65, 0.85, "#8bd3dd", 5);
+    return path("M288 402 C378 338 472 338 562 402 C652 466 746 466 836 402", 48.0, 1.0, "#8bd3dd", 5);
   }
   if (spec.mode === "ghost") {
     return `
-      ${rect(494, 338, 212, 52, 4.45, 0.6, "rgba(243,213,107,0.72)", 4)}
-      ${text(600, 374, "chose", 5.0, 24, "rgba(243,213,107,0.72)")}
+      ${rect(494, 338, 212, 52, 48.0, 0.75, "rgba(243,213,107,0.72)", 4)}
+      ${text(600, 374, "chose", 50.0, 24, "rgba(243,213,107,0.72)")}
     `;
   }
   if (spec.mode === "split") {
     return `
-      ${line(600, 332, 600, 580, 4.55, 0.8, "rgba(245,245,240,0.32)", 3)}
-      ${smallText(420, 374, "real", 4.95, "#9fdf9f")}
-      ${smallText(780, 374, "imagined", 5.25, "#f4a6b8")}
+      ${line(600, 332, 600, 580, 32.0, 0.8, "rgba(245,245,240,0.32)", 3)}
+      ${smallText(420, 374, "real", 38.0, "#9fdf9f")}
+      ${smallText(780, 374, "imagined", 48.0, "#f4a6b8")}
     `;
   }
-  return path("M220 394 C348 356 472 356 600 394 C728 432 852 432 980 394", 4.45, 0.85, "#9fdf9f", 4);
+  return path("M220 394 C348 356 472 356 600 394 C728 432 852 432 980 394", 48.0, 1.0, "#9fdf9f", 4);
 }
 
 function grammarStudioCheck(spec) {
   const check = wrapSvgText(spec.check || "", 32).slice(0, 2);
   return `
-    ${rect(842, 548, 270, 86, 7.4, 0.55, "#f3d56b", 4)}
-    ${smallText(977, 574, "quick check", 7.85, "#f3d56b")}
-    ${multiText(977, 604, check, 8.15, 18, "#f5f5f0")}
+    ${rect(842, 548, 270, 86, 61.0, 0.7, "#f3d56b", 4)}
+    ${smallText(977, 574, "quick check", 62.5, "#f3d56b")}
+    ${multiText(977, 604, check, 64.0, 18, "#f5f5f0")}
   `;
 }
 
@@ -918,11 +920,18 @@ function grammarSentenceMachineSvg() {
       ${text(722, 528, "predicate", 10.1, 22, "#f3d56b")}
     </g>
     <g class="board-moment maya-moment">
-      ${text(600, 604, "Quick check: Maya reads a comic.", 0, 27, "#f5f5f0")}
-      ${path("M405 626 C440 648 490 648 525 626", 0, 0.01, "#9fdf9f", 5)}
-      ${text(464, 663, "subject", 0, 18, "#9fdf9f")}
-      ${path("M540 626 C625 648 755 648 840 626", 0, 0.01, "#f3d56b", 5)}
-      ${text(690, 663, "predicate", 0, 18, "#f3d56b")}
+      <rect x="132" y="78" width="936" height="500" rx="20" fill="rgba(9, 48, 43, 0.94)" stroke="rgba(139, 211, 221, 0.24)" stroke-width="4"></rect>
+      ${rect(150, 92, 900, 470, 0.2, 0.9, "#8bd3dd", 5)}
+      ${text(600, 148, "Quick check: Maya reads a comic.", 1.4, 31, "#f5f5f0")}
+      ${wordBox(245, 230, "Maya", 2.8, "#9fdf9f", 170)}
+      ${wordBox(485, 230, "reads", 4.6, "#f3d56b", 170)}
+      ${wordBox(725, 230, "a comic", 6.4, "#f3d56b", 200)}
+      ${path("M330 310 C360 350 405 350 435 310", 8.4, 0.7, "#9fdf9f", 6)}
+      ${text(382, 384, "subject", 9.4, 23, "#9fdf9f")}
+      ${path("M520 310 C620 375 780 375 880 310", 11.0, 0.9, "#f3d56b", 6)}
+      ${text(700, 408, "predicate", 12.2, 23, "#f3d56b")}
+      ${path("M262 462 L938 462", 14.0, 0.7, "#f5f5f0", 5)}
+      ${text(600, 508, "Both parts are there, so the thought is complete.", 15.0, 26, "#f4a6b8")}
     </g>
   `);
 }

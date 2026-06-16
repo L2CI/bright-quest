@@ -457,6 +457,17 @@ h3 {
   transition: opacity 420ms ease;
 }
 
+.animating .board-moment .draw-path,
+.animating .board-moment .draw-shape {
+  animation: none;
+  stroke-dashoffset: 100;
+}
+
+.animating .board-moment .draw-text {
+  animation: none;
+  opacity: 0;
+}
+
 .show-maya-example .maya-moment {
   opacity: 1;
 }
@@ -465,14 +476,35 @@ h3 {
   opacity: 1;
 }
 
+.animating.show-board-moment .board-moment .draw-path,
+.animating.show-board-moment .board-moment .draw-shape,
+.finished.show-board-moment .board-moment .draw-path,
+.finished.show-board-moment .board-moment .draw-shape {
+  animation: chalkDraw var(--dur, 1s) ease-out var(--delay, 0s) forwards;
+}
+
+.animating.show-board-moment .board-moment .draw-text,
+.finished.show-board-moment .board-moment .draw-text {
+  animation: chalkFade 0.55s ease-out var(--delay, 0s) forwards;
+}
+
 .dim-dog-example .dog-example {
-  opacity: 0.52;
+  opacity: 0.08;
   transition: opacity 420ms ease;
 }
 
 .dim-main-example .main-example {
-  opacity: 0.28;
+  opacity: 0.1;
   transition: opacity 420ms ease;
+}
+
+.show-board-moment .main-example,
+.show-maya-example .dog-example {
+  opacity: 0.05;
+}
+
+.show-maya-example .board-moment {
+  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.24));
 }
 
 .scene-list {

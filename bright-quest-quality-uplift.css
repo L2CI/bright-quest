@@ -269,21 +269,75 @@ body.bq-premium-shell #profileScreen .hero-panel h1 {
   margin-top: 6px;
 }
 
-.premium-status-rail span {
-  min-height: 44px;
-  border: 2px solid #dff0ff;
-  border-radius: 16px;
-  padding: 8px 12px;
+.premium-status-rail button {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  align-items: center;
+  min-height: 64px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 20px;
+  padding: 12px 16px 12px 14px;
   color: #516083;
-  background: rgba(255,255,255,0.82);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.94), rgba(239,248,255,0.86)),
+    #fff;
+  box-shadow:
+    inset 0 0 0 2px rgba(211, 233, 255, 0.95),
+    0 12px 24px rgba(22, 39, 102, 0.08);
+  text-align: left;
   font-size: 0.78rem;
   font-weight: 950;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    filter 150ms ease;
+}
+
+.premium-status-rail button::before {
+  content: "";
+  grid-row: span 2;
+  width: 36px;
+  height: 36px;
+  border-radius: 13px;
+  background:
+    radial-gradient(circle at 38% 32%, rgba(255,255,255,0.62), transparent 16%),
+    linear-gradient(135deg, var(--premium-blue), var(--premium-purple));
+  box-shadow: 0 8px 18px rgba(23,107,255,0.22);
+}
+
+.premium-status-rail button:nth-child(2)::before {
+  background: linear-gradient(135deg, #10a06c, #32c7e8);
+}
+
+.premium-status-rail button:nth-child(3)::before {
+  background: linear-gradient(135deg, #f4b63f, #f25596);
+}
+
+.premium-status-rail button:nth-child(4)::before {
+  background: linear-gradient(135deg, #151d72, #4fd4ff);
+}
+
+.premium-status-rail button:hover,
+.premium-status-rail button:focus-visible {
+  transform: translateY(-3px);
+  filter: saturate(1.08);
+  box-shadow:
+    inset 0 0 0 2px rgba(153, 213, 255, 0.95),
+    0 18px 32px rgba(22, 39, 102, 0.14);
 }
 
 .premium-status-rail b {
   display: block;
   color: var(--premium-ink);
-  font-size: 0.86rem;
+  font-size: 0.92rem;
+}
+
+.premium-status-rail span {
+  display: block;
+  line-height: 1.15;
 }
 
 .premium-dashboard .reference-layout {
@@ -516,7 +570,24 @@ body.bq-holistic-shell .reference-dashboard {
 }
 
 body.bq-holistic-shell .reference-topbar {
-  overflow: hidden;
+  overflow: visible;
+}
+
+body.bq-holistic-shell .reference-quick-actions {
+  align-self: center;
+  justify-self: end;
+  gap: 12px !important;
+}
+
+body.bq-holistic-shell .quick-action-ref {
+  opacity: 0.74;
+  transform: scale(0.92);
+}
+
+body.bq-holistic-shell .quick-action-ref:hover,
+body.bq-holistic-shell .quick-action-ref:focus-visible {
+  opacity: 1;
+  transform: translateY(-3px) scale(0.94) !important;
 }
 
 body.bq-holistic-shell .learning-studio-banner {
@@ -643,6 +714,424 @@ body.bq-holistic-shell .reference-panel-title {
   background-image:
     linear-gradient(90deg, rgba(255,255,255,0.18), transparent),
     linear-gradient(135deg, var(--studio-cyan), var(--studio-violet)) !important;
+}
+
+body.bq-holistic-shell .adventure-island .island-label {
+  isolation: isolate;
+  overflow: visible !important;
+  transform: translateZ(0);
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    filter 150ms ease !important;
+}
+
+body.bq-holistic-shell .adventure-island .island-label.bq-spotlight {
+  overflow: visible !important;
+}
+
+body.bq-holistic-shell .adventure-island .island-label:hover,
+body.bq-holistic-shell .adventure-island .island-label:focus-visible {
+  z-index: 24 !important;
+  transform: translateY(-3px) translateZ(0) !important;
+  filter: saturate(1.08) brightness(1.03) !important;
+}
+
+body.bq-holistic-shell .adventure-island .island-label::after {
+  display: none !important;
+}
+
+body.bq-holistic-shell .academy-card-grid-ref {
+  gap: 16px !important;
+}
+
+body.bq-holistic-shell .academy-tile-ref {
+  min-height: 176px !important;
+  border-radius: 26px !important;
+  overflow: hidden;
+  padding: 18px 76px 58px 18px !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.34),
+    0 18px 34px rgba(19, 36, 94, 0.18) !important;
+}
+
+body.bq-holistic-shell .academy-tile-ref::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.9;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 76% 20%, rgba(255,255,255,0.34), transparent 18%),
+    radial-gradient(circle at 12% 98%, rgba(255,255,255,0.22), transparent 26%),
+    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(0,0,0,0.18));
+}
+
+body.bq-holistic-shell .academy-tile-ref::after {
+  content: "";
+  position: absolute;
+  right: -10px;
+  bottom: -12px;
+  width: 118px;
+  height: 96px;
+  pointer-events: none;
+  opacity: 0.9;
+  background:
+    radial-gradient(circle at 38% 50%, rgba(255,255,255,0.92) 0 13px, transparent 14px),
+    radial-gradient(circle at 68% 48%, rgba(255,255,255,0.82) 0 10px, transparent 11px),
+    linear-gradient(145deg, rgba(255,255,255,0.26), rgba(255,255,255,0.06));
+  border: 4px solid rgba(255,255,255,0.38);
+  border-radius: 28px;
+  transform: rotate(-8deg);
+}
+
+body.bq-holistic-shell .academy-tile-ref.maths::after {
+  background:
+    linear-gradient(90deg, transparent 45%, rgba(255,255,255,0.8) 45% 55%, transparent 55%),
+    linear-gradient(0deg, transparent 45%, rgba(255,255,255,0.8) 45% 55%, transparent 55%),
+    linear-gradient(145deg, rgba(255,255,255,0.28), rgba(255,255,255,0.08));
+}
+
+body.bq-holistic-shell .academy-tile-ref.english::after {
+  background:
+    radial-gradient(circle at 50% 28%, rgba(255,255,255,0.88) 0 14px, transparent 15px),
+    linear-gradient(90deg, rgba(255,255,255,0.72) 0 8px, transparent 9px 16px, rgba(255,255,255,0.72) 17px 25px, transparent 26px),
+    linear-gradient(145deg, rgba(255,255,255,0.24), rgba(255,255,255,0.08));
+}
+
+body.bq-holistic-shell .academy-tile-ref.grammar::after {
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.9) 0 8px, transparent 8px 16px, rgba(255,255,255,0.9) 16px 24px, transparent 24px),
+    linear-gradient(145deg, rgba(255,255,255,0.26), rgba(255,255,255,0.08));
+}
+
+body.bq-holistic-shell .academy-tile-ref.reason::after {
+  background:
+    radial-gradient(circle at 48% 34%, rgba(255,255,255,0.95) 0 13px, transparent 14px),
+    radial-gradient(circle at 48% 70%, rgba(255,255,255,0.82) 0 5px, transparent 6px),
+    linear-gradient(145deg, rgba(255,255,255,0.24), rgba(255,255,255,0.08));
+}
+
+body.bq-holistic-shell .academy-tile-ref.world::after {
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 36%, #a7ef62 0 13px, transparent 14px),
+    radial-gradient(circle at 64% 64%, #a7ef62 0 15px, transparent 16px),
+    linear-gradient(145deg, #38c7ff, #176bff);
+}
+
+body.bq-holistic-shell .academy-tile-ref.arcade::after {
+  background:
+    radial-gradient(circle at 36% 42%, rgba(255,255,255,0.9) 0 8px, transparent 9px),
+    radial-gradient(circle at 64% 42%, rgba(255,255,255,0.9) 0 8px, transparent 9px),
+    linear-gradient(145deg, rgba(255,255,255,0.25), rgba(255,255,255,0.08));
+}
+
+body.bq-holistic-shell .academy-tile-ref > span,
+body.bq-holistic-shell .academy-tile-ref > strong,
+body.bq-holistic-shell .academy-tile-ref > small,
+body.bq-holistic-shell .academy-tile-ref > i {
+  position: relative;
+  z-index: 2;
+}
+
+body.bq-holistic-shell .academy-tile-ref > span {
+  opacity: 0.66;
+  border-color: rgba(255,255,255,0.58) !important;
+}
+
+body.bq-holistic-shell .academy-tile-ref > i {
+  background: rgba(255,255,255,0.94) !important;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+}
+
+body.bq-holistic-shell .world-hero-ref {
+  min-height: 180px !important;
+  overflow: hidden;
+  color: #fff;
+  background:
+    linear-gradient(90deg, rgba(11, 24, 70, 0.9), rgba(17, 107, 199, 0.66)),
+    url("cave-river-quest/assets/generated/journey-plate-8.png") center / cover !important;
+}
+
+body.bq-holistic-shell .world-hero-ref h3,
+body.bq-holistic-shell .world-hero-ref p {
+  color: #fff !important;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.28);
+}
+
+body.bq-holistic-shell .big-trophy {
+  width: 116px;
+  height: 116px;
+  border-radius: 50% 50% 34px 34px;
+  background:
+    radial-gradient(circle at 42% 32%, rgba(255,255,255,0.36), transparent 18%),
+    linear-gradient(145deg, #ffe16a, #ff9e18) !important;
+  box-shadow:
+    inset 0 -18px 0 rgba(168,96,0,0.14),
+    0 18px 34px rgba(0,0,0,0.2);
+}
+
+body.bq-holistic-shell .intl-card-ref {
+  border-radius: 24px !important;
+  overflow: hidden;
+  box-shadow: 0 18px 34px rgba(19,36,94,0.12) !important;
+}
+
+body.bq-holistic-shell .intl-art-ref {
+  height: 172px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.0)),
+    url("cave-river-quest/assets/generated/painted-cave-river.png") center / cover !important;
+}
+
+body.bq-holistic-shell .intl-2 .intl-art-ref {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.0)),
+    url("street-smart-rescue/assets/generated/suburban-road-plate.png") center / cover !important;
+}
+
+body.bq-holistic-shell .intl-3 .intl-art-ref {
+  background:
+    linear-gradient(180deg, rgba(66,39,160,0.1), rgba(66,39,160,0.0)),
+    url("treasure-quest/assets/treasure-islands.png") center / cover !important;
+}
+
+body.bq-holistic-shell .intl-art-ref::after {
+  height: 54px !important;
+  background: linear-gradient(0deg, rgba(7, 18, 48, 0.58), transparent) !important;
+}
+
+body.bq-holistic-shell .intl-art-ref span {
+  top: 82px !important;
+  left: 20px !important;
+  transform: none !important;
+  border: 3px solid rgba(255,255,255,0.82);
+}
+
+body.bq-holistic-shell .intl-3 .intl-art-ref span {
+  left: 24px !important;
+  width: 82px !important;
+  height: 82px !important;
+}
+
+/* Solid art pass: replace the prototype CSS island cluster with finished quest-world artwork. */
+body.bq-holistic-shell .adventure-panel .adventure-island {
+  isolation: isolate;
+  min-height: 852px !important;
+  overflow: hidden !important;
+  border-radius: 34px !important;
+  background:
+    linear-gradient(180deg, rgba(6, 20, 61, 0.08), rgba(6, 20, 61, 0.34)),
+    url("treasure-quest/assets/treasure-islands.png") 48% 50% / cover no-repeat !important;
+  box-shadow:
+    inset 0 0 0 6px rgba(255, 255, 255, 0.48),
+    inset 0 -120px 120px rgba(7, 42, 88, 0.22),
+    0 26px 58px rgba(13, 42, 92, 0.18) !important;
+}
+
+body.bq-holistic-shell .adventure-panel .adventure-island::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block !important;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 40%, transparent 0 34%, rgba(4, 26, 68, 0.24) 74%),
+    linear-gradient(180deg, rgba(255,255,255,0.18), transparent 28%, rgba(5, 25, 62, 0.34));
+}
+
+body.bq-holistic-shell .adventure-panel .adventure-island::after {
+  content: "";
+  position: absolute;
+  left: 17%;
+  top: 18%;
+  width: 66%;
+  height: 62%;
+  z-index: 2;
+  display: block !important;
+  pointer-events: none;
+  border: 8px dashed rgba(255, 255, 255, 0.72);
+  border-left-color: transparent;
+  border-bottom-color: rgba(255, 255, 255, 0.28);
+  border-radius: 52% 48% 46% 54%;
+  filter: drop-shadow(0 8px 12px rgba(0, 67, 118, 0.18));
+  transform: rotate(-8deg);
+}
+
+body.bq-holistic-shell .adventure-panel .archipelago-art {
+  display: none !important;
+}
+
+body.bq-holistic-shell .adventure-panel .student-badge,
+body.bq-holistic-shell .adventure-panel .map-pill,
+body.bq-holistic-shell .adventure-panel .side-quests,
+body.bq-holistic-shell .adventure-panel .island-label,
+body.bq-holistic-shell .adventure-panel .island-progress {
+  z-index: 5 !important;
+}
+
+body.bq-holistic-shell .adventure-panel .student-badge {
+  left: 22px !important;
+  top: 22px !important;
+  right: 22px !important;
+  width: auto !important;
+  border: 1px solid rgba(255,255,255,0.62) !important;
+  background: rgba(8, 23, 65, 0.76) !important;
+  color: #fff !important;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 18px 34px rgba(6, 21, 66, 0.22) !important;
+}
+
+body.bq-holistic-shell .adventure-panel .student-badge small {
+  color: rgba(255,255,255,0.78) !important;
+}
+
+body.bq-holistic-shell .adventure-panel .map-pill {
+  top: 106px !important;
+  min-width: 126px !important;
+  border: 1px solid rgba(255,255,255,0.58) !important;
+  color: #101c4f !important;
+  background: rgba(255,255,255,0.88) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 14px 26px rgba(9, 30, 86, 0.18) !important;
+}
+
+body.bq-holistic-shell .adventure-panel .star-pill {
+  left: 28px !important;
+}
+
+body.bq-holistic-shell .adventure-panel .streak-pill {
+  left: auto !important;
+  right: 28px !important;
+}
+
+body.bq-holistic-shell .adventure-panel .island-label {
+  min-width: 206px !important;
+  max-width: 236px !important;
+  min-height: 82px !important;
+  grid-template-columns: 50px 1fr !important;
+  gap: 8px 10px !important;
+  padding: 12px 16px 12px 12px !important;
+  border: 1px solid rgba(255,255,255,0.62) !important;
+  border-radius: 18px !important;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.94), rgba(235, 248, 255, 0.82)) !important;
+  color: #101c4f !important;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 12px 0 rgba(6, 25, 77, 0.08),
+    0 24px 38px rgba(6, 25, 77, 0.22) !important;
+}
+
+body.bq-holistic-shell .adventure-panel .island-label span {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 14px !important;
+  color: #fff !important;
+  background: linear-gradient(135deg, #1f9fc4, #604ee8) !important;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.34);
+}
+
+body.bq-holistic-shell .adventure-panel .island-label strong {
+  color: #101c4f !important;
+  font-size: 0.9rem !important;
+  line-height: 1.05 !important;
+  text-shadow: none !important;
+}
+
+body.bq-holistic-shell .adventure-panel .island-label small {
+  color: #42627f !important;
+  font-size: 0.74rem !important;
+}
+
+body.bq-holistic-shell .adventure-panel .island-label:hover,
+body.bq-holistic-shell .adventure-panel .island-label:focus-visible {
+  transform: translateY(-5px) translateZ(0) !important;
+  background:
+    linear-gradient(135deg, #ffffff, rgba(245, 252, 255, 0.92)) !important;
+  box-shadow:
+    0 16px 0 rgba(6, 25, 77, 0.07),
+    0 30px 46px rgba(6, 25, 77, 0.26) !important;
+}
+
+body.bq-holistic-shell .adventure-panel .label-maths {
+  left: 36px !important;
+  top: 194px !important;
+}
+
+body.bq-holistic-shell .adventure-panel .label-english {
+  right: 32px !important;
+  top: 232px !important;
+}
+
+body.bq-holistic-shell .adventure-panel .label-grammar {
+  left: 30px !important;
+  top: 410px !important;
+}
+
+body.bq-holistic-shell .adventure-panel .label-reason {
+  right: 30px !important;
+  top: 442px !important;
+}
+
+body.bq-holistic-shell .adventure-panel .label-world {
+  left: 40px !important;
+  bottom: 142px !important;
+}
+
+body.bq-holistic-shell .adventure-panel .label-arcade {
+  right: 36px !important;
+  bottom: 120px !important;
+}
+
+body.bq-holistic-shell .adventure-panel .island-progress {
+  right: 26px !important;
+  bottom: 24px !important;
+  border: 1px solid rgba(255,255,255,0.64) !important;
+  border-radius: 16px !important;
+  color: #fff !important;
+  background: linear-gradient(135deg, rgba(19, 156, 102, 0.94), rgba(38, 196, 132, 0.9)) !important;
+  box-shadow: 0 18px 30px rgba(6, 25, 77, 0.22) !important;
+}
+
+body.bq-holistic-shell .adventure-panel .side-quests {
+  top: 328px !important;
+  right: 22px !important;
+  gap: 10px !important;
+}
+
+body.bq-holistic-shell .adventure-panel .side-quests span {
+  width: 76px !important;
+  height: 48px !important;
+  border: 1px solid rgba(255,255,255,0.56) !important;
+  color: #101c4f !important;
+  background: rgba(255,255,255,0.84) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+@media (max-width: 980px) {
+  body.bq-holistic-shell .adventure-panel .adventure-island {
+    min-height: 720px !important;
+    background-position: 50% 50% !important;
+  }
+
+  body.bq-holistic-shell .adventure-panel .island-label {
+    min-width: 184px !important;
+    max-width: 214px !important;
+  }
+
+  body.bq-holistic-shell .adventure-panel .label-maths { left: 24px !important; top: 176px !important; }
+  body.bq-holistic-shell .adventure-panel .label-english { right: 24px !important; top: 206px !important; }
+  body.bq-holistic-shell .adventure-panel .label-grammar { left: 24px !important; top: 362px !important; }
+  body.bq-holistic-shell .adventure-panel .label-reason { right: 24px !important; top: 392px !important; }
+  body.bq-holistic-shell .adventure-panel .label-world { left: 28px !important; bottom: 108px !important; }
+  body.bq-holistic-shell .adventure-panel .label-arcade { right: 28px !important; bottom: 88px !important; }
 }
 
 @keyframes premium-rocket {
