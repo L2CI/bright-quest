@@ -23,6 +23,14 @@ Skills Built / Improved
 - `openmontage-production-log`: lightweight release log for source ideas, restore points, no-delete constraints, and QA evidence.
 - `test-stepper-navigation`: question-by-question navigation for timed tests, showing active, answered, and writing states.
 - `keyboard-game-control`: keyboard steering support layered over the existing pointer-based reward games.
+- `premium-kid-product-skin`: best-in-class Bright Quest visual shell with richer login art, dashboard canopy, production status rail, elevated mission tiles, and premium test/game framing.
+- `reactbits-motion-without-react`: React Bits-inspired reveal, sheen, spotlight, hover-lift, and kinetic surface polish implemented as static CSS/JS so the current Cloudflare Pages architecture stays intact.
+- `openmontage-learning-rail`: OpenMontage-inspired Plan/Learn/Play/Review rail to make the app feel like a guided production-quality learning journey.
+
+Best-In-Class Uplift Backup
+
+- Git tag: `backup/pre-best-in-class-20260616-221145-4fc5b17`
+- Archive: `C:\Users\gupta\OneDrive\Documents\New project 2\bright-quest-backups\bright-quest-release-4fc5b17-20260616-221145.zip`
 
 Review Notes
 

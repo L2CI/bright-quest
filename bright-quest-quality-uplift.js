@@ -8,6 +8,7 @@
   installQuestionStepper();
   installGameKeyboardSupport();
   installProductionChips();
+  installBestInClassSkin();
 
   function installScreenReveal() {
     if (typeof showScreen !== "function" || window.__bqQualityShowScreenWrapped) return;
@@ -176,5 +177,100 @@
       if (!target || target.querySelector(".production-chip")) return;
       target.title = `${target.textContent.trim()} - ${text}`;
     });
+  }
+
+  function installBestInClassSkin() {
+    document.body.classList.add("bq-premium-shell");
+    upgradeCurrentSurface();
+
+    const observer = new MutationObserver(() => {
+      window.clearTimeout(window.__bqPremiumTimer);
+      window.__bqPremiumTimer = window.setTimeout(upgradeCurrentSurface, 40);
+    });
+    observer.observe(document.querySelector("#app") || document.body, { childList: true, subtree: true });
+  }
+
+  function upgradeCurrentSurface() {
+    upgradeRoleSurface();
+    upgradeDashboardSurface();
+    upgradeTestSurface();
+    upgradeParentSurface();
+  }
+
+  function upgradeRoleSurface() {
+    document.querySelectorAll(".role-panel, #profileScreen .hero-panel").forEach((panel) => {
+      if (panel.dataset.premiumSkin === "true") return;
+      panel.dataset.premiumSkin = "true";
+      const scene = document.createElement("div");
+      scene.className = "premium-login-scene";
+      scene.setAttribute("aria-hidden", "true");
+      scene.innerHTML = `
+        <span class="premium-planet planet-one"></span>
+        <span class="premium-planet planet-two"></span>
+        <span class="premium-rocket"></span>
+        <span class="premium-path"></span>
+      `;
+      panel.prepend(scene);
+    });
+  }
+
+  function upgradeDashboardSurface() {
+    const dashboard = document.querySelector("#brightReferenceDashboard");
+    if (!dashboard) return;
+    dashboard.classList.add("premium-dashboard");
+
+    if (dashboard.dataset.premiumSkin !== "true") {
+      dashboard.dataset.premiumSkin = "true";
+      const canopy = document.createElement("div");
+      canopy.className = "premium-canopy";
+      canopy.setAttribute("aria-hidden", "true");
+      canopy.innerHTML = `
+        <span class="canopy-grid"></span>
+        <span class="canopy-orbit orbit-a"></span>
+        <span class="canopy-orbit orbit-b"></span>
+        <span class="canopy-spark spark-a"></span>
+        <span class="canopy-spark spark-b"></span>
+        <span class="canopy-spark spark-c"></span>
+      `;
+      dashboard.prepend(canopy);
+    }
+
+    const topbar = dashboard.querySelector(".reference-topbar");
+    if (topbar && !topbar.querySelector(".premium-status-rail")) {
+      const rail = document.createElement("div");
+      rail.className = "premium-status-rail";
+      rail.innerHTML = `
+        <span><b>Plan</b> choose mission</span>
+        <span><b>Learn</b> teacher lesson</span>
+        <span><b>Play</b> reward game</span>
+        <span><b>Review</b> parent cockpit</span>
+      `;
+      topbar.append(rail);
+    }
+
+    dashboard.querySelectorAll(".academy-card-ref, .world-card-ref, .international-card-ref, .game-card-ref, .island-label, .quick-action-ref, .achievement-strip > *, .progress-dials-ref > *").forEach((item, index) => {
+      item.classList.add("premium-tile");
+      item.style.setProperty("--tile-index", index);
+    });
+  }
+
+  function upgradeTestSurface() {
+    const testScreen = document.querySelector("#testScreen");
+    if (!testScreen || testScreen.dataset.premiumSkin === "true") return;
+    testScreen.dataset.premiumSkin = "true";
+    const beam = document.createElement("div");
+    beam.className = "test-focus-beam";
+    beam.setAttribute("aria-hidden", "true");
+    testScreen.prepend(beam);
+  }
+
+  function upgradeParentSurface() {
+    const parent = document.querySelector("#parentScreen");
+    if (!parent || parent.dataset.premiumFrame === "true") return;
+    parent.dataset.premiumFrame = "true";
+    const frame = document.createElement("div");
+    frame.className = "parent-premium-frame";
+    frame.setAttribute("aria-hidden", "true");
+    parent.prepend(frame);
   }
 })();
