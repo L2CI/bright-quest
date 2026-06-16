@@ -119,9 +119,9 @@ function renderLadderTabs() {
     const passed = ladderProgress.passedSteps.includes(item.step);
     return `
       <button class="ladder-tab ${activeStep === item.step ? "active" : ""} ${unlocked ? "" : "locked"} ${passed ? "passed" : ""}" type="button" data-step="${item.step}" ${unlocked ? "" : "disabled"}>
-        <span>${passed ? "✓" : unlocked ? item.step : "Lock"}</span>
+        <span>${passed ? "Done" : unlocked ? item.step : "Lock"}</span>
         <strong>${item.title}</strong>
-        <small>${item.subtitle} • ${item.durationLabel}</small>
+        <small>${item.subtitle} - ${item.durationLabel}</small>
       </button>
     `;
   }).join("");
@@ -155,7 +155,7 @@ function loadScene(index, offsetSeconds = 0, shouldPlay = playing) {
 
   board.classList.remove("paused", "animating", "finished");
   sceneTitle.textContent = scene.title;
-  sceneCount.textContent = `Step ${activeStep} • Module ${activeSceneIndex + 1} of ${scenes.length}`;
+  sceneCount.textContent = `Step ${activeStep} - Module ${activeSceneIndex + 1} of ${scenes.length}`;
   sceneDuration.textContent = formatTime(scene.duration);
   lessonPoint.textContent = scene.point;
   captionText.textContent = captionFor(scene, offset);
