@@ -9,10 +9,18 @@ const ccButton = document.querySelector("#ccButton");
 const playButton = document.querySelector("#playButton");
 const rewindButton = document.querySelector("#rewindButton");
 const sceneList = document.querySelector("#sceneList");
+const ladderTabs = document.querySelector("#ladderTabs");
 const timeline = document.querySelector("#timeline");
 const elapsedTime = document.querySelector("#elapsedTime");
 const remainingTime = document.querySelector("#remainingTime");
 const totalTime = document.querySelector("#totalTime");
+const quizModal = document.querySelector("#quizModal");
+const quizEyebrow = document.querySelector("#quizEyebrow");
+const quizTitle = document.querySelector("#quizTitle");
+const quizQuestions = document.querySelector("#quizQuestions");
+const closeQuizButton = document.querySelector("#closeQuizButton");
+const submitQuizButton = document.querySelector("#submitQuizButton");
+const quizFeedback = document.querySelector("#quizFeedback");
 
 const renderers = {
   "sentence-machine": grammarSentenceMachineSvg,
@@ -38,21 +46,59 @@ const boardMomentTimes = {
   "recap-quiz": 54
 };
 
+const stepMeta = [
+  { step: 1, title: "Step 1", subtitle: "Foundations", durationLabel: "15 min" },
+  { step: 2, title: "Step 2", subtitle: "Clause craft", durationLabel: "15 min" },
+  { step: 3, title: "Step 3", subtitle: "Advanced grammar", durationLabel: "15 min" }
+];
+
+const gateQuizzes = {
+  1: [
+    { prompt: "In 'Maya reads a comic', what is the subject?", options: ["Maya", "reads", "a comic"], answer: 0 },
+    { prompt: "Which word is the verb in 'The tiny robot danced happily'?", options: ["tiny", "danced", "happily"], answer: 1 },
+    { prompt: "What does a preposition usually show?", options: ["A relationship like where or when", "A capital letter", "A complete paragraph"], answer: 0 }
+  ],
+  2: [
+    { prompt: "Which group has both a subject and a verb?", options: ["under the old bridge", "the river rushed", "after lunch"], answer: 1 },
+    { prompt: "Which clause can stand alone?", options: ["Because the bell rang", "When the rain stopped", "The team cheered"], answer: 2 },
+    { prompt: "What should a pronoun clearly point back to?", options: ["Its antecedent", "A comma", "An adverb"], answer: 0 }
+  ],
+  3: [
+    { prompt: "In 'Swimming is fun', what job is 'Swimming' doing?", options: ["Noun", "Main verb", "Conjunction"], answer: 0 },
+    { prompt: "In 'The barking dog woke us', what does 'barking' do?", options: ["Describes dog", "Acts as the main verb", "Shows a preposition"], answer: 0 },
+    { prompt: "What does active voice usually put first?", options: ["The doer", "The receiver", "The comma"], answer: 0 }
+  ]
+};
+
+let allScenes = [];
 let scenes = [];
 let sceneOffsets = [];
 let activeSceneIndex = 0;
+let activeStep = 1;
 let audio = null;
 let playing = false;
 let completed = false;
 let captionTimer = null;
 let rafId = null;
 let courseElapsedAtSceneStart = 0;
+let sceneStartedAt = 0;
+let sceneElapsedOffset = 0;
 let captionsVisible = false;
+let ladderProgress = loadLadderProgress();
 
 init();
 
 async function init() {
-  scenes = await fetch("./lesson-scripts.json").then((response) => response.json());
+  allScenes = await fetch("./lesson-scripts.json").then((response) => response.json());
+  switchStep(1, false);
+}
+
+function switchStep(step, autoplay = false) {
+  if (!isStepUnlocked(step)) return;
+  stopFrameLoop();
+  if (audio) audio.pause();
+  activeStep = step;
+  scenes = allScenes.filter((scene) => (scene.step || 1) === step);
   sceneOffsets = scenes.reduce((acc, scene, index) => {
     acc.push(index === 0 ? 0 : acc[index - 1] + scenes[index - 1].duration);
     return acc;
@@ -61,8 +107,28 @@ async function init() {
   timeline.max = String(total);
   totalTime.textContent = `${formatTime(total)} total`;
   remainingTime.textContent = formatTime(total);
+  completed = false;
+  renderLadderTabs();
   renderSceneList();
-  loadScene(0, 0, false);
+  loadScene(0, 0, autoplay);
+}
+
+function renderLadderTabs() {
+  ladderTabs.innerHTML = stepMeta.map((item) => {
+    const unlocked = isStepUnlocked(item.step);
+    const passed = ladderProgress.passedSteps.includes(item.step);
+    return `
+      <button class="ladder-tab ${activeStep === item.step ? "active" : ""} ${unlocked ? "" : "locked"} ${passed ? "passed" : ""}" type="button" data-step="${item.step}" ${unlocked ? "" : "disabled"}>
+        <span>${passed ? "✓" : unlocked ? item.step : "Lock"}</span>
+        <strong>${item.title}</strong>
+        <small>${item.subtitle} • ${item.durationLabel}</small>
+      </button>
+    `;
+  }).join("");
+}
+
+function isStepUnlocked(step) {
+  return step === 1 || ladderProgress.unlockedSteps.includes(step);
 }
 
 function renderSceneList() {
@@ -83,15 +149,17 @@ function loadScene(index, offsetSeconds = 0, shouldPlay = playing) {
   activeSceneIndex = Math.max(0, Math.min(scenes.length - 1, index));
   const scene = scenes[activeSceneIndex];
   const offset = Math.max(0, Math.min(scene.duration - 0.5, offsetSeconds));
+  sceneElapsedOffset = offset;
+  sceneStartedAt = performance.now() - offset * 1000;
   courseElapsedAtSceneStart = sceneOffsets[activeSceneIndex];
 
   board.classList.remove("paused", "animating", "finished");
   sceneTitle.textContent = scene.title;
-  sceneCount.textContent = `Scene ${activeSceneIndex + 1} of ${scenes.length}`;
+  sceneCount.textContent = `Step ${activeStep} • Module ${activeSceneIndex + 1} of ${scenes.length}`;
   sceneDuration.textContent = formatTime(scene.duration);
   lessonPoint.textContent = scene.point;
   captionText.textContent = captionFor(scene, offset);
-  svg.innerHTML = renderers[scene.id] ? renderers[scene.id]() : baseSvg("");
+  svg.innerHTML = renderers[scene.id] ? renderers[scene.id]() : genericLessonSvg(scene);
   updateBoardMoment(scene, offset);
   renderSceneList();
 
@@ -106,7 +174,6 @@ function loadScene(index, offsetSeconds = 0, shouldPlay = playing) {
   audio.addEventListener("loadedmetadata", () => {
     audio.currentTime = Math.min(offset, Math.max(0, (audio.duration || scene.duration) - 0.4));
   }, { once: true });
-  audio.addEventListener("ended", playNextScene);
   audio.addEventListener("error", () => {
     captionText.textContent = "Voice file is still being prepared. The board can play silently for now.";
   });
@@ -120,6 +187,7 @@ function startPlayback() {
   if (!audio) return;
   completed = false;
   playing = true;
+  sceneStartedAt = performance.now() - sceneElapsedOffset * 1000;
   if (audio.currentTime < 0.2) restartBoardAnimation();
   board.classList.remove("paused");
   board.classList.add("animating");
@@ -134,6 +202,7 @@ function startPlayback() {
 
 function pausePlayback() {
   playing = false;
+  sceneElapsedOffset = currentSceneTime();
   audio?.pause();
   board.classList.add("paused");
   renderPlayButton("resume");
@@ -157,6 +226,7 @@ function playNextScene() {
   stopFrameLoop();
   captionText.textContent = "Course complete. Grammar helps your ideas travel clearly.";
   board.classList.add("finished");
+  openGateQuiz(activeStep);
 }
 
 function rewind(seconds = 15) {
@@ -174,8 +244,12 @@ function seekTo(seconds) {
 
 function currentElapsed() {
   const scene = scenes[activeSceneIndex];
-  const audioTime = Number.isFinite(audio?.currentTime) ? audio.currentTime : 0;
-  return Math.min(courseTotal(), sceneOffsets[activeSceneIndex] + Math.min(scene.duration, audioTime));
+  return Math.min(courseTotal(), sceneOffsets[activeSceneIndex] + Math.min(scene.duration, currentSceneTime()));
+}
+
+function currentSceneTime() {
+  if (!playing) return sceneElapsedOffset;
+  return Math.max(0, (performance.now() - sceneStartedAt) / 1000);
 }
 
 function setTimeline(seconds) {
@@ -191,7 +265,12 @@ function startFrameLoop() {
   const tick = () => {
     if (!playing) return;
     setTimeline(currentElapsed());
-    updateBoardMoment(scenes[activeSceneIndex], audio?.currentTime || 0);
+    const sceneTime = currentSceneTime();
+    updateBoardMoment(scenes[activeSceneIndex], sceneTime);
+    if (sceneTime >= scenes[activeSceneIndex].duration) {
+      playNextScene();
+      return;
+    }
     rafId = requestAnimationFrame(tick);
   };
   rafId = requestAnimationFrame(tick);
@@ -206,13 +285,14 @@ function startCaptionLoop() {
   window.clearTimeout(captionTimer);
   if (!playing) return;
   const scene = scenes[activeSceneIndex];
-  captionText.textContent = captionFor(scene, audio?.currentTime || 0);
-  updateBoardMoment(scene, audio?.currentTime || 0);
+  const sceneTime = currentSceneTime();
+  captionText.textContent = captionFor(scene, sceneTime);
+  updateBoardMoment(scene, sceneTime);
   captionTimer = window.setTimeout(startCaptionLoop, 500);
 }
 
 function updateBoardMoment(scene, seconds) {
-  const threshold = boardMomentTimes[scene.id] ?? Number.POSITIVE_INFINITY;
+  const threshold = boardMomentTimes[scene.id] ?? Math.max(30, scene.duration * 0.54);
   const showMoment = seconds >= threshold;
   board.classList.toggle("show-board-moment", showMoment);
   board.classList.toggle("dim-main-example", showMoment);
@@ -245,6 +325,68 @@ function courseTotal() {
   return scenes.reduce((sum, scene) => sum + scene.duration, 0);
 }
 
+function openGateQuiz(step) {
+  const questions = gateQuizzes[step] || [];
+  quizEyebrow.textContent = `Step ${step} stage gate`;
+  quizTitle.textContent = step < 3 ? `Pass to unlock Step ${step + 1}` : "Final grammar ladder check";
+  quizFeedback.textContent = "";
+  quizQuestions.innerHTML = questions.map((question, index) => `
+    <fieldset class="quiz-question">
+      <legend>${index + 1}. ${escapeHtml(question.prompt)}</legend>
+      ${question.options.map((option, optionIndex) => `
+        <label>
+          <input type="radio" name="gate-${index}" value="${optionIndex}" />
+          <span>${escapeHtml(option)}</span>
+        </label>
+      `).join("")}
+    </fieldset>
+  `).join("");
+  quizModal.classList.remove("hidden");
+}
+
+function gradeGateQuiz() {
+  const questions = gateQuizzes[activeStep] || [];
+  const score = questions.reduce((sum, question, index) => {
+    const selected = quizQuestions.querySelector(`input[name="gate-${index}"]:checked`);
+    return sum + (Number(selected?.value) === question.answer ? 1 : 0);
+  }, 0);
+  if (score !== questions.length) {
+    quizFeedback.textContent = `You got ${score} of ${questions.length}. Review the lesson, then try again.`;
+    return;
+  }
+  ladderProgress.passedSteps = uniqueNumbers([...ladderProgress.passedSteps, activeStep]);
+  if (activeStep < 3) ladderProgress.unlockedSteps = uniqueNumbers([...ladderProgress.unlockedSteps, activeStep + 1]);
+  saveLadderProgress();
+  renderLadderTabs();
+  quizFeedback.textContent = activeStep < 3 ? `Perfect. Step ${activeStep + 1} is unlocked.` : "Brilliant. Grammar ladder complete.";
+  if (activeStep < 3) {
+    window.setTimeout(() => {
+      quizModal.classList.add("hidden");
+      switchStep(activeStep + 1, false);
+    }, 900);
+  }
+}
+
+function loadLadderProgress() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem("brightQuestEnglishGrammarLadder") || "{}");
+    return {
+      unlockedSteps: uniqueNumbers([1, ...(parsed.unlockedSteps || [])]),
+      passedSteps: uniqueNumbers(parsed.passedSteps || [])
+    };
+  } catch {
+    return { unlockedSteps: [1], passedSteps: [] };
+  }
+}
+
+function saveLadderProgress() {
+  localStorage.setItem("brightQuestEnglishGrammarLadder", JSON.stringify(ladderProgress));
+}
+
+function uniqueNumbers(values) {
+  return [...new Set(values.map(Number).filter(Boolean))].sort((a, b) => a - b);
+}
+
 playButton.addEventListener("click", () => {
   if (completed) {
     completed = false;
@@ -263,6 +405,18 @@ ccButton.addEventListener("click", () => {
   ccButton.classList.toggle("active", captionsVisible);
   ccButton.setAttribute("aria-expanded", String(captionsVisible));
 });
+
+ladderTabs.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-step]");
+  if (!button || button.disabled) return;
+  switchStep(Number(button.dataset.step), false);
+});
+
+closeQuizButton.addEventListener("click", () => {
+  quizModal.classList.add("hidden");
+});
+
+submitQuizButton.addEventListener("click", gradeGateQuiz);
 
 sceneList.addEventListener("click", (event) => {
   const button = event.target.closest("[data-scene]");
@@ -319,6 +473,51 @@ function smallText(x, y, value, delay, color = "rgba(245,245,240,0.78)", anchor 
 
 function wordBox(x, y, value, delay, color = "#f5f5f0", w = 150) {
   return `${rect(x, y, w, 58, delay, 0.55, color, 4)}${text(x + w / 2, y + 38, value, delay + 0.35, 24, color)}`;
+}
+
+function genericLessonSvg(scene) {
+  const lines = wrapSvgText(scene.point, 42).slice(0, 3);
+  const example = wrapSvgText(scene.visual?.example || scene.captions?.[1]?.[1] || "Watch the example.", 46).slice(0, 3);
+  const check = wrapSvgText(scene.visual?.check || scene.captions?.[2]?.[1] || "Check the word job.", 44).slice(0, 3);
+  return baseSvg(`
+    <g class="main-example">
+      ${text(600, 58, scene.title, 0.1, 34)}
+      ${rect(120, 130, 960, 390, 0.7, 1.0, "#8bd3dd", 6)}
+      ${text(600, 190, "Main pattern", 1.4, 30, "#8bd3dd")}
+      ${multiText(600, 250, lines, 2.1, 27, "#f5f5f0")}
+      ${path("M260 405 C410 340 790 340 940 405", 4.2, 0.8, "#f3d56b", 6, 'marker-end="url(#arrowHead)"')}
+      ${text(600, 470, "Find the job each word group is doing.", 5.0, 28, "#f3d56b")}
+    </g>
+    <g class="board-moment">
+      ${text(600, 66, "Practice check", 0, 34)}
+      ${rect(105, 145, 990, 220, 0, 0.01, "#9fdf9f", 6)}
+      ${multiText(600, 210, example, 0, 26, "#f5f5f0")}
+      ${path("M600 390 L600 445", 0, 0.01, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
+      ${rect(180, 470, 840, 120, 0, 0.01, "#f3d56b", 6)}
+      ${multiText(600, 525, check, 0, 25, "#f3d56b")}
+    </g>
+  `);
+}
+
+function multiText(x, y, lines, delay, size = 26, color = "#f5f5f0") {
+  return lines.map((line, index) => text(x, y + index * (size + 10), line, delay + index * 0.25, size, color)).join("");
+}
+
+function wrapSvgText(value, max = 42) {
+  const words = String(value || "").split(/\s+/);
+  const lines = [];
+  let current = "";
+  words.forEach((word) => {
+    const next = current ? `${current} ${word}` : word;
+    if (next.length > max && current) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = next;
+    }
+  });
+  if (current) lines.push(current);
+  return lines;
 }
 
 function grammarSentenceMachineSvg() {
