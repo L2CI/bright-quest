@@ -200,75 +200,28 @@ h3 {
 .draw-shape {
   stroke-dasharray: 100;
   stroke-dashoffset: 100;
-  animation: chalkDraw var(--dur, 1s) ease-out var(--delay, 0s) forwards;
 }
 
 .draw-text {
   opacity: 0;
+}
+
+.animating .draw-path,
+.animating .draw-shape,
+.finished .draw-path,
+.finished .draw-shape {
+  animation: chalkDraw var(--dur, 1s) ease-out var(--delay, 0s) forwards;
+}
+
+.animating .draw-text,
+.finished .draw-text {
   animation: chalkFade 0.55s ease-out var(--delay, 0s) forwards;
 }
 
 .paused .draw-path,
 .paused .draw-shape,
-.paused .draw-text,
-.paused .magic-hand {
+.paused .draw-text {
   animation-play-state: paused;
-}
-
-.magic-hand {
-  position: absolute;
-  left: var(--hand-x, 80px);
-  top: var(--hand-y, 130px);
-  z-index: 4;
-  width: clamp(76px, 8vw, 118px);
-  height: clamp(76px, 8vw, 118px);
-  opacity: 0;
-  pointer-events: none;
-  filter: drop-shadow(0 8px 8px rgba(0, 0, 0, 0.22));
-  animation: handMove var(--hand-time, 18s) ease-in-out forwards;
-}
-
-.magic-hand svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  transform: rotate(-16deg);
-}
-
-.hand-sleeve {
-  fill: #19324b;
-}
-
-.hand-palm,
-.hand-thumb,
-.hand-finger {
-  fill: #f0c39c;
-  stroke: #714832;
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.hand-thumb {
-  fill: #dcae87;
-}
-
-.hand-line {
-  fill: none;
-  stroke: rgba(102, 61, 42, 0.55);
-  stroke-width: 3;
-  stroke-linecap: round;
-}
-
-.hand-chalk {
-  fill: var(--chalk);
-  stroke: rgba(255, 255, 255, 0.78);
-  stroke-width: 2;
-}
-
-.chalk-tip {
-  fill: #fff;
-  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.9));
 }
 
 .lesson-side {
@@ -529,18 +482,6 @@ h3 {
   to {
     opacity: 1;
   }
-}
-
-@keyframes handMove {
-  0% { opacity: 0; transform: translate(0, 0); }
-  4% { opacity: 1; }
-  18% { transform: translate(120px, -42px); }
-  34% { transform: translate(310px, 48px); }
-  50% { transform: translate(520px, -18px); }
-  66% { transform: translate(710px, 62px); }
-  84% { transform: translate(900px, -22px); }
-  96% { opacity: 1; }
-  100% { opacity: 0; transform: translate(980px, 18px); }
 }
 
 @media (max-width: 980px) {

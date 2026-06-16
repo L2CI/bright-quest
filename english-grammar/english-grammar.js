@@ -13,7 +13,6 @@ const timeline = document.querySelector("#timeline");
 const elapsedTime = document.querySelector("#elapsedTime");
 const remainingTime = document.querySelector("#remainingTime");
 const totalTime = document.querySelector("#totalTime");
-const magicHand = document.querySelector("#magicHand");
 
 const renderers = {
   "sentence-machine": grammarSentenceMachineSvg,
@@ -86,7 +85,7 @@ function loadScene(index, offsetSeconds = 0, shouldPlay = playing) {
   const offset = Math.max(0, Math.min(scene.duration - 0.5, offsetSeconds));
   courseElapsedAtSceneStart = sceneOffsets[activeSceneIndex];
 
-  board.classList.remove("paused");
+  board.classList.remove("paused", "animating", "finished");
   sceneTitle.textContent = scene.title;
   sceneCount.textContent = `Scene ${activeSceneIndex + 1} of ${scenes.length}`;
   sceneDuration.textContent = formatTime(scene.duration);
@@ -94,12 +93,6 @@ function loadScene(index, offsetSeconds = 0, shouldPlay = playing) {
   captionText.textContent = captionFor(scene, offset);
   svg.innerHTML = renderers[scene.id] ? renderers[scene.id]() : baseSvg("");
   updateBoardMoment(scene, offset);
-  magicHand.style.setProperty("--hand-x", "8%");
-  magicHand.style.setProperty("--hand-y", "28%");
-  magicHand.style.setProperty("--hand-time", `${Math.min(24, scene.duration / 4)}s`);
-  magicHand.style.animation = "none";
-  void magicHand.offsetWidth;
-  magicHand.style.animation = "";
   renderSceneList();
 
   if (audio) {
@@ -127,7 +120,9 @@ function startPlayback() {
   if (!audio) return;
   completed = false;
   playing = true;
+  if (audio.currentTime < 0.2) restartBoardAnimation();
   board.classList.remove("paused");
+  board.classList.add("animating");
   setPlayState(true);
   audio.play().catch(() => {
     playing = false;
@@ -161,6 +156,7 @@ function playNextScene() {
   renderPlayButton("replay");
   stopFrameLoop();
   captionText.textContent = "Course complete. Grammar helps your ideas travel clearly.";
+  board.classList.add("finished");
 }
 
 function rewind(seconds = 15) {
@@ -222,6 +218,12 @@ function updateBoardMoment(scene, seconds) {
   board.classList.toggle("dim-main-example", showMoment);
   board.classList.toggle("show-maya-example", scene.id === "sentence-machine" && showMoment);
   board.classList.toggle("dim-dog-example", scene.id === "sentence-machine" && showMoment);
+}
+
+function restartBoardAnimation() {
+  board.classList.remove("animating", "paused", "finished");
+  void board.offsetWidth;
+  board.classList.add("animating");
 }
 
 function captionFor(scene, seconds) {
@@ -322,33 +324,32 @@ function wordBox(x, y, value, delay, color = "#f5f5f0", w = 150) {
 function grammarSentenceMachineSvg() {
   return baseSvg(`
     ${text(600, 58, "The Sentence Machine", 0.1, 34)}
-    ${rect(100, 145, 1000, 440, 0.5, 1.0, "#8bd3dd", 6)}
-    ${text(600, 150, "A complete sentence needs three parts", 1.2, 27)}
+    ${text(600, 130, "A complete sentence needs three parts", 1.2, 27)}
+    ${rect(100, 170, 1000, 400, 0.5, 1.0, "#8bd3dd", 6)}
     <g class="dog-example">
-      ${circle(300, 298, 78, 1.8, 0.9, "#9fdf9f", 7)}
-      ${text(300, 286, "Subject", 2.5, 27, "#9fdf9f")}
-      ${smallText(300, 321, "who or what", 2.8)}
-      ${path("M378 298 L502 298", 3.2, 0.5, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
-      ${circle(600, 298, 78, 3.7, 0.9, "#f3d56b", 7)}
-      ${text(600, 286, "Predicate", 4.4, 25, "#f3d56b")}
-      ${smallText(600, 321, "what happened", 4.7)}
-      ${path("M678 298 L802 298", 5.1, 0.5, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
-      ${circle(900, 298, 78, 5.6, 0.9, "#f4a6b8", 7)}
-      ${text(900, 286, "Complete", 6.3, 25, "#f4a6b8")}
-      ${text(900, 318, "thought", 6.6, 25, "#f4a6b8")}
-      ${text(600, 425, "The curious dog chased the red ball.", 7.4, 31)}
-      ${path("M280 448 C355 500 430 500 505 448", 8.2, 0.7, "#9fdf9f")}
-      ${text(392, 526, "subject", 8.9, 23, "#9fdf9f")}
-      ${path("M520 448 C640 500 795 500 930 448", 9.4, 0.7, "#f3d56b")}
-      ${text(720, 526, "predicate", 10.1, 23, "#f3d56b")}
+      ${circle(300, 300, 70, 1.8, 0.9, "#9fdf9f", 7)}
+      ${text(300, 289, "Subject", 2.5, 25, "#9fdf9f")}
+      ${smallText(300, 322, "who or what", 2.8)}
+      ${path("M370 300 L506 300", 3.2, 0.5, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
+      ${circle(600, 300, 70, 3.7, 0.9, "#f3d56b", 7)}
+      ${text(600, 289, "Predicate", 4.4, 24, "#f3d56b")}
+      ${smallText(600, 322, "what happened", 4.7)}
+      ${path("M670 300 L806 300", 5.1, 0.5, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
+      ${circle(900, 300, 70, 5.6, 0.9, "#f4a6b8", 7)}
+      ${text(900, 289, "Complete", 6.3, 24, "#f4a6b8")}
+      ${text(900, 320, "thought", 6.6, 24, "#f4a6b8")}
+      ${text(600, 420, "The curious dog chased the red ball.", 7.4, 30)}
+      ${path("M285 450 C358 495 432 495 505 450", 8.2, 0.7, "#9fdf9f")}
+      ${text(392, 528, "subject", 8.9, 22, "#9fdf9f")}
+      ${path("M522 450 C644 495 800 495 928 450", 9.4, 0.7, "#f3d56b")}
+      ${text(722, 528, "predicate", 10.1, 22, "#f3d56b")}
     </g>
     <g class="board-moment maya-moment">
-      ${line(150, 606, 1050, 606, 0, 0.01, "rgba(245,245,240,0.34)", 4)}
-      ${text(600, 632, "Quick check: Maya reads a comic.", 0, 29, "#f5f5f0")}
-      ${path("M402 642 C440 670 488 670 526 642", 0, 0.01, "#9fdf9f", 5)}
-      ${text(464, 676, "subject", 0, 20, "#9fdf9f")}
-      ${path("M540 642 C628 670 754 670 842 642", 0, 0.01, "#f3d56b", 5)}
-      ${text(690, 676, "predicate", 0, 20, "#f3d56b")}
+      ${text(600, 604, "Quick check: Maya reads a comic.", 0, 27, "#f5f5f0")}
+      ${path("M405 626 C440 648 490 648 525 626", 0, 0.01, "#9fdf9f", 5)}
+      ${text(464, 663, "subject", 0, 18, "#9fdf9f")}
+      ${path("M540 626 C625 648 755 648 840 626", 0, 0.01, "#f3d56b", 5)}
+      ${text(690, 663, "predicate", 0, 18, "#f3d56b")}
     </g>
   `);
 }
