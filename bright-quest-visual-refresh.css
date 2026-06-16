@@ -1339,6 +1339,7 @@ body {
 .quick-action-ref.bolt span::before { clip-path: polygon(56% 0, 16% 53%, 45% 53%, 34% 100%, 84% 40%, 55% 40%); background: linear-gradient(135deg, #3864ff, #7d5cff); }
 .quick-action-ref.shield span::before { clip-path: polygon(50% 0, 88% 16%, 82% 62%, 50% 100%, 18% 62%, 12% 16%); background: linear-gradient(135deg, #6554e8, #3344c8); }
 .quick-action-ref.gift span::before { clip-path: inset(14% 8% 10% 8% round 6px); background: linear-gradient(135deg, #7d5cff, #5e43dc); }
+.quick-action-ref.grammar span::before { clip-path: polygon(14% 14%, 86% 14%, 86% 32%, 36% 32%, 36% 45%, 78% 45%, 78% 62%, 36% 62%, 36% 80%, 88% 80%, 88% 96%, 14% 96%); background: linear-gradient(135deg, #1fbd68, #36c5ff); }
 .quick-action-ref.chalk span::before { clip-path: polygon(8% 18%, 92% 18%, 92% 72%, 54% 72%, 50% 86%, 46% 72%, 8% 72%); background: linear-gradient(135deg, #163d35, #78e4eb); }
 .quick-action-ref.chart span::before { clip-path: polygon(8% 82%, 8% 64%, 34% 64%, 34% 42%, 58% 42%, 58% 24%, 90% 24%, 90% 42%, 66% 42%, 66% 60%, 42% 60%, 42% 82%); background: linear-gradient(135deg, #2e68ff, #7656ec); }
 

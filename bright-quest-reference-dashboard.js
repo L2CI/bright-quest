@@ -73,8 +73,8 @@
   function startMapZone(zone) {
     const actions = {
       maths: () => clickFirst('[data-zone-level="1"]'),
-      english: () => window.openGrammarGym ? window.openGrammarGym() : clickFirst('#grammarGymButton'),
-      grammar: () => window.openGrammarGym ? window.openGrammarGym() : clickFirst('#academyGrammarButton'),
+      english: () => { window.location.href = 'english-grammar/'; },
+      grammar: () => { window.location.href = 'english-grammar/'; },
       reasoning: () => clickFirst('[data-zone-level="4"]'),
       world: openWorldArena,
       arcade: () => window.openGamesList ? window.openGamesList() : clickFirst('#academyGamesButton'),
@@ -115,6 +115,7 @@
         </div>
         <div class="reference-quick-actions">
           ${quickAction('gift', 'Play & Win', 'arcade')}
+          ${quickAction('grammar', 'English Grammar', 'grammar')}
           ${quickAction('chalk', 'Blackboard', 'blackboard')}
           ${quickAction('chart', 'Progress', 'progress')}
         </div>
@@ -160,7 +161,7 @@
             <div class="map-pill streak-pill">${stats.streak} streak</div>
             <button class="island-label label-maths" type="button" data-ref-zone="maths"><span>+x</span><strong>Maths Mountain</strong><small>${scoreText(latest[1])}</small></button>
             <button class="island-label label-english" type="button" data-ref-zone="english"><span>ABC</span><strong>English Forest</strong><small>${scoreText(latest[2])}</small></button>
-            <button class="island-label label-grammar" type="button" data-ref-zone="grammar"><span>AB</span><strong>Grammar Gym</strong><small>${stats.training}/25</small></button>
+            <button class="island-label label-grammar" type="button" data-ref-zone="grammar"><span>EG</span><strong>English Grammar</strong><small>15 min</small></button>
             <button class="island-label label-reason" type="button" data-ref-zone="reasoning"><span>?</span><strong>Reasoning Lab</strong><small>${scoreText(latest[4])}</small></button>
             <button class="island-label label-world" type="button" data-ref-zone="world"><span>INT</span><strong>World Challenge</strong><small>${internationalDone(latest)}/3</small></button>
             <button class="island-label label-arcade" type="button" data-ref-zone="arcade"><span>GO</span><strong>Arcade</strong><small>New games!</small></button>
@@ -187,7 +188,7 @@
           <div class="academy-card-grid-ref">
             ${academyCard('maths', 'Maths Mountain', 'Number speed', '+x', scoreText(latest[1]), 'maths')}
             ${academyCard('english', 'English Forest', 'Reading power', 'ABC', scoreText(latest[2]), 'english')}
-            ${academyCard('grammar', 'Grammar Gym', 'Sentence power', 'AB', `${stats.training}/25`, 'grammar')}
+            ${academyCard('grammar', 'English Grammar', '15 minute lesson', 'EG', 'Start', 'grammar')}
             ${academyCard('reason', 'Reasoning Lab', 'Pattern moves', '?', scoreText(latest[4]), 'reasoning')}
             ${academyCard('world', 'International Tests', 'World arena', 'INT', `${internationalDone(latest)}/3`, 'world')}
             ${academyCard('arcade', 'Arcade Rewards', 'New games', 'GO', 'Play', 'arcade')}

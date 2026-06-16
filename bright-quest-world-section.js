@@ -2,7 +2,7 @@
   const tests = window.BrightQuestInternationalTests || [];
   const zoneMap = [
     { key: 'maths', title: 'Maths Mountain', sub: 'Number speed', icon: '+', action: () => document.querySelector('.academy-zone.maths')?.click() },
-    { key: 'english', title: 'Grammar Gym', sub: 'Sentence power', icon: 'AB', action: () => document.querySelector('#academyGrammarButton')?.click() },
+    { key: 'english', title: 'English Grammar', sub: '15 minute lesson', icon: 'EG', action: () => { window.location.href = 'english-grammar/'; } },
     { key: 'reasoning', title: 'Reasoning Lab', sub: 'Pattern moves', icon: '?', action: () => document.querySelector('.academy-zone.reasoning')?.click() },
     { key: 'world', title: 'International Tests', sub: '30-question missions', icon: 'INT', action: () => window.openInternationalArena?.() || document.querySelector('#internationalTestsButton')?.click() },
     { key: 'arcade', title: 'Arcade Rewards', sub: 'Games unlocked', icon: 'GO', action: () => document.querySelector('#academyGamesButton')?.click() }
