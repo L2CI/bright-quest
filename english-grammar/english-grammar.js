@@ -27,6 +27,18 @@ const renderers = {
   "recap-quiz": grammarRecapQuizSvg
 };
 
+const boardMomentTimes = {
+  "sentence-machine": 62,
+  "nouns-pronouns": 48,
+  "verbs-tense": 48,
+  "adjectives-adverbs": 50,
+  prepositions: 42,
+  conjunctions: 52,
+  punctuation: 52,
+  "paragraph-repair": 50,
+  "recap-quiz": 54
+};
+
 let scenes = [];
 let sceneOffsets = [];
 let activeSceneIndex = 0;
@@ -204,12 +216,12 @@ function startCaptionLoop() {
 }
 
 function updateBoardMoment(scene, seconds) {
-  if (scene.id !== "sentence-machine") {
-    board.classList.remove("show-maya-example", "dim-dog-example");
-    return;
-  }
-  board.classList.toggle("show-maya-example", seconds >= 62);
-  board.classList.toggle("dim-dog-example", seconds >= 62);
+  const threshold = boardMomentTimes[scene.id] ?? Number.POSITIVE_INFINITY;
+  const showMoment = seconds >= threshold;
+  board.classList.toggle("show-board-moment", showMoment);
+  board.classList.toggle("dim-main-example", showMoment);
+  board.classList.toggle("show-maya-example", scene.id === "sentence-machine" && showMoment);
+  board.classList.toggle("dim-dog-example", scene.id === "sentence-machine" && showMoment);
 }
 
 function captionFor(scene, seconds) {
@@ -343,6 +355,7 @@ function grammarSentenceMachineSvg() {
 
 function grammarNounsPronounsSvg() {
   return baseSvg(`
+    <g class="main-example">
     ${text(600, 58, "Nouns name. Pronouns replace.", 0.1, 32)}
     ${text(260, 128, "Nouns", 0.6, 34, "#9fdf9f")}
     ${wordBox(104, 170, "teacher", 1.0, "#9fdf9f")}
@@ -360,12 +373,24 @@ function grammarNounsPronounsSvg() {
     ${text(970, 258, "Sofia's bag.", 6.8, 25)}
     ${path("M875 300 L1065 300", 7.3, 0.4, "#f4a6b8", 6)}
     ${text(970, 345, "Sofia packed her bag.", 7.8, 25, "#f3d56b")}
-    ${text(600, 610, "Use pronouns when the reader still knows who you mean.", 8.7, 27)}
+    </g>
+    <g class="board-moment">
+      ${text(600, 58, "Pronouns make writing smoother", 0, 32)}
+      ${rect(115, 160, 970, 360, 0, 0.01, "#8bd3dd", 6)}
+      ${text(600, 230, "The players cheered after the players won.", 0, 30)}
+      ${path("M650 252 L952 252", 0, 0.01, "#f4a6b8", 6)}
+      ${text(790, 308, "too much repeating", 0, 24, "#f4a6b8")}
+      ${path("M600 345 L600 405", 0, 0.01, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
+      ${text(600, 458, "The players cheered after they won.", 0, 32, "#f3d56b")}
+      ${path("M735 480 C770 512 820 512 855 480", 0, 0.01, "#9fdf9f", 5)}
+      ${text(795, 546, "they = the players", 0, 24, "#9fdf9f")}
+    </g>
   `);
 }
 
 function grammarVerbsTenseSvg() {
   return baseSvg(`
+    <g class="main-example">
     ${text(600, 58, "Verbs show action. Tense shows time.", 0.1, 31)}
     ${line(160, 320, 1040, 320, 0.7, 0.9, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
     ${text(220, 285, "Past", 1.4, 30, "#8bd3dd")}
@@ -381,11 +406,24 @@ function grammarVerbsTenseSvg() {
     ${text(370, 548, "Not all past verbs use -ed", 6.1, 26, "#f4a6b8")}
     ${wordBox(650, 500, "run -> ran", 6.8, "#f5f5f0", 190)}
     ${wordBox(870, 500, "eat -> ate", 7.3, "#f5f5f0", 190)}
+    </g>
+    <g class="board-moment">
+      ${text(600, 66, "Quick check: present to past", 0, 32)}
+      ${rect(140, 200, 920, 300, 0, 0.01, "#8bd3dd", 6)}
+      ${wordBox(250, 310, "I see a bird", 0, "#f5f5f0", 245)}
+      ${path("M520 340 L670 340", 0, 0.01, "#f3d56b", 7, 'marker-end="url(#arrowHead)"')}
+      ${wordBox(700, 310, "I saw a bird", 0, "#f3d56b", 245)}
+      ${path("M360 410 C410 445 468 445 520 410", 0, 0.01, "#8bd3dd", 5)}
+      ${text(440, 474, "present", 0, 24, "#8bd3dd")}
+      ${path("M805 410 C855 445 918 445 970 410", 0, 0.01, "#9fdf9f", 5)}
+      ${text(890, 474, "past", 0, 24, "#9fdf9f")}
+    </g>
   `);
 }
 
 function grammarAdjectivesAdverbsSvg() {
   return baseSvg(`
+    <g class="main-example">
     ${text(600, 58, "Adjectives and Adverbs add detail", 0.1, 32)}
     ${rect(92, 150, 450, 390, 0.7, 0.9, "#9fdf9f", 5)}
     ${text(317, 205, "Adjective", 1.4, 32, "#9fdf9f")}
@@ -400,11 +438,23 @@ function grammarAdjectivesAdverbsSvg() {
     ${circle(800, 415, 32, 7.1, 0.4, "#f5f5f0", 5)}
     ${circle(982, 415, 32, 7.35, 0.4, "#f5f5f0", 5)}
     ${text(900, 465, "moved slowly", 8.0, 29, "#f3d56b")}
+    </g>
+    <g class="board-moment">
+      ${text(600, 66, "Spot the detail job", 0, 32)}
+      ${text(600, 178, "The brave girl spoke clearly.", 0, 33)}
+      ${path("M315 202 C370 245 435 245 490 202", 0, 0.01, "#8bd3dd", 6)}
+      ${text(402, 280, "brave describes girl", 0, 25, "#8bd3dd")}
+      ${path("M625 202 C690 245 790 245 855 202", 0, 0.01, "#f3d56b", 6)}
+      ${text(740, 280, "clearly describes spoke", 0, 25, "#f3d56b")}
+      ${rect(250, 390, 700, 100, 0, 0.01, "#9fdf9f", 5)}
+      ${text(600, 452, "Adjective -> noun    Adverb -> verb", 0, 30, "#9fdf9f")}
+    </g>
   `);
 }
 
 function grammarPrepositionsSvg() {
   return baseSvg(`
+    <g class="main-example">
     ${text(600, 58, "Prepositions show relationships", 0.1, 32)}
     ${rect(420, 365, 360, 54, 0.7, 0.7, "#f5f5f0", 6)}
     ${text(600, 455, "desk", 1.35, 26)}
@@ -418,11 +468,23 @@ function grammarPrepositionsSvg() {
     ${text(320, 190, "after lunch", 6.75, 27, "#f4a6b8")}
     ${text(890, 190, "under the chair", 7.45, 27, "#8bd3dd")}
     ${smallText(890, 222, "prepositional phrase", 7.8)}
+    </g>
+    <g class="board-moment">
+      ${text(600, 66, "One word changes the picture", 0, 32)}
+      ${rect(330, 335, 540, 52, 0, 0.01, "#f5f5f0", 6)}
+      ${text(600, 430, "chair", 0, 26)}
+      ${circle(480, 280, 34, 0, 0.01, "#f3d56b", 6)}
+      ${text(480, 224, "on", 0, 28, "#f3d56b")}
+      ${circle(720, 460, 34, 0, 0.01, "#8bd3dd", 6)}
+      ${text(720, 528, "under", 0, 28, "#8bd3dd")}
+      ${text(600, 610, "The phrase tells where.", 0, 29, "#9fdf9f")}
+    </g>
   `);
 }
 
 function grammarConjunctionsSvg() {
   return baseSvg(`
+    <g class="main-example">
     ${text(600, 58, "Conjunctions connect ideas", 0.1, 32)}
     ${rect(110, 210, 350, 130, 0.8, 0.8, "#8bd3dd", 6)}
     ${text(285, 268, "I wanted to play", 1.5, 27, "#8bd3dd")}
@@ -435,11 +497,23 @@ function grammarConjunctionsSvg() {
     ${text(760, 475, "or = choice", 6.2, 28, "#8bd3dd")}
     ${text(985, 475, "so = result", 6.8, 28, "#f3d56b")}
     ${text(600, 585, "Choose the connector that matches the relationship.", 7.6, 28)}
+    </g>
+    <g class="board-moment">
+      ${text(600, 66, "Comma + conjunction", 0, 32)}
+      ${rect(145, 215, 395, 135, 0, 0.01, "#8bd3dd", 6)}
+      ${text(342, 292, "I was hungry", 0, 29, "#8bd3dd")}
+      ${text(600, 292, ", so", 0, 40, "#f3d56b")}
+      ${rect(690, 215, 395, 135, 0, 0.01, "#9fdf9f", 6)}
+      ${text(887, 292, "I made toast", 0, 29, "#9fdf9f")}
+      ${path("M420 430 C525 375 675 375 780 430", 0, 0.01, "#f3d56b", 6, 'marker-end="url(#arrowHead)"')}
+      ${text(600, 500, "so shows the result", 0, 30, "#f3d56b")}
+    </g>
   `);
 }
 
 function grammarPunctuationSvg() {
   return baseSvg(`
+    <g class="main-example">
     ${text(600, 58, "Punctuation is a reading signal", 0.1, 32)}
     ${text(220, 195, "Capital", 0.8, 32, "#9fdf9f")}
     ${text(220, 260, "M", 1.3, 82, "#9fdf9f")}
@@ -451,11 +525,23 @@ function grammarPunctuationSvg() {
     ${path("M320 430 L880 430", 5.0, 0.8, "#f3d56b", 7)}
     ${text(600, 400, "pen, snack, and hat", 5.8, 32, "#f3d56b")}
     ${text(600, 520, "On Monday, Leo asked, Where is my pencil?", 6.8, 30)}
+    </g>
+    <g class="board-moment">
+      ${text(600, 66, "Repair the sentence", 0, 32)}
+      ${text(600, 190, "on monday leo asked where is my pencil", 0, 28, "#f4a6b8")}
+      ${path("M215 215 L985 215", 0, 0.01, "#f4a6b8", 6)}
+      ${path("M600 270 L600 338", 0, 0.01, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
+      ${text(600, 405, "On Monday, Leo asked, Where is my pencil?", 0, 30, "#9fdf9f")}
+      ${text(330, 500, "capital", 0, 23, "#9fdf9f")}
+      ${text(600, 500, "commas", 0, 23, "#f3d56b")}
+      ${text(870, 500, "question mark", 0, 23, "#8bd3dd")}
+    </g>
   `);
 }
 
 function grammarParagraphRepairSvg() {
   return baseSvg(`
+    <g class="main-example">
     ${text(600, 58, "Paragraph Repair Checklist", 0.1, 32)}
     ${rect(210, 130, 780, 430, 0.7, 1.0, "#8bd3dd", 6)}
     ${circle(300, 220, 24, 1.6, 0.35, "#9fdf9f", 6)}
@@ -470,11 +556,23 @@ function grammarParagraphRepairSvg() {
     ${path("M270 308 L295 332 L340 280", 6.9, 0.55, "#f3d56b", 7)}
     ${path("M270 398 L295 422 L340 370", 7.5, 0.55, "#f4a6b8", 7)}
     ${path("M270 488 L295 512 L340 460", 8.1, 0.55, "#f5f5f0", 7)}
+    </g>
+    <g class="board-moment">
+      ${text(600, 66, "Editor mode", 0, 32)}
+      ${rect(165, 160, 870, 110, 0, 0.01, "#f4a6b8", 5)}
+      ${text(600, 225, "Ran through the park.", 0, 31, "#f4a6b8")}
+      ${text(600, 315, "Who ran?", 0, 34, "#f3d56b")}
+      ${path("M600 345 L600 405", 0, 0.01, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
+      ${rect(165, 430, 870, 110, 0, 0.01, "#9fdf9f", 5)}
+      ${text(600, 495, "Maya ran through the park.", 0, 31, "#9fdf9f")}
+      ${smallText(600, 585, "Add the missing subject first.", 0)}
+    </g>
   `);
 }
 
 function grammarRecapQuizSvg() {
   return baseSvg(`
+    <g class="main-example">
     ${text(600, 58, "Grammar Power-Up Quiz", 0.1, 32)}
     ${text(600, 135, "The tiny robot danced happily beside the desk.", 0.8, 30)}
     ${wordBox(105, 230, "robot", 1.5, "#9fdf9f", 145)}
@@ -490,6 +588,19 @@ function grammarRecapQuizSvg() {
     ${path("M250 460 C390 390 520 390 660 460", 7.0, 0.8, "#f5f5f0", 6, 'marker-end="url(#arrowHead)"')}
     ${text(455, 510, "and", 7.7, 42, "#f3d56b")}
     ${text(600, 600, "Grammar helps ideas travel clearly.", 8.5, 31)}
+    </g>
+    <g class="board-moment">
+      ${text(600, 66, "Final toolkit", 0, 32)}
+      ${wordBox(120, 180, "sentence", 0, "#f5f5f0", 170)}
+      ${wordBox(330, 180, "noun", 0, "#9fdf9f", 130)}
+      ${wordBox(500, 180, "verb", 0, "#f3d56b", 130)}
+      ${wordBox(670, 180, "adjective", 0, "#8bd3dd", 170)}
+      ${wordBox(880, 180, "adverb", 0, "#f4a6b8", 150)}
+      ${wordBox(220, 340, "preposition", 0, "#f5f5f0", 210)}
+      ${wordBox(495, 340, "conjunction", 0, "#f3d56b", 210)}
+      ${wordBox(770, 340, "punctuation", 0, "#9fdf9f", 210)}
+      ${text(600, 560, "Use the right tool to make meaning clear.", 0, 31)}
+    </g>
   `);
 }
 

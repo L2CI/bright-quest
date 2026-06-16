@@ -431,8 +431,17 @@ h3 {
   opacity: 1;
 }
 
+.show-board-moment .board-moment {
+  opacity: 1;
+}
+
 .dim-dog-example .dog-example {
   opacity: 0.52;
+  transition: opacity 420ms ease;
+}
+
+.dim-main-example .main-example {
+  opacity: 0.28;
   transition: opacity 420ms ease;
 }
 
