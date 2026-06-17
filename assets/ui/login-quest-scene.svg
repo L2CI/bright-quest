@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360" role="img" aria-labelledby="title desc">
+  <title id="title">Bright Quest login adventure scene</title>
+  <desc id="desc">A polished adventure badge with a bright star guide, floating lesson cards, a path, and colourful learning worlds.</desc>
+  <defs>
+    <linearGradient id="sky" x1="56" x2="318" y1="28" y2="338" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#17217C"/>
+      <stop offset=".48" stop-color="#215EEB"/>
+      <stop offset="1" stop-color="#25C7DC"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="82" x2="256" y1="78" y2="255" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF47B"/>
+      <stop offset=".56" stop-color="#FFD23C"/>
+      <stop offset="1" stop-color="#FF8E1F"/>
+    </linearGradient>
+    <linearGradient id="cardA" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#DBF8FF"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="145%">
+      <feDropShadow dx="0" dy="18" stdDeviation="13" flood-color="#061947" flood-opacity=".26"/>
+    </filter>
+  </defs>
+  <rect width="360" height="360" rx="74" fill="url(#sky)"/>
+  <path d="M31 276c42-42 81-63 119-63 32 0 51 17 82 17 27 0 51-13 97-49v138H31z" fill="#122466" opacity=".24"/>
+  <path d="M38 292c40-37 79-56 118-56 33 0 54 18 87 18 26 0 48-11 79-34v82c-34 25-61 37-84 37-33 0-56-19-89-19-35 0-70 15-111 45z" fill="#42D46E"/>
+  <path d="M58 308c36-28 67-42 94-42 30 0 51 17 82 17 25 0 50-11 78-31" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" stroke-dasharray="1 22" opacity=".82"/>
+  <g filter="url(#softShadow)">
+    <path d="M181 58l23 68 72 1-58 42 21 69-58-42-59 42 22-69-58-42 72-1z" fill="url(#gold)"/>
+    <path d="M158 149c7-6 16-9 25-9s18 3 25 9" fill="none" stroke="#14206B" stroke-width="9" stroke-linecap="round"/>
+    <circle cx="158" cy="132" r="8" fill="#14206B"/>
+    <circle cx="204" cy="132" r="8" fill="#14206B"/>
+  </g>
+  <g filter="url(#softShadow)">
+    <rect x="38" y="54" width="92" height="74" rx="22" fill="url(#cardA)" opacity=".96"/>
+    <path d="M63 100h42M63 82h27" stroke="#1B6BFF" stroke-width="9" stroke-linecap="round"/>
+    <circle cx="107" cy="82" r="10" fill="#FFD23C"/>
+    <rect x="230" y="76" width="86" height="72" rx="22" fill="url(#cardA)" opacity=".96"/>
+    <path d="M253 124c12-23 26-23 39 0" fill="none" stroke="#21C46B" stroke-width="10" stroke-linecap="round"/>
+    <path d="M262 96h26" stroke="#17217C" stroke-width="9" stroke-linecap="round"/>
+    <rect x="72" y="229" width="86" height="66" rx="20" fill="url(#cardA)" opacity=".96"/>
+    <path d="M95 258l17 17 26-36" fill="none" stroke="#F25596" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <path d="M282 208l31-10-11 31-7-14z" fill="#FFFFFF" opacity=".94"/>
+  <path d="M230 215c23-2 42-9 58-22" fill="none" stroke="#FFD23C" stroke-width="8" stroke-linecap="round"/>
+</svg>

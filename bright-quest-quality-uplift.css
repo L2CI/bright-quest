@@ -85,7 +85,7 @@ body.bq-premium-shell .button-soft {
   aspect-ratio: 1;
   border-radius: 34px;
   background:
-    radial-gradient(circle at 50% 54%, rgba(255,255,255,0.22), transparent 34%),
+    url("assets/ui/login-quest-scene.svg") center / cover no-repeat,
     linear-gradient(145deg, #0e185e, #243dbf 58%, #6c4df4);
   box-shadow: 0 24px 46px rgba(28, 45, 144, 0.28);
   overflow: hidden;
@@ -96,8 +96,27 @@ body.bq-premium-shell .button-soft {
 }
 
 .premium-login-scene span {
-  position: absolute;
-  display: block;
+  display: none;
+}
+
+body.bq-premium-shell .role-card::before {
+  content: "" !important;
+  width: 96px !important;
+  height: 74px !important;
+  margin-bottom: 16px !important;
+  border-radius: 22px !important;
+  background:
+    url("assets/ui/role-kid-adventure.svg") center / cover no-repeat,
+    linear-gradient(135deg, #e6f9ff, #fff2b9) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.72),
+    0 16px 28px rgba(23, 42, 126, 0.14) !important;
+}
+
+body.bq-premium-shell .role-card.parent::before {
+  background:
+    url("assets/ui/role-parent-cockpit.svg") center / cover no-repeat,
+    linear-gradient(135deg, #eaf8ff, #fff1f7) !important;
 }
 
 .premium-planet {
@@ -176,9 +195,12 @@ body.bq-premium-shell #profileScreen .hero-panel h1 {
   pointer-events: none;
   border-radius: 0 0 52px 52px;
   background:
-    radial-gradient(circle at 18% 30%, rgba(255, 211, 78, 0.34), transparent 18%),
-    radial-gradient(circle at 72% 18%, rgba(79, 212, 255, 0.32), transparent 22%),
-    linear-gradient(135deg, rgba(20, 31, 116, 0.08), rgba(255,255,255,0));
+    linear-gradient(180deg, rgba(255,255,255,0.0), rgba(255,255,255,0.42)),
+    url("assets/ui/dashboard-canopy-scene.svg") center top / 100% 100% no-repeat;
+}
+
+.premium-canopy > span {
+  display: none;
 }
 
 .canopy-grid {
@@ -1229,9 +1251,8 @@ body.bq-premium-shell #profileScreen .hero-panel::after {
   border: 5px solid rgba(255,255,255,0.72);
   border-radius: 28px;
   background:
-    linear-gradient(180deg, rgba(11,24,70,0.04), rgba(11,24,70,0.18)),
-    url("assets/ui/bright-quest-mark.svg") center / 68% auto no-repeat,
-    url("assets/ui/quest-studio-backdrop.svg") center / cover no-repeat !important;
+    url("assets/ui/login-quest-scene.svg") center / cover no-repeat,
+    linear-gradient(145deg, #0e185e, #243dbf 58%, #6c4df4) !important;
   box-shadow: 0 24px 46px rgba(28, 45, 144, 0.22);
 }
 
@@ -1488,22 +1509,20 @@ body.bq-premium-shell #profileScreen .quest-mark {
 
 body.bq-premium-shell .role-card::before {
   content: "" !important;
-  width: 76px !important;
-  height: 64px !important;
+  width: 96px !important;
+  height: 74px !important;
   border: 3px solid rgba(255,255,255,0.72);
-  border-radius: 18px !important;
+  border-radius: 22px !important;
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(5,18,55,0.14)),
-    url("assets/ui/bright-quest-mark.svg") center / 72% auto no-repeat,
-    linear-gradient(180deg, #eaf8ff, #bfeaff) !important;
+    url("assets/ui/role-kid-adventure.svg") center / cover no-repeat,
+    linear-gradient(135deg, #e6f9ff, #fff2b9) !important;
   box-shadow: 0 14px 24px rgba(13, 34, 92, 0.14);
 }
 
 body.bq-premium-shell .role-card.parent::before {
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(5,18,55,0.16)),
-    url("assets/ui/progress-dashboard.svg") center / 92% auto no-repeat,
-    linear-gradient(180deg, #eaf8ff, #d8d7ff) !important;
+    url("assets/ui/role-parent-cockpit.svg") center / cover no-repeat,
+    linear-gradient(135deg, #eaf8ff, #fff1f7) !important;
 }
 
 body.bq-holistic-shell .academy-tile-ref.maths::after {

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 320" preserveAspectRatio="none" role="img" aria-labelledby="title desc">
+  <title id="title">Bright Quest dashboard canopy</title>
+  <desc id="desc">A wide illustrated canopy with learning paths, academy scenes, and quest markers.</desc>
+  <defs>
+    <linearGradient id="wash" x1="0" x2="1500" y1="0" y2="320" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EAF9FF"/>
+      <stop offset=".45" stop-color="#F5F0FF"/>
+      <stop offset="1" stop-color="#FFF6D8"/>
+    </linearGradient>
+    <linearGradient id="navy" x1="102" x2="1396" y1="70" y2="250" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#17217C"/>
+      <stop offset=".52" stop-color="#176BFF"/>
+      <stop offset="1" stop-color="#22C7D9"/>
+    </linearGradient>
+  </defs>
+  <rect width="1500" height="320" fill="url(#wash)"/>
+  <path d="M0 248c154-72 292-94 414-66 119 28 191 83 326 77 143-7 223-75 355-71 135 5 251 78 405 54v78H0z" fill="#DFF7FF"/>
+  <path d="M58 224c164-88 309-118 436-90 125 27 196 93 333 84 151-10 234-86 368-75 92 8 175 49 247 85" fill="none" stroke="url(#navy)" stroke-width="12" stroke-linecap="round" opacity=".22"/>
+  <path d="M111 220c121-58 231-76 331-53 107 24 178 78 297 73 145-6 226-79 359-75 83 3 163 30 239 82" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-dasharray="1 26" opacity=".96"/>
+  <g opacity=".96">
+    <rect x="105" y="70" width="178" height="118" rx="28" fill="#fff"/>
+    <path d="M135 156h111M135 128h78M135 101h44" stroke="#176BFF" stroke-width="13" stroke-linecap="round"/>
+    <circle cx="241" cy="102" r="24" fill="#FFD23C"/>
+  </g>
+  <g opacity=".96">
+    <rect x="480" y="62" width="190" height="130" rx="30" fill="#fff"/>
+    <path d="M516 153c33-56 75-56 116 0" fill="none" stroke="#21C46B" stroke-width="16" stroke-linecap="round"/>
+    <path d="M540 104h72" stroke="#17217C" stroke-width="14" stroke-linecap="round"/>
+  </g>
+  <g opacity=".96">
+    <rect x="842" y="70" width="188" height="118" rx="28" fill="#fff"/>
+    <path d="M880 151l33-34 28 24 50-58" fill="none" stroke="#F25596" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="991" cy="86" r="18" fill="#FFD23C"/>
+  </g>
+  <g opacity=".96">
+    <rect x="1201" y="66" width="180" height="124" rx="30" fill="#fff"/>
+    <path d="M1242 154h94" stroke="#17217C" stroke-width="14" stroke-linecap="round"/>
+    <path d="M1254 126c23-43 50-43 76 0" fill="none" stroke="#22C7D9" stroke-width="15" stroke-linecap="round"/>
+  </g>
+  <path d="M720 50l13 36 39 1-32 22 12 37-32-23-32 23 12-37-32-22 39-1z" fill="#FFD23C"/>
+  <path d="M1117 213l42-14-13 43-10-20z" fill="#17217C" opacity=".82"/>
+</svg>
