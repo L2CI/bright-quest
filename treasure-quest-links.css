@@ -268,3 +268,67 @@
     width: 100%;
   }
 }
+
+/* Replace older CSS-drawn game-card previews with fast image-backed graphics. */
+.treasure-quest-preview {
+  background:
+    linear-gradient(180deg, rgba(5, 18, 55, 0.05), rgba(5, 18, 55, 0.22)),
+    url("treasure-quest/assets/treasure-islands.png") center / cover no-repeat !important;
+}
+
+.street-smart-preview {
+  background:
+    linear-gradient(180deg, rgba(5, 18, 55, 0.04), rgba(5, 18, 55, 0.18)),
+    url("street-smart-rescue/assets/generated/suburban-road-plate.png") center / cover no-repeat !important;
+}
+
+.street-smart-preview::before,
+.treasure-quest-preview::before,
+.street-mini-sun,
+.street-mini-road,
+.street-mini-flash,
+.treasure-mini-island {
+  display: none !important;
+}
+
+.street-mini-car,
+.street-mini-police {
+  bottom: 28px;
+  width: 118px;
+  height: 74px;
+  border-radius: 0;
+  box-shadow: 0 16px 24px rgba(12, 30, 80, 0.18);
+}
+
+.street-mini-car {
+  background:
+    url("street-smart-rescue/assets/generated/kid-car-alpha.png") center / contain no-repeat !important;
+}
+
+.street-mini-police {
+  background:
+    url("street-smart-rescue/assets/generated/police-car-alpha.png") center / contain no-repeat !important;
+}
+
+.street-mini-car::before,
+.street-mini-police::before,
+.street-mini-car::after,
+.street-mini-police::after,
+.treasure-mini-avatar::before,
+.treasure-mini-chest::after {
+  display: none !important;
+}
+
+.treasure-mini-avatar {
+  border: 4px solid rgba(255,255,255,0.82);
+  background:
+    url("treasure-quest/assets/pirate-avatar.png") center / cover no-repeat !important;
+}
+
+.treasure-mini-chest {
+  width: 62px;
+  height: 54px;
+  border: 0;
+  background:
+    url("cave-river-quest/assets/generated/treasure-chest-alpha.png") center / contain no-repeat !important;
+}

@@ -815,3 +815,146 @@
     transform: translate(var(--dx, 20px), var(--dy, -24px)) scale(1.45);
   }
 }
+
+/* Art replacement pass: reward previews should read as illustrated scenes, not CSS toy shapes. */
+.game-preview {
+  border: 4px solid rgba(255,255,255,0.72);
+  background:
+    linear-gradient(180deg, rgba(4, 16, 48, 0.04), rgba(4, 16, 48, 0.20)),
+    url("treasure-quest/assets/treasure-islands.png") center / cover no-repeat !important;
+  box-shadow:
+    inset 0 -44px 70px rgba(8, 25, 66, 0.18),
+    0 16px 28px rgba(18, 42, 101, 0.14);
+}
+
+.game-preview .preview-sky,
+.game-preview .preview-land,
+.game-preview .preview-road,
+.game-preview .preview-token {
+  display: none !important;
+}
+
+.game-preview .preview-hero {
+  right: 16px;
+  bottom: 14px;
+  width: 76px;
+  height: 66px;
+  border: 3px solid rgba(255,255,255,0.72);
+  border-radius: 18px;
+  font-size: 0;
+  background:
+    url("assets/ui/arcade-rewards.svg") center / cover no-repeat !important;
+  box-shadow: 0 16px 26px rgba(11, 26, 70, 0.24);
+}
+
+.game-preview.brick-rally,
+.game-preview.ninja-gates,
+.game-preview.meteor,
+.game-preview.number {
+  background:
+    linear-gradient(180deg, rgba(4, 16, 48, 0.03), rgba(4, 16, 48, 0.22)),
+    url("street-smart-rescue/assets/generated/suburban-road-plate.png") center / cover no-repeat !important;
+}
+
+.game-preview.brick-rally .preview-hero,
+.game-preview.ninja-gates .preview-hero,
+.game-preview.meteor .preview-hero,
+.game-preview.number .preview-hero {
+  background:
+    url("street-smart-rescue/assets/generated/kid-car-alpha.png") center / 118% auto no-repeat,
+    rgba(255,255,255,0.82) !important;
+}
+
+.game-preview.balloon-carnival,
+.game-preview.candy-comet {
+  background:
+    linear-gradient(180deg, rgba(4, 16, 48, 0.04), rgba(4, 16, 48, 0.18)),
+    url("assets/ui/arcade-rewards.svg") center / cover no-repeat !important;
+}
+
+.game-preview.balloon-carnival .preview-hero,
+.game-preview.candy-comet .preview-hero {
+  background:
+    url("cave-river-quest/assets/generated/treasure-chest-alpha.png") center / 94% auto no-repeat,
+    rgba(255,255,255,0.84) !important;
+}
+
+.game-preview.treasure-kart,
+.game-preview.reef,
+.game-preview.star {
+  background:
+    linear-gradient(180deg, rgba(4, 16, 48, 0.02), rgba(4, 16, 48, 0.18)),
+    url("treasure-quest/assets/treasure-islands.png") center / cover no-repeat !important;
+}
+
+.game-preview.treasure-kart .preview-hero,
+.game-preview.reef .preview-hero,
+.game-preview.star .preview-hero {
+  background:
+    url("cave-river-quest/assets/generated/painted-rowboat-rowing-frames-alpha.png") 12% 50% / 300% auto no-repeat,
+    rgba(255,255,255,0.84) !important;
+}
+
+.game-preview.portal-clash,
+.game-preview.cosmic {
+  background:
+    linear-gradient(180deg, rgba(4, 16, 48, 0.10), rgba(4, 16, 48, 0.35)),
+    url("cave-river-quest/assets/generated/journey-plate-8.png") center / cover no-repeat !important;
+}
+
+.game-preview.portal-clash .preview-hero,
+.game-preview.cosmic .preview-hero {
+  background:
+    url("cave-river-quest/assets/generated/portal-gate-v2-alpha.png") center / 110% auto no-repeat,
+    rgba(255,255,255,0.84) !important;
+}
+
+.game-preview.hero-finale,
+.game-preview.final {
+  background:
+    linear-gradient(180deg, rgba(4, 16, 48, 0.08), rgba(4, 16, 48, 0.28)),
+    url("cave-river-quest/assets/generated/journey-plate-10.png") center / cover no-repeat !important;
+}
+
+.game-preview.hero-finale .preview-hero,
+.game-preview.final .preview-hero {
+  background:
+    url("cave-river-quest/assets/generated/guardian-robot-alpha.png") center / 120% auto no-repeat,
+    rgba(255,255,255,0.84) !important;
+}
+
+/* Live reward-game avatars: keep collision boxes, replace CSS vehicle blobs with art assets. */
+.game-stage.drift .player-ship,
+.game-stage.brick-rally .player-ship,
+.game-stage.meteor .player-ship,
+.game-stage.ninja-gates .player-ship,
+.game-stage.number .player-ship,
+.game-stage.treasure-kart .player-ship,
+.game-stage.treasure .player-ship {
+  width: 118px;
+  height: 72px;
+  border-radius: 0;
+  background:
+    url("street-smart-rescue/assets/generated/kid-car-alpha.png") center / contain no-repeat !important;
+  box-shadow: 0 18px 30px rgba(6, 24, 69, 0.24);
+}
+
+.game-stage.drift .player-ship::before,
+.game-stage.brick-rally .player-ship::before,
+.game-stage.meteor .player-ship::before,
+.game-stage.ninja-gates .player-ship::before,
+.game-stage.number .player-ship::before,
+.game-stage.treasure-kart .player-ship::before,
+.game-stage.treasure .player-ship::before {
+  display: none !important;
+}
+
+.game-stage.reef .player-ship,
+.game-stage.star .player-ship {
+  width: 130px;
+  height: 70px;
+  border-radius: 0;
+  background:
+    url("cave-river-quest/assets/generated/painted-rowboat-rowing-frames-alpha.png") 12% 50% / 320% auto no-repeat !important;
+  box-shadow: 0 18px 30px rgba(6, 24, 69, 0.24);
+}
