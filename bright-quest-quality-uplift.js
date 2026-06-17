@@ -170,6 +170,7 @@
 
   function installProductionChips() {
     const chipTargets = [
+      { selector: "#mathsTrainingButton", text: "Animated maths lesson" },
       { selector: "#englishGrammarButton", text: "Static voice package" },
       { selector: "#blackboardFocusButton", text: "Teacher mode ready" }
     ];

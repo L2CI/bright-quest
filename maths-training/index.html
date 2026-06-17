@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Maths Training | Bright Quest</title>
+    <link rel="stylesheet" href="./maths-training.css?v=20260618a" />
+  </head>
+  <body>
+    <main class="maths-app">
+      <header class="lesson-header">
+        <a class="back-link" href="../" aria-label="Back to Bright Quest">Bright Quest</a>
+        <div>
+          <p class="eyebrow">Maths Training</p>
+          <h1>Scholarship Maths Lab</h1>
+        </div>
+        <div class="lesson-stat">
+          <strong id="remainingTime">30:00</strong>
+          <span>remaining</span>
+        </div>
+      </header>
+
+      <nav class="ladder-tabs" id="episodeTabs" aria-label="Maths training episodes"></nav>
+
+      <section class="lesson-stage" aria-label="Animated maths blackboard lesson">
+        <div class="board-shell">
+          <div class="board-topline">
+            <div>
+              <p class="eyebrow" id="sceneCount">Episode 1 - Module 1 of 6</p>
+              <h2 id="sceneTitle">Included Average</h2>
+            </div>
+            <div class="scene-badge" id="sceneDuration">5:00</div>
+          </div>
+
+          <div class="blackboard" id="blackboard">
+            <svg class="chalk-scene" id="chalkScene" viewBox="0 0 1200 680" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="sceneTitle"></svg>
+          </div>
+        </div>
+
+        <aside class="lesson-side" aria-label="Lesson controls">
+          <div class="side-card current-card">
+            <div class="lesson-card-top">
+              <p class="eyebrow">Now Teaching</p>
+              <button class="cc-button" id="ccButton" type="button" aria-expanded="false" aria-controls="captionText">CC</button>
+            </div>
+            <h3 id="lessonPoint">Use totals to find the extra number that changed the average.</h3>
+            <p class="transcript hidden" id="captionText">Press start and the board will draw while the teacher explains.</p>
+          </div>
+
+          <div class="control-card">
+            <button class="primary-control icon-control" id="playButton" type="button" aria-label="Start lesson"></button>
+            <button class="rewind-control icon-control" id="rewindButton" type="button" aria-label="Rewind 15 seconds"><span class="control-icon rewind-icon" aria-hidden="true"></span><span class="control-label">15s</span></button>
+          </div>
+
+          <div class="scene-list" id="sceneList" aria-label="Course scenes"></div>
+        </aside>
+      </section>
+
+      <footer class="timeline-wrap" aria-label="Lesson timeline">
+        <div class="timeline-meta">
+          <span id="elapsedTime">0:00 elapsed</span>
+          <span id="totalTime">30:00 total</span>
+        </div>
+        <input id="timeline" class="timeline" type="range" min="0" max="1800" value="0" step="1" aria-label="Course timeline" />
+      </footer>
+    </main>
+
+    <script src="./maths-training.js?v=20260618a"></script>
+  </body>
+</html>

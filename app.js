@@ -71,9 +71,11 @@ const welcomeName = document.querySelector("#welcomeName");
 const starTotal = document.querySelector("#starTotal");
 const switchProfileButton = document.querySelector("#switchProfileButton");
 const gamesListButton = document.querySelector("#gamesListButton");
+const mathsTrainingButton = document.querySelector("#mathsTrainingButton");
 const englishGrammarButton = document.querySelector("#englishGrammarButton");
 const blackboardFocusButton = document.querySelector("#blackboardFocusButton");
 const internationalTestsButton = document.querySelector("#internationalTestsButton");
+const academyMathsTrainingButton = document.querySelector("#academyMathsTrainingButton");
 const academyEnglishGrammarButton = document.querySelector("#academyEnglishGrammarButton");
 const academyGamesButton = document.querySelector("#academyGamesButton");
 const closeInternationalButton = document.querySelector("#closeInternationalButton");
@@ -173,9 +175,11 @@ switchProfileButton.addEventListener("click", () => {
 });
 
 gamesListButton.addEventListener("click", openGamesList);
+mathsTrainingButton.addEventListener("click", openMathsTraining);
 englishGrammarButton.addEventListener("click", openEnglishGrammar);
 blackboardFocusButton.addEventListener("click", openBlackboardFocusSession);
 internationalTestsButton.addEventListener("click", openInternationalArena);
+academyMathsTrainingButton.addEventListener("click", openMathsTraining);
 academyEnglishGrammarButton.addEventListener("click", openEnglishGrammar);
 academyGamesButton.addEventListener("click", openGamesList);
 closeInternationalButton.addEventListener("click", () => {
@@ -692,6 +696,10 @@ function openInternationalArena() {
 
 function openBlackboardFocusSession() {
   window.location.href = "blackboard-focus-session/";
+}
+
+function openMathsTraining() {
+  window.location.href = "maths-training/";
 }
 
 function openEnglishGrammar() {

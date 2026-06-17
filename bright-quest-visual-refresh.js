@@ -1,6 +1,7 @@
 ﻿(() => {
   const iconMap = {
     maths: { mark: '+', label: 'Maths' },
+    'maths-training': { mark: 'M', label: 'Maths Training' },
     english: { mark: 'AB', label: 'English' },
     reasoning: { mark: '?', label: 'Logic' },
     world: { mark: 'UK', label: 'World' },
