@@ -574,6 +574,36 @@ body.bq-premium-shell .game-stage {
     inset 0 0 0 7px rgba(255,255,255,0.22) !important;
 }
 
+body.bq-premium-shell .game-stage .arcade-stage-chrome::before {
+  content: "";
+  position: absolute;
+  inset: 20px;
+  z-index: 1;
+  border-radius: 30px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.08), rgba(5,18,55,0.16)),
+    url("assets/ui/arcade-console-overlay.svg") center / cover no-repeat;
+  opacity: .42;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.34);
+}
+
+body.bq-premium-shell .game-stage .chrome-orbit,
+body.bq-premium-shell .game-stage .chrome-mesh,
+body.bq-premium-shell .game-stage .chrome-speedline {
+  display: none !important;
+}
+
+body.bq-premium-shell .game-stage .chrome-badge {
+  z-index: 2;
+  border: 2px solid rgba(255,255,255,0.42);
+  border-radius: 16px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.10), rgba(5,18,55,0.18)),
+    url("assets/ui/arcade-console-overlay.svg") 72% 20% / 340px auto no-repeat,
+    linear-gradient(135deg, color-mix(in srgb, var(--game-accent, #22d3ee) 82%, #ffffff), #1d4ed8) !important;
+}
+
 body.bq-premium-shell .game-keyboard-hint {
   background: rgba(13, 24, 84, 0.72);
   box-shadow: 0 14px 28px rgba(13, 24, 84, 0.16);
