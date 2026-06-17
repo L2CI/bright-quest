@@ -19,7 +19,7 @@ if (!apiKey) {
 }
 
 const instructions =
-  "Speak like a warm, energetic Grade 4 English teacher. Be lively, clear, encouraging, and about 10 percent faster than a normal classroom explanation.";
+  "Speak like a warm, energetic Grade 4 English teacher beside the student at a blackboard. Be lively, clear, encouraging, and about 10 percent faster than a normal classroom explanation. Vary the performance: brighten the voice when introducing examples, slow very slightly for important rules, add a friendly lift before quick checks, and keep the rhythm expressive without sounding cartoonish. Leave small natural pauses between ideas so the chalk animation has room to land.";
 
 await mkdir(resolve(here, "assets", "audio"), { recursive: true });
 

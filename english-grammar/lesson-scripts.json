@@ -27,8 +27,8 @@
   },
   {
     "id": "nouns-pronouns",
-    "title": "Nouns And Pronouns",
-    "point": "Nouns name things. Pronouns replace nouns so writing is smoother.",
+    "title": "Nouns, Number, Gender And Case",
+    "point": "Nouns name people, places, things, and ideas. Number, gender, and case tell how the noun is being used.",
     "duration": 100,
     "audio": "assets/audio/02-nouns-pronouns.mp3",
     "captions": [
@@ -38,23 +38,23 @@
       ],
       [
         22,
-        "Pronouns stand in for nouns."
+        "Number tells singular or plural: one fox, two foxes."
       ],
       [
         48,
-        "Good pronouns make writing smoother."
+        "Gender and case help us choose the right noun or pronoun form."
       ],
       [
         76,
-        "The reader must still know who or what you mean."
+        "The reader should know exactly who owns, does, or receives the action."
       ]
     ],
-    "script": "Now we meet nouns and pronouns. A noun names a person, place, thing, or idea. Teacher is a person. Garden is a place. Bicycle is a thing. Courage is an idea. Nouns are the labels that help a reader know exactly what we are talking about. But if we repeat the same noun too many times, the writing starts to sound clunky. Listen to this: Sofia packed Sofia's bag because Sofia was going to Sofia's lesson. That is clear, but it is not smooth. Pronouns can help. A pronoun stands in for a noun. She, he, they, it, we, and you are pronouns. Now listen again: Sofia packed her bag because she was going to her lesson. Much smoother. The important rule is that the reader must still know who the pronoun means. If two girls are in the sentence and I say she, the reader may get confused. So use nouns for clarity, and pronouns for flow. Quick check: The players cheered after the players won. We can improve it to: The players cheered after they won."
+    "script": "Now we meet nouns more carefully. A noun names a person, place, thing, or idea. Teacher is a person. Garden is a place. Bicycle is a thing. Courage is an idea. A proper noun names one special person or place, like Maya or London, so it begins with a capital letter. A common noun names a general thing, like girl, city, or book. Next comes number. Singular means one. Plural means more than one. One fox becomes two foxes. One baby becomes two babies. One leaf becomes two leaves. English has patterns, but it also has exceptions, so good readers watch the ending. Gender can tell whether a noun is masculine, feminine, common, or neuter. Boy is masculine. Girl is feminine. Teacher can be common because it could refer to anyone. Desk is neuter because it is not male or female. Finally, case tells the noun's job. In Maya read the book, Maya is doing the action. In Omar helped Maya, Maya receives the action. In Maya's book, the apostrophe shows possession. Quick check: in The girls carried Sam's boxes, girls is plural and doing the action, and Sam's shows possession."
   },
   {
     "id": "verbs-tense",
-    "title": "Verbs And Tense",
-    "point": "Verbs show action or being. Tense tells when it happens.",
+    "title": "Verbs, Tense And Verb Jobs",
+    "point": "Verbs show action or being. Tense tells when it happens, and verb jobs show how the action works.",
     "duration": 100,
     "audio": "assets/audio/03-verbs-tense.mp3",
     "captions": [
@@ -68,14 +68,14 @@
       ],
       [
         48,
-        "Some past-tense verbs are irregular."
+        "Verbs can be transitive, intransitive, linking, auxiliary, or modal."
       ],
       [
         74,
-        "Choose the tense that matches the sentence time."
+        "Ask whether the verb needs an object, links an idea, or helps another verb."
       ]
     ],
-    "script": "Verbs are the engine words. They show action or being. Jump, think, build, laugh, is, were, and has are all verbs. A sentence without a verb usually feels unfinished. Now verbs also carry time. That time is called tense. Past tense means it happened before. Present tense means it is happening now, or it is generally true. Future tense means it will happen later. Watch the timeline on the board. Yesterday I walked. Today I walk. Tomorrow I will walk. The verb changes because the time changes. Many past-tense verbs add ed, like walked, jumped, or painted. But English likes a surprise. Some verbs are irregular. We say ran, not runned. We say ate, not eated. We say saw, not seed. When you edit your writing, check that the verb time matches the sentence. If the story happened yesterday, most verbs should sound like yesterday. Quick check: change I see a bird to past tense. The answer is I saw a bird. Saw is the past tense of see."
+    "script": "Verbs are the engine words. They show action or being. Jump, think, build, laugh, is, were, and has are all verbs. Verbs also carry time. That time is called tense. Past tense means it happened before. Present tense means it is happening now, or it is generally true. Future tense means it will happen later. Yesterday I walked. Today I walk. Tomorrow I will walk. Now add the verb jobs. A transitive verb passes action to an object: Maya kicked the ball. Kicked needs the object ball. An intransitive verb does not need an object: The baby laughed. A linking verb connects the subject to a description: The soup is hot. Is links soup and hot. An auxiliary verb helps the main verb: She has finished. Has helps finished. A modal verb shows possibility, ability, or duty: can, could, should, must, and might. Quick check: in Omar should read the poem, should is a modal helper and read is the main verb. Strong writers choose the right tense and notice the job the verb is doing."
   },
   {
     "id": "adjectives-adverbs",
@@ -210,7 +210,7 @@
   {
     "id": "recap-quiz",
     "title": "Grammar Power-Up Quiz",
-    "point": "Review the course with quick examples and choices.",
+    "point": "Review sentence parts, noun and pronoun jobs, verb jobs, punctuation, and editing choices.",
     "duration": 100,
     "audio": "assets/audio/09-recap-quiz.mp3",
     "captions": [
@@ -220,18 +220,18 @@
       ],
       [
         24,
-        "Find nouns, verbs, adjectives, and adverbs."
+        "Find nouns, pronouns, verbs, adjectives, and adverbs."
       ],
       [
         54,
-        "Use prepositions and conjunctions to explain relationships."
+        "Use number, case, tense, and punctuation to explain the sentence."
       ],
       [
         80,
-        "Grammar helps your ideas travel clearly."
+        "Grammar becomes useful when you apply it to writing."
       ]
     ],
-    "script": "Final round. We are going to test the big grammar ideas quickly. Look at this sentence: The tiny robot danced happily beside the desk. First, find the noun. Robot is a noun because it names a thing. Desk is also a noun. Now find the verb. Danced is the verb because it shows the action. Find the adjective. Tiny describes robot, so tiny is an adjective. Find the adverb. Happily tells how the robot danced, so happily is an adverb. Find the prepositional phrase. Beside the desk tells where the robot danced. Beside is the preposition. Now add a conjunction: The tiny robot danced happily beside the desk, and the class clapped. And joins two related ideas. Last check: does the sentence start with a capital and end with the right punctuation? Yes. You now have a grammar toolkit: sentence, noun, pronoun, verb, tense, adjective, adverb, preposition, conjunction, capital letters, and punctuation. Grammar is not about sounding fancy. Grammar helps your ideas travel clearly from your mind to your reader."
+    "script": "Final round. We are going to test the big grammar ideas quickly. Look at this sentence: The tiny robots danced happily beside Maya's desk, and they clapped. First, find the nouns. Robots, Maya, and desk are nouns. Robots is plural, Maya is a proper noun, and Maya's shows possession. Now find the pronoun. They replaces robots, so the reader still knows who clapped. Find the verb. Danced is an action verb in the past tense. Clapped is another past tense verb. Find the adjective. Tiny describes robots. Find the adverb. Happily tells how they danced. Find the prepositional phrase. Beside Maya's desk tells where they danced. Beside is the preposition. And is the conjunction joining two related ideas. Last check: does the sentence start with a capital and end with the right punctuation? Yes. This is how grammar becomes useful. You are not just naming parts for fun. You are proving that the sentence is clear, complete, and easy for a reader to follow."
   },
   {
     "id": "clauses-phrases",
@@ -484,33 +484,33 @@
   {
     "id": "parallel-structure",
     "step": 2,
-    "title": "Parallel Structure",
-    "point": "Parallel structure keeps items in a list in the same grammatical shape.",
+    "title": "Direct And Indirect Speech",
+    "point": "Direct speech gives the exact words. Indirect speech reports the idea without quoting every word.",
     "duration": 100,
     "audio": "assets/audio/18-parallel-structure.mp3",
     "captions": [
       [
         0,
-        "Parallel structure keeps items in a list in the same grammatical shape."
+        "Direct speech gives the exact words."
       ],
       [
         24,
-        "Mia likes swimming, reading, and drawing. Each item is an ing word."
+        "Indirect speech reports the idea without quoting every word."
       ],
       [
         54,
-        "Do the listed items use the same pattern?"
+        "Watch the pronoun, tense, and punctuation changes."
       ],
       [
         78,
-        "Use the pattern in your own sentence."
+        "Ask: am I quoting the speaker, or reporting the message?"
       ]
     ],
     "visual": {
-      "example": "Mia likes swimming, reading, and drawing. Each item is an ing word.",
-      "check": "Do the listed items use the same pattern?"
+      "example": "Maya said, \"I am ready.\" Maya said that she was ready.",
+      "check": "Am I quoting the exact words, or reporting the idea?"
     },
-    "script": "In this submodule we learn Parallel Structure. Parallel structure keeps items in a list in the same grammatical shape. First, watch the main pattern. Mia likes swimming, reading, and drawing. Each item is an ing word. Now slow down and ask what job each word group is doing. Strong grammar is not about naming things for fun. It is about seeing how the sentence is built, so your own writing becomes clearer. Here is the check: Do the listed items use the same pattern? If you can explain why the answer works, you are ready to move to the next board. Practice pass: say the example aloud, then point to the exact word or word group doing the job. If the answer feels uncertain, use a two question test. First, what is the main subject and main verb? Second, is this extra word group naming, describing, connecting, or adding a condition? That two question test stops guesses. Let us do one more miniature example. In the sentence, While the lights flickered, the class kept reading, the main idea is the class kept reading. The opening clause tells when it happened. A confident writer can move that clause, shorten it, or keep it for rhythm. Your aim is not to memorize a label; your aim is to control meaning. When you can explain the job, you can use the pattern in your own writing."
+    "script": "In this submodule we learn Direct And Indirect Speech. Direct speech gives the exact words a person said. Indirect speech reports the idea without quoting every word. First, watch the main pattern. Maya said, I am ready. That is direct speech, so we use quotation marks around Maya's exact words. Now change it to indirect speech: Maya said that she was ready. The message stays the same, but the grammar changes. I becomes she, and am often shifts back to was. We also remove the quotation marks. Now slow down and check three things. First, am I quoting exact words or reporting the idea? Second, do the pronouns still point to the right person? Third, does the tense sound natural after the reporting verb? Here is another one. Omar said, I will help. Indirect speech becomes Omar said that he would help. This is useful in stories, reports, and comprehension answers because you can explain what someone said without copying a whole speech. Quick check: if the exact words are still on the page, use quotation marks. If you are reporting the message, make the pronoun and tense changes carefully."
   },
   {
     "id": "gerunds",

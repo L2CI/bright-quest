@@ -21,6 +21,8 @@ const quizQuestions = document.querySelector("#quizQuestions");
 const closeQuizButton = document.querySelector("#closeQuizButton");
 const submitQuizButton = document.querySelector("#submitQuizButton");
 const quizFeedback = document.querySelector("#quizFeedback");
+const FREE_NAVIGATION_RELEASE = "grammar-free-navigation-001";
+const DYNAMIC_BOARD_RELEASE = "grammar-dynamic-board-001";
 
 const renderers = {
   "sentence-machine": grammarSentenceMachineSvg,
@@ -161,15 +163,17 @@ const grammarStudioScenes = {
     check: "Who was running?"
   },
   "parallel-structure": {
-    mode: "rhythm",
-    sentence: "Mia likes swimming, reading, and drawing.",
+    mode: "transform",
+    sentence: "Maya said, \"I am ready.\"",
+    repaired: "Maya said that she was ready.",
     tokens: [
-      ["swimming", "ing", "#9fdf9f"],
-      ["reading", "ing", "#9fdf9f"],
-      ["drawing", "ing", "#9fdf9f"]
+      ["I", "speaker pronoun", "#f4a6b8"],
+      ["am", "direct tense", "#f3d56b"],
+      ["she", "reported pronoun", "#9fdf9f"],
+      ["was", "reported tense", "#8bd3dd"]
     ],
-    chant: "Same job, same shape.",
-    check: "Do the list items match?"
+    chant: "Exact words use quotes. Reported speech changes pronoun and tense.",
+    check: "Quote exact words or report the message?"
   },
   gerunds: {
     mode: "diagram",
@@ -296,13 +300,13 @@ const stepMeta = [
 const gateQuizzes = {
   1: [
     { prompt: "In 'Maya reads a comic', what is the subject?", options: ["Maya", "reads", "a comic"], answer: 0 },
-    { prompt: "Which word is the verb in 'The tiny robot danced happily'?", options: ["tiny", "danced", "happily"], answer: 1 },
-    { prompt: "What does a preposition usually show?", options: ["A relationship like where or when", "A capital letter", "A complete paragraph"], answer: 0 }
+    { prompt: "In 'Sam's boxes', what does the apostrophe show?", options: ["Possession", "Future tense", "A conjunction"], answer: 0 },
+    { prompt: "In 'Omar should read', what is 'should'?", options: ["A modal helper", "A noun", "A preposition"], answer: 0 }
   ],
   2: [
     { prompt: "Which group has both a subject and a verb?", options: ["under the old bridge", "the river rushed", "after lunch"], answer: 1 },
     { prompt: "Which clause can stand alone?", options: ["Because the bell rang", "When the rain stopped", "The team cheered"], answer: 2 },
-    { prompt: "What should a pronoun clearly point back to?", options: ["Its antecedent", "A comma", "An adverb"], answer: 0 }
+    { prompt: "What changes when direct speech becomes indirect speech?", options: ["Pronoun and tense may change", "All nouns disappear", "No punctuation changes"], answer: 0 }
   ],
   3: [
     { prompt: "In 'Swimming is fun', what job is 'Swimming' doing?", options: ["Noun", "Main verb", "Conjunction"], answer: 0 },
@@ -335,7 +339,6 @@ async function init() {
 }
 
 function switchStep(step, autoplay = false) {
-  if (!isStepUnlocked(step)) return;
   stopFrameLoop();
   if (audio) audio.pause();
   activeStep = step;
@@ -356,11 +359,10 @@ function switchStep(step, autoplay = false) {
 
 function renderLadderTabs() {
   ladderTabs.innerHTML = stepMeta.map((item) => {
-    const unlocked = isStepUnlocked(item.step);
     const passed = ladderProgress.passedSteps.includes(item.step);
     return `
-      <button class="ladder-tab ${activeStep === item.step ? "active" : ""} ${unlocked ? "" : "locked"} ${passed ? "passed" : ""}" type="button" data-step="${item.step}" ${unlocked ? "" : "disabled"}>
-        <span>${passed ? "Done" : unlocked ? item.step : "Lock"}</span>
+      <button class="ladder-tab ${activeStep === item.step ? "active" : ""} ${passed ? "passed" : ""}" type="button" data-step="${item.step}">
+        <span>${item.step}</span>
         <strong>${item.title}</strong>
         <small>${item.subtitle} - ${item.durationLabel}</small>
       </button>
@@ -369,7 +371,7 @@ function renderLadderTabs() {
 }
 
 function isStepUnlocked(step) {
-  return step === 1 || ladderProgress.unlockedSteps.includes(step);
+  return stepMeta.some((item) => item.step === Number(step));
 }
 
 function renderSceneList() {
@@ -394,7 +396,7 @@ function loadScene(index, offsetSeconds = 0, shouldPlay = playing) {
   sceneStartedAt = performance.now() - offset * 1000;
   courseElapsedAtSceneStart = sceneOffsets[activeSceneIndex];
 
-  board.classList.remove("paused", "animating", "finished");
+  board.classList.remove("paused", "animating", "finished", "board-beat-1", "board-beat-2", "board-beat-3", "board-beat-4");
   sceneTitle.textContent = scene.title;
   sceneCount.textContent = `Step ${activeStep} - Module ${activeSceneIndex + 1} of ${scenes.length}`;
   sceneDuration.textContent = formatTime(scene.duration);
@@ -467,7 +469,9 @@ function playNextScene() {
   stopFrameLoop();
   captionText.textContent = "Course complete. Grammar helps your ideas travel clearly.";
   board.classList.add("finished");
-  openGateQuiz(activeStep);
+  ladderProgress.passedSteps = uniqueNumbers([...ladderProgress.passedSteps, activeStep]);
+  saveLadderProgress();
+  renderLadderTabs();
 }
 
 function rewind(seconds = 15) {
@@ -533,8 +537,14 @@ function startCaptionLoop() {
 }
 
 function updateBoardMoment(scene, seconds) {
+  const duration = scene.duration || 90;
+  const progress = Math.max(0, Math.min(1, seconds / duration));
   const threshold = boardMomentTimes[scene.id] ?? Math.max(30, scene.duration * 0.54);
   const showMoment = seconds >= threshold;
+  board.classList.toggle("board-beat-1", progress >= 0.16);
+  board.classList.toggle("board-beat-2", progress >= 0.36);
+  board.classList.toggle("board-beat-3", progress >= 0.58);
+  board.classList.toggle("board-beat-4", progress >= 0.78);
   board.classList.toggle("show-board-moment", showMoment);
   board.classList.toggle("show-board-build", seconds >= Math.max(16, threshold - 22));
   board.classList.toggle("show-board-apply", seconds >= Math.max(28, threshold - 8));
@@ -570,8 +580,8 @@ function courseTotal() {
 
 function openGateQuiz(step) {
   const questions = gateQuizzes[step] || [];
-  quizEyebrow.textContent = `Step ${step} stage gate`;
-  quizTitle.textContent = step < 3 ? `Pass to unlock Step ${step + 1}` : "Final grammar ladder check";
+  quizEyebrow.textContent = `Step ${step} practice`;
+  quizTitle.textContent = step < 3 ? "Optional quick check" : "Final grammar ladder check";
   quizFeedback.textContent = "";
   quizQuestions.innerHTML = questions.map((question, index) => `
     <fieldset class="quiz-question">
@@ -598,10 +608,10 @@ function gradeGateQuiz() {
     return;
   }
   ladderProgress.passedSteps = uniqueNumbers([...ladderProgress.passedSteps, activeStep]);
-  if (activeStep < 3) ladderProgress.unlockedSteps = uniqueNumbers([...ladderProgress.unlockedSteps, activeStep + 1]);
+  ladderProgress.unlockedSteps = uniqueNumbers([...ladderProgress.unlockedSteps, 1, 2, 3]);
   saveLadderProgress();
   renderLadderTabs();
-  quizFeedback.textContent = activeStep < 3 ? `Perfect. Step ${activeStep + 1} is unlocked.` : "Brilliant. Grammar ladder complete.";
+  quizFeedback.textContent = activeStep < 3 ? "Perfect. Choose any step when you are ready." : "Brilliant. Grammar ladder complete.";
   if (activeStep < 3) {
     window.setTimeout(() => {
       quizModal.classList.add("hidden");
@@ -614,11 +624,11 @@ function loadLadderProgress() {
   try {
     const parsed = JSON.parse(localStorage.getItem("brightQuestEnglishGrammarLadder") || "{}");
     return {
-      unlockedSteps: uniqueNumbers([1, ...(parsed.unlockedSteps || [])]),
+      unlockedSteps: uniqueNumbers([1, 2, 3, ...(parsed.unlockedSteps || [])]),
       passedSteps: uniqueNumbers(parsed.passedSteps || [])
     };
   } catch {
-    return { unlockedSteps: [1], passedSteps: [] };
+    return { unlockedSteps: [1, 2, 3], passedSteps: [] };
   }
 }
 
@@ -651,7 +661,7 @@ ccButton.addEventListener("click", () => {
 
 ladderTabs.addEventListener("click", (event) => {
   const button = event.target.closest("[data-step]");
-  if (!button || button.disabled) return;
+  if (!button) return;
   switchStep(Number(button.dataset.step), false);
 });
 
@@ -675,7 +685,7 @@ timeline.addEventListener("change", () => {
   seekTo(Number(timeline.value));
 });
 
-function baseSvg(content) {
+function baseSvg(content, cueLabels = ["Listen", "Look", "Test", "Say"]) {
   return `
     <defs>
       <filter id="chalkRough" x="-4%" y="-4%" width="108%" height="108%">
@@ -687,6 +697,7 @@ function baseSvg(content) {
       </marker>
     </defs>
     ${content}
+    ${liveBoardCues(cueLabels)}
   `;
 }
 
@@ -739,7 +750,7 @@ function genericLessonSvg(scene) {
       ${rect(180, 470, 840, 120, 0, 0.01, "#f3d56b", 6)}
       ${multiText(600, 525, check, 0, 25, "#f3d56b")}
     </g>
-  `);
+  `, ["pattern", "example", "job test", "try it"]);
 }
 
 function grammarStudioSvg(scene) {
@@ -771,7 +782,7 @@ function grammarStudioSvg(scene) {
       ${grammarStudioDiagram(spec)}
       ${grammarStudioCheck(spec)}
     </g>
-  `);
+  `, [modeLabel, "example", "word job", "quick check"]);
 }
 
 function grammarStudioBackdrop(scene, spec, modeLabel) {
@@ -825,10 +836,12 @@ function grammarStudioDiagram(spec) {
   const tokenMarkup = tokens.map(([value, label, color], index) => {
     const x = startX + index * gap;
     return `
+      <g class="grammar-token token-${index + 1}">
       ${rect(x, 430, tokens.length === 4 ? 200 : 240, 72, 37.5 + index * 4.2, 0.65, color, 4)}
       ${multiText(x + (tokens.length === 4 ? 100 : 120), 460, wrapSvgText(value, tokens.length === 4 ? 16 : 20).slice(0, 2), 39.0 + index * 4.2, 22, color)}
       ${path(`M${x + (tokens.length === 4 ? 100 : 120)} 410 L${x + (tokens.length === 4 ? 100 : 120)} 430`, 42.0 + index * 3.8, 0.35, color, 4)}
       ${smallText(x + (tokens.length === 4 ? 100 : 120), 535, label, 44.0 + index * 3.8, color)}
+      </g>
     `;
   }).join("");
   return `
@@ -872,6 +885,26 @@ function grammarStudioCheck(spec) {
     ${rect(842, 548, 270, 86, 61.0, 0.7, "#f3d56b", 4)}
     ${smallText(977, 574, "quick check", 62.5, "#f3d56b")}
     ${multiText(977, 604, check, 64.0, 18, "#f5f5f0")}
+  `;
+}
+
+function liveBoardCues(labels) {
+  const items = labels.slice(0, 4);
+  return `
+    <g class="live-board-cues" data-release="${DYNAMIC_BOARD_RELEASE}">
+      ${line(72, 144, 72, 548, 0.4, 1.0, "rgba(245,245,240,0.32)", 3)}
+      ${items.map((label, index) => {
+        const y = 144 + index * 134;
+        const color = ["#8bd3dd", "#f3d56b", "#9fdf9f", "#f4a6b8"][index] || "#f5f5f0";
+        return `
+          <g class="live-cue cue-${index + 1}">
+            ${circle(72, y, 18, 0.2, 0.35, color, 4)}
+            ${path(`M94 ${y} C130 ${y - 24} 184 ${y - 24} 220 ${y}`, 0.35, 0.6, color, 4)}
+            ${smallText(238, y + 7, label, 0.8, color, "start")}
+          </g>
+        `;
+      }).join("")}
+    </g>
   `;
 }
 
@@ -939,69 +972,77 @@ function grammarSentenceMachineSvg() {
 function grammarNounsPronounsSvg() {
   return baseSvg(`
     <g class="main-example">
-    ${text(600, 58, "Nouns name. Pronouns replace.", 0.1, 32)}
-    ${text(260, 128, "Nouns", 0.6, 34, "#9fdf9f")}
-    ${wordBox(104, 170, "teacher", 1.0, "#9fdf9f")}
-    ${wordBox(104, 250, "garden", 1.5, "#9fdf9f")}
-    ${wordBox(104, 330, "bicycle", 2.0, "#9fdf9f")}
-    ${wordBox(104, 410, "courage", 2.5, "#9fdf9f")}
-    ${path("M366 310 C465 250 520 250 604 310", 3.2, 0.8, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
-    ${text(650, 128, "Pronouns", 3.8, 34, "#8bd3dd")}
-    ${wordBox(560, 190, "she", 4.2, "#8bd3dd", 110)}
-    ${wordBox(690, 190, "he", 4.5, "#8bd3dd", 110)}
-    ${wordBox(560, 270, "they", 4.8, "#8bd3dd", 110)}
-    ${wordBox(690, 270, "it", 5.1, "#8bd3dd", 110)}
-    ${rect(820, 170, 300, 205, 5.8, 0.8, "#f3d56b", 5)}
-    ${text(970, 220, "Sofia packed", 6.5, 25)}
-    ${text(970, 258, "Sofia's bag.", 6.8, 25)}
-    ${path("M875 300 L1065 300", 7.3, 0.4, "#f4a6b8", 6)}
-    ${text(970, 345, "Sofia packed her bag.", 7.8, 25, "#f3d56b")}
+    ${text(600, 58, "Nouns: number, gender, case", 0.1, 32)}
+    ${rect(92, 130, 300, 178, 0.8, 0.8, "#9fdf9f", 5)}
+    ${text(242, 178, "Number", 1.5, 30, "#9fdf9f")}
+    ${wordBox(132, 214, "fox", 2.2, "#f5f5f0", 105)}
+    ${path("M252 244 L292 244", 3.0, 0.35, "#f3d56b", 4, 'marker-end="url(#arrowHead)"')}
+    ${wordBox(304, 214, "foxes", 3.4, "#f3d56b", 120)}
+    ${rect(452, 130, 300, 178, 4.3, 0.8, "#8bd3dd", 5)}
+    ${text(602, 178, "Gender", 5.0, 30, "#8bd3dd")}
+    ${wordBox(492, 214, "boy", 5.7, "#f5f5f0", 105)}
+    ${wordBox(612, 214, "girl", 6.2, "#f5f5f0", 105)}
+    ${text(602, 292, "teacher = common", 6.8, 22, "#8bd3dd")}
+    ${rect(812, 130, 300, 178, 7.6, 0.8, "#f4a6b8", 5)}
+    ${text(962, 178, "Case", 8.3, 30, "#f4a6b8")}
+    ${text(962, 230, "Maya reads.", 9.0, 24, "#f5f5f0")}
+    ${text(962, 268, "Sam helps Maya.", 9.5, 24, "#f5f5f0")}
+    ${text(962, 306, "Maya's book", 10.0, 24, "#f3d56b")}
+    ${path("M220 400 C360 356 486 356 600 400 C714 444 840 444 980 400", 11.0, 1.0, "#f3d56b", 5)}
+    ${text(600, 482, "Ask: one or many? which kind? what job?", 12.1, 30, "#f3d56b")}
     </g>
     <g class="board-moment">
-      ${text(600, 58, "Pronouns make writing smoother", 0, 32)}
-      ${rect(115, 160, 970, 360, 0, 0.01, "#8bd3dd", 6)}
-      ${text(600, 230, "The players cheered after the players won.", 0, 30)}
-      ${path("M650 252 L952 252", 0, 0.01, "#f4a6b8", 6)}
-      ${text(790, 308, "too much repeating", 0, 24, "#f4a6b8")}
-      ${path("M600 345 L600 405", 0, 0.01, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
-      ${text(600, 458, "The players cheered after they won.", 0, 32, "#f3d56b")}
-      ${path("M735 480 C770 512 820 512 855 480", 0, 0.01, "#9fdf9f", 5)}
-      ${text(795, 546, "they = the players", 0, 24, "#9fdf9f")}
+      ${text(600, 58, "Quick check: Sam's boxes", 0, 32)}
+      ${rect(145, 170, 910, 320, 0, 0.01, "#8bd3dd", 6)}
+      ${text(600, 240, "The girls carried Sam's boxes.", 0, 32)}
+      ${path("M260 266 C325 310 412 310 480 266", 0, 0.01, "#9fdf9f", 6)}
+      ${text(370, 345, "girls = plural doers", 0, 25, "#9fdf9f")}
+      ${path("M596 266 C646 306 718 306 768 266", 0, 0.01, "#f3d56b", 6)}
+      ${text(682, 382, "Sam's = possession", 0, 25, "#f3d56b")}
+      ${text(600, 548, "Number + case make the noun job clear.", 0, 30, "#f4a6b8")}
     </g>
-  `);
+  `, ["name", "number", "gender", "case"]);
 }
 
 function grammarVerbsTenseSvg() {
   return baseSvg(`
     <g class="main-example">
-    ${text(600, 58, "Verbs show action. Tense shows time.", 0.1, 31)}
-    ${line(160, 320, 1040, 320, 0.7, 0.9, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
-    ${text(220, 285, "Past", 1.4, 30, "#8bd3dd")}
-    ${text(600, 285, "Present", 1.8, 30, "#9fdf9f")}
-    ${text(980, 285, "Future", 2.2, 30, "#f3d56b")}
-    ${circle(220, 320, 18, 2.7, 0.35, "#8bd3dd", 6)}
-    ${circle(600, 320, 18, 3.0, 0.35, "#9fdf9f", 6)}
-    ${circle(980, 320, 18, 3.3, 0.35, "#f3d56b", 6)}
-    ${wordBox(140, 385, "walked", 3.8, "#8bd3dd", 150)}
-    ${wordBox(525, 385, "walk", 4.3, "#9fdf9f", 150)}
-    ${wordBox(890, 385, "will walk", 4.8, "#f3d56b", 190)}
-    ${path("M250 510 C330 470 410 470 490 510", 5.5, 0.65, "#f4a6b8", 5)}
-    ${text(370, 548, "Not all past verbs use -ed", 6.1, 26, "#f4a6b8")}
-    ${wordBox(650, 500, "run -> ran", 6.8, "#f5f5f0", 190)}
-    ${wordBox(870, 500, "eat -> ate", 7.3, "#f5f5f0", 190)}
+    ${text(600, 58, "Verbs: time and job", 0.1, 31)}
+    ${line(155, 205, 1045, 205, 0.7, 0.9, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
+    ${text(220, 170, "Past", 1.4, 27, "#8bd3dd")}
+    ${text(600, 170, "Present", 1.8, 27, "#9fdf9f")}
+    ${text(980, 170, "Future", 2.2, 27, "#f3d56b")}
+    ${wordBox(145, 235, "walked", 2.8, "#8bd3dd", 150)}
+    ${wordBox(525, 235, "walk", 3.3, "#9fdf9f", 150)}
+    ${wordBox(885, 235, "will walk", 3.8, "#f3d56b", 190)}
+    ${rect(120, 385, 188, 120, 5.0, 0.65, "#9fdf9f", 4)}
+    ${text(214, 424, "transitive", 5.6, 21, "#9fdf9f")}
+    ${smallText(214, 462, "kicked ball", 6.0, "#9fdf9f")}
+    ${rect(328, 385, 188, 120, 6.6, 0.65, "#8bd3dd", 4)}
+    ${text(422, 424, "intransitive", 7.2, 20, "#8bd3dd")}
+    ${smallText(422, 462, "baby laughed", 7.6, "#8bd3dd")}
+    ${rect(536, 385, 188, 120, 8.2, 0.65, "#f4a6b8", 4)}
+    ${text(630, 424, "linking", 8.8, 21, "#f4a6b8")}
+    ${smallText(630, 462, "soup is hot", 9.2, "#f4a6b8")}
+    ${rect(744, 385, 188, 120, 9.8, 0.65, "#f3d56b", 4)}
+    ${text(838, 424, "auxiliary", 10.4, 20, "#f3d56b")}
+    ${smallText(838, 462, "has finished", 10.8, "#f3d56b")}
+    ${rect(952, 385, 148, 120, 11.4, 0.65, "#f5f5f0", 4)}
+    ${text(1026, 424, "modal", 12.0, 21)}
+    ${smallText(1026, 462, "should read", 12.4)}
+    ${text(600, 590, "Ask: when did it happen, and what job is the verb doing?", 13.2, 26, "#f3d56b")}
     </g>
     <g class="board-moment">
-      ${text(600, 66, "Quick check: present to past", 0, 32)}
-      ${rect(140, 200, 920, 300, 0, 0.01, "#8bd3dd", 6)}
-      ${wordBox(250, 310, "I see a bird", 0, "#f5f5f0", 245)}
-      ${path("M520 340 L670 340", 0, 0.01, "#f3d56b", 7, 'marker-end="url(#arrowHead)"')}
-      ${wordBox(700, 310, "I saw a bird", 0, "#f3d56b", 245)}
-      ${path("M360 410 C410 445 468 445 520 410", 0, 0.01, "#8bd3dd", 5)}
-      ${text(440, 474, "present", 0, 24, "#8bd3dd")}
-      ${path("M805 410 C855 445 918 445 970 410", 0, 0.01, "#9fdf9f", 5)}
-      ${text(890, 474, "past", 0, 24, "#9fdf9f")}
+      ${text(600, 66, "Quick check: should read", 0, 32)}
+      ${rect(150, 190, 900, 300, 0, 0.01, "#8bd3dd", 6)}
+      ${text(600, 260, "Omar should read the poem.", 0, 32)}
+      ${path("M435 286 C490 324 562 324 618 286", 0, 0.01, "#f3d56b", 6)}
+      ${text(526, 360, "should = modal helper", 0, 25, "#f3d56b")}
+      ${path("M585 286 C646 332 738 332 800 286", 0, 0.01, "#9fdf9f", 6)}
+      ${text(700, 410, "read = main verb", 0, 25, "#9fdf9f")}
+      ${text(600, 550, "The verb team tells duty plus action.", 0, 30, "#f4a6b8")}
     </g>
-  `);
+  `, ["time", "verb job", "helper", "check"]);
 }
 
 function grammarAdjectivesAdverbsSvg() {
