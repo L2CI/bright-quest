@@ -24,7 +24,7 @@ const quizFeedback = document.querySelector("#quizFeedback");
 const FREE_NAVIGATION_RELEASE = "grammar-free-navigation-001";
 const DYNAMIC_BOARD_RELEASE = "grammar-dynamic-board-001";
 const QUIZ_SYNC_RELEASE = "grammar-quiz-sync-002";
-const COURSE_BEAT_RELEASE = "grammar-course-beats-001";
+const COURSE_BEAT_RELEASE = "grammar-course-beats-002";
 
 const renderers = {
   "sentence-machine": grammarSentenceMachineSvg,
@@ -286,7 +286,7 @@ const fallbackSceneBeats = {
     { at: 0, state: "intro" },
     { at: 18, state: "subject" },
     { at: 38, state: "predicate" },
-    { at: 48, state: "example" },
+    { at: 40, state: "example" },
     { at: 70, state: "apply" }
   ],
   "nouns-pronouns": [
@@ -1072,10 +1072,10 @@ function wrapSvgText(value, max = 42) {
 
 function grammarSentenceMachineSvg() {
   return baseSvg(`
-    ${text(600, 58, "The Sentence Machine", 0.1, 34)}
-    ${text(600, 130, "A complete sentence needs three parts", 1.2, 27)}
-    ${rect(100, 170, 1000, 400, 0.5, 1.0, "#8bd3dd", 6)}
     <g class="dog-example">
+      ${text(600, 58, "The Sentence Machine", 0.1, 34)}
+      ${text(600, 130, "A complete sentence needs three parts", 1.2, 27)}
+      ${rect(100, 170, 1000, 400, 0.5, 1.0, "#8bd3dd", 6)}
       ${circle(300, 300, 70, 1.8, 0.9, "#9fdf9f", 7)}
       ${text(300, 289, "Subject", 2.5, 25, "#9fdf9f")}
       ${smallText(300, 322, "who or what", 2.8)}
@@ -1096,16 +1096,16 @@ function grammarSentenceMachineSvg() {
     <g class="board-moment maya-moment">
       <rect x="132" y="78" width="936" height="500" rx="20" fill="rgba(9, 48, 43, 0.94)" stroke="rgba(139, 211, 221, 0.24)" stroke-width="4"></rect>
       ${rect(150, 92, 900, 470, 0.2, 0.9, "#8bd3dd", 5)}
-      ${text(600, 148, "Quick check: Maya reads the comic.", 1.4, 31, "#f5f5f0")}
-      ${wordBox(245, 230, "Maya", 2.8, "#9fdf9f", 170)}
-      ${wordBox(485, 230, "reads", 4.6, "#f3d56b", 170)}
-      ${wordBox(725, 230, "the comic", 6.4, "#f3d56b", 220)}
-      ${path("M330 310 C360 350 405 350 435 310", 8.4, 0.7, "#9fdf9f", 6)}
-      ${text(382, 384, "subject", 9.4, 23, "#9fdf9f")}
-      ${path("M520 310 C620 375 780 375 880 310", 11.0, 0.9, "#f3d56b", 6)}
-      ${text(700, 408, "predicate", 12.2, 23, "#f3d56b")}
-      ${path("M262 462 L938 462", 14.0, 0.7, "#f5f5f0", 5)}
-      ${text(600, 508, "Both parts are there, so the thought is complete.", 15.0, 26, "#f4a6b8")}
+      ${text(600, 148, "Quick check: Maya reads the comic.", 0.2, 31, "#f5f5f0")}
+      ${wordBox(245, 230, "Maya", 0.55, "#9fdf9f", 170)}
+      ${wordBox(485, 230, "reads", 1.15, "#f3d56b", 170)}
+      ${wordBox(725, 230, "the comic", 1.8, "#f3d56b", 220)}
+      ${path("M330 310 C360 350 405 350 435 310", 3.2, 0.7, "#9fdf9f", 6)}
+      ${text(382, 384, "subject", 3.9, 23, "#9fdf9f")}
+      ${path("M520 310 C620 375 780 375 880 310", 5.1, 0.9, "#f3d56b", 6)}
+      ${text(700, 408, "predicate", 6.0, 23, "#f3d56b")}
+      ${path("M262 462 L938 462", 8.6, 0.7, "#f5f5f0", 5)}
+      ${text(600, 508, "Both parts are there, so the thought is complete.", 9.4, 26, "#f4a6b8")}
     </g>
   `);
 }
