@@ -520,6 +520,32 @@ h3 {
   filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.24));
 }
 
+.noun-board .noun-phase {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 360ms ease, transform 360ms ease;
+}
+
+.beat-intro .noun-board .noun-phase-intro,
+.beat-number .noun-board .noun-phase-number,
+.beat-case .noun-board .noun-phase-case,
+.beat-apply .noun-board .noun-phase-apply {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.beat-number .noun-board .noun-phase-intro,
+.beat-case .noun-board .noun-phase-intro,
+.beat-case .noun-board .noun-phase-number,
+.beat-apply .noun-board .noun-phase {
+  opacity: 0.9;
+  transform: translateY(0);
+}
+
+.beat-apply .noun-board .noun-phase-apply {
+  opacity: 1;
+}
+
 .grammar-token {
   transform-box: fill-box;
   transform-origin: center;

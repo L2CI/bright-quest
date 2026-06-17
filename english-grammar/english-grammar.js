@@ -869,12 +869,18 @@ function text(x, y, value, delay, size = 28, color = "#f5f5f0", anchor = "middle
   return `<text class="draw-text chalk-label" x="${x}" y="${y}" fill="${color}" font-size="${size}" font-weight="${weight}" text-anchor="${anchor}" style="--delay:${delay}s">${escapeHtml(value)}</text>`;
 }
 
+function fitText(x, y, value, delay, size = 28, color = "#f5f5f0", maxWidth = 160, anchor = "middle", weight = 800) {
+  return `<text class="draw-text chalk-label" x="${x}" y="${y}" fill="${color}" font-size="${size}" font-weight="${weight}" text-anchor="${anchor}" textLength="${maxWidth}" lengthAdjust="spacingAndGlyphs" style="--delay:${delay}s">${escapeHtml(value)}</text>`;
+}
+
 function smallText(x, y, value, delay, color = "rgba(245,245,240,0.78)", anchor = "middle") {
   return text(x, y, value, delay, 19, color, anchor, 700);
 }
 
 function wordBox(x, y, value, delay, color = "#f5f5f0", w = 150) {
-  return `${rect(x, y, w, 58, delay, 0.55, color, 4)}${text(x + w / 2, y + 38, value, delay + 0.35, 24, color)}`;
+  const label = String(value || "");
+  const size = label.length > 14 ? 19 : label.length > 10 ? 21 : 24;
+  return `${rect(x, y, w, 58, delay, 0.55, color, 4)}${fitText(x + w / 2, y + 38, label, delay + 0.35, size, color, Math.max(40, w - 26))}`;
 }
 
 function genericLessonSvg(scene) {
@@ -1106,25 +1112,42 @@ function grammarSentenceMachineSvg() {
 
 function grammarNounsPronounsSvg() {
   return baseSvg(`
-    <g class="main-example">
-    ${text(600, 58, "Nouns: number, gender, case", 0.1, 32)}
-    ${rect(92, 130, 300, 178, 0.8, 0.8, "#9fdf9f", 5)}
-    ${text(242, 178, "Number", 1.5, 30, "#9fdf9f")}
-    ${wordBox(132, 214, "fox", 2.2, "#f5f5f0", 105)}
-    ${path("M252 244 L292 244", 3.0, 0.35, "#f3d56b", 4, 'marker-end="url(#arrowHead)"')}
-    ${wordBox(304, 214, "foxes", 3.4, "#f3d56b", 120)}
-    ${rect(452, 130, 300, 178, 4.3, 0.8, "#8bd3dd", 5)}
-    ${text(602, 178, "Gender", 5.0, 30, "#8bd3dd")}
-    ${wordBox(492, 214, "boy", 5.7, "#f5f5f0", 105)}
-    ${wordBox(612, 214, "girl", 6.2, "#f5f5f0", 105)}
-    ${text(602, 292, "teacher = common", 6.8, 22, "#8bd3dd")}
-    ${rect(812, 130, 300, 178, 7.6, 0.8, "#f4a6b8", 5)}
-    ${text(962, 178, "Case", 8.3, 30, "#f4a6b8")}
-    ${text(962, 230, "Maya reads.", 9.0, 24, "#f5f5f0")}
-    ${text(962, 268, "Sam helps Maya.", 9.5, 24, "#f5f5f0")}
-    ${text(962, 306, "Maya's book", 10.0, 24, "#f3d56b")}
-    ${path("M220 400 C360 356 486 356 600 400 C714 444 840 444 980 400", 11.0, 1.0, "#f3d56b", 5)}
-    ${text(600, 482, "Ask: one or many? which kind? what job?", 12.1, 30, "#f3d56b")}
+    <g class="main-example noun-board">
+      <g class="noun-phase noun-phase-intro">
+        ${text(600, 58, "Nouns name people, places, things, and ideas", 0.1, 30)}
+        ${rect(130, 128, 940, 178, 0.6, 0.8, "#9fdf9f", 5)}
+        ${wordBox(180, 190, "teacher", 1.3, "#9fdf9f", 160)}
+        ${wordBox(395, 190, "garden", 2.0, "#8bd3dd", 160)}
+        ${wordBox(610, 190, "bicycle", 2.7, "#f3d56b", 160)}
+        ${wordBox(825, 190, "courage", 3.4, "#f4a6b8", 160)}
+        ${smallText(260, 286, "person", 4.1, "#9fdf9f")}
+        ${smallText(475, 286, "place", 4.35, "#8bd3dd")}
+        ${smallText(690, 286, "thing", 4.6, "#f3d56b")}
+        ${smallText(905, 286, "idea", 4.85, "#f4a6b8")}
+      </g>
+      <g class="noun-phase noun-phase-number">
+        ${rect(92, 348, 300, 150, 0.2, 0.8, "#9fdf9f", 5)}
+        ${text(242, 392, "Number", 0.9, 29, "#9fdf9f")}
+        ${wordBox(132, 425, "fox", 1.5, "#f5f5f0", 105)}
+        ${path("M252 455 L292 455", 2.2, 0.35, "#f3d56b", 4, 'marker-end="url(#arrowHead)"')}
+        ${wordBox(304, 425, "foxes", 2.6, "#f3d56b", 120)}
+      </g>
+      <g class="noun-phase noun-phase-case">
+        ${rect(452, 348, 300, 150, 0.2, 0.8, "#8bd3dd", 5)}
+        ${text(602, 392, "Gender", 0.9, 29, "#8bd3dd")}
+        ${wordBox(492, 425, "boy", 1.5, "#f5f5f0", 105)}
+        ${wordBox(612, 425, "girl", 2.0, "#f5f5f0", 105)}
+        ${fitText(602, 522, "teacher = common", 2.6, 21, "#8bd3dd", 250)}
+        ${rect(812, 348, 300, 150, 3.1, 0.8, "#f4a6b8", 5)}
+        ${text(962, 392, "Case", 3.8, 29, "#f4a6b8")}
+        ${fitText(962, 437, "Maya reads.", 4.4, 22, "#f5f5f0", 238)}
+        ${fitText(962, 472, "Sam helps Maya.", 4.85, 22, "#f5f5f0", 238)}
+        ${fitText(962, 507, "Maya's book", 5.3, 22, "#f3d56b", 238)}
+      </g>
+      <g class="noun-phase noun-phase-apply">
+        ${path("M220 580 C360 536 486 536 600 580 C714 624 840 624 980 580", 0.2, 1.0, "#f3d56b", 5)}
+        ${fitText(600, 642, "Ask: one or many? what kind? what job?", 1.3, 27, "#f3d56b", 720)}
+      </g>
     </g>
     <g class="board-moment">
       ${text(600, 58, "Quick check: Sam's boxes", 0, 32)}
