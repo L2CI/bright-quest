@@ -908,7 +908,9 @@ body.bq-holistic-shell .adventure-panel .map-pill {
   min-width: 126px !important;
   border: 1px solid rgba(255,255,255,0.58) !important;
   color: #101c4f !important;
-  background: rgba(255,255,255,0.88) !important;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.94), rgba(235,248,255,0.82)),
+    url("assets/ui/progress-dashboard.svg") center / cover no-repeat !important;
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   box-shadow: 0 14px 26px rgba(9, 30, 86, 0.18) !important;
@@ -1020,13 +1022,32 @@ body.bq-holistic-shell .adventure-panel .side-quests {
 }
 
 body.bq-holistic-shell .adventure-panel .side-quests span {
-  width: 76px !important;
-  height: 48px !important;
-  border: 1px solid rgba(255,255,255,0.56) !important;
-  color: #101c4f !important;
-  background: rgba(255,255,255,0.84) !important;
+  position: relative;
+  overflow: hidden;
+  width: 86px !important;
+  height: 54px !important;
+  border: 1px solid rgba(255,255,255,0.66) !important;
+  border-radius: 18px !important;
+  color: #fff !important;
+  background:
+    linear-gradient(90deg, rgba(7, 18, 54, 0.84), rgba(7, 18, 54, 0.34)),
+    url("assets/ui/map-mission-tabs.svg") center / cover no-repeat !important;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.34);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
+  box-shadow: 0 14px 24px rgba(6, 25, 77, 0.20) !important;
+}
+
+body.bq-holistic-shell .adventure-panel .side-quests span:nth-child(2) {
+  background:
+    linear-gradient(90deg, rgba(7, 18, 54, 0.84), rgba(7, 18, 54, 0.30)),
+    url("assets/ui/reading-forest.svg") center / cover no-repeat !important;
+}
+
+body.bq-holistic-shell .adventure-panel .side-quests span:nth-child(3) {
+  background:
+    linear-gradient(90deg, rgba(7, 18, 54, 0.84), rgba(7, 18, 54, 0.30)),
+    url("assets/ui/achievement-super-solver.svg") center / cover no-repeat !important;
 }
 
 /* First-screen map polish: make the adventure sidebar a finished illustration, not a stack of CSS props. */
