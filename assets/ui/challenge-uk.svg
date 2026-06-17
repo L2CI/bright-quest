@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="UK challenge card">
+  <rect width="320" height="180" rx="24" fill="#dff8ff"/>
+  <path d="M0 126c58-28 112-34 178-4s104 28 142-4v62H0z" fill="#54c978"/>
+  <rect x="54" y="46" width="116" height="72" rx="16" fill="#1f4ca3"/>
+  <path d="M54 46l116 72M170 46L54 118" stroke="#fff" stroke-width="16"/>
+  <path d="M54 46l116 72M170 46L54 118" stroke="#d91d3a" stroke-width="7"/>
+  <path d="M112 46v72M54 82h116" stroke="#fff" stroke-width="22"/>
+  <path d="M112 46v72M54 82h116" stroke="#d91d3a" stroke-width="11"/>
+  <circle cx="242" cy="74" r="34" fill="#ffd85a"/>
+  <path d="M218 134h62" stroke="#10205f" stroke-opacity=".24" stroke-width="12" stroke-linecap="round"/>
+</svg>

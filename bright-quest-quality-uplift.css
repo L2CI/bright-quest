@@ -498,31 +498,6 @@ body.bq-holistic-shell .reference-topbar {
   overflow: visible;
 }
 
-body.bq-holistic-shell .reference-quick-actions {
-  align-self: center;
-  justify-self: end;
-  grid-template-columns: repeat(4, minmax(118px, 1fr)) !important;
-  gap: 12px !important;
-  width: min(560px, 100%) !important;
-}
-
-body.bq-holistic-shell .quick-action-ref {
-  min-height: 108px !important;
-  border: 1px solid rgba(187, 220, 255, 0.94) !important;
-  border-radius: 18px !important;
-  padding: 10px 10px 9px !important;
-  background: rgba(255,255,255,0.72) !important;
-  opacity: 1;
-  transform: none;
-  box-shadow: 0 14px 26px rgba(19, 48, 116, 0.10);
-}
-
-body.bq-holistic-shell .quick-action-ref:hover,
-body.bq-holistic-shell .quick-action-ref:focus-visible {
-  opacity: 1;
-  transform: translateY(-5px) !important;
-}
-
 body.bq-holistic-shell .learning-studio-banner {
   position: relative;
   display: grid;
@@ -536,8 +511,8 @@ body.bq-holistic-shell .learning-studio-banner {
   padding: 24px;
   color: #fff;
   background:
-    linear-gradient(90deg, rgba(12, 22, 61, 0.94), rgba(21, 71, 117, 0.86) 48%, rgba(12, 22, 61, 0.88)),
-    url("cave-river-quest/assets/generated/painted-cave-river.png") center / cover;
+    linear-gradient(90deg, rgba(12, 22, 61, 0.9), rgba(19, 68, 116, 0.72) 48%, rgba(12, 22, 61, 0.82)),
+    url("assets/ui/quest-studio-backdrop.svg") center / cover;
   box-shadow: 0 30px 74px rgba(17, 42, 102, 0.22);
 }
 
@@ -613,7 +588,13 @@ body.bq-holistic-shell .studio-shot.street {
 body.bq-holistic-shell .studio-actions {
   display: grid;
   gap: 10px;
-  min-width: 172px;
+  min-width: 210px;
+}
+
+body.bq-holistic-shell .studio-actions .button {
+  justify-content: center;
+  min-height: 48px;
+  white-space: nowrap;
 }
 
 body.bq-holistic-shell .studio-panel {
@@ -783,8 +764,8 @@ body.bq-holistic-shell .world-hero-ref {
   overflow: hidden;
   color: #fff;
   background:
-    linear-gradient(90deg, rgba(11, 24, 70, 0.9), rgba(17, 107, 199, 0.66)),
-    url("cave-river-quest/assets/generated/journey-plate-8.png") center / cover !important;
+    linear-gradient(90deg, rgba(11, 24, 70, 0.82), rgba(17, 107, 199, 0.38)),
+    url("assets/ui/world-arena-dashboard.svg") center / cover !important;
 }
 
 body.bq-holistic-shell .world-hero-ref h3,
@@ -814,32 +795,28 @@ body.bq-holistic-shell .intl-card-ref {
 body.bq-holistic-shell .intl-art-ref {
   height: 172px !important;
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.0)),
-    url("cave-river-quest/assets/generated/painted-cave-river.png") center / cover !important;
+    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.0)),
+    url("assets/ui/challenge-uk.svg") center / cover !important;
 }
 
 body.bq-holistic-shell .intl-2 .intl-art-ref {
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.0)),
-    url("street-smart-rescue/assets/generated/suburban-road-plate.png") center / cover !important;
+    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.0)),
+    url("assets/ui/challenge-us.svg") center / cover !important;
 }
 
 body.bq-holistic-shell .intl-3 .intl-art-ref {
   background:
-    linear-gradient(180deg, rgba(66,39,160,0.1), rgba(66,39,160,0.0)),
-    url("treasure-quest/assets/treasure-islands.png") center / cover !important;
+    linear-gradient(180deg, rgba(66,39,160,0.06), rgba(66,39,160,0.0)),
+    url("assets/ui/challenge-scholarship.svg") center / cover !important;
 }
 
 body.bq-holistic-shell .intl-art-ref::after {
-  height: 54px !important;
-  background: linear-gradient(0deg, rgba(7, 18, 48, 0.58), transparent) !important;
+  display: none !important;
 }
 
 body.bq-holistic-shell .intl-art-ref span {
-  top: 82px !important;
-  left: 20px !important;
-  transform: none !important;
-  border: 3px solid rgba(255,255,255,0.82);
+  display: none !important;
 }
 
 body.bq-holistic-shell .intl-3 .intl-art-ref span {
@@ -856,7 +833,7 @@ body.bq-holistic-shell .adventure-panel .adventure-island {
   border-radius: 34px !important;
   background:
     linear-gradient(180deg, rgba(6, 20, 61, 0.08), rgba(6, 20, 61, 0.34)),
-    url("treasure-quest/assets/treasure-islands.png") 48% 50% / cover no-repeat !important;
+    url("assets/ui/dashboard-adventure-map.svg") center / cover no-repeat !important;
   box-shadow:
     inset 0 0 0 6px rgba(255, 255, 255, 0.48),
     inset 0 -120px 120px rgba(7, 42, 88, 0.22),
@@ -1059,9 +1036,8 @@ body.bq-holistic-shell .reference-layout .adventure-panel .adventure-island {
   border: 7px solid rgba(255,255,255,0.92) !important;
   border-radius: 30px !important;
   background:
-    radial-gradient(circle at 52% 42%, rgba(255,255,255,0.08), transparent 36%),
-    linear-gradient(180deg, rgba(4, 20, 55, 0.04), rgba(3, 19, 51, 0.24) 72%, rgba(3, 20, 52, 0.32)),
-    url("treasure-quest/assets/treasure-islands.png") center / cover no-repeat !important;
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(3, 19, 51, 0.20) 78%, rgba(3, 20, 52, 0.28)),
+    url("assets/ui/dashboard-adventure-map.svg") center / 100% 100% no-repeat !important;
   box-shadow:
     inset 0 0 0 1px rgba(18, 117, 178, 0.36),
     inset 0 -96px 120px rgba(1, 70, 105, 0.18),
@@ -1076,25 +1052,24 @@ body.bq-holistic-shell .reference-layout .adventure-panel .adventure-island::bef
   display: block !important;
   pointer-events: none;
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.18), transparent 24%, rgba(2, 22, 56, 0.18)),
-    radial-gradient(circle at 50% 48%, transparent 0 42%, rgba(4, 20, 58, 0.22) 100%);
+    linear-gradient(180deg, rgba(255,255,255,0.12), transparent 28%, rgba(2, 22, 56, 0.12)),
+    radial-gradient(circle at 50% 50%, transparent 0 58%, rgba(4, 20, 58, 0.16) 100%);
 }
 
 body.bq-holistic-shell .reference-layout .adventure-panel .adventure-island::after {
   content: "";
   position: absolute;
-  inset: 128px 44px 118px 44px;
+  left: 54px;
+  right: 54px;
+  top: 158px;
+  bottom: 130px;
   z-index: 2;
   display: block !important;
   pointer-events: none;
-  border: 6px solid rgba(255,255,255,0.62);
-  border-left-color: rgba(255,255,255,0.14);
-  border-bottom-color: rgba(255,255,255,0.26);
-  border-radius: 48% 52% 43% 57%;
-  box-shadow:
-    0 0 0 14px rgba(42, 202, 240, 0.10),
-    inset 0 0 42px rgba(255,255,255,0.06);
-  transform: rotate(-7deg);
+  border: 0;
+  border-radius: 38px;
+  background: none;
+  opacity: 0;
 }
 
 body.bq-holistic-shell .reference-layout .adventure-panel .archipelago-art,
@@ -1202,8 +1177,8 @@ body.bq-premium-shell #profileScreen .hero-panel {
   isolation: isolate;
   overflow: hidden;
   background:
-    linear-gradient(90deg, rgba(255,255,255,0.96) 0 52%, rgba(255,255,255,0.68) 72%, rgba(255,255,255,0.2)),
-    url("treasure-quest/assets/treasure-islands.png") 72% 50% / cover no-repeat !important;
+    linear-gradient(90deg, rgba(255,255,255,0.97) 0 50%, rgba(255,255,255,0.7) 70%, rgba(255,255,255,0.12)),
+    url("assets/ui/quest-studio-backdrop.svg") 70% 50% / cover no-repeat !important;
 }
 
 body.bq-premium-shell .role-panel::after,
@@ -1219,7 +1194,7 @@ body.bq-premium-shell #profileScreen .hero-panel::after {
   border-radius: 26px;
   background:
     linear-gradient(180deg, rgba(5, 20, 56, 0.05), rgba(5, 20, 56, 0.18)),
-    url("cave-river-quest/assets/generated/journey-plate-8.png") center / cover no-repeat;
+    url("assets/ui/world-arena-dashboard.svg") center / cover no-repeat;
   box-shadow: 0 26px 58px rgba(14, 43, 97, 0.24);
   transform: rotate(2deg);
 }
@@ -1230,8 +1205,8 @@ body.bq-premium-shell #profileScreen .hero-panel::after {
   border-radius: 28px;
   background:
     linear-gradient(180deg, rgba(11,24,70,0.04), rgba(11,24,70,0.18)),
-    url("cave-river-quest/assets/generated/guardian-robot-alpha.png") center / 92% auto no-repeat,
-    url("street-smart-rescue/assets/generated/suburban-road-plate.png") center / cover no-repeat !important;
+    url("assets/ui/bright-quest-mark.svg") center / 68% auto no-repeat,
+    url("assets/ui/quest-studio-backdrop.svg") center / cover no-repeat !important;
   box-shadow: 0 24px 46px rgba(28, 45, 144, 0.22);
 }
 
@@ -1249,7 +1224,7 @@ body.bq-holistic-shell .academy-tile-ref::after {
   border-radius: 24px;
   background:
     linear-gradient(180deg, rgba(255,255,255,0.1), rgba(5, 18, 55, 0.2)),
-    url("treasure-quest/assets/treasure-islands.png") center / cover no-repeat !important;
+    url("assets/ui/progress-dashboard.svg") center / cover no-repeat !important;
   transform: rotate(-6deg);
   box-shadow: 0 18px 28px rgba(7, 24, 73, 0.2);
 }
@@ -1257,13 +1232,13 @@ body.bq-holistic-shell .academy-tile-ref::after {
 body.bq-holistic-shell .academy-tile-ref.maths::after {
   background:
     linear-gradient(180deg, rgba(255,255,255,0.05), rgba(5,18,55,0.22)),
-    url("cave-river-quest/assets/generated/journey-plate-3.png") center / cover no-repeat !important;
+    url("assets/ui/maths-mountain.svg") center / cover no-repeat !important;
 }
 
 body.bq-holistic-shell .academy-tile-ref.english::after {
   background:
     linear-gradient(180deg, rgba(255,255,255,0.05), rgba(5,18,55,0.2)),
-    url("cave-river-quest/assets/generated/journey-plate-5.png") center / cover no-repeat !important;
+    url("assets/ui/reading-forest.svg") center / cover no-repeat !important;
 }
 
 body.bq-holistic-shell .academy-tile-ref.grammar::after {
@@ -1275,20 +1250,20 @@ body.bq-holistic-shell .academy-tile-ref.grammar::after {
 body.bq-holistic-shell .academy-tile-ref.reason::after {
   background:
     linear-gradient(180deg, rgba(255,255,255,0.04), rgba(5,18,55,0.2)),
-    url("street-smart-rescue/assets/generated/suburban-road-plate.png") center / cover no-repeat !important;
+    url("assets/ui/reasoning-lab.svg") center / cover no-repeat !important;
 }
 
 body.bq-holistic-shell .academy-tile-ref.world::after {
   border-radius: 24px;
   background:
     linear-gradient(180deg, rgba(255,255,255,0.04), rgba(5,18,55,0.22)),
-    url("cave-river-quest/assets/generated/painted-cave-river.png") center / cover no-repeat !important;
+    url("assets/ui/world-challenge.svg") center / cover no-repeat !important;
 }
 
 body.bq-holistic-shell .academy-tile-ref.arcade::after {
   background:
     linear-gradient(180deg, rgba(255,255,255,0.04), rgba(5,18,55,0.18)),
-    url("treasure-quest/assets/treasure-islands.png") 72% 56% / cover no-repeat !important;
+    url("assets/ui/arcade-rewards.svg") center / cover no-repeat !important;
 }
 
 body.bq-holistic-shell .big-trophy {
@@ -1296,7 +1271,7 @@ body.bq-holistic-shell .big-trophy {
   height: 132px;
   border-radius: 26px;
   background:
-    url("cave-river-quest/assets/generated/treasure-chest-alpha.png") center / contain no-repeat !important;
+    url("assets/ui/arcade-rewards.svg") center / contain no-repeat !important;
   box-shadow: 0 22px 34px rgba(0,0,0,0.18);
 }
 
@@ -1307,7 +1282,7 @@ body.bq-holistic-shell .mini-globe {
   border: 3px solid rgba(255,255,255,0.62);
   background:
     linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.16)),
-    url("cave-river-quest/assets/generated/treasure-chest-alpha.png") center / contain no-repeat,
+    url("assets/ui/arcade-rewards.svg") center / contain no-repeat,
     rgba(255,255,255,0.18) !important;
   box-shadow: 0 12px 20px rgba(7, 24, 73, 0.18);
 }
@@ -1320,25 +1295,25 @@ body.bq-holistic-shell .achievement span {
 
 body.bq-holistic-shell .achievement:nth-child(2) span {
   background:
-    url("cave-river-quest/assets/generated/guardian-robot-alpha.png") center / 120% auto no-repeat,
+    url("assets/ui/progress-dashboard.svg") center / cover no-repeat,
     rgba(255,255,255,0.2) !important;
 }
 
 body.bq-holistic-shell .achievement:nth-child(3) span {
   background:
-    url("cave-river-quest/assets/generated/painted-rowboat-rowing-frames-alpha.png") 11% 50% / 320% auto no-repeat,
+    url("assets/ui/reasoning-lab.svg") center / cover no-repeat,
     rgba(255,255,255,0.2) !important;
 }
 
 body.bq-holistic-shell .achievement:nth-child(4) span {
   background:
-    url("cave-river-quest/assets/generated/portal-gate-v2-alpha.png") center / 112% auto no-repeat,
+    url("assets/ui/world-challenge.svg") center / cover no-repeat,
     rgba(255,255,255,0.2) !important;
 }
 
 body.bq-holistic-shell .bot-face {
   background:
-    url("cave-river-quest/assets/generated/guardian-robot-alpha.png") center / 132% auto no-repeat,
+    url("assets/ui/bright-quest-mark.svg") center / 76% auto no-repeat,
     rgba(255,255,255,0.18) !important;
 }
 
@@ -1348,7 +1323,7 @@ body.bq-holistic-shell .mini-globe {
   border-radius: 20px;
   background:
     linear-gradient(180deg, rgba(255,255,255,0.04), rgba(4, 20, 58, 0.18)),
-    url("cave-river-quest/assets/generated/painted-cave-river.png") center / cover no-repeat !important;
+    url("assets/ui/world-challenge.svg") center / cover no-repeat !important;
 }
 
 /* Graphics pass 2: remove the remaining small glyphs, faces, and orbit-like PowerPoint symbols. */
@@ -1365,7 +1340,7 @@ body.bq-premium-shell .role-card::before {
   border-radius: 18px !important;
   background:
     linear-gradient(180deg, rgba(255,255,255,0.04), rgba(5,18,55,0.14)),
-    url("street-smart-rescue/assets/generated/kid-standing-alpha.png") center 34% / 132% auto no-repeat,
+    url("assets/ui/bright-quest-mark.svg") center / 72% auto no-repeat,
     linear-gradient(180deg, #eaf8ff, #bfeaff) !important;
   box-shadow: 0 14px 24px rgba(13, 34, 92, 0.14);
 }
@@ -1373,48 +1348,8 @@ body.bq-premium-shell .role-card::before {
 body.bq-premium-shell .role-card.parent::before {
   background:
     linear-gradient(180deg, rgba(255,255,255,0.04), rgba(5,18,55,0.16)),
-    url("cave-river-quest/assets/generated/guardian-robot-alpha.png") center / 118% auto no-repeat,
+    url("assets/ui/progress-dashboard.svg") center / 92% auto no-repeat,
     linear-gradient(180deg, #eaf8ff, #d8d7ff) !important;
-}
-
-body.bq-holistic-shell .quick-action-ref span {
-  overflow: hidden;
-  border: 3px solid rgba(255,255,255,0.72) !important;
-  width: 68px !important;
-  height: 54px !important;
-  border-radius: 16px !important;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.12), rgba(5,18,55,0.18)),
-    url("assets/ui/arcade-rewards.svg") center / cover no-repeat,
-    rgba(255,255,255,0.86) !important;
-  box-shadow: 0 14px 24px rgba(13, 34, 92, 0.14) !important;
-}
-
-body.bq-holistic-shell .quick-action-ref span::before,
-body.bq-holistic-shell .quick-action-ref span::after {
-  display: none !important;
-}
-
-body.bq-holistic-shell .quick-action-ref.grammar span {
-  background:
-    url("assets/ui/grammar-notebook.svg") center / cover no-repeat !important;
-}
-
-body.bq-holistic-shell .quick-action-ref.chalk span {
-  background:
-    url("assets/ui/blackboard-lesson.svg") center / cover no-repeat !important;
-}
-
-body.bq-holistic-shell .quick-action-ref.chart span {
-  background:
-    url("assets/ui/progress-dashboard.svg") center / cover no-repeat !important;
-}
-
-body.bq-holistic-shell .quick-action-ref small {
-  max-width: 92px;
-  color: #10164f !important;
-  font-size: 0.78rem !important;
-  line-height: 1.08 !important;
 }
 
 body.bq-holistic-shell .academy-tile-ref.maths::after {
@@ -1451,7 +1386,7 @@ body.bq-holistic-shell .student-face {
   overflow: hidden;
   border: 3px solid rgba(255,255,255,0.7);
   background:
-    url("street-smart-rescue/assets/generated/kid-standing-alpha.png") center 36% / 148% auto no-repeat,
+    url("assets/ui/bright-quest-mark.svg") center / 72% auto no-repeat,
     linear-gradient(180deg, #e9f7ff, #b9e5ff) !important;
   box-shadow: 0 12px 22px rgba(7, 24, 73, 0.18);
 }
@@ -1472,7 +1407,7 @@ body.bq-holistic-shell .dial-card span {
   border-radius: 20px !important;
   background:
     linear-gradient(180deg, rgba(255,255,255,0.0), rgba(5,18,55,0.24)),
-    url("treasure-quest/assets/pirate-avatar.png") center / cover no-repeat !important;
+    url("assets/ui/progress-dashboard.svg") center / cover no-repeat !important;
   color: #fff !important;
   text-shadow: 0 2px 10px rgba(0,0,0,0.42);
   box-shadow: 0 16px 24px rgba(13, 34, 92, 0.16);
@@ -1481,44 +1416,36 @@ body.bq-holistic-shell .dial-card span {
 body.bq-holistic-shell .progress-dials-ref .dial-card:nth-child(2) span {
   background:
     linear-gradient(180deg, rgba(255,255,255,0.0), rgba(5,18,55,0.24)),
-    url("cave-river-quest/assets/generated/guardian-robot-alpha.png") center / 130% auto no-repeat !important;
+    url("assets/ui/reading-forest.svg") center / cover no-repeat !important;
 }
 
 body.bq-holistic-shell .progress-dials-ref .dial-card:nth-child(3) span {
   background:
     linear-gradient(180deg, rgba(255,255,255,0.0), rgba(5,18,55,0.2)),
-    url("cave-river-quest/assets/generated/painted-rowboat-rowing-frames-alpha.png") 10% 50% / 340% auto no-repeat !important;
+    url("assets/ui/reasoning-lab.svg") center / cover no-repeat !important;
 }
 
 body.bq-holistic-shell .progress-dials-ref .dial-card.tests span {
   background:
     linear-gradient(180deg, rgba(255,255,255,0.04), rgba(5,18,55,0.24)),
-    url("cave-river-quest/assets/generated/portal-gate-v2-alpha.png") center / 112% auto no-repeat !important;
+    url("assets/ui/world-challenge.svg") center / cover no-repeat !important;
 }
 
 body.bq-holistic-shell .intl-art-ref span {
+  display: none !important;
   width: 96px !important;
   height: 64px !important;
   border-radius: 16px !important;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(5,18,55,0.18)),
-    url("street-smart-rescue/assets/generated/kid-car-alpha.png") center / 120% auto no-repeat,
-    rgba(255,255,255,0.72) !important;
+  background: rgba(255,255,255,0.72) !important;
 }
 
 body.bq-holistic-shell .intl-1 .intl-art-ref span {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(5,18,55,0.18)),
-    url("cave-river-quest/assets/generated/painted-boat-boy-alpha.png") center / 120% auto no-repeat,
-    rgba(255,255,255,0.72) !important;
+  background: rgba(255,255,255,0.72) !important;
 }
 
 body.bq-holistic-shell .intl-3 .intl-art-ref span {
   transform: none !important;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(5,18,55,0.16)),
-    url("treasure-quest/assets/pirate-avatar.png") center / cover no-repeat,
-    rgba(255,255,255,0.72) !important;
+  background: rgba(255,255,255,0.72) !important;
 }
 
 body.bq-premium-shell .recommendation-orbit,
@@ -1528,7 +1455,7 @@ body.bq-premium-shell .writing-score-ring {
   border-radius: 26px !important;
   background:
     linear-gradient(180deg, rgba(255,255,255,0.06), rgba(5,18,55,0.2)),
-    url("cave-river-quest/assets/generated/portal-gate-v2-alpha.png") center / 112% auto no-repeat,
+    url("assets/ui/progress-dashboard.svg") center / cover no-repeat,
     rgba(255,255,255,0.86) !important;
 }
 
@@ -1554,7 +1481,7 @@ body.bq-premium-shell .cockpit-snapshot-card::before {
   pointer-events: none;
   background:
     linear-gradient(180deg, rgba(255,255,255,0.0), rgba(5,18,55,0.18)),
-    url("cave-river-quest/assets/generated/treasure-chest-alpha.png") center / contain no-repeat;
+    url("assets/ui/arcade-rewards.svg") center / contain no-repeat;
 }
 
 @keyframes premium-rocket {

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="Scholarship stretch card">
+  <defs><linearGradient id="bg" x1="0" x2="1"><stop stop-color="#f5e9ff"/><stop offset="1" stop-color="#c8f3ff"/></linearGradient></defs>
+  <rect width="320" height="180" rx="24" fill="url(#bg)"/>
+  <path d="M0 126c78-34 148-32 210-2 42 20 76 20 110 4v52H0z" fill="#60ca79"/>
+  <circle cx="160" cy="86" r="56" fill="#ffd85a"/>
+  <path d="M160 34l14 36 38 2-30 22 11 37-33-22-33 22 11-37-30-22 38-2z" fill="#ff8a2a"/>
+  <path d="M94 140h132" stroke="#10205f" stroke-opacity=".22" stroke-width="12" stroke-linecap="round"/>
+  <path d="M244 42l18 24 30 6-22 20 4 30-30-13-28 13 4-30-22-20 30-6z" fill="#fff" opacity=".72"/>
+</svg>

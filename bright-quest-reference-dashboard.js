@@ -113,12 +113,6 @@
           <span class="b">Bright</span> <span class="q">Quest</span>
           <small>Practice. Play. Improve.</small>
         </div>
-        <div class="reference-quick-actions">
-          ${quickAction('gift', 'Play & Win', 'arcade')}
-          ${quickAction('grammar', 'English Grammar', 'grammar')}
-          ${quickAction('chalk', 'Blackboard', 'blackboard')}
-          ${quickAction('chart', 'Progress', 'progress')}
-        </div>
       </header>
 
       <div class="reference-layout">
@@ -234,10 +228,6 @@
       </div>
     `;
     wireReferenceDashboard(ref);
-  }
-
-  function quickAction(type, label, zone = "") {
-    return `<button type="button" class="quick-action-ref ${type}" ${zone ? `data-ref-zone="${zone}"` : ""}><span></span><small>${label}</small></button>`;
   }
 
   function scoreText(attempt) {
