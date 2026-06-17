@@ -1289,6 +1289,177 @@ body.bq-holistic-shell .mini-globe {
     url("cave-river-quest/assets/generated/painted-cave-river.png") center / cover no-repeat !important;
 }
 
+/* Graphics pass 2: remove the remaining small glyphs, faces, and orbit-like PowerPoint symbols. */
+body.bq-premium-shell .role-panel .quest-mark,
+body.bq-premium-shell #profileScreen .quest-mark {
+  display: none !important;
+}
+
+body.bq-premium-shell .role-card::before {
+  content: "" !important;
+  width: 76px !important;
+  height: 64px !important;
+  border: 3px solid rgba(255,255,255,0.72);
+  border-radius: 18px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(5,18,55,0.14)),
+    url("street-smart-rescue/assets/generated/kid-standing-alpha.png") center 34% / 132% auto no-repeat,
+    linear-gradient(180deg, #eaf8ff, #bfeaff) !important;
+  box-shadow: 0 14px 24px rgba(13, 34, 92, 0.14);
+}
+
+body.bq-premium-shell .role-card.parent::before {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(5,18,55,0.16)),
+    url("cave-river-quest/assets/generated/guardian-robot-alpha.png") center / 118% auto no-repeat,
+    linear-gradient(180deg, #eaf8ff, #d8d7ff) !important;
+}
+
+body.bq-holistic-shell .quick-action-ref span {
+  overflow: hidden;
+  border: 3px solid rgba(255,255,255,0.72) !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.12), rgba(5,18,55,0.18)),
+    url("cave-river-quest/assets/generated/treasure-chest-alpha.png") center / 90% auto no-repeat,
+    rgba(255,255,255,0.86) !important;
+  box-shadow: 0 14px 24px rgba(13, 34, 92, 0.14) !important;
+}
+
+body.bq-holistic-shell .quick-action-ref span::before,
+body.bq-holistic-shell .quick-action-ref span::after {
+  display: none !important;
+}
+
+body.bq-holistic-shell .quick-action-ref.grammar span {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.12), rgba(5,18,55,0.16)),
+    url("cave-river-quest/assets/generated/journey-plate-8.png") center / cover no-repeat !important;
+}
+
+body.bq-holistic-shell .quick-action-ref.chalk span {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.08), rgba(5,18,55,0.22)),
+    url("cave-river-quest/assets/generated/painted-gate-alpha.png") center / 96% auto no-repeat,
+    rgba(255,255,255,0.82) !important;
+}
+
+body.bq-holistic-shell .quick-action-ref.chart span {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.12), rgba(5,18,55,0.14)),
+    url("cave-river-quest/assets/generated/guardian-robot-alpha.png") center / 118% auto no-repeat,
+    rgba(255,255,255,0.86) !important;
+}
+
+body.bq-holistic-shell .student-face {
+  overflow: hidden;
+  border: 3px solid rgba(255,255,255,0.7);
+  background:
+    url("street-smart-rescue/assets/generated/kid-standing-alpha.png") center 36% / 148% auto no-repeat,
+    linear-gradient(180deg, #e9f7ff, #b9e5ff) !important;
+  box-shadow: 0 12px 22px rgba(7, 24, 73, 0.18);
+}
+
+body.bq-holistic-shell .academy-player-strip .student-face,
+body.bq-holistic-shell .student-badge .student-face {
+  width: 58px !important;
+  height: 58px !important;
+  border-radius: 18px !important;
+}
+
+body.bq-holistic-shell .dial-card span {
+  position: relative;
+  overflow: hidden;
+  width: 76px !important;
+  height: 76px !important;
+  border: 3px solid rgba(255,255,255,0.82);
+  border-radius: 20px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.0), rgba(5,18,55,0.24)),
+    url("treasure-quest/assets/pirate-avatar.png") center / cover no-repeat !important;
+  color: #fff !important;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.42);
+  box-shadow: 0 16px 24px rgba(13, 34, 92, 0.16);
+}
+
+body.bq-holistic-shell .progress-dials-ref .dial-card:nth-child(2) span {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.0), rgba(5,18,55,0.24)),
+    url("cave-river-quest/assets/generated/guardian-robot-alpha.png") center / 130% auto no-repeat !important;
+}
+
+body.bq-holistic-shell .progress-dials-ref .dial-card:nth-child(3) span {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.0), rgba(5,18,55,0.2)),
+    url("cave-river-quest/assets/generated/painted-rowboat-rowing-frames-alpha.png") 10% 50% / 340% auto no-repeat !important;
+}
+
+body.bq-holistic-shell .progress-dials-ref .dial-card.tests span {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(5,18,55,0.24)),
+    url("cave-river-quest/assets/generated/portal-gate-v2-alpha.png") center / 112% auto no-repeat !important;
+}
+
+body.bq-holistic-shell .intl-art-ref span {
+  width: 96px !important;
+  height: 64px !important;
+  border-radius: 16px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(5,18,55,0.18)),
+    url("street-smart-rescue/assets/generated/kid-car-alpha.png") center / 120% auto no-repeat,
+    rgba(255,255,255,0.72) !important;
+}
+
+body.bq-holistic-shell .intl-1 .intl-art-ref span {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(5,18,55,0.18)),
+    url("cave-river-quest/assets/generated/painted-boat-boy-alpha.png") center / 120% auto no-repeat,
+    rgba(255,255,255,0.72) !important;
+}
+
+body.bq-holistic-shell .intl-3 .intl-art-ref span {
+  transform: none !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(5,18,55,0.16)),
+    url("treasure-quest/assets/pirate-avatar.png") center / cover no-repeat,
+    rgba(255,255,255,0.72) !important;
+}
+
+body.bq-premium-shell .recommendation-orbit,
+body.bq-premium-shell .writing-score-ring {
+  overflow: hidden;
+  border: 5px solid rgba(255,255,255,0.75) !important;
+  border-radius: 26px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(5,18,55,0.2)),
+    url("cave-river-quest/assets/generated/portal-gate-v2-alpha.png") center / 112% auto no-repeat,
+    rgba(255,255,255,0.86) !important;
+}
+
+body.bq-premium-shell .recommendation-orbit::before,
+body.bq-premium-shell .recommendation-orbit::after,
+body.bq-premium-shell .cockpit-snapshot-card::after {
+  display: none !important;
+}
+
+body.bq-premium-shell .cockpit-snapshot-card {
+  overflow: hidden;
+}
+
+body.bq-premium-shell .cockpit-snapshot-card::before {
+  content: "";
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  width: 72px;
+  height: 56px;
+  border-radius: 16px;
+  opacity: 0.82;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.0), rgba(5,18,55,0.18)),
+    url("cave-river-quest/assets/generated/treasure-chest-alpha.png") center / contain no-repeat;
+}
+
 @keyframes premium-rocket {
   0%, 100% { transform: translate(0, 0) rotate(28deg); }
   50% { transform: translate(9px, -8px) rotate(34deg); }
