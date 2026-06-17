@@ -289,30 +289,6 @@
     });
   }
 
-  function wireStatusRail(rail) {
-    rail.querySelectorAll("[data-rail-action]").forEach((button) => {
-      button.addEventListener("click", () => {
-        const action = button.dataset.railAction;
-        if (action === "plan") {
-          document.querySelector(".adventure-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
-          return;
-        }
-        if (action === "learn") {
-          window.location.href = "english-grammar/";
-          return;
-        }
-        if (action === "play") {
-          if (window.openGamesList) window.openGamesList();
-          else document.querySelector("#academyGamesButton")?.click();
-          return;
-        }
-        if (action === "review") {
-          document.querySelector("[data-parent-jump]")?.click();
-        }
-      });
-    });
-  }
-
   function upgradeTestSurface() {
     const testScreen = document.querySelector("#testScreen");
     if (!testScreen || testScreen.dataset.premiumSkin === "true") return;

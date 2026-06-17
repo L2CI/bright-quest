@@ -261,85 +261,6 @@ body.bq-premium-shell #profileScreen .hero-panel h1 {
     linear-gradient(145deg, #141a70, #2a41c7) !important;
 }
 
-.premium-status-rail {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 6px;
-}
-
-.premium-status-rail button {
-  position: relative;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 4px 12px;
-  align-items: center;
-  min-height: 64px;
-  overflow: hidden;
-  border: 0;
-  border-radius: 20px;
-  padding: 12px 16px 12px 14px;
-  color: #516083;
-  background:
-    linear-gradient(135deg, rgba(255,255,255,0.94), rgba(239,248,255,0.86)),
-    #fff;
-  box-shadow:
-    inset 0 0 0 2px rgba(211, 233, 255, 0.95),
-    0 12px 24px rgba(22, 39, 102, 0.08);
-  text-align: left;
-  font-size: 0.78rem;
-  font-weight: 950;
-  transition:
-    transform 150ms ease,
-    box-shadow 150ms ease,
-    filter 150ms ease;
-}
-
-.premium-status-rail button::before {
-  content: "";
-  grid-row: span 2;
-  width: 36px;
-  height: 36px;
-  border-radius: 13px;
-  background:
-    radial-gradient(circle at 38% 32%, rgba(255,255,255,0.62), transparent 16%),
-    linear-gradient(135deg, var(--premium-blue), var(--premium-purple));
-  box-shadow: 0 8px 18px rgba(23,107,255,0.22);
-}
-
-.premium-status-rail button:nth-child(2)::before {
-  background: linear-gradient(135deg, #10a06c, #32c7e8);
-}
-
-.premium-status-rail button:nth-child(3)::before {
-  background: linear-gradient(135deg, #f4b63f, #f25596);
-}
-
-.premium-status-rail button:nth-child(4)::before {
-  background: linear-gradient(135deg, #151d72, #4fd4ff);
-}
-
-.premium-status-rail button:hover,
-.premium-status-rail button:focus-visible {
-  transform: translateY(-3px);
-  filter: saturate(1.08);
-  box-shadow:
-    inset 0 0 0 2px rgba(153, 213, 255, 0.95),
-    0 18px 32px rgba(22, 39, 102, 0.14);
-}
-
-.premium-status-rail b {
-  display: block;
-  color: var(--premium-ink);
-  font-size: 0.92rem;
-}
-
-.premium-status-rail span {
-  display: block;
-  line-height: 1.15;
-}
-
 .premium-dashboard .reference-layout {
   grid-template-columns: minmax(410px, 1.04fr) minmax(430px, 1.06fr) minmax(390px, 0.98fr) !important;
   gap: 18px !important;
@@ -1872,8 +1793,7 @@ body.bq-premium-shell .cockpit-snapshot-card::before {
   }
 
   .premium-dashboard .reference-topbar,
-  .premium-dashboard .reference-layout,
-  .premium-status-rail {
+  .premium-dashboard .reference-layout {
     grid-template-columns: 1fr !important;
   }
 
@@ -1894,9 +1814,6 @@ body.bq-premium-shell .cockpit-snapshot-card::before {
     min-height: 860px !important;
   }
 
-  .premium-status-rail {
-    display: none;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
