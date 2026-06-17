@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 420" role="img" aria-labelledby="title desc">
+  <title id="title">Bright Quest result celebration</title>
+  <desc id="desc">A polished quest-complete scene with a trophy, report card, stars, ribbons, and progress trail.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="760" y1="0" y2="420" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F6FBFF"/>
+      <stop offset=".48" stop-color="#EAF2FF"/>
+      <stop offset="1" stop-color="#FFF5D8"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="231" x2="478" y1="65" y2="316" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF47B"/>
+      <stop offset=".56" stop-color="#FFD23C"/>
+      <stop offset="1" stop-color="#FF8F20"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="85" x2="667" y1="72" y2="360" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#17217C"/>
+      <stop offset=".52" stop-color="#176BFF"/>
+      <stop offset="1" stop-color="#22C7D9"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="18" stdDeviation="14" flood-color="#09205C" flood-opacity=".22"/>
+    </filter>
+  </defs>
+  <rect width="760" height="420" rx="38" fill="url(#bg)"/>
+  <path d="M0 310c100-48 196-66 288-54 92 13 148 56 236 46 82-10 142-55 236-45v163H0z" fill="#DDF8FF"/>
+  <path d="M58 322c94-36 177-47 251-32 82 17 132 50 209 39 58-8 104-31 169-27" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" stroke-dasharray="1 26" opacity=".95"/>
+  <g filter="url(#shadow)">
+    <path d="M339 64h92v28c0 73-38 119-91 119s-91-46-91-119V64z" fill="url(#gold)"/>
+    <path d="M249 91h-44c-3 48 21 78 67 89M431 91h44c3 48-21 78-67 89" fill="none" stroke="#FFB52C" stroke-width="22" stroke-linecap="round"/>
+    <rect x="301" y="210" width="78" height="44" rx="14" fill="#17217C"/>
+    <rect x="257" y="252" width="166" height="42" rx="17" fill="#FFFFFF"/>
+    <path d="M313 118l18 50 52 1-42 30 16 51-43-31-42 31 16-51-42-30 52-1z" fill="#FFFFFF" opacity=".92"/>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="88" y="86" width="188" height="206" rx="30" fill="#FFFFFF"/>
+    <path d="M122 140h116M122 181h96M122 222h132" stroke="#D8E7FF" stroke-width="14" stroke-linecap="round"/>
+    <path d="M127 264l33-31 30 22 50-61" fill="none" stroke="#21C46B" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="103" y="86" width="35" height="206" rx="17" fill="#176BFF" opacity=".14"/>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="486" y="112" width="180" height="154" rx="30" fill="#FFFFFF"/>
+    <path d="M524 224h104M524 192h88M524 160h52" stroke="#D8E7FF" stroke-width="13" stroke-linecap="round"/>
+    <circle cx="632" cy="164" r="28" fill="#F25596"/>
+    <path d="M610 241l19-19 17 14 30-37" fill="none" stroke="#21C46B" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <path d="M172 54l10 28 30 1-24 18 9 29-25-18-25 18 9-29-24-18 30-1zM604 52l12 34 36 1-29 21 11 35-30-21-30 21 11-35-29-21 36-1zM431 292l9 24 26 1-21 15 8 25-22-15-21 15 8-25-21-15 26-1z" fill="url(#gold)" opacity=".96"/>
+  <path d="M89 352c71-26 134-33 191-21 62 14 103 40 161 31 43-6 77-24 126-22" fill="none" stroke="url(#blue)" stroke-width="12" stroke-linecap="round" opacity=".22"/>
+</svg>
