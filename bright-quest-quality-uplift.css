@@ -659,6 +659,10 @@ body.bq-holistic-shell .academy-card-grid-ref {
   gap: 16px !important;
 }
 
+body.bq-holistic-shell .reference-layout .academy-card-grid-ref {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
 body.bq-holistic-shell .academy-tile-ref {
   min-height: 176px !important;
   border-radius: 26px !important;
@@ -1380,6 +1384,97 @@ body.bq-holistic-shell .academy-tile-ref.arcade::after {
   background:
     linear-gradient(180deg, rgba(255,255,255,0.05), rgba(5,18,55,0.12)),
     url("assets/ui/arcade-rewards.svg") center / cover no-repeat !important;
+}
+
+/* Cover-card pass: make academy modules read as graphics, not colored tiles with pasted thumbnails. */
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref {
+  min-height: 166px !important;
+  padding: 18px 18px 68px !important;
+  border: 1px solid rgba(255,255,255,0.64) !important;
+  background-position: center !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.2),
+    0 18px 34px rgba(19, 36, 94, 0.18) !important;
+}
+
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref::before {
+  opacity: 1;
+  background:
+    linear-gradient(180deg, rgba(6, 18, 52, 0.08), rgba(6, 18, 52, 0.12) 38%, rgba(6, 18, 52, 0.84) 100%) !important;
+}
+
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref::after {
+  inset: auto 14px 14px auto !important;
+  width: 58px !important;
+  height: 44px !important;
+  opacity: 0 !important;
+  border: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.maths {
+  background-image: url("assets/ui/maths-mountain.svg") !important;
+}
+
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.english {
+  background-image: url("assets/ui/reading-forest.svg") !important;
+}
+
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.grammar {
+  background-image: url("assets/ui/grammar-notebook.svg") !important;
+}
+
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.reason {
+  background-image: url("assets/ui/reasoning-lab.svg") !important;
+}
+
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.world {
+  background-image: url("assets/ui/world-challenge.svg") !important;
+}
+
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.arcade {
+  background-image: url("assets/ui/arcade-rewards.svg") !important;
+}
+
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref > span {
+  opacity: 1;
+  background: rgba(8, 21, 63, 0.74) !important;
+  border-color: rgba(255,255,255,0.66) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref > strong,
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref > small {
+  color: #fff !important;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.44);
+}
+
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref > strong {
+  align-self: end;
+  max-width: calc(100% - 56px);
+  margin-top: auto;
+  font-size: 1rem !important;
+  line-height: 1.02 !important;
+}
+
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref > small {
+  max-width: calc(100% - 56px);
+  font-size: 0.76rem !important;
+  line-height: 1.08 !important;
+}
+
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref > i {
+  position: absolute;
+  left: 18px;
+  bottom: 16px;
+  background: rgba(255,255,255,0.94) !important;
+  color: #10164f !important;
+  box-shadow: 0 10px 22px rgba(0,0,0,0.18);
 }
 
 body.bq-holistic-shell .student-face {
