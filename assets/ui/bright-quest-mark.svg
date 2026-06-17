@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="Bright Quest star badge">
+  <defs>
+    <linearGradient id="tile" x1="24" x2="154" y1="18" y2="166" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#111a78"/>
+      <stop offset=".58" stop-color="#2748d3"/>
+      <stop offset="1" stop-color="#5d56e8"/>
+    </linearGradient>
+    <linearGradient id="star" x1="46" x2="128" y1="38" y2="130" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff67e"/>
+      <stop offset=".68" stop-color="#ffd333"/>
+      <stop offset="1" stop-color="#ff9f1f"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#111a78" flood-opacity=".28"/>
+    </filter>
+  </defs>
+  <rect x="10" y="10" width="160" height="160" rx="42" fill="url(#tile)" filter="url(#shadow)"/>
+  <circle cx="132" cy="45" r="18" fill="#fff" opacity=".22"/>
+  <path d="M88 30l16 43 46 2-36 27 13 45-39-26-39 26 13-45-36-27 46-2z" fill="url(#star)"/>
+  <path d="M65 101c12 12 34 12 46 0" fill="none" stroke="#10164f" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="70" cy="77" r="6" fill="#10164f"/>
+  <circle cx="106" cy="77" r="6" fill="#10164f"/>
+</svg>

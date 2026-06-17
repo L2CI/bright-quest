@@ -257,8 +257,12 @@ body.bq-premium-shell #profileScreen .hero-panel h1 {
   height: 86px !important;
   border-radius: 26px !important;
   background:
-    radial-gradient(circle at 68% 28%, rgba(255,255,255,0.46), transparent 13%),
-    linear-gradient(145deg, #141a70, #2a41c7) !important;
+    url("assets/ui/bright-quest-mark.svg") center / cover no-repeat !important;
+}
+
+.premium-dashboard .reference-star-logo span,
+.premium-dashboard .reference-star-logo span::after {
+  display: none !important;
 }
 
 .premium-dashboard .reference-layout {
