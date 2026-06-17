@@ -526,6 +526,36 @@ h3 {
   transition: transform 420ms ease, filter 420ms ease, opacity 420ms ease;
 }
 
+.grammar-studio .beat-phase {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 360ms ease, transform 360ms ease;
+}
+
+.beat-intro .grammar-studio .phase-intro,
+.beat-example .grammar-studio .phase-example,
+.beat-diagram .grammar-studio .phase-diagram,
+.beat-check .grammar-studio .phase-check,
+.beat-apply .grammar-studio .phase-apply {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.beat-example .grammar-studio .phase-intro,
+.beat-diagram .grammar-studio .phase-intro,
+.beat-diagram .grammar-studio .phase-example,
+.beat-check .grammar-studio .phase-intro,
+.beat-check .grammar-studio .phase-example,
+.beat-check .grammar-studio .phase-diagram,
+.beat-apply .grammar-studio .beat-phase {
+  opacity: 0.9;
+  transform: translateY(0);
+}
+
+.beat-apply .grammar-studio .phase-apply {
+  opacity: 1;
+}
+
 .board-beat-1 .grammar-token.token-1,
 .board-beat-2 .grammar-token.token-2,
 .board-beat-3 .grammar-token.token-3,
