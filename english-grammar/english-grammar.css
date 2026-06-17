@@ -164,6 +164,7 @@ h3 {
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(250px, 0.95fr);
   gap: 14px;
+  align-items: start;
   min-height: 0;
 }
 
@@ -221,8 +222,9 @@ h3 {
 
 .board-shell {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  min-height: min(82vh, 920px);
+  grid-template-rows: auto auto;
+  align-self: start;
+  min-height: 0;
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 26px;
   padding: 12px;
@@ -248,7 +250,9 @@ h3 {
 .blackboard {
   position: relative;
   min-height: 0;
-  height: 100%;
+  aspect-ratio: 1200 / 680;
+  height: auto;
+  max-height: min(68vh, 680px);
   overflow: hidden;
   border: clamp(8px, 1vw, 14px) solid #76563a;
   border-radius: 8px;
@@ -916,8 +920,8 @@ h3 {
     grid-template-columns: 1fr;
   }
 
-  .board-shell {
-    min-height: 64vh;
+  .blackboard {
+    max-height: none;
   }
 
   .lesson-side {
