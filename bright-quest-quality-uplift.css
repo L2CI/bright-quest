@@ -576,18 +576,26 @@ body.bq-holistic-shell .reference-topbar {
 body.bq-holistic-shell .reference-quick-actions {
   align-self: center;
   justify-self: end;
+  grid-template-columns: repeat(4, minmax(118px, 1fr)) !important;
   gap: 12px !important;
+  width: min(560px, 100%) !important;
 }
 
 body.bq-holistic-shell .quick-action-ref {
-  opacity: 0.74;
-  transform: scale(0.92);
+  min-height: 108px !important;
+  border: 1px solid rgba(187, 220, 255, 0.94) !important;
+  border-radius: 18px !important;
+  padding: 10px 10px 9px !important;
+  background: rgba(255,255,255,0.72) !important;
+  opacity: 1;
+  transform: none;
+  box-shadow: 0 14px 26px rgba(19, 48, 116, 0.10);
 }
 
 body.bq-holistic-shell .quick-action-ref:hover,
 body.bq-holistic-shell .quick-action-ref:focus-visible {
   opacity: 1;
-  transform: translateY(-3px) scale(0.94) !important;
+  transform: translateY(-5px) !important;
 }
 
 body.bq-holistic-shell .learning-studio-banner {
@@ -1335,8 +1343,8 @@ body.bq-holistic-shell .academy-tile-ref.english::after {
 
 body.bq-holistic-shell .academy-tile-ref.grammar::after {
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(5,18,55,0.24)),
-    url("cave-river-quest/assets/generated/journey-plate-8.png") center / cover no-repeat !important;
+    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(5,18,55,0.14)),
+    url("assets/ui/grammar-notebook.svg") center / cover no-repeat !important;
 }
 
 body.bq-holistic-shell .academy-tile-ref.reason::after {
@@ -1447,9 +1455,12 @@ body.bq-premium-shell .role-card.parent::before {
 body.bq-holistic-shell .quick-action-ref span {
   overflow: hidden;
   border: 3px solid rgba(255,255,255,0.72) !important;
+  width: 68px !important;
+  height: 54px !important;
+  border-radius: 16px !important;
   background:
     linear-gradient(180deg, rgba(255,255,255,0.12), rgba(5,18,55,0.18)),
-    url("cave-river-quest/assets/generated/treasure-chest-alpha.png") center / 90% auto no-repeat,
+    url("assets/ui/arcade-rewards.svg") center / cover no-repeat,
     rgba(255,255,255,0.86) !important;
   box-shadow: 0 14px 24px rgba(13, 34, 92, 0.14) !important;
 }
@@ -1461,22 +1472,54 @@ body.bq-holistic-shell .quick-action-ref span::after {
 
 body.bq-holistic-shell .quick-action-ref.grammar span {
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.12), rgba(5,18,55,0.16)),
-    url("cave-river-quest/assets/generated/journey-plate-8.png") center / cover no-repeat !important;
+    url("assets/ui/grammar-notebook.svg") center / cover no-repeat !important;
 }
 
 body.bq-holistic-shell .quick-action-ref.chalk span {
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.08), rgba(5,18,55,0.22)),
-    url("cave-river-quest/assets/generated/painted-gate-alpha.png") center / 96% auto no-repeat,
-    rgba(255,255,255,0.82) !important;
+    url("assets/ui/blackboard-lesson.svg") center / cover no-repeat !important;
 }
 
 body.bq-holistic-shell .quick-action-ref.chart span {
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.12), rgba(5,18,55,0.14)),
-    url("cave-river-quest/assets/generated/guardian-robot-alpha.png") center / 118% auto no-repeat,
-    rgba(255,255,255,0.86) !important;
+    url("assets/ui/progress-dashboard.svg") center / cover no-repeat !important;
+}
+
+body.bq-holistic-shell .quick-action-ref small {
+  max-width: 92px;
+  color: #10164f !important;
+  font-size: 0.78rem !important;
+  line-height: 1.08 !important;
+}
+
+body.bq-holistic-shell .academy-tile-ref.maths::after {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(5,18,55,0.15)),
+    url("assets/ui/maths-mountain.svg") center / cover no-repeat !important;
+}
+
+body.bq-holistic-shell .academy-tile-ref.english::after {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(5,18,55,0.12)),
+    url("assets/ui/reading-forest.svg") center / cover no-repeat !important;
+}
+
+body.bq-holistic-shell .academy-tile-ref.reason::after {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(5,18,55,0.12)),
+    url("assets/ui/reasoning-lab.svg") center / cover no-repeat !important;
+}
+
+body.bq-holistic-shell .academy-tile-ref.world::after {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(5,18,55,0.15)),
+    url("assets/ui/world-challenge.svg") center / cover no-repeat !important;
+}
+
+body.bq-holistic-shell .academy-tile-ref.arcade::after {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(5,18,55,0.12)),
+    url("assets/ui/arcade-rewards.svg") center / cover no-repeat !important;
 }
 
 body.bq-holistic-shell .student-face {

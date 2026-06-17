@@ -283,20 +283,6 @@
       dashboard.prepend(canopy);
     }
 
-    const topbar = dashboard.querySelector(".reference-topbar");
-    if (topbar && !topbar.querySelector(".premium-status-rail")) {
-      const rail = document.createElement("div");
-      rail.className = "premium-status-rail";
-      rail.innerHTML = `
-        <button type="button" data-rail-action="plan"><b>Plan</b><span>choose mission</span></button>
-        <button type="button" data-rail-action="learn"><b>Learn</b><span>teacher lesson</span></button>
-        <button type="button" data-rail-action="play"><b>Play</b><span>reward game</span></button>
-        <button type="button" data-rail-action="review"><b>Review</b><span>parent cockpit</span></button>
-      `;
-      topbar.append(rail);
-      wireStatusRail(rail);
-    }
-
     dashboard.querySelectorAll(".academy-card-ref, .world-card-ref, .international-card-ref, .game-card-ref, .island-label, .quick-action-ref, .achievement-strip > *, .progress-dials-ref > *").forEach((item, index) => {
       item.classList.add("premium-tile");
       item.style.setProperty("--tile-index", index);
