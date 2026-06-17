@@ -23,6 +23,7 @@ const submitQuizButton = document.querySelector("#submitQuizButton");
 const quizFeedback = document.querySelector("#quizFeedback");
 const FREE_NAVIGATION_RELEASE = "grammar-free-navigation-001";
 const DYNAMIC_BOARD_RELEASE = "grammar-dynamic-board-001";
+const QUIZ_SYNC_RELEASE = "grammar-quiz-sync-002";
 
 const renderers = {
   "sentence-machine": grammarSentenceMachineSvg,
@@ -288,7 +289,7 @@ const boardMomentTimes = {
   conjunctions: 52,
   punctuation: 52,
   "paragraph-repair": 50,
-  "recap-quiz": 54
+  "recap-quiz": 72
 };
 
 const stepMeta = [
@@ -299,19 +300,19 @@ const stepMeta = [
 
 const gateQuizzes = {
   1: [
-    { prompt: "In 'Maya reads the comic', what is the subject?", options: ["Maya", "reads", "the comic"], answer: 0 },
-    { prompt: "In 'Sam's boxes', what does the apostrophe show?", options: ["Possession", "Future tense", "A conjunction"], answer: 0 },
-    { prompt: "In 'Omar should read', what is 'should'?", options: ["A modal helper", "A noun", "A preposition"], answer: 0 }
+    { prompt: "In 'Maya reads the comic', what is the subject?", options: ["Maya", "reads", "the comic"], answer: 0, why: "Maya is who the sentence is about." },
+    { prompt: "In 'Sam's boxes', what does the apostrophe show?", options: ["Possession", "Future tense", "A conjunction"], answer: 0, why: "The boxes belong to Sam." },
+    { prompt: "In 'Omar should read', what is 'should'?", options: ["A modal helper", "A noun", "A preposition"], answer: 0, why: "Should helps the main verb read." }
   ],
   2: [
-    { prompt: "Which group has both a subject and a verb?", options: ["under the old bridge", "the river rushed", "after lunch"], answer: 1 },
-    { prompt: "Which clause can stand alone?", options: ["Because the bell rang", "When the rain stopped", "The team cheered"], answer: 2 },
-    { prompt: "What changes when direct speech becomes indirect speech?", options: ["Pronoun and tense may change", "All nouns disappear", "No punctuation changes"], answer: 0 }
+    { prompt: "Which group has both a subject and a verb?", options: ["under the old bridge", "the river rushed", "after lunch"], answer: 1, why: "River is the subject and rushed is the verb." },
+    { prompt: "Which clause can stand alone?", options: ["Because the bell rang", "When the rain stopped", "The team cheered"], answer: 2, why: "The team cheered is a complete thought." },
+    { prompt: "What changes when direct speech becomes indirect speech?", options: ["Pronoun and tense may change", "All nouns disappear", "No punctuation changes"], answer: 0, why: "Reported speech often shifts pronouns and tense." }
   ],
   3: [
-    { prompt: "In 'Swimming is fun', what job is 'Swimming' doing?", options: ["Noun", "Main verb", "Conjunction"], answer: 0 },
-    { prompt: "In 'The barking dog woke us', what does 'barking' do?", options: ["Describes dog", "Acts as the main verb", "Shows a preposition"], answer: 0 },
-    { prompt: "What does active voice usually put first?", options: ["The doer", "The receiver", "The comma"], answer: 0 }
+    { prompt: "In 'Swimming is fun', what job is 'Swimming' doing?", options: ["Noun", "Main verb", "Conjunction"], answer: 0, why: "Swimming names the activity, so it works as a noun." },
+    { prompt: "In 'The barking dog woke us', what does 'barking' do?", options: ["Describes dog", "Acts as the main verb", "Shows a preposition"], answer: 0, why: "Barking describes which dog." },
+    { prompt: "What does active voice usually put first?", options: ["The doer", "The receiver", "The comma"], answer: 0, why: "Active voice usually starts with the person or thing doing the action." }
   ]
 };
 
@@ -396,7 +397,7 @@ function loadScene(index, offsetSeconds = 0, shouldPlay = playing) {
   sceneStartedAt = performance.now() - offset * 1000;
   courseElapsedAtSceneStart = sceneOffsets[activeSceneIndex];
 
-  board.classList.remove("paused", "animating", "finished", "board-beat-1", "board-beat-2", "board-beat-3", "board-beat-4");
+  board.classList.remove("paused", "animating", "finished", "board-beat-1", "board-beat-2", "board-beat-3", "board-beat-4", "quiz-beat-1", "quiz-beat-2", "quiz-beat-3", "quiz-beat-4", "quiz-beat-5", "quiz-beat-6");
   sceneTitle.textContent = scene.title;
   sceneCount.textContent = `Step ${activeStep} - Module ${activeSceneIndex + 1} of ${scenes.length}`;
   sceneDuration.textContent = formatTime(scene.duration);
@@ -414,11 +415,12 @@ function loadScene(index, offsetSeconds = 0, shouldPlay = playing) {
   audio.volume = 1;
   audio.playbackRate = 1.1;
   audio.preload = "auto";
-  audio.addEventListener("loadedmetadata", () => {
-    audio.currentTime = Math.min(offset, Math.max(0, (audio.duration || scene.duration) - 0.4));
-  }, { once: true });
+  syncAudioToOffset(offset);
   audio.addEventListener("error", () => {
     captionText.textContent = "Voice file is still being prepared. The board can play silently for now.";
+  });
+  audio.addEventListener("ended", () => {
+    if (playing && activeSceneIndex === scenes.indexOf(scene)) playNextScene();
   });
 
   setTimeline(courseElapsedAtSceneStart + offset);
@@ -431,6 +433,7 @@ function startPlayback() {
   completed = false;
   playing = true;
   sceneStartedAt = performance.now() - sceneElapsedOffset * 1000;
+  syncAudioToOffset(sceneElapsedOffset);
   if (audio.currentTime < 0.2) restartBoardAnimation();
   board.classList.remove("paused");
   board.classList.add("animating");
@@ -472,6 +475,7 @@ function playNextScene() {
   ladderProgress.passedSteps = uniqueNumbers([...ladderProgress.passedSteps, activeStep]);
   saveLadderProgress();
   renderLadderTabs();
+  window.setTimeout(() => openGateQuiz(activeStep), 450);
 }
 
 function rewind(seconds = 15) {
@@ -494,7 +498,27 @@ function currentElapsed() {
 
 function currentSceneTime() {
   if (!playing) return sceneElapsedOffset;
+  if (audio && Number.isFinite(audio.currentTime) && audio.readyState > 0) {
+    sceneElapsedOffset = audio.currentTime;
+    return audio.currentTime;
+  }
   return Math.max(0, (performance.now() - sceneStartedAt) / 1000);
+}
+
+function syncAudioToOffset(offset) {
+  if (!audio) return;
+  const setTime = () => {
+    const max = Math.max(0, (audio.duration || scenes[activeSceneIndex]?.duration || 0) - 0.35);
+    const target = Math.max(0, Math.min(offset, max || offset));
+    try {
+      audio.currentTime = target;
+      sceneElapsedOffset = target;
+    } catch {
+      sceneElapsedOffset = offset;
+    }
+  };
+  if (audio.readyState > 0) setTime();
+  else audio.addEventListener("loadedmetadata", setTime, { once: true });
 }
 
 function setTimeline(seconds) {
@@ -551,6 +575,17 @@ function updateBoardMoment(scene, seconds) {
   board.classList.toggle("dim-main-example", showMoment);
   board.classList.toggle("show-maya-example", scene.id === "sentence-machine" && showMoment);
   board.classList.toggle("dim-dog-example", scene.id === "sentence-machine" && showMoment);
+  updateQuizBoardBeats(scene, seconds);
+}
+
+function updateQuizBoardBeats(scene, seconds) {
+  const isQuiz = scene.id === "recap-quiz";
+  board.classList.toggle("quiz-beat-1", isQuiz && seconds >= 8);
+  board.classList.toggle("quiz-beat-2", isQuiz && seconds >= 20);
+  board.classList.toggle("quiz-beat-3", isQuiz && seconds >= 34);
+  board.classList.toggle("quiz-beat-4", isQuiz && seconds >= 49);
+  board.classList.toggle("quiz-beat-5", isQuiz && seconds >= 64);
+  board.classList.toggle("quiz-beat-6", isQuiz && seconds >= 76);
 }
 
 function restartBoardAnimation() {
@@ -581,19 +616,21 @@ function courseTotal() {
 function openGateQuiz(step) {
   const questions = gateQuizzes[step] || [];
   quizEyebrow.textContent = `Step ${step} practice`;
-  quizTitle.textContent = step < 3 ? "Optional quick check" : "Final grammar ladder check";
+  quizTitle.textContent = step < 3 ? "Choose the best answer" : "Final grammar ladder check";
   quizFeedback.textContent = "";
   quizQuestions.innerHTML = questions.map((question, index) => `
-    <fieldset class="quiz-question">
+    <fieldset class="quiz-question" data-question="${index}">
       <legend>${index + 1}. ${escapeHtml(question.prompt)}</legend>
       ${question.options.map((option, optionIndex) => `
-        <label>
-          <input type="radio" name="gate-${index}" value="${optionIndex}" />
+        <label class="answer-choice">
+          <input type="radio" name="gate-${index}" value="${optionIndex}" data-answer-choice />
           <span>${escapeHtml(option)}</span>
         </label>
       `).join("")}
+      <p class="question-feedback" aria-live="polite"></p>
     </fieldset>
   `).join("");
+  submitQuizButton.disabled = true;
   quizModal.classList.remove("hidden");
 }
 
@@ -601,6 +638,16 @@ function gradeGateQuiz() {
   const questions = gateQuizzes[activeStep] || [];
   const score = questions.reduce((sum, question, index) => {
     const selected = quizQuestions.querySelector(`input[name="gate-${index}"]:checked`);
+    const fieldset = quizQuestions.querySelector(`[data-question="${index}"]`);
+    const selectedValue = Number(selected?.value);
+    fieldset?.classList.toggle("answered-correct", selectedValue === question.answer);
+    fieldset?.classList.toggle("answered-wrong", selected && selectedValue !== question.answer);
+    const feedback = fieldset?.querySelector(".question-feedback");
+    if (feedback) {
+      feedback.textContent = selectedValue === question.answer
+        ? `Correct. ${question.why}`
+        : `Not quite. Best answer: ${question.options[question.answer]}. ${question.why}`;
+    }
     return sum + (Number(selected?.value) === question.answer ? 1 : 0);
   }, 0);
   if (score !== questions.length) {
@@ -670,6 +717,21 @@ closeQuizButton.addEventListener("click", () => {
 });
 
 submitQuizButton.addEventListener("click", gradeGateQuiz);
+
+quizQuestions.addEventListener("change", (event) => {
+  const input = event.target.closest("[data-answer-choice]");
+  if (!input) return;
+  const fieldset = input.closest(".quiz-question");
+  fieldset?.querySelectorAll(".answer-choice").forEach((choice) => {
+    choice.classList.toggle("selected", choice.contains(input));
+  });
+  fieldset?.classList.remove("answered-correct", "answered-wrong");
+  const feedback = fieldset?.querySelector(".question-feedback");
+  if (feedback) feedback.textContent = "";
+  const answered = gateQuizzes[activeStep].every((_, index) => quizQuestions.querySelector(`input[name="gate-${index}"]:checked`));
+  submitQuizButton.disabled = !answered;
+  quizFeedback.textContent = answered ? "All set. Tap Check answers when ready." : "Choose one answer for each question.";
+});
 
 sceneList.addEventListener("click", (event) => {
   const button = event.target.closest("[data-scene]");
@@ -1175,22 +1237,42 @@ function grammarParagraphRepairSvg() {
 
 function grammarRecapQuizSvg() {
   return baseSvg(`
-    <g class="main-example">
+    <g class="main-example recap-board">
     ${text(600, 58, "Grammar Power-Up Quiz", 0.1, 32)}
-    ${text(600, 135, "The tiny robot danced happily beside the desk.", 0.8, 30)}
-    ${wordBox(105, 230, "robot", 1.5, "#9fdf9f", 145)}
-    ${smallText(177, 315, "noun", 2.0, "#9fdf9f")}
-    ${wordBox(310, 230, "danced", 2.6, "#f3d56b", 150)}
-    ${smallText(385, 315, "verb", 3.1, "#f3d56b")}
-    ${wordBox(520, 230, "tiny", 3.7, "#8bd3dd", 130)}
-    ${smallText(585, 315, "adjective", 4.2, "#8bd3dd")}
-    ${wordBox(710, 230, "happily", 4.8, "#f4a6b8", 160)}
-    ${smallText(790, 315, "adverb", 5.3, "#f4a6b8")}
-    ${wordBox(930, 230, "beside", 5.9, "#f5f5f0", 150)}
-    ${smallText(1005, 315, "preposition", 6.4)}
-    ${path("M250 460 C390 390 520 390 660 460", 7.0, 0.8, "#f5f5f0", 6, 'marker-end="url(#arrowHead)"')}
-    ${text(455, 510, "and", 7.7, 42, "#f3d56b")}
-    ${text(600, 600, "Grammar helps ideas travel clearly.", 8.5, 31)}
+    ${text(600, 120, "The tiny robots danced happily beside Maya's desk, and they clapped.", 0.8, 26)}
+
+    <g class="quiz-phase quiz-phase-1">
+      ${text(160, 205, "1", 0, 34, "#9fdf9f")}
+      ${text(600, 205, "Find the nouns", 0, 30)}
+      ${wordBox(190, 255, "robots", 0, "#9fdf9f", 150)}
+      ${wordBox(430, 255, "Maya", 0, "#9fdf9f", 130)}
+      ${wordBox(650, 255, "desk", 0, "#9fdf9f", 130)}
+      ${smallText(895, 292, "things and names", 0, "#9fdf9f")}
+    </g>
+
+    <g class="quiz-phase quiz-phase-2">
+      ${text(160, 385, "2", 0, 34, "#f3d56b")}
+      ${text(600, 385, "Find the verbs", 0, 30)}
+      ${wordBox(285, 430, "danced", 0, "#f3d56b", 160)}
+      ${wordBox(535, 430, "clapped", 0, "#f3d56b", 160)}
+      ${smallText(800, 466, "past-tense actions", 0, "#f3d56b")}
+    </g>
+
+    <g class="quiz-phase quiz-phase-3">
+      ${text(175, 560, "3", 0, 34, "#8bd3dd")}
+      ${wordBox(240, 530, "tiny", 0, "#8bd3dd", 125)}
+      ${smallText(302, 615, "adjective", 0, "#8bd3dd")}
+      ${wordBox(440, 530, "happily", 0, "#f4a6b8", 160)}
+      ${smallText(520, 615, "adverb", 0, "#f4a6b8")}
+      ${wordBox(690, 530, "beside Maya's desk", 0, "#f5f5f0", 285)}
+      ${smallText(832, 615, "prepositional phrase", 0)}
+    </g>
+
+    <g class="quiz-phase quiz-phase-4">
+      ${path("M235 660 C382 626 520 626 665 660", 0, 0.01, "#f5f5f0", 6, 'marker-end="url(#arrowHead)"')}
+      ${text(455, 655, "and", 0, 42, "#f3d56b")}
+      ${smallText(725, 660, "joins two related ideas", 0, "#f3d56b")}
+    </g>
     </g>
     <g class="board-moment">
       ${text(600, 66, "Final toolkit", 0, 32)}
