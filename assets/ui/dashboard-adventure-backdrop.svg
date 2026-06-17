@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1280" role="img" aria-label="Bright Quest adventure island backdrop">
+  <defs>
+    <linearGradient id="sea" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#7be7ff"/>
+      <stop offset=".48" stop-color="#19a8d6"/>
+      <stop offset="1" stop-color="#08618f"/>
+    </linearGradient>
+    <linearGradient id="land" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#c9ff80"/>
+      <stop offset=".43" stop-color="#39c76b"/>
+      <stop offset="1" stop-color="#0b845f"/>
+    </linearGradient>
+    <linearGradient id="hill" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#eaff9f"/>
+      <stop offset="1" stop-color="#55d175"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="20" stdDeviation="20" flood-color="#064f78" flood-opacity=".28"/>
+    </filter>
+  </defs>
+  <rect width="900" height="1280" rx="52" fill="url(#sea)"/>
+  <path d="M-80 1000 C110 910 250 990 410 900 C585 802 690 874 990 718 L990 1280 L-80 1280Z" fill="#075d8f" opacity=".28"/>
+  <path d="M-80 412 C98 318 210 388 360 300 C525 202 710 254 990 120 L990 1280 L-80 1280Z" fill="#d6fbff" opacity=".18"/>
+  <path d="M88 245 C170 132 346 132 460 208 C565 278 700 233 792 340 C884 448 788 625 620 638 C515 646 474 720 344 700 C194 677 94 593 58 482 C28 390 42 309 88 245Z" fill="url(#land)" filter="url(#softShadow)"/>
+  <path d="M116 250 C240 305 344 302 470 245 C573 198 692 236 764 336 C662 305 585 342 505 395 C388 472 251 462 118 404Z" fill="#8ff07a" opacity=".72"/>
+  <path d="M132 680 C238 560 378 576 496 652 C608 724 739 672 822 796 C906 920 786 1066 598 1058 C460 1052 390 1164 232 1112 C86 1064 44 948 78 830 C94 773 112 720 132 680Z" fill="url(#land)" filter="url(#softShadow)"/>
+  <path d="M110 818 C268 872 416 846 548 768 C650 708 730 742 814 818 C688 800 585 868 462 934 C330 1005 210 966 90 900Z" fill="#b9f86e" opacity=".64"/>
+  <path d="M0 1050 C135 1005 240 1058 362 990 C474 928 608 945 718 1030 C605 1023 510 1074 405 1130 C250 1215 114 1163 0 1112Z" fill="#0d796c" opacity=".52"/>
+  <path d="M121 188 C230 36 558 20 778 122" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round" opacity=".78"/>
+  <path d="M85 1140 C244 1196 604 1228 808 1012" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round" opacity=".66"/>
+  <path d="M152 640 C256 614 338 625 452 592 C572 558 664 582 760 622" fill="none" stroke="#f8d26b" stroke-width="8" stroke-linecap="round" stroke-dasharray="4 18" opacity=".78"/>
+  <path d="M210 880 C318 852 418 880 522 846 C628 810 714 842 796 886" fill="none" stroke="#f8d26b" stroke-width="8" stroke-linecap="round" stroke-dasharray="4 18" opacity=".7"/>
+  <g opacity=".92">
+    <circle cx="318" cy="362" r="58" fill="url(#hill)"/>
+    <circle cx="418" cy="390" r="68" fill="url(#hill)" opacity=".82"/>
+    <circle cx="604" cy="368" r="72" fill="url(#hill)" opacity=".85"/>
+    <circle cx="268" cy="858" r="72" fill="url(#hill)" opacity=".82"/>
+    <circle cx="450" cy="890" r="88" fill="url(#hill)" opacity=".76"/>
+  </g>
+  <g fill="#087a45">
+    <circle cx="520" cy="276" r="32"/><circle cx="560" cy="270" r="44"/><circle cx="610" cy="290" r="28"/>
+    <rect x="548" y="300" width="22" height="82" rx="8" fill="#8b6a38"/>
+    <circle cx="300" cy="846" r="38"/><circle cx="344" cy="823" r="32"/><circle cx="374" cy="850" r="28"/>
+    <rect x="337" y="865" width="18" height="66" rx="6" fill="#8b6a38"/>
+  </g>
+  <path d="M320 214 L385 96 L456 214Z" fill="#655be8"/>
+  <path d="M452 230 L532 78 L636 230Z" fill="#f9fbff"/>
+  <path d="M520 230 L598 102 L710 230Z" fill="#655be8"/>
+  <path d="M592 106 L635 174 L606 160 Z" fill="#dfeaff"/>
+  <path d="M540 780 L620 620 L706 780Z" fill="#fbcb45"/>
+  <path d="M620 688 L676 780 L586 780Z" fill="#ffe678" opacity=".75"/>
+  <rect x="360" y="1010" width="198" height="98" rx="18" fill="#b3c8e5"/>
+  <path d="M392 1010 H528 L492 944 H430Z" fill="#d0d49b"/>
+  <circle cx="720" cy="246" r="42" fill="#ffd84d"/>
+  <path d="M100 70 C240 132 600 150 820 58" fill="none" stroke="#c9f7ff" stroke-width="2" opacity=".4"/>
+  <path d="M80 1180 C240 1090 470 1108 820 1160" fill="none" stroke="#c9f7ff" stroke-width="2" opacity=".36"/>
+</svg>
