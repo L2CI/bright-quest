@@ -215,11 +215,6 @@
       const banner = document.createElement("section");
       banner.className = "learning-studio-banner";
       banner.innerHTML = `
-        <div class="studio-copy">
-          <p class="eyebrow">Bright Quest Studio</p>
-          <h3>Choose the lesson, test, or game that moves the story forward.</h3>
-          <p>Training, timed practice, and reward worlds now sit in one visual route so the next action is obvious.</p>
-        </div>
         <div class="studio-shot-stack" aria-hidden="true">
           <span class="studio-shot cave"></span>
           <span class="studio-shot treasure"></span>

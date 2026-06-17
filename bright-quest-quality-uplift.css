@@ -760,14 +760,15 @@ body.bq-holistic-shell .reference-topbar {
 body.bq-holistic-shell .learning-studio-banner {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(280px, 0.92fr) minmax(360px, 1fr) auto;
-  gap: 20px;
+  grid-template-columns: minmax(520px, 1fr) minmax(220px, auto);
+  gap: 34px;
   align-items: center;
+  justify-content: center;
   margin: 0 0 18px;
-  min-height: 260px;
+  min-height: 250px;
   overflow: hidden;
   border-radius: 32px;
-  padding: 24px;
+  padding: 28px 36px;
   color: #fff;
   background:
     linear-gradient(90deg, rgba(12, 22, 61, 0.9), rgba(19, 68, 116, 0.72) 48%, rgba(12, 22, 61, 0.82)),
@@ -785,42 +786,22 @@ body.bq-holistic-shell .learning-studio-banner::before {
     linear-gradient(180deg, rgba(255,255,255,0.16), transparent 46%);
 }
 
-body.bq-holistic-shell .studio-copy,
 body.bq-holistic-shell .studio-shot-stack,
 body.bq-holistic-shell .studio-actions {
   position: relative;
   z-index: 1;
 }
 
-body.bq-holistic-shell .studio-copy h3 {
-  max-width: 620px;
-  margin-top: 8px;
-  color: #fff;
-  font-size: clamp(2rem, 4vw, 4.5rem);
-  line-height: 0.96;
-}
-
-body.bq-holistic-shell .studio-copy p:last-child {
-  max-width: 560px;
-  margin-top: 12px;
-  color: rgba(255,255,255,0.82);
-  font-size: 1rem;
-  font-weight: 850;
-  line-height: 1.45;
-}
-
-body.bq-holistic-shell .learning-studio-banner .eyebrow {
-  color: #ffe59c;
-}
-
 body.bq-holistic-shell .studio-shot-stack {
   display: grid;
+  justify-self: center;
+  width: min(560px, 100%);
   min-height: 212px;
 }
 
 body.bq-holistic-shell .studio-shot {
   grid-area: 1 / 1;
-  width: min(360px, 34vw);
+  width: min(410px, 42vw);
   aspect-ratio: 16 / 10;
   border: 5px solid rgba(255,255,255,0.72);
   border-radius: 24px;
@@ -846,8 +827,8 @@ body.bq-holistic-shell .studio-shot.street {
 
 body.bq-holistic-shell .studio-actions {
   display: grid;
-  gap: 10px;
-  min-width: 210px;
+  gap: 12px;
+  min-width: 230px;
 }
 
 body.bq-holistic-shell .studio-actions .button {
