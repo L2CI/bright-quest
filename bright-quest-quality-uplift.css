@@ -2060,7 +2060,7 @@ body.bq-premium-shell .writing-score-ring {
   border-radius: 26px !important;
   background:
     linear-gradient(180deg, rgba(255,255,255,0.06), rgba(5,18,55,0.2)),
-    url("assets/ui/progress-dashboard.svg") center / cover no-repeat,
+    url("assets/ui/parent-insight-console.svg") center / cover no-repeat,
     rgba(255,255,255,0.86) !important;
 }
 
@@ -2086,7 +2086,80 @@ body.bq-premium-shell .cockpit-snapshot-card::before {
   pointer-events: none;
   background:
     linear-gradient(180deg, rgba(255,255,255,0.0), rgba(5,18,55,0.18)),
-    url("assets/ui/arcade-rewards.svg") center / contain no-repeat;
+    url("assets/ui/parent-insight-console.svg") center / cover no-repeat;
+}
+
+/* Parent cockpit: replace orbit/blob stats with meaningful dashboard artwork. */
+body.bq-premium-shell #parentScreen.parent-cockpit-redesign .cockpit-recommendation {
+  grid-template-columns: minmax(0, 1fr) auto minmax(150px, 210px) !important;
+  border-radius: 26px;
+}
+
+body.bq-premium-shell #parentScreen.parent-cockpit-redesign .recommendation-orbit {
+  width: min(210px, 22vw) !important;
+  min-width: 150px;
+  height: 124px !important;
+  border: 5px solid rgba(255,255,255,0.72) !important;
+  border-radius: 24px !important;
+  background:
+    url("assets/ui/parent-insight-console.svg") center / cover no-repeat,
+    linear-gradient(135deg, #eaf8ff, #fff4dd) !important;
+  box-shadow: 0 18px 34px rgba(13, 34, 92, 0.16);
+}
+
+body.bq-premium-shell #parentScreen.parent-cockpit-redesign .recommendation-orbit::before,
+body.bq-premium-shell #parentScreen.parent-cockpit-redesign .recommendation-orbit::after,
+body.bq-premium-shell #parentScreen.parent-cockpit-redesign .cockpit-snapshot-card::after {
+  display: none !important;
+}
+
+body.bq-premium-shell #parentScreen.parent-cockpit-redesign .cockpit-snapshot-card {
+  min-height: 134px !important;
+  border: 1px solid rgba(210, 230, 255, 0.92) !important;
+  border-radius: 22px !important;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.96), rgba(242,250,255,0.9)) !important;
+  box-shadow: 0 14px 28px rgba(22,29,104,0.08);
+}
+
+body.bq-premium-shell #parentScreen.parent-cockpit-redesign .cockpit-snapshot-card::before {
+  left: auto;
+  right: 14px;
+  top: 14px;
+  bottom: auto;
+  width: 78px;
+  height: 64px;
+  border: 3px solid rgba(255,255,255,0.72);
+  border-radius: 18px;
+  opacity: .9;
+  background:
+    url("assets/ui/parent-insight-console.svg") center / cover no-repeat,
+    linear-gradient(135deg, #eaf8ff, #fff4dd) !important;
+  box-shadow: 0 12px 22px rgba(13, 34, 92, 0.12);
+}
+
+body.bq-premium-shell #parentScreen.parent-cockpit-redesign .cockpit-snapshot-card:nth-child(2)::before {
+  background:
+    url("assets/ui/progress-dashboard.svg") center / cover no-repeat,
+    linear-gradient(135deg, #eaf8ff, #eaf7ff) !important;
+}
+
+body.bq-premium-shell #parentScreen.parent-cockpit-redesign .cockpit-snapshot-card:nth-child(3)::before {
+  background:
+    url("assets/ui/reasoning-lab.svg") center / cover no-repeat,
+    linear-gradient(135deg, #eaf8ff, #fff4dd) !important;
+}
+
+body.bq-premium-shell #parentScreen.parent-cockpit-redesign .cockpit-snapshot-card:nth-child(4)::before {
+  background:
+    url("assets/ui/grammar-notebook.svg") center / cover no-repeat,
+    linear-gradient(135deg, #eaf8ff, #fff1f7) !important;
+}
+
+body.bq-premium-shell #parentScreen.parent-cockpit-redesign .cockpit-snapshot-card strong,
+body.bq-premium-shell #parentScreen.parent-cockpit-redesign .cockpit-snapshot-card span,
+body.bq-premium-shell #parentScreen.parent-cockpit-redesign .cockpit-snapshot-card small {
+  max-width: calc(100% - 96px);
 }
 
 @keyframes premium-rocket {

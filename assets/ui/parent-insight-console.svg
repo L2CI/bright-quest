@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" role="img" aria-labelledby="title desc">
+  <title id="title">Parent insight console</title>
+  <desc id="desc">A polished parent dashboard console with charts, recommendation cards, focus signals, and a child progress trail.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="720" y1="0" y2="420" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7FCFF"/>
+      <stop offset=".52" stop-color="#EAF2FF"/>
+      <stop offset="1" stop-color="#FFF4DD"/>
+    </linearGradient>
+    <linearGradient id="navy" x1="72" x2="635" y1="73" y2="350" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#17217C"/>
+      <stop offset=".52" stop-color="#176BFF"/>
+      <stop offset="1" stop-color="#22C7D9"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#FFF47B"/>
+      <stop offset="1" stop-color="#FF9D22"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="18" stdDeviation="13" flood-color="#09205C" flood-opacity=".20"/>
+    </filter>
+  </defs>
+  <rect width="720" height="420" rx="38" fill="url(#bg)"/>
+  <path d="M0 318c90-47 180-64 270-51 92 14 146 57 236 45 77-10 129-48 214-43v151H0z" fill="#DEF8FF"/>
+  <g filter="url(#shadow)">
+    <rect x="72" y="74" width="268" height="196" rx="28" fill="#FFFFFF"/>
+    <rect x="98" y="105" width="68" height="126" rx="18" fill="#EAF4FF"/>
+    <path d="M118 209V154M151 209V127M184 209v-34M217 209v-70M250 209v-94" stroke="url(#navy)" stroke-width="16" stroke-linecap="round"/>
+    <path d="M106 238h188" stroke="#D9E9FF" stroke-width="12" stroke-linecap="round"/>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="384" y="82" width="248" height="138" rx="30" fill="#FFFFFF"/>
+    <path d="M424 171c39-58 83-58 132 0" fill="none" stroke="#21C46B" stroke-width="16" stroke-linecap="round"/>
+    <path d="M421 126h124M421 151h82" stroke="#D8E7FF" stroke-width="13" stroke-linecap="round"/>
+    <path d="M579 108l11 31 33 1-27 19 11 32-28-19-27 19 10-32-26-19 33-1z" fill="url(#gold)"/>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="386" y="254" width="92" height="82" rx="22" fill="#FFFFFF"/>
+    <rect x="500" y="242" width="92" height="82" rx="22" fill="#FFFFFF"/>
+    <rect x="272" y="288" width="92" height="82" rx="22" fill="#FFFFFF"/>
+    <path d="M413 302h38M527 290h38M299 336h38" stroke="url(#navy)" stroke-width="12" stroke-linecap="round"/>
+    <circle cx="446" cy="279" r="11" fill="#21C46B"/>
+    <circle cx="560" cy="267" r="11" fill="#F25596"/>
+    <circle cx="332" cy="313" r="11" fill="#FFD23C"/>
+  </g>
+  <g filter="url(#shadow)">
+    <circle cx="143" cy="323" r="48" fill="#FFFFFF"/>
+    <path d="M119 326l20 20 34-48" fill="none" stroke="#21C46B" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M126 288h53" stroke="#D8E7FF" stroke-width="10" stroke-linecap="round"/>
+  </g>
+  <path d="M102 351c77-27 145-34 204-20 67 15 108 42 171 32 44-7 80-26 132-23" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" stroke-dasharray="1 25" opacity=".95"/>
+</svg>
