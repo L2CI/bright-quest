@@ -280,7 +280,7 @@ const grammarStudioScenes = {
 };
 
 const boardMomentTimes = {
-  "sentence-machine": 44,
+  "sentence-machine": 48,
   "nouns-pronouns": 48,
   "verbs-tense": 48,
   "adjectives-adverbs": 50,
@@ -930,13 +930,6 @@ function grammarSentenceMachineSvg() {
       ${text(392, 528, "subject", 8.9, 22, "#9fdf9f")}
       ${path("M522 450 C644 495 800 495 928 450", 9.4, 0.7, "#f3d56b")}
       ${text(722, 528, "predicate", 10.1, 22, "#f3d56b")}
-      <g class="maya-inline-example">
-        ${text(600, 596, "Now test: Maya reads the comic.", 11.4, 25, "#f5f5f0")}
-        ${path("M355 618 C390 646 432 646 468 618", 12.3, 0.55, "#9fdf9f", 5)}
-        ${text(412, 662, "subject", 12.9, 19, "#9fdf9f")}
-        ${path("M505 618 C610 657 760 657 866 618", 13.5, 0.7, "#f3d56b", 5)}
-        ${text(688, 662, "predicate", 14.2, 19, "#f3d56b")}
-      </g>
     </g>
     <g class="board-moment maya-moment">
       <rect x="132" y="78" width="936" height="500" rx="20" fill="rgba(9, 48, 43, 0.94)" stroke="rgba(139, 211, 221, 0.24)" stroke-width="4"></rect>
