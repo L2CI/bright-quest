@@ -1756,6 +1756,73 @@ body.bq-holistic-shell .progress-dials-ref .dial-card small {
   color: #5d6d83 !important;
 }
 
+/* Core test strip: graphic route instead of a row of plain numbered boxes. */
+body.bq-holistic-shell .core-tests-ref {
+  position: relative;
+  overflow: hidden;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  margin: 10px !important;
+  padding: 14px !important;
+  border: 1px solid rgba(187, 220, 255, 0.92) !important;
+  border-radius: 20px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.80), rgba(255,255,255,0.68)),
+    url("assets/ui/core-test-path.svg") center / cover no-repeat !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.72);
+}
+
+body.bq-holistic-shell .core-tests-ref .games-head-ref {
+  position: relative;
+  z-index: 1;
+  grid-column: 1 / -1;
+  align-self: center;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 6px 2px;
+  color: #10164f;
+}
+
+body.bq-holistic-shell .core-test-chip-ref {
+  position: relative;
+  z-index: 1;
+  min-height: 86px !important;
+  justify-items: center;
+  align-content: center;
+  gap: 4px !important;
+  border: 1px solid rgba(255,255,255,0.72) !important;
+  border-radius: 18px !important;
+  padding: 9px 7px !important;
+  background: rgba(255,255,255,0.78) !important;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  text-align: center !important;
+  box-shadow: 0 12px 22px rgba(13, 34, 92, 0.12) !important;
+}
+
+body.bq-holistic-shell .core-test-chip-ref span {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+  background:
+    radial-gradient(circle at 36% 28%, rgba(255,255,255,0.8), transparent 24%),
+    linear-gradient(135deg, #176bff, #6b4ee8) !important;
+  box-shadow: 0 8px 18px rgba(23, 107, 255, 0.24);
+}
+
+body.bq-holistic-shell .core-test-chip-ref strong {
+  max-width: 92px;
+  color: #10164f !important;
+  font-size: 0.7rem !important;
+}
+
+body.bq-holistic-shell .core-test-chip-ref small {
+  color: #5d6d83 !important;
+  font-size: 0.58rem !important;
+}
+
 body.bq-holistic-shell .intl-art-ref span {
   display: none !important;
   width: 96px !important;
