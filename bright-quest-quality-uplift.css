@@ -2521,3 +2521,84 @@ body.bq-premium-shell #parentScreen.parent-cockpit-redesign .cockpit-snapshot-ca
     animation: none;
   }
 }
+
+/* 2026-06-17 subject-card art pass: richer backgrounds with protected readable labels. */
+body.bq-premium-shell .academy-zone.maths,
+body.bq-premium-shell .academy-zone.english {
+  background-position: center !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  text-shadow: none !important;
+}
+
+body.bq-premium-shell .academy-zone.maths {
+  background-image:
+    linear-gradient(180deg, rgba(5, 14, 48, 0.04), rgba(5, 14, 48, 0.18) 42%, rgba(5, 14, 48, 0.88) 100%),
+    url("assets/ui/maths-mountain.svg") !important;
+}
+
+body.bq-premium-shell .academy-zone.english {
+  background-image:
+    linear-gradient(180deg, rgba(5, 14, 48, 0.02), rgba(5, 14, 48, 0.2) 42%, rgba(5, 14, 48, 0.9) 100%),
+    url("assets/ui/reading-forest.svg") !important;
+}
+
+body.bq-premium-shell .academy-zone.maths .academy-card-scene,
+body.bq-premium-shell .academy-zone.english .academy-card-scene {
+  display: none !important;
+}
+
+body.bq-premium-shell .academy-zone.maths strong,
+body.bq-premium-shell .academy-zone.maths small,
+body.bq-premium-shell .academy-zone.english strong,
+body.bq-premium-shell .academy-zone.english small {
+  display: block;
+  width: max-content;
+  max-width: calc(100% - 56px);
+  border-radius: 12px;
+  padding: 4px 8px !important;
+  color: #ffffff !important;
+  background: rgba(5, 14, 48, 0.58);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55) !important;
+}
+
+body.bq-premium-shell .academy-zone.maths strong,
+body.bq-premium-shell .academy-zone.english strong {
+  font-size: 1.15rem !important;
+  line-height: 1.05 !important;
+}
+
+body.bq-premium-shell .academy-zone.maths small,
+body.bq-premium-shell .academy-zone.english small {
+  margin-top: 5px;
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.maths,
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.english {
+  background-position: center !important;
+}
+
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.maths::before,
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.english::before {
+  background:
+    linear-gradient(180deg, rgba(5, 14, 48, 0.02), rgba(5, 14, 48, 0.22) 42%, rgba(5, 14, 48, 0.92) 100%) !important;
+}
+
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.maths > strong,
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.maths > small,
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.english > strong,
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.english > small {
+  display: block;
+  width: max-content;
+  max-width: calc(100% - 58px);
+  border-radius: 12px;
+  padding: 4px 8px;
+  color: #ffffff !important;
+  background: rgba(5, 14, 48, 0.64);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.58) !important;
+}

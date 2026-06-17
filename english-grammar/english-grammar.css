@@ -520,27 +520,6 @@ h3 {
   filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.24));
 }
 
-.live-board-cues {
-  opacity: 0.92;
-  pointer-events: none;
-}
-
-.live-cue {
-  opacity: 0;
-  transform-box: fill-box;
-  transform-origin: center;
-  transition: opacity 360ms ease, transform 360ms ease, filter 360ms ease;
-}
-
-.board-beat-1 .cue-1,
-.board-beat-2 .cue-2,
-.board-beat-3 .cue-3,
-.board-beat-4 .cue-4 {
-  opacity: 1;
-  transform: translateX(6px);
-  filter: drop-shadow(0 0 10px rgba(245, 245, 240, 0.28));
-}
-
 .grammar-token {
   transform-box: fill-box;
   transform-origin: center;

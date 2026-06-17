@@ -280,7 +280,7 @@ const grammarStudioScenes = {
 };
 
 const boardMomentTimes = {
-  "sentence-machine": 62,
+  "sentence-machine": 44,
   "nouns-pronouns": 48,
   "verbs-tense": 48,
   "adjectives-adverbs": 50,
@@ -299,7 +299,7 @@ const stepMeta = [
 
 const gateQuizzes = {
   1: [
-    { prompt: "In 'Maya reads a comic', what is the subject?", options: ["Maya", "reads", "a comic"], answer: 0 },
+    { prompt: "In 'Maya reads the comic', what is the subject?", options: ["Maya", "reads", "the comic"], answer: 0 },
     { prompt: "In 'Sam's boxes', what does the apostrophe show?", options: ["Possession", "Future tense", "A conjunction"], answer: 0 },
     { prompt: "In 'Omar should read', what is 'should'?", options: ["A modal helper", "A noun", "A preposition"], answer: 0 }
   ],
@@ -685,7 +685,7 @@ timeline.addEventListener("change", () => {
   seekTo(Number(timeline.value));
 });
 
-function baseSvg(content, cueLabels = ["Listen", "Look", "Test", "Say"]) {
+function baseSvg(content) {
   return `
     <defs>
       <filter id="chalkRough" x="-4%" y="-4%" width="108%" height="108%">
@@ -697,7 +697,6 @@ function baseSvg(content, cueLabels = ["Listen", "Look", "Test", "Say"]) {
       </marker>
     </defs>
     ${content}
-    ${liveBoardCues(cueLabels)}
   `;
 }
 
@@ -750,7 +749,7 @@ function genericLessonSvg(scene) {
       ${rect(180, 470, 840, 120, 0, 0.01, "#f3d56b", 6)}
       ${multiText(600, 525, check, 0, 25, "#f3d56b")}
     </g>
-  `, ["pattern", "example", "job test", "try it"]);
+  `);
 }
 
 function grammarStudioSvg(scene) {
@@ -782,7 +781,7 @@ function grammarStudioSvg(scene) {
       ${grammarStudioDiagram(spec)}
       ${grammarStudioCheck(spec)}
     </g>
-  `, [modeLabel, "example", "word job", "quick check"]);
+  `);
 }
 
 function grammarStudioBackdrop(scene, spec, modeLabel) {
@@ -888,26 +887,6 @@ function grammarStudioCheck(spec) {
   `;
 }
 
-function liveBoardCues(labels) {
-  const items = labels.slice(0, 4);
-  return `
-    <g class="live-board-cues" data-release="${DYNAMIC_BOARD_RELEASE}">
-      ${line(72, 144, 72, 548, 0.4, 1.0, "rgba(245,245,240,0.32)", 3)}
-      ${items.map((label, index) => {
-        const y = 144 + index * 134;
-        const color = ["#8bd3dd", "#f3d56b", "#9fdf9f", "#f4a6b8"][index] || "#f5f5f0";
-        return `
-          <g class="live-cue cue-${index + 1}">
-            ${circle(72, y, 18, 0.2, 0.35, color, 4)}
-            ${path(`M94 ${y} C130 ${y - 24} 184 ${y - 24} 220 ${y}`, 0.35, 0.6, color, 4)}
-            ${smallText(238, y + 7, label, 0.8, color, "start")}
-          </g>
-        `;
-      }).join("")}
-    </g>
-  `;
-}
-
 function multiText(x, y, lines, delay, size = 26, color = "#f5f5f0") {
   return lines.map((line, index) => text(x, y + index * (size + 10), line, delay + index * 0.25, size, color)).join("");
 }
@@ -951,14 +930,21 @@ function grammarSentenceMachineSvg() {
       ${text(392, 528, "subject", 8.9, 22, "#9fdf9f")}
       ${path("M522 450 C644 495 800 495 928 450", 9.4, 0.7, "#f3d56b")}
       ${text(722, 528, "predicate", 10.1, 22, "#f3d56b")}
+      <g class="maya-inline-example">
+        ${text(600, 596, "Now test: Maya reads the comic.", 11.4, 25, "#f5f5f0")}
+        ${path("M355 618 C390 646 432 646 468 618", 12.3, 0.55, "#9fdf9f", 5)}
+        ${text(412, 662, "subject", 12.9, 19, "#9fdf9f")}
+        ${path("M505 618 C610 657 760 657 866 618", 13.5, 0.7, "#f3d56b", 5)}
+        ${text(688, 662, "predicate", 14.2, 19, "#f3d56b")}
+      </g>
     </g>
     <g class="board-moment maya-moment">
       <rect x="132" y="78" width="936" height="500" rx="20" fill="rgba(9, 48, 43, 0.94)" stroke="rgba(139, 211, 221, 0.24)" stroke-width="4"></rect>
       ${rect(150, 92, 900, 470, 0.2, 0.9, "#8bd3dd", 5)}
-      ${text(600, 148, "Quick check: Maya reads a comic.", 1.4, 31, "#f5f5f0")}
+      ${text(600, 148, "Quick check: Maya reads the comic.", 1.4, 31, "#f5f5f0")}
       ${wordBox(245, 230, "Maya", 2.8, "#9fdf9f", 170)}
       ${wordBox(485, 230, "reads", 4.6, "#f3d56b", 170)}
-      ${wordBox(725, 230, "a comic", 6.4, "#f3d56b", 200)}
+      ${wordBox(725, 230, "the comic", 6.4, "#f3d56b", 220)}
       ${path("M330 310 C360 350 405 350 435 310", 8.4, 0.7, "#9fdf9f", 6)}
       ${text(382, 384, "subject", 9.4, 23, "#9fdf9f")}
       ${path("M520 310 C620 375 780 375 880 310", 11.0, 0.9, "#f3d56b", 6)}
@@ -1001,7 +987,7 @@ function grammarNounsPronounsSvg() {
       ${text(682, 382, "Sam's = possession", 0, 25, "#f3d56b")}
       ${text(600, 548, "Number + case make the noun job clear.", 0, 30, "#f4a6b8")}
     </g>
-  `, ["name", "number", "gender", "case"]);
+  `);
 }
 
 function grammarVerbsTenseSvg() {
@@ -1042,7 +1028,7 @@ function grammarVerbsTenseSvg() {
       ${text(700, 410, "read = main verb", 0, 25, "#9fdf9f")}
       ${text(600, 550, "The verb team tells duty plus action.", 0, 30, "#f4a6b8")}
     </g>
-  `, ["time", "verb job", "helper", "check"]);
+  `);
 }
 
 function grammarAdjectivesAdverbsSvg() {
