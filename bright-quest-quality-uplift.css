@@ -2263,11 +2263,31 @@ body.bq-premium-shell #parentScreen.parent-cockpit-redesign .cockpit-snapshot-ca
 
 .english-grammar-action span,
 .blackboard-action span {
-  background: linear-gradient(135deg, #1fbd68, #36c5ff) !important;
+  color: transparent !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(5,18,55,0.18)),
+    url("assets/ui/grammar-notebook.svg") center / cover no-repeat !important;
 }
 
 .blackboard-action span {
-  background: linear-gradient(135deg, #163d35, #78e4eb) !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(5,18,55,0.18)),
+    url("assets/ui/blackboard-lesson.svg") center / cover no-repeat !important;
+}
+
+.games-action span {
+  color: transparent !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(5,18,55,0.18)),
+    url("assets/ui/arcade-console-overlay.svg") center / cover no-repeat !important;
+}
+
+.kid-action span::before,
+.kid-action span::after,
+.grammar-action span::before,
+.grammar-action span::after {
+  display: none !important;
+  content: none !important;
 }
 
 .question-stepper {
