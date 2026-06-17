@@ -596,17 +596,17 @@ body.bq-holistic-shell .studio-shot {
 }
 
 body.bq-holistic-shell .studio-shot.cave {
-  background-image: url("cave-river-quest/assets/generated/journey-plate-4.png");
+  background-image: url("assets/ui/quest-studio-collage.svg");
   transform: translate(16px, 6px) rotate(3deg);
 }
 
 body.bq-holistic-shell .studio-shot.treasure {
-  background-image: url("treasure-quest/assets/treasure-islands.png");
+  background-image: url("assets/ui/grammar-notebook.svg");
   transform: translate(-34px, 62px) scale(0.82) rotate(-5deg);
 }
 
 body.bq-holistic-shell .studio-shot.street {
-  background-image: url("street-smart-rescue/assets/generated/suburban-road-plate.png");
+  background-image: url("assets/ui/progress-dashboard.svg");
   transform: translate(110px, 104px) scale(0.68) rotate(6deg);
 }
 

@@ -958,3 +958,62 @@
     url("cave-river-quest/assets/generated/painted-rowboat-rowing-frames-alpha.png") 12% 50% / 320% auto no-repeat !important;
   box-shadow: 0 18px 30px rgba(6, 24, 69, 0.24);
 }
+
+/* Art replacement pass 2: live game stages should be illustrated worlds, not CSS landscapes and orbit rings. */
+.game-stage {
+  background:
+    linear-gradient(180deg, rgba(3, 16, 48, 0.06), rgba(3, 16, 48, 0.28)),
+    url("treasure-quest/assets/treasure-islands.png") center / cover no-repeat !important;
+}
+
+.game-stage::before,
+.game-stage::after {
+  display: none !important;
+}
+
+.game-stage.brick-rally,
+.game-stage.meteor,
+.game-stage.ninja-gates,
+.game-stage.number {
+  background:
+    linear-gradient(180deg, rgba(3, 16, 48, 0.05), rgba(3, 16, 48, 0.30)),
+    url("street-smart-rescue/assets/generated/suburban-road-plate.png") center / cover no-repeat !important;
+}
+
+.game-stage.reef,
+.game-stage.star,
+.game-stage.treasure-kart,
+.game-stage.treasure {
+  background:
+    linear-gradient(180deg, rgba(3, 16, 48, 0.04), rgba(3, 16, 48, 0.24)),
+    url("treasure-quest/assets/treasure-islands.png") center / cover no-repeat !important;
+}
+
+.game-stage.balloon-carnival,
+.game-stage.rainbow,
+.game-stage.candy-comet,
+.game-stage.comet {
+  background:
+    linear-gradient(180deg, rgba(3, 16, 48, 0.10), rgba(3, 16, 48, 0.34)),
+    url("assets/ui/arcade-rewards.svg") center / cover no-repeat !important;
+}
+
+.game-stage.portal-clash,
+.game-stage.cosmic {
+  background:
+    linear-gradient(180deg, rgba(3, 16, 48, 0.12), rgba(3, 16, 48, 0.42)),
+    url("cave-river-quest/assets/generated/journey-plate-8.png") center / cover no-repeat !important;
+}
+
+.game-stage.hero-finale,
+.game-stage.final {
+  background:
+    linear-gradient(180deg, rgba(3, 16, 48, 0.10), rgba(3, 16, 48, 0.36)),
+    url("cave-river-quest/assets/generated/journey-plate-10.png") center / cover no-repeat !important;
+}
+
+.chrome-orbit,
+.chrome-mesh,
+.chrome-speedline {
+  display: none !important;
+}
