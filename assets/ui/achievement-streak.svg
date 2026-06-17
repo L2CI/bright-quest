@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 180" role="img" aria-label="Streak Master achievement">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#ff4f8f"/>
+      <stop offset=".55" stop-color="#ff9b35"/>
+      <stop offset="1" stop-color="#ffd84e"/>
+    </linearGradient>
+  </defs>
+  <rect width="260" height="180" rx="30" fill="url(#bg)"/>
+  <path d="M42 146c46-34 86-36 126-6 30 22 58 24 90 4v36H42z" fill="#7d1644" opacity=".2"/>
+  <path d="M132 28c24 34-14 48 18 76 10-28 38-38 48-72 34 48 24 118-44 130-62 12-114-28-102-88 8-42 48-46 80-46z" fill="#fff3bf" opacity=".94"/>
+  <path d="M128 82c18 22-8 32 14 50 8-18 26-24 32-48 20 30 12 72-30 80-38 8-70-18-62-54 6-24 28-28 46-28z" fill="#ff6d3a"/>
+</svg>

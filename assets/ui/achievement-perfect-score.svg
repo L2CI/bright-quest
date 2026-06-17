@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 180" role="img" aria-label="Perfect Score achievement">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#694ee8"/>
+      <stop offset=".54" stop-color="#2aa9ff"/>
+      <stop offset="1" stop-color="#2fd094"/>
+    </linearGradient>
+  </defs>
+  <rect width="260" height="180" rx="30" fill="url(#bg)"/>
+  <path d="M0 126c62-26 116-28 160-6 44 22 68 18 100-12v72H0z" fill="#06174d" opacity=".18"/>
+  <path d="M132 38l28 54 60 8-44 42 11 60-55-30-55 30 11-60-44-42 60-8z" fill="#ffd84e"/>
+  <path d="M98 104l24 24 48-58" fill="none" stroke="#15306e" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

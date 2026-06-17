@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 180" role="img" aria-label="Super Solver achievement">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#0f4fc8"/>
+      <stop offset="1" stop-color="#36d6ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="260" height="180" rx="30" fill="url(#bg)"/>
+  <path d="M0 128c52-24 98-26 148-8 48 18 78 14 112-12v72H0z" fill="#071a55" opacity=".18"/>
+  <rect x="62" y="44" width="136" height="88" rx="22" fill="#fff7c8"/>
+  <path d="M90 82h80M90 106h54" stroke="#6f8fd8" stroke-width="10" stroke-linecap="round"/>
+  <path d="M126 26l12 26 28 4-20 20 5 28-25-13-25 13 5-28-20-20 28-4z" fill="#ffd84e"/>
+</svg>

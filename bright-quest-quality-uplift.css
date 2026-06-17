@@ -1363,6 +1363,69 @@ body.bq-holistic-shell .achievement span {
   border-radius: 14px;
 }
 
+/* Achievement badges: illustrated mini-cards rather than tiny generic icon tiles. */
+body.bq-holistic-shell .achievement {
+  position: relative;
+  overflow: hidden;
+  min-height: 112px !important;
+  padding-top: 54px !important;
+  border: 1px solid rgba(255,255,255,0.68) !important;
+  background-position: center 0 !important;
+  background-size: cover !important;
+  box-shadow: 0 16px 30px rgba(19, 36, 94, 0.14) !important;
+}
+
+body.bq-holistic-shell .achievement::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,0.0) 0 42%, rgba(255,255,255,0.94) 72%);
+}
+
+body.bq-holistic-shell .achievement.trophy {
+  background-image: url("assets/ui/achievement-super-solver.svg") !important;
+}
+
+body.bq-holistic-shell .achievement.fire {
+  background-image: url("assets/ui/achievement-streak.svg") !important;
+}
+
+body.bq-holistic-shell .achievement.clock {
+  background-image: url("assets/ui/achievement-time-warrior.svg") !important;
+}
+
+body.bq-holistic-shell .achievement.gem {
+  background-image: url("assets/ui/achievement-perfect-score.svg") !important;
+}
+
+body.bq-holistic-shell .achievement span {
+  position: absolute;
+  left: 50%;
+  top: 18px;
+  transform: translateX(-50%);
+  width: 38px !important;
+  height: 38px !important;
+  border: 2px solid rgba(255,255,255,0.82) !important;
+  background: rgba(255,255,255,0.22) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+body.bq-holistic-shell .achievement span::before {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  background: #fff;
+  mask: url("assets/ui/bright-quest-mark.svg") center / contain no-repeat;
+}
+
+body.bq-holistic-shell .achievement strong,
+body.bq-holistic-shell .achievement small {
+  position: relative;
+  z-index: 1;
+}
+
 body.bq-holistic-shell .achievement:nth-child(2) span {
   background:
     url("assets/ui/progress-dashboard.svg") center / cover no-repeat,
