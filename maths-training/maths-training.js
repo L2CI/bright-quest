@@ -20,9 +20,9 @@ const AUDIO_PLAYBACK_RATE = 1.1;
 const speech = window.speechSynthesis;
 
 const episodes = [
-  { episode: 1, title: "Episode 1", subtitle: "Arithmetic logic", durationLabel: "10 min" },
-  { episode: 2, title: "Episode 2", subtitle: "Visual models", durationLabel: "10 min" },
-  { episode: 3, title: "Episode 3", subtitle: "Spatial cycles", durationLabel: "10 min" }
+  { episode: 1, title: "Episode 1", subtitle: "Arithmetic logic" },
+  { episode: 2, title: "Episode 2", subtitle: "Visual models" },
+  { episode: 3, title: "Episode 3", subtitle: "Spatial cycles" }
 ];
 
 const allScenes = [
@@ -189,6 +189,15 @@ const renderers = {
   "calendar-cycle": renderCalendarCycle
 };
 
+function rebuildSceneOffsets() {
+  sceneOffsets = scenes.reduce((acc, scene, index) => {
+    acc.push(index === 0 ? 0 : acc[index - 1] + scenes[index - 1].duration);
+    return acc;
+  }, []);
+  timeline.max = String(courseTotal());
+  totalTime.textContent = `${formatTime(courseTotal())} total`;
+}
+
 function formatTime(seconds) {
   const safe = Math.max(0, Math.round(seconds));
   return `${Math.floor(safe / 60)}:${String(safe % 60).padStart(2, "0")}`;
@@ -207,23 +216,25 @@ function renderEpisodeTabs() {
     <button class="ladder-tab ${episode.episode === activeEpisode ? "active" : ""}" type="button" data-episode="${episode.episode}">
       <span>${episode.episode}</span>
       <strong>${episode.title}</strong>
-      <small>${episode.subtitle} - ${episode.durationLabel}</small>
+      <small>${episode.subtitle} - ${episodeSummary(episode.episode)}</small>
     </button>
   `).join("");
 }
 
+function episodeSummary(episode) {
+  const episodeScenes = allScenes.filter((scene) => scene.episode === episode);
+  const total = episodeScenes.reduce((sum, scene) => sum + scene.duration, 0);
+  return `${episodeScenes.length} modules - ${formatTime(total)}`;
+}
+
 function setupEpisode(episode, sceneIndex = 0) {
   activeEpisode = episode;
-  scenes = allScenes.filter((scene) => scene.episode === episode);
-  sceneOffsets = scenes.reduce((acc, scene, index) => {
-    acc.push(index === 0 ? 0 : acc[index - 1] + scenes[index - 1].duration);
-    return acc;
-  }, []);
-  timeline.max = String(courseTotal());
-  totalTime.textContent = `${formatTime(courseTotal())} total`;
+  scenes = allScenes;
+  rebuildSceneOffsets();
   renderEpisodeTabs();
   renderSceneList();
-  loadScene(sceneIndex, 0, false);
+  const episodeStart = Math.max(0, scenes.findIndex((scene) => scene.episode === episode));
+  loadScene(sceneIndex || episodeStart, 0, false);
 }
 
 function renderSceneList() {
@@ -242,6 +253,7 @@ function loadScene(index, offsetSeconds = 0, autoPlay = playing) {
   window.cancelAnimationFrame(rafId);
   activeSceneIndex = Math.max(0, Math.min(scenes.length - 1, index));
   const scene = scenes[activeSceneIndex];
+  activeEpisode = scene.episode;
   const offset = Math.max(0, Math.min(scene.duration - 0.5, offsetSeconds));
   elapsedOffset = offset;
   startedAt = performance.now() - offset * 1000;
@@ -425,6 +437,7 @@ function prepareAudio(scene) {
   audio.addEventListener("loadedmetadata", () => {
     if (!Number.isFinite(audio.duration) || audio.duration < 20) return;
     scene.duration = Math.ceil(audio.duration);
+    rebuildSceneOffsets();
     renderSceneList();
     updateTimeline();
   });
@@ -522,31 +535,31 @@ function renderIncludedAverage() {
   return baseSvg(`
     <g class="math-phase phase-setup">
       ${text(600, 60, "Included Average", 0.1, 36)}
-      ${multiText(600, 118, ["7 numbers average 42", "add 1 number -> new average 45"], 0.6, 27)}
-      ${line(250, 330, 950, 330, 1.1, 0.8, "#8bd3dd", 7)}
-      ${path("M600 330 L600 205", 1.8, 0.8, "#8bd3dd", 7)}
-      ${circle(600, 185, 18, 2.4, 0.5, "#8bd3dd", 6)}
+      ${rect(285, 104, 630, 106, 0.45, 0.7, "#f5f5f0", 4, "rgba(245,245,240,0.04)")}
+      ${text(600, 145, "7 numbers average 42", 0.9, 27)}
+      ${text(600, 184, "add 1 number -> new average 45", 1.2, 27)}
     </g>
     <g class="math-phase phase-model">
-      ${[0,1,2,3,4,5,6].map((i) => circle(270 + i * 72, 420, 28, 0.2 + i * 0.12, 0.45, "#8bd3dd", 5, "rgba(139,211,221,0.12)")).join("")}
-      ${smallText(486, 486, "7 values", 1.2, "#8bd3dd")}
-      ${circle(830, 420, 40, 1.4, 0.8, "#f3d56b", 6, "rgba(243,213,107,0.14)")}
-      ${text(830, 430, "X", 2.0, 34, "#f3d56b")}
+      ${[0,1,2,3,4,5,6].map((i) => circle(270 + i * 72, 425, 28, 0.2 + i * 0.12, 0.45, "#8bd3dd", 5, "rgba(139,211,221,0.12)")).join("")}
+      ${smallText(486, 492, "7 values", 1.2, "#8bd3dd")}
+      ${circle(900, 425, 40, 1.4, 0.8, "#f3d56b", 6, "rgba(243,213,107,0.14)")}
+      ${text(900, 435, "X", 2.0, 34, "#f3d56b")}
     </g>
     <g class="math-phase phase-calculate">
-      ${rect(170, 200, 310, 118, 0.1, 0.8, "#9fdf9f", 5)}
-      ${text(325, 248, "old total", 0.8, 27, "#9fdf9f")}
-      ${text(325, 292, "7 x 42 = 294", 1.2, 30, "#9fdf9f")}
-      ${rect(720, 200, 310, 118, 1.8, 0.8, "#f3d56b", 5)}
-      ${text(875, 248, "new total", 2.5, 27, "#f3d56b")}
-      ${text(875, 292, "8 x 45 = 360", 2.9, 30, "#f3d56b")}
+      ${rect(120, 250, 360, 112, 0.1, 0.8, "#9fdf9f", 5)}
+      ${text(300, 294, "old total", 0.8, 27, "#9fdf9f")}
+      ${text(300, 336, "7 x 42 = 294", 1.2, 30, "#9fdf9f")}
+      ${rect(720, 250, 360, 112, 1.8, 0.8, "#f3d56b", 5)}
+      ${text(900, 294, "new total", 2.5, 27, "#f3d56b")}
+      ${text(900, 336, "8 x 45 = 360", 2.9, 30, "#f3d56b")}
     </g>
     <g class="math-phase phase-discover">
-      ${line(480, 530, 720, 530, 0.1, 0.8, "#f5f5f0", 6, 'marker-end="url(#arrowHead)"')}
-      ${text(600, 590, "360 - 294 = 66", 0.9, 38, "#f4a6b8")}
+      ${path("M900 370 C812 492 668 554 492 592", 0.1, 0.9, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
+      ${rect(190, 594, 430, 72, 0.55, 0.65, "#f4a6b8", 4)}
+      ${text(405, 642, "360 - 294 = 66", 1.05, 34, "#f4a6b8")}
     </g>
     <g class="math-phase phase-apply">
-      ${invariantBox(478, 100, "answer", "X = 66", 0.2)}
+      ${invariantBox(745, 586, "answer", "X = 66", 0.2)}
     </g>
   `);
 }
@@ -567,32 +580,33 @@ function renderDucksRabbits() {
   `;
   return baseSvg(`
     <g class="math-phase phase-setup">
-      ${text(600, 62, "Ducks And Rabbits", 0.1, 36)}
-      ${text(600, 122, "4 ducks for every 1 rabbit", 0.8, 29)}
-      ${invariantBox(478, 168, "invariant", "1404 legs", 1.2)}
+      ${text(600, 54, "Ducks And Rabbits", 0.1, 36)}
+      ${text(600, 108, "4 ducks for every 1 rabbit", 0.8, 29)}
+      ${invariantBox(478, 142, "invariant", "1404 legs", 1.2)}
     </g>
     <g class="math-phase phase-model">
-      ${rect(120, 245, 960, 300, 0.1, 0.9, "#8bd3dd", 5)}
-      ${smallText(260, 286, "1 rabbit", 0.7, "#9fdf9f")}
-      ${smallText(705, 286, "4 ducks", 0.95, "#f3d56b")}
-      ${rabbit(260, 410, 1.1)}
-      ${duck(510, 410, 2.1)}${duck(650, 410, 2.45)}${duck(790, 410, 2.8)}${duck(930, 410, 3.15)}
-      ${text(600, 610, "one complete unit group", 3.9, 31, "#8bd3dd")}
+      ${rect(110, 328, 980, 228, 0.1, 0.9, "#8bd3dd", 5)}
+      ${rabbit(260, 452, 0.9)}
+      ${duck(500, 452, 1.9)}${duck(640, 452, 2.25)}${duck(780, 452, 2.6)}${duck(920, 452, 2.95)}
+      ${smallText(260, 600, "1 rabbit", 3.35, "#9fdf9f")}
+      ${smallText(760, 600, "4 ducks", 3.55, "#f3d56b")}
+      ${text(600, 632, "one complete unit group", 3.9, 29, "#8bd3dd")}
     </g>
     <g class="math-phase phase-calculate">
-      ${rect(165, 170, 280, 76, 0.2, 0.65, "#9fdf9f", 4)}
-      ${text(305, 218, "rabbit legs = 4", 0.85, 25, "#9fdf9f")}
-      ${rect(755, 170, 280, 76, 1.25, 0.65, "#f3d56b", 4)}
-      ${text(895, 218, "duck legs = 8", 1.9, 25, "#f3d56b")}
-      ${path("M448 208 C520 174 680 174 752 208", 2.45, 0.7, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
-      ${text(600, 276, "12 legs per group", 3.1, 34, "#f4a6b8")}
+      ${rect(130, 246, 305, 66, 0.2, 0.65, "#9fdf9f", 4)}
+      ${text(282, 288, "rabbit legs = 4", 0.85, 24, "#9fdf9f")}
+      ${rect(765, 246, 305, 66, 1.25, 0.65, "#f3d56b", 4)}
+      ${text(918, 288, "duck legs = 8", 1.9, 24, "#f3d56b")}
+      ${path("M438 280 C520 244 680 244 762 280", 2.45, 0.7, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
+      ${text(600, 306, "12 legs per group", 3.1, 28, "#f4a6b8")}
     </g>
     <g class="math-phase phase-discover">
-      ${rect(380, 618, 440, 72, 0.2, 0.7, "#f3d56b", 4)}
-      ${text(600, 665, "1404 / 12 = 117 groups", 0.9, 35, "#f3d56b")}
+      ${rect(175, 642, 470, 64, 0.2, 0.7, "#f3d56b", 4)}
+      ${text(410, 684, "1404 / 12 = 117 groups", 0.9, 31, "#f3d56b")}
     </g>
     <g class="math-phase phase-apply">
-      ${invariantBox(478, 80, "answer", "117 rabbits", 0.2)}
+      ${rect(760, 642, 285, 64, 0.2, 0.7, "#9fdf9f", 4)}
+      ${text(902, 684, "117 rabbits", 0.85, 31, "#9fdf9f")}
     </g>
   `);
 }
@@ -736,7 +750,9 @@ episodeTabs.addEventListener("click", (event) => {
   const button = event.target.closest("[data-episode]");
   if (!button) return;
   playing = false;
-  setupEpisode(Number(button.dataset.episode), 0);
+  const targetEpisode = Number(button.dataset.episode);
+  const targetScene = Math.max(0, scenes.findIndex((scene) => scene.episode === targetEpisode));
+  setupEpisode(targetEpisode, targetScene);
 });
 sceneList.addEventListener("click", (event) => {
   const button = event.target.closest("[data-scene]");
