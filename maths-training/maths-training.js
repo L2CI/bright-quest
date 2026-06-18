@@ -17,7 +17,6 @@ const totalTime = document.querySelector("#totalTime");
 
 const COURSE_RELEASE = "maths-training-003";
 const AUDIO_PLAYBACK_RATE = 1.1;
-const speech = window.speechSynthesis;
 const QUIZ_STATES = ["model", "calculate", "discover"];
 
 const episodes = [
@@ -100,9 +99,9 @@ const allScenes = [
     id: "excess-shortage",
     episode: 2,
     title: "Excess And Shortage",
-    point: "Compare two sharing plans by turning shortage and excess into one total gap.",
+    point: "Compare the same packet under two plans: short-to-extra is one gap.",
     audio: "assets/audio/04-excess-shortage.mp3",
-    duration: 86,
+    duration: 104,
     beats: [
       { at: 0, state: "setup" },
       { at: 14, state: "model" },
@@ -111,13 +110,13 @@ const allScenes = [
       { at: 74, state: "apply" }
     ],
     captions: [
-      [0, "Seven each is short by 6. Four each has 3 left over."],
-      [14, "The same packet is compared under two different sharing plans."],
-      [34, "Each boy changes the plan by 3 erasers: 7 minus 4."],
-      [58, "The full gap is shortage plus excess: 6 plus 3 equals 9."],
-      [74, "Then 9 divided by 3 gives 3 boys, and the packet has 15 erasers."]
+      [0, "One real packet is tested with two sharing plans."],
+      [14, "Plan A: seven each needs six extra erasers."],
+      [34, "Plan B: four each leaves three erasers unused."],
+      [58, "Short six to extra three is one gap of nine."],
+      [74, "Then use either plan to recover the packet size."]
     ],
-    script: "Now Professor Pixel shows the excess and shortage method. If each boy gets seven erasers, there is a shortage of six. If each boy gets four erasers, there is an excess of three. The individual difference between the two plans is seven minus four, which is three erasers per boy. The total gap is not just six and not just three. It is the shortage plus the excess, so six plus three equals nine. If the total gap is nine, and each boy accounts for three of that gap, then there are nine divided by three boys. That gives three boys. To find the packet size, use either plan. Three boys getting seven each would need twenty one, but we are short by six, so the packet has fifteen erasers."
+    script: "Now let us slow down for the excess and shortage method, because this one is easy to memorize badly. Imagine one real packet of erasers sitting in the middle. We test it with two different sharing plans. Plan A says, give each boy seven erasers. That plan is too ambitious: it needs six more erasers than the packet has. So we mark it as short by six. Plan B says, give each boy four erasers. That plan is easier, so after sharing, three erasers are left over. Now compare the plans, not just the answers. Seven each and four each differ by three erasers per boy. The total gap between the two plans is also clear: to move from short by six to extra by three, we cross six missing erasers and then three spare erasers. Six plus three is nine. If each boy accounts for three erasers of gap, then nine divided by three gives three boys. Now find the packet size. Use Plan A: three boys getting seven each would need twenty one erasers, but the packet is short by six, so the packet has fifteen erasers. Check with Plan B: three boys getting four each use twelve erasers, and three are left over. Twelve plus three is fifteen. That agreement tells us the method is working."
   },
   {
     id: "cube-joints",
@@ -304,22 +303,55 @@ const allScenes = [
     title: "Pop Quiz",
     point: "Check the method: totals, ratio groups, and excess-shortage gaps.",
     audio: "assets/audio/12-pop-quiz.mp3",
-    duration: 73,
+    duration: 112,
     beats: [
       { at: 0, state: "setup" },
-      { at: 12, state: "model" },
-      { at: 29, state: "calculate" },
-      { at: 48, state: "discover" },
-      { at: 62, state: "apply" }
+      { at: 18, state: "model" },
+      { at: 47, state: "calculate" },
+      { at: 78, state: "discover" },
+      { at: 102, state: "apply" }
     ],
     captions: [
       [0, "Pop quiz: three method checks."],
-      [12, "Question 1 checks included averages using totals."],
-      [29, "Question 2 checks ratio groups using legs."],
-      [48, "Question 3 checks excess and shortage."],
-      [62, "If your method is clear, the answers become predictable."]
+      [18, "Question 1 waits for your answer before the method."],
+      [47, "Question 2 checks ratio groups using legs."],
+      [78, "Question 3 checks excess and shortage with clear wording."],
+      [102, "If your method is clear, the answers become predictable."]
     ],
-    script: "Pop quiz time. This is not a speed test; it is a method check. Question one. Five numbers average eighteen. One more number is added and the new average is twenty. What was the added number? Use totals: five times eighteen is ninety, and six times twenty is one hundred and twenty. The added number is thirty. Question two. There are three times as many ducks as rabbits. The animals have one hundred and fifty legs altogether. One unit group is one rabbit plus three ducks. That is four rabbit legs plus six duck legs, or ten legs per group. One hundred and fifty divided by ten gives fifteen groups, so there are fifteen rabbits. Question three. If each child gets nine cards, there is a shortage of eight. If each child gets six cards, there is an excess of seven. The per-child difference is three. The total gap is eight plus seven, which is fifteen. Fifteen divided by three gives five children. Use the nine-card plan: five children would need forty five cards, but we are short by eight, so there are thirty seven cards. If you got these right, you are not memorizing steps; you are seeing the invariant."
+    quizBoard: {
+      q1: "Q1: 5 numbers average 18. Add one -> average 20.",
+      q2: "Q2: 3 ducks for every 1 rabbit, 150 legs total.",
+      q3: "Q3: same card packet, short 8 or extra 7."
+    },
+    script: "Pop quiz time. This is not a speed test; it is a method check. Question one. Five numbers average eighteen. One more number is added and the new average is twenty. What was the added number? Choose your answer now. The method is to compare totals. Five times eighteen is ninety. Six times twenty is one hundred and twenty. The added number is the new total minus the old total, so one hundred and twenty minus ninety equals thirty. Question two. There are three times as many ducks as rabbits, and the animals have one hundred and fifty legs altogether. How many rabbits are there? Choose your answer now. One unit group is one rabbit plus three ducks. That is four rabbit legs plus six duck legs, or ten legs per group. One hundred and fifty divided by ten gives fifteen groups, so there are fifteen rabbits. Question three. A teacher has one packet of cards. If every child gets nine cards, the packet is eight cards short. If every child gets six cards, seven cards are left over. How many cards are in the packet? Choose your answer now. The two plans differ by three cards per child. The total gap is eight short plus seven extra, which is fifteen. Fifteen divided by three gives five children. Use the nine-card plan: five children would need forty five cards, but the packet is short by eight, so there are thirty seven cards. If you got these right, you are not memorizing steps; you are seeing the invariant."
+  },
+  {
+    id: "pop-quiz-2",
+    episode: 3,
+    title: "Pop Quiz 2",
+    point: "Try fresh numbers with the same three methods.",
+    audio: "assets/audio/15-pop-quiz-2.mp3",
+    duration: 112,
+    beats: [
+      { at: 0, state: "setup" },
+      { at: 18, state: "model" },
+      { at: 48, state: "calculate" },
+      { at: 78, state: "discover" },
+      { at: 102, state: "apply" }
+    ],
+    captions: [
+      [0, "Second pop quiz: same methods, new numbers."],
+      [18, "Question 1 checks included averages."],
+      [48, "Question 2 checks ratio groups."],
+      [78, "Question 3 checks excess and shortage."],
+      [102, "The setup changes, but the invariant stays visible."]
+    ],
+    quizBoard: {
+      q1: "Q1: 6 numbers average 14. Add one -> average 16.",
+      q2: "Q2: twice as many chickens as goats, 64 legs total.",
+      q3: "Q3: same pencil box, short 5 or extra 10."
+    },
+    script: "Here is a second pop quiz with fresh numbers. Use the same calm method. Question one. Six numbers average fourteen. One more number is added and the new average is sixteen. What was the added number? Choose your answer now. Compare totals. Six times fourteen is eighty four. Seven times sixteen is one hundred and twelve. The added number is one hundred and twelve minus eighty four, which is twenty eight. Question two. There are twice as many chickens as goats, and the animals have sixty four legs altogether. How many goats are there? Choose your answer now. Build one unit group: one goat plus two chickens. The goat has four legs. Two chickens have four legs. So one group has eight legs. Sixty four divided by eight gives eight groups, so there are eight goats. Question three. One box of pencils is shared. If each student gets eight pencils, the box is five pencils short. If each student gets five pencils, ten pencils are left over. How many pencils are in the box? Choose your answer now. The two plans differ by three pencils for each student. The total gap is five short plus ten extra, which is fifteen. Fifteen divided by three gives five students. Use the eight-pencil plan: five students would need forty pencils, but the box is short by five, so the box has thirty five pencils. New numbers, same invariant thinking."
   }
 ];
 
@@ -333,7 +365,6 @@ let elapsedOffset = 0;
 let courseElapsedAtSceneStart = 0;
 let rafId = 0;
 let captionTimer = 0;
-let utterance = null;
 let audio = null;
 let captionsVisible = false;
 let quizOverlay = null;
@@ -342,30 +373,60 @@ let pendingQuizResume = false;
 let timelineSeeking = false;
 let activeBeatKey = "";
 
-const quizQuestions = {
-  model: {
-    number: 1,
-    title: "Question 1: Included Average",
-    prompt: "Five numbers average 18. One more number is added and the new average is 20. What was the added number?",
-    options: ["20", "30", "120"],
-    correct: 1,
-    feedback: "Correct method: compare totals. 6 x 20 is 120, 5 x 18 is 90, so the added number is 30."
+const QUIZ_SCENE_IDS = new Set(["pop-quiz", "pop-quiz-2"]);
+
+const quizQuestionSets = {
+  "pop-quiz": {
+    model: {
+      number: 1,
+      title: "Question 1: Included Average",
+      prompt: "Five numbers average 18. One more number is added and the new average is 20. What was the added number?",
+      options: ["20", "30", "120"],
+      correct: 1,
+      feedback: "Correct method: compare totals. 6 x 20 is 120, 5 x 18 is 90, so the added number is 30."
+    },
+    calculate: {
+      number: 2,
+      title: "Question 2: Ratio Group",
+      prompt: "There are 3 times as many ducks as rabbits, and 150 legs altogether. How many rabbits are there?",
+      options: ["10", "15", "45"],
+      correct: 1,
+      feedback: "One group is 1 rabbit plus 3 ducks: 4 + 6 = 10 legs. 150 / 10 = 15 groups, so 15 rabbits."
+    },
+    discover: {
+      number: 3,
+      title: "Question 3: Excess And Shortage",
+      prompt: "A teacher has one packet of cards. If every child gets 9 cards, the packet is 8 cards short. If every child gets 6 cards, 7 cards are left over. How many cards are in the packet?",
+      options: ["37", "45", "52"],
+      correct: 0,
+      feedback: "The plans differ by 3 cards per child. The full gap is 8 short plus 7 spare, so 15. 15 / 3 = 5 children, and 5 x 9 - 8 = 37 cards."
+    }
   },
-  calculate: {
-    number: 2,
-    title: "Question 2: Ratio Group",
-    prompt: "There are 3 times as many ducks as rabbits, and 150 legs altogether. How many rabbits are there?",
-    options: ["10", "15", "45"],
-    correct: 1,
-    feedback: "One group is 1 rabbit plus 3 ducks: 4 + 6 = 10 legs. 150 / 10 = 15 groups, so 15 rabbits."
-  },
-  discover: {
-    number: 3,
-    title: "Question 3: Excess And Shortage",
-    prompt: "9 cards each is short by 8. 6 cards each leaves 7. How many cards are in the packet?",
-    options: ["37", "45", "52"],
-    correct: 0,
-    feedback: "Gap is 8 + 7 = 15. Per-child gap is 9 - 6 = 3, so 5 children. 5 x 9 - 8 = 37 cards."
+  "pop-quiz-2": {
+    model: {
+      number: 1,
+      title: "Question 1: Included Average",
+      prompt: "Six numbers average 14. One more number is added and the new average is 16. What was the added number?",
+      options: ["16", "28", "112"],
+      correct: 1,
+      feedback: "Compare totals. 7 x 16 = 112 and 6 x 14 = 84, so the added number is 112 - 84 = 28."
+    },
+    calculate: {
+      number: 2,
+      title: "Question 2: Ratio Group",
+      prompt: "There are twice as many chickens as goats, and the animals have 64 legs altogether. How many goats are there?",
+      options: ["8", "16", "24"],
+      correct: 0,
+      feedback: "One group is 1 goat plus 2 chickens. Legs are 4 + 4 = 8. 64 / 8 = 8 groups, so there are 8 goats."
+    },
+    discover: {
+      number: 3,
+      title: "Question 3: Excess And Shortage",
+      prompt: "One box of pencils is shared. If each student gets 8 pencils, the box is 5 pencils short. If each student gets 5 pencils, 10 pencils are left over. How many pencils are in the box?",
+      options: ["30", "35", "45"],
+      correct: 1,
+      feedback: "The per-student gap is 8 - 5 = 3. The full gap is 5 short plus 10 spare, so 15. 15 / 3 = 5 students, and 5 x 8 - 5 = 35 pencils."
+    }
   }
 };
 
@@ -388,7 +449,8 @@ const renderers = {
   "strategy-map": renderStrategyMap,
   "rate-time-practice": renderRateTimePractice,
   "percent-change-practice": renderPercentChangePractice,
-  "pop-quiz": renderPopQuiz
+  "pop-quiz": renderPopQuiz,
+  "pop-quiz-2": renderPopQuiz
 };
 
 function rebuildSceneOffsets() {
@@ -468,12 +530,11 @@ function renderSceneList() {
 
 function loadScene(index, offsetSeconds = 0, autoPlay = playing) {
   hideQuizOverlay();
-  stopSpeech();
   stopAudio();
   window.cancelAnimationFrame(rafId);
   activeSceneIndex = Math.max(0, Math.min(scenes.length - 1, index));
   const scene = scenes[activeSceneIndex];
-  if (scene.id === "pop-quiz" && offsetSeconds < 1) {
+  if (QUIZ_SCENE_IDS.has(scene.id) && offsetSeconds < 1) {
     quizState.answered = {};
     quizState.waiting = false;
   }
@@ -522,9 +583,9 @@ function startPlayback() {
   startedAt = performance.now() - elapsedOffset * 1000;
   const audioAttempt = playSceneAudio(scene, elapsedOffset);
   if (audioAttempt) {
-    audioAttempt.catch(() => speakScene(scene, elapsedOffset));
-  } else {
-    speakScene(scene, elapsedOffset);
+    audioAttempt.catch(() => {
+      captionText.textContent = "Voice file is still being prepared. The board can play silently for now.";
+    });
   }
   updateControls();
   startCaptionLoop();
@@ -536,7 +597,6 @@ function pausePlayback() {
   playing = false;
   board.classList.add("paused");
   if (audio) audio.pause();
-  else pauseSpeech();
   window.cancelAnimationFrame(rafId);
   updateControls();
 }
@@ -554,7 +614,6 @@ function playNextScene() {
   }
   playing = false;
   board.classList.add("finished");
-  stopSpeech();
   stopAudio();
   updateControls();
 }
@@ -653,7 +712,7 @@ function updateBoard(scene, seconds) {
 }
 
 function maybePauseForQuiz(scene, state) {
-  if (scene.id !== "pop-quiz" || !playing || !QUIZ_STATES.includes(state)) return;
+  if (!QUIZ_SCENE_IDS.has(scene.id) || !playing || !QUIZ_STATES.includes(state)) return;
   if (Object.hasOwn(quizState.answered, state) || quizState.waiting || quizPausedState === state) return;
   quizPausedState = state;
   quizState.waiting = true;
@@ -662,8 +721,12 @@ function maybePauseForQuiz(scene, state) {
   showQuizQuestion(state);
 }
 
+function activeQuizQuestions() {
+  return quizQuestionSets[scenes[activeSceneIndex]?.id] || quizQuestionSets["pop-quiz"];
+}
+
 function showQuizQuestion(state) {
-  const question = quizQuestions[state];
+  const question = activeQuizQuestions()[state];
   if (!quizOverlay || !question) return;
   quizOverlay.querySelector("#quizTitle").textContent = `${question.number}. ${question.title}`;
   quizOverlay.querySelector("#quizPrompt").textContent = question.prompt;
@@ -679,7 +742,7 @@ function handleQuizChoice(event) {
   const button = event.target.closest(".quiz-option");
   if (!button) return;
   const state = button.dataset.state;
-  const question = quizQuestions[state];
+  const question = activeQuizQuestions()[state];
   if (!question) return;
   const choice = Number(button.dataset.choice);
   quizState.answered[state] = choice;
@@ -721,19 +784,6 @@ function resetBeatClasses() {
   [...board.classList].forEach((className) => {
     if (className.startsWith("beat-")) board.classList.remove(className);
   });
-}
-
-function speakScene(scene, offsetSeconds) {
-  stopSpeech();
-  if (!speech || offsetSeconds > 2) return;
-  utterance = new SpeechSynthesisUtterance(scene.script);
-  utterance.rate = 1.08;
-  utterance.pitch = 1.04;
-  utterance.volume = 1;
-  utterance.onend = () => {
-    if (playing && scenes[activeSceneIndex]?.id === scene.id && currentSceneTime() > scene.duration - 4) playNextScene();
-  };
-  speech.speak(utterance);
 }
 
 function prepareAudio(scene) {
@@ -780,19 +830,6 @@ function stopAudio() {
   audio.load();
   audio.remove();
   audio = null;
-}
-
-function pauseSpeech() {
-  if (speech?.speaking) speech.pause();
-}
-
-function resumeSpeech() {
-  if (speech?.paused) speech.resume();
-}
-
-function stopSpeech() {
-  if (speech) speech.cancel();
-  utterance = null;
 }
 
 function baseSvg(content) {
@@ -904,12 +941,12 @@ function renderDucksRabbits() {
       ${text(600, 174, "fixed total = 1404 legs", 1.82, 27, "#f3d56b")}
     </g>
     <g class="math-phase phase-model">
-      ${rect(92, 322, 1016, 220, 0.1, 0.9, "#8bd3dd", 5)}
-      ${rabbit(226, 418, 0.8)}
-      ${duck(472, 420, 1.75)}${duck(612, 420, 2.05)}${duck(752, 420, 2.35)}${duck(892, 420, 2.65)}
-      ${smallText(226, 574, "1 rabbit", 3.0, "#9fdf9f")}
-      ${smallText(755, 552, "4 ducks", 3.15, "#f3d56b")}
-      ${text(600, 612, "one complete unit group", 3.5, 23, "#8bd3dd")}
+      ${rect(92, 300, 1016, 250, 0.1, 0.9, "#8bd3dd", 5)}
+      ${rabbit(226, 410, 0.8)}
+      ${duck(472, 410, 1.75)}${duck(612, 410, 2.05)}${duck(752, 410, 2.35)}${duck(892, 410, 2.65)}
+      ${smallText(226, 526, "1 rabbit", 3.0, "#9fdf9f")}
+      ${smallText(755, 526, "4 ducks", 3.15, "#f3d56b")}
+      ${text(600, 596, "one complete unit group", 3.5, 23, "#8bd3dd")}
     </g>
     <g class="math-phase phase-calculate">
       ${rect(105, 225, 300, 60, 0.2, 0.65, "#9fdf9f", 4)}
@@ -964,31 +1001,33 @@ function renderExcessShortage() {
   return baseSvg(`
     <g class="math-phase phase-setup">
       ${text(600, 60, "Excess And Shortage", 0.1, 36)}
-      ${text(600, 116, "same packet, two different sharing plans", 0.7, 28)}
+      ${text(600, 116, "one real packet, two imaginary sharing plans", 0.7, 27)}
     </g>
     <g class="math-phase phase-model">
-      ${rect(145, 190, 910, 92, 0.2, 0.8, "#f4a6b8", 5)}
-      ${text(260, 247, "Plan A: 7 each", 0.85, 27, "#f4a6b8")}
-      ${line(780, 236, 920, 236, 1.35, 0.55, "#f4a6b8", 5)}
-      ${smallText(850, 218, "needs 6 more", 1.85, "#f4a6b8")}
-      ${rect(145, 335, 740, 92, 2.15, 0.8, "#9fdf9f", 5)}
-      ${text(260, 392, "Plan B: 4 each", 2.75, 27, "#9fdf9f")}
-      ${line(885, 381, 985, 381, 3.25, 0.55, "#9fdf9f", 5)}
-      ${smallText(935, 363, "3 left over", 3.75, "#9fdf9f")}
+      ${rect(448, 170, 304, 56, 0.2, 0.55, "#8bd3dd", 4, "rgba(139,211,221,0.08)")}
+      ${text(600, 207, "same packet", 0.78, 24, "#8bd3dd")}
+      ${path("M600 226 C600 252 600 264 600 286", 1.2, 0.35, "#8bd3dd", 4, 'marker-end="url(#arrowHead)"')}
+      ${rect(120, 300, 430, 98, 1.45, 0.75, "#f4a6b8", 5, "rgba(244,166,184,0.05)")}
+      ${text(335, 342, "Plan A: 7 each", 2.05, 28, "#f4a6b8")}
+      ${text(335, 378, "short 6", 2.6, 26, "#f4a6b8")}
+      ${rect(650, 300, 430, 98, 2.95, 0.75, "#9fdf9f", 5, "rgba(159,223,159,0.05)")}
+      ${text(865, 342, "Plan B: 4 each", 3.55, 28, "#9fdf9f")}
+      ${text(865, 378, "extra 3", 4.1, 26, "#9fdf9f")}
     </g>
     <g class="math-phase phase-calculate">
-      ${rect(140, 500, 410, 78, 0.2, 0.65, "#8bd3dd", 4)}
-      ${text(345, 550, "per child: 7 - 4 = 3", 0.85, 27, "#8bd3dd")}
-      ${rect(650, 500, 410, 78, 1.25, 0.65, "#f3d56b", 4)}
-      ${text(855, 550, "whole gap: 6 + 3 = 9", 1.9, 27, "#f3d56b")}
+      ${rect(120, 458, 430, 78, 0.2, 0.65, "#8bd3dd", 4)}
+      ${text(335, 508, "per boy gap: 7 - 4 = 3", 0.85, 25, "#8bd3dd")}
+      ${rect(650, 458, 430, 78, 1.25, 0.65, "#f3d56b", 4)}
+      ${text(865, 508, "total gap: 6 + 3 = 9", 1.9, 25, "#f3d56b")}
     </g>
     <g class="math-phase phase-discover">
-      ${path("M345 584 C400 626 510 626 565 584", 0.2, 0.8, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
-      ${text(360, 654, "9 / 3 = 3 boys", 0.9, 32, "#f3d56b")}
+      ${path("M335 545 C410 598 785 598 865 545", 0.2, 0.8, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
+      ${rect(376, 604, 448, 58, 0.9, 0.55, "#f3d56b", 4)}
+      ${text(600, 642, "9 / 3 = 3 boys", 1.45, 28, "#f3d56b")}
     </g>
     <g class="math-phase phase-apply">
-      ${rect(690, 612, 390, 58, 0.2, 0.7, "#9fdf9f", 4)}
-      ${text(885, 650, "check: 3 x 7 - 6 = 15", 0.85, 26, "#9fdf9f")}
+      ${rect(330, 680, 540, 46, 0.2, 0.65, "#9fdf9f", 4)}
+      ${text(600, 711, "packet = 3 x 7 - 6 = 15", 0.8, 24, "#9fdf9f")}
     </g>
   `);
 }
@@ -1306,25 +1345,26 @@ function renderPercentChangePractice(scene) {
   `);
 }
 
-function renderPopQuiz() {
+function renderPopQuiz(scene) {
+  const board = scene.quizBoard || {};
   return baseSvg(`
     <g class="math-phase phase-setup">
-      ${text(600, 58, "Pop Quiz", 0.1, 38)}
+      ${text(600, 58, scene.title, 0.1, 38)}
       ${text(600, 112, "Three touch checks: choose before the answer", 0.7, 28)}
       ${rect(170, 150, 860, 72, 1.0, 0.7, "#8bd3dd", 4)}
       ${text(600, 196, "The voice pauses at each question until you answer.", 1.55, 25, "#8bd3dd")}
     </g>
     <g class="math-phase phase-model">
       ${rect(90, 260, 1020, 96, 0.2, 0.7, "#f3d56b", 4)}
-      ${text(600, 316, "Q1: 5 numbers average 18. Add one -> average 20.", 0.85, 25, "#f3d56b")}
+      ${text(600, 316, board.q1 || "Q1: included average.", 0.85, 25, "#f3d56b")}
     </g>
     <g class="math-phase phase-calculate">
       ${rect(90, 388, 1020, 96, 0.2, 0.7, "#9fdf9f", 4)}
-      ${text(600, 444, "Q2: 3 ducks for every 1 rabbit, 150 legs total.", 0.85, 25, "#9fdf9f")}
+      ${text(600, 444, board.q2 || "Q2: ratio group.", 0.85, 25, "#9fdf9f")}
     </g>
     <g class="math-phase phase-discover">
       ${rect(90, 516, 1020, 96, 0.2, 0.7, "#f4a6b8", 4)}
-      ${text(600, 572, "Q3: 9 each short 8; 6 each leaves 7.", 0.85, 25, "#f4a6b8")}
+      ${text(600, 572, board.q3 || "Q3: excess and shortage.", 0.85, 25, "#f4a6b8")}
     </g>
     <g class="math-phase phase-apply">
       ${rect(335, 628, 530, 40, 0.2, 0.6, "#8bd3dd", 4)}
@@ -1333,10 +1373,7 @@ function renderPopQuiz() {
   `);
 }
 
-playButton.addEventListener("click", () => {
-  if (!playing && speech?.paused) resumeSpeech();
-  togglePlayback();
-});
+playButton.addEventListener("click", togglePlayback);
 rewindButton.addEventListener("click", rewind);
 ccButton.addEventListener("click", () => {
   captionsVisible = !captionsVisible;

@@ -6,6 +6,8 @@ import { fileURLToPath } from "node:url";
 const here = dirname(fileURLToPath(import.meta.url));
 const lessons = JSON.parse(await readFile(resolve(here, "lesson-scripts.json"), "utf8"));
 const apiKey = process.env.OPENAI_API_KEY;
+const onlyArg = process.argv.find((arg) => arg.startsWith("--only="));
+const onlyLessons = onlyArg ? new Set(onlyArg.slice("--only=".length).split(",").map((id) => id.trim()).filter(Boolean)) : null;
 
 if (!apiKey) {
   throw new Error("OPENAI_API_KEY is required to generate static lesson audio.");
@@ -17,6 +19,8 @@ const instructions =
 await mkdir(resolve(here, "assets", "audio"), { recursive: true });
 
 for (const lesson of lessons) {
+  if (onlyLessons && !onlyLessons.has(lesson.id)) continue;
+
   const target = resolve(here, lesson.audio);
   if (existsSync(target) && !process.argv.includes("--force")) {
     console.log(`${lesson.id}: exists -> ${lesson.audio}`);
