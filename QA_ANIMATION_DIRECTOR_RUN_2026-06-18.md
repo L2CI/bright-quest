@@ -42,6 +42,27 @@ Method: local Chrome extension QA where available, DOM/layout inspection, syntax
   - Maths initial board active beat: `setup`.
   - Grammar initial board active beat: `intro`.
 
+## Live Verification After Push
+
+- GitHub commits pushed:
+  - `cf8989f` - training animation timing and QA log.
+  - `8926bc4` - tablet/two-column board visibility.
+  - `1360d2a` - right-rail containment.
+- Live Cloudflare checks through Chrome:
+  - Maths page served `maths-training.js?v=20260618f` and `maths-training.css?v=20260618h`.
+  - English page served `english-grammar.js?v=20260618d` and `english-grammar.css?v=20260618f`.
+  - Both pages rendered as two columns at approximately 1037px browser width: board column about 686px, side rail 280px.
+  - Both pages kept the board visible in the first viewport and constrained the right scene list to an internal scroll area.
+  - Live console error logs were empty for both pages.
+
+## Current Status
+
+- QA-001 through QA-005: patched and smoke-verified live.
+- QA-010 and QA-011: patched and smoke-verified live.
+- QA-006 and QA-007 remain content/design backlog items, not regressions.
+- QA-008 remains a tooling limitation: Chrome DOM/layout QA worked; screenshot capture was intermittent.
+- QA-009 remains accepted by user: leave quiz interaction mostly as-is unless clear timing defects appear.
+
 ## Second Run Verification Plan
 
 1. Local syntax checks: `node --check maths-training\maths-training.js` and `node --check english-grammar\english-grammar.js`.
