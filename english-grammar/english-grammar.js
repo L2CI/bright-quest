@@ -286,7 +286,7 @@ const fallbackSceneBeats = {
     { at: 0, state: "intro" },
     { at: 18, state: "subject" },
     { at: 38, state: "predicate" },
-    { at: 40, state: "example" },
+    { at: 48, state: "example" },
     { at: 70, state: "apply" }
   ],
   "nouns-pronouns": [
@@ -389,6 +389,7 @@ let courseElapsedAtSceneStart = 0;
 let sceneStartedAt = 0;
 let sceneElapsedOffset = 0;
 let captionsVisible = false;
+let activeBeatKey = "";
 let ladderProgress = loadLadderProgress();
 
 init();
@@ -458,6 +459,7 @@ function loadScene(index, offsetSeconds = 0, shouldPlay = playing) {
 
   board.classList.remove("paused", "animating", "finished");
   resetBoardBeatClasses();
+  activeBeatKey = "";
   sceneTitle.textContent = scene.title;
   sceneCount.textContent = `Step ${activeStep} - Module ${activeSceneIndex + 1} of ${scenes.length}`;
   sceneDuration.textContent = formatTime(scene.duration);
@@ -625,10 +627,15 @@ function updateBoardMoment(scene, seconds) {
   const beatIndex = activeBeatIndex(beats, seconds);
   const activeStates = beats.slice(0, beatIndex + 1).map((beat) => beat.state);
   const showMoment = activeStates.includes("example") || activeStates.includes("contrast") || activeStates.includes("comma") || activeStates.includes("sentence-check");
-  resetBoardBeatClasses();
-  activeStates.forEach((state) => board.classList.add(`beat-${state}`));
-  board.classList.add(`board-beat-${Math.min(4, Math.max(1, beatIndex + 1))}`);
-  board.dataset.activeBeat = beats[beatIndex]?.state || "intro";
+  const activeBeat = beats[beatIndex]?.state || "intro";
+  const beatKey = `${scene.id}:${activeStates.join("|")}:${showMoment ? "moment" : "base"}`;
+  if (beatKey !== activeBeatKey) {
+    resetBoardBeatClasses();
+    activeStates.forEach((state) => board.classList.add(`beat-${state}`));
+    board.classList.add(`board-beat-${Math.min(4, Math.max(1, beatIndex + 1))}`);
+    board.dataset.activeBeat = activeBeat;
+    activeBeatKey = beatKey;
+  }
   board.classList.toggle("show-board-moment", showMoment);
   board.classList.toggle("show-board-build", beatIndex >= 1);
   board.classList.toggle("show-board-apply", beatIndex >= Math.max(1, beats.length - 2));
@@ -677,6 +684,7 @@ function updateQuizBoardBeats(scene, activeStates) {
 
 function restartBoardAnimation() {
   board.classList.remove("animating", "paused", "finished");
+  activeBeatKey = "";
   void board.offsetWidth;
   board.classList.add("animating");
 }

@@ -15,7 +15,7 @@
 }
 
 * { box-sizing: border-box; }
-html, body { min-height: 100%; }
+html, body { min-height: 100%; overflow-x: hidden; }
 body {
   margin: 0;
   color: var(--ink);
@@ -34,8 +34,10 @@ h1, h2, h3, p { margin: 0; }
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr) auto;
   min-height: 100vh;
+  min-height: 100dvh;
   gap: 12px;
   padding: clamp(12px, 2vw, 22px);
+  overflow: visible;
 }
 
 .maths-app::before {
@@ -169,6 +171,7 @@ h3 {
   justify-content: center;
   align-items: start;
   min-height: 0;
+  overflow: hidden;
 }
 
 .board-shell {
@@ -176,6 +179,7 @@ h3 {
   grid-template-rows: auto auto;
   align-self: start;
   min-height: 0;
+  max-height: 100%;
   border: 1px solid rgba(255,255,255,0.28);
   border-radius: 26px;
   padding: 12px;
@@ -198,7 +202,7 @@ h3 {
 
 .blackboard {
   position: relative;
-  width: min(100%, calc(min(66vh, 680px) * 1200 / 680));
+  width: min(100%, calc(min(52vh, 640px) * 1200 / 680));
   margin-inline: auto;
   aspect-ratio: 1200 / 680;
   overflow: hidden;
@@ -313,12 +317,22 @@ h3 {
 }
 
 .paused .draw-path, .paused .draw-shape, .paused .draw-text { animation-play-state: paused; }
+.seeked .math-phase .draw-path,
+.seeked .math-phase .draw-shape {
+  animation: none !important;
+  stroke-dashoffset: 0 !important;
+}
+.seeked .math-phase .draw-text {
+  animation: none !important;
+  opacity: 1 !important;
+}
 
 .lesson-side {
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr);
   gap: 12px;
   min-height: 0;
+  max-height: 100%;
   padding: 10px;
   border: 1px solid rgba(255,255,255,0.28);
   border-radius: 24px;
@@ -433,7 +447,9 @@ h3 {
   display: grid;
   gap: 8px;
   overflow: auto;
+  min-height: 0;
   padding: 10px;
+  overscroll-behavior: contain;
 }
 .scene-button {
   display: grid;
@@ -485,6 +501,73 @@ h3 {
 }
 .timeline { width: 100%; accent-color: var(--blue); }
 
+.quiz-overlay {
+  position: absolute;
+  inset: 13% 8% 10%;
+  z-index: 3;
+  display: none;
+  align-content: center;
+  gap: 14px;
+  padding: 18px;
+  border: 3px solid rgba(139, 211, 221, 0.88);
+  border-radius: 22px;
+  background: rgba(9, 31, 47, 0.9);
+  color: #fff;
+  box-shadow: inset 0 0 36px rgba(139,211,221,0.12), 0 18px 40px rgba(0,0,0,0.28);
+}
+.quiz-overlay.active { display: grid; }
+.quiz-overlay h3 {
+  color: #fff;
+  font-size: clamp(1.1rem, 1.6vw, 1.65rem);
+  line-height: 1.08;
+}
+.quiz-overlay p {
+  color: #d9eff0;
+  font-weight: 850;
+  line-height: 1.35;
+}
+.quiz-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.quiz-option {
+  min-height: 62px;
+  border: 2px solid rgba(255,255,255,0.72);
+  border-radius: 16px;
+  background: rgba(255,255,255,0.96);
+  color: var(--navy);
+  font-weight: 1000;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.16);
+}
+.quiz-option.correct {
+  border-color: #9fdf9f;
+  background: linear-gradient(135deg, rgba(159,223,159,0.95), rgba(245,245,240,0.98));
+}
+.quiz-option.incorrect {
+  border-color: #f4a6b8;
+  background: linear-gradient(135deg, rgba(244,166,184,0.92), rgba(245,245,240,0.98));
+}
+.quiz-feedback {
+  min-height: 42px;
+  color: #f5f5f0;
+  font-weight: 900;
+}
+.quiz-continue {
+  justify-self: end;
+  min-height: 44px;
+  border: 0;
+  border-radius: 14px;
+  padding: 0 18px;
+  background: linear-gradient(135deg, #087a8b, #27d3a2);
+  color: #fff;
+  font-weight: 1000;
+}
+.quiz-continue:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
 @keyframes chalkDraw { to { stroke-dashoffset: 0; } }
 @keyframes chalkFade { to { opacity: 1; } }
 
@@ -492,7 +575,9 @@ h3 {
   .lesson-stage { grid-template-columns: 1fr; }
   .lesson-side { grid-template-rows: auto auto auto; }
   .scene-list { max-height: 320px; }
-  .blackboard { width: min(100%, calc(58vh * 1200 / 680)); }
+  .blackboard { width: min(100%, calc(56vh * 1200 / 680)); }
+  html, body { overflow: auto; }
+  .maths-app { height: auto; min-height: 100vh; overflow: visible; }
 }
 @media (max-width: 760px) {
   .maths-app { padding: 10px; }

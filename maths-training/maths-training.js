@@ -15,14 +15,15 @@ const elapsedTime = document.querySelector("#elapsedTime");
 const remainingTime = document.querySelector("#remainingTime");
 const totalTime = document.querySelector("#totalTime");
 
-const COURSE_RELEASE = "maths-training-002";
+const COURSE_RELEASE = "maths-training-003";
 const AUDIO_PLAYBACK_RATE = 1.1;
 const speech = window.speechSynthesis;
+const QUIZ_STATES = ["model", "calculate", "discover"];
 
 const episodes = [
-  { episode: 1, title: "Episode 1", subtitle: "Arithmetic logic" },
-  { episode: 2, title: "Episode 2", subtitle: "Visual models" },
-  { episode: 3, title: "Episode 3", subtitle: "Spatial cycles" }
+  { episode: 1, title: "Part 1", subtitle: "Arithmetic logic" },
+  { episode: 2, title: "Part 2", subtitle: "Visual models" },
+  { episode: 3, title: "Part 3", subtitle: "Spatial cycles" }
 ];
 
 const allScenes = [
@@ -35,8 +36,8 @@ const allScenes = [
     duration: 77,
     beats: [
       { at: 0, state: "setup" },
-      { at: 12, state: "model" },
-      { at: 30, state: "calculate" },
+      { at: 6, state: "model" },
+      { at: 24, state: "calculate" },
       { at: 52, state: "discover" },
       { at: 66, state: "apply" }
     ],
@@ -335,6 +336,43 @@ let captionTimer = 0;
 let utterance = null;
 let audio = null;
 let captionsVisible = false;
+let quizOverlay = null;
+let quizPausedState = null;
+let pendingQuizResume = false;
+let timelineSeeking = false;
+let activeBeatKey = "";
+
+const quizQuestions = {
+  model: {
+    number: 1,
+    title: "Question 1: Included Average",
+    prompt: "Five numbers average 18. One more number is added and the new average is 20. What was the added number?",
+    options: ["20", "30", "120"],
+    correct: 1,
+    feedback: "Correct method: compare totals. 6 x 20 is 120, 5 x 18 is 90, so the added number is 30."
+  },
+  calculate: {
+    number: 2,
+    title: "Question 2: Ratio Group",
+    prompt: "There are 3 times as many ducks as rabbits, and 150 legs altogether. How many rabbits are there?",
+    options: ["10", "15", "45"],
+    correct: 1,
+    feedback: "One group is 1 rabbit plus 3 ducks: 4 + 6 = 10 legs. 150 / 10 = 15 groups, so 15 rabbits."
+  },
+  discover: {
+    number: 3,
+    title: "Question 3: Excess And Shortage",
+    prompt: "9 cards each is short by 8. 6 cards each leaves 7. How many cards are in the packet?",
+    options: ["37", "45", "52"],
+    correct: 0,
+    feedback: "Gap is 8 + 7 = 15. Per-child gap is 9 - 6 = 3, so 5 children. 5 x 9 - 8 = 37 cards."
+  }
+};
+
+const quizState = {
+  answered: {},
+  waiting: false
+};
 
 const renderers = {
   "included-average": renderIncludedAverage,
@@ -343,13 +381,13 @@ const renderers = {
   "excess-shortage": renderExcessShortage,
   "cube-joints": renderCubeJoints,
   "calendar-cycle": renderCalendarCycle,
-  "average-practice": renderPracticeBoard,
-  "ratio-group-practice": renderPracticeBoard,
-  "remainder-practice": renderPracticeBoard,
-  "shortage-practice": renderPracticeBoard,
-  "strategy-map": renderPracticeBoard,
-  "rate-time-practice": renderPracticeBoard,
-  "percent-change-practice": renderPracticeBoard,
+  "average-practice": renderAveragePractice,
+  "ratio-group-practice": renderRatioPractice,
+  "remainder-practice": renderRemainderPractice,
+  "shortage-practice": renderShortagePractice,
+  "strategy-map": renderStrategyMap,
+  "rate-time-practice": renderRateTimePractice,
+  "percent-change-practice": renderPercentChangePractice,
   "pop-quiz": renderPopQuiz
 };
 
@@ -401,6 +439,23 @@ function setupEpisode(episode, sceneIndex = 0) {
   loadScene(sceneIndex || episodeStart, 0, false);
 }
 
+function initQuizOverlay() {
+  quizOverlay = document.createElement("div");
+  quizOverlay.id = "quizOverlay";
+  quizOverlay.className = "quiz-overlay";
+  quizOverlay.setAttribute("aria-live", "polite");
+  quizOverlay.innerHTML = `
+    <h3 id="quizTitle"></h3>
+    <p id="quizPrompt"></p>
+    <div class="quiz-options" id="quizOptions"></div>
+    <p class="quiz-feedback" id="quizFeedback"></p>
+    <button class="quiz-continue" id="quizContinue" type="button" disabled>Continue lesson</button>
+  `;
+  board.append(quizOverlay);
+  quizOverlay.querySelector("#quizOptions").addEventListener("click", handleQuizChoice);
+  quizOverlay.querySelector("#quizContinue").addEventListener("click", continueQuiz);
+}
+
 function renderSceneList() {
   sceneList.innerHTML = scenes.map((scene, index) => `
     <button class="scene-button ${index === activeSceneIndex ? "active" : ""}" type="button" data-scene="${index}">
@@ -412,31 +467,54 @@ function renderSceneList() {
 }
 
 function loadScene(index, offsetSeconds = 0, autoPlay = playing) {
+  hideQuizOverlay();
   stopSpeech();
   stopAudio();
   window.cancelAnimationFrame(rafId);
   activeSceneIndex = Math.max(0, Math.min(scenes.length - 1, index));
   const scene = scenes[activeSceneIndex];
+  if (scene.id === "pop-quiz" && offsetSeconds < 1) {
+    quizState.answered = {};
+    quizState.waiting = false;
+  }
   activeEpisode = scene.episode;
   const offset = Math.max(0, Math.min(scene.duration - 0.5, offsetSeconds));
   elapsedOffset = offset;
   startedAt = performance.now() - offset * 1000;
   courseElapsedAtSceneStart = sceneOffsets[activeSceneIndex];
   sceneTitle.textContent = scene.title;
-  sceneCount.textContent = `Episode ${activeEpisode} - Module ${activeSceneIndex + 1} of ${scenes.length}`;
+  sceneCount.textContent = `Part ${activeEpisode} - Module ${activeSceneIndex + 1} of ${scenes.length}`;
   sceneDuration.textContent = formatTime(scene.duration);
   lessonPoint.textContent = scene.point;
   captionText.textContent = captionFor(scene, offset);
   svg.innerHTML = renderers[scene.id](scene);
   prepareAudio(scene);
+  board.classList.toggle("seeked", offset > 0.75);
+  activeBeatKey = "";
   updateBoard(scene, offset);
   renderSceneList();
   updateControls();
   updateTimeline();
+  keepActiveSceneVisible();
   if (autoPlay) startPlayback();
 }
 
+function keepActiveSceneVisible() {
+  const active = sceneList.querySelector(".scene-button.active");
+  if (!active) return;
+  const containerTop = sceneList.scrollTop;
+  const containerBottom = containerTop + sceneList.clientHeight;
+  const itemTop = active.offsetTop;
+  const itemBottom = itemTop + active.offsetHeight;
+  if (itemTop < containerTop) sceneList.scrollTop = itemTop - 8;
+  else if (itemBottom > containerBottom) sceneList.scrollTop = itemBottom - sceneList.clientHeight + 8;
+}
+
 function startPlayback() {
+  if (quizState.waiting && pendingQuizResume) {
+    updateControls();
+    return;
+  }
   const scene = scenes[activeSceneIndex];
   playing = true;
   board.classList.add("animating");
@@ -454,8 +532,8 @@ function startPlayback() {
 }
 
 function pausePlayback() {
-  playing = false;
   elapsedOffset = currentSceneTime();
+  playing = false;
   board.classList.add("paused");
   if (audio) audio.pause();
   else pauseSpeech();
@@ -469,6 +547,7 @@ function togglePlayback() {
 }
 
 function playNextScene() {
+  hideQuizOverlay();
   if (activeSceneIndex + 1 < scenes.length) {
     loadScene(activeSceneIndex + 1, 0, true);
     return;
@@ -489,8 +568,8 @@ function currentCourseTime() {
 }
 
 function currentSceneTime() {
-  if (audio && Number.isFinite(audio.currentTime) && audio.readyState > 0) return audio.currentTime;
   if (!playing) return elapsedOffset;
+  if (audio && Number.isFinite(audio.currentTime) && audio.readyState > 0) return audio.currentTime;
   return Math.max(0, (performance.now() - startedAt) / 1000);
 }
 
@@ -524,15 +603,24 @@ function tick() {
 }
 
 function updateControls() {
+  const quizLocked = quizState.waiting && pendingQuizResume;
   const icon = playing ? "pause-icon" : "play-icon";
-  const label = playing ? "Pause" : "Play";
+  const label = quizLocked ? "Answer first" : playing ? "Pause" : "Play";
   playButton.innerHTML = `<span class="control-icon ${icon}" aria-hidden="true"></span><span class="control-label">${label}</span>`;
-  playButton.setAttribute("aria-label", playing ? "Pause lesson" : "Start lesson");
+  playButton.disabled = quizLocked;
+  playButton.setAttribute("aria-label", quizLocked ? "Answer the quiz question to continue" : playing ? "Pause lesson" : "Start lesson");
 }
 
 function updateTimeline() {
+  if (timelineSeeking) return;
   const safe = currentCourseTime();
   timeline.value = String(Math.round(safe));
+  elapsedTime.textContent = `${formatTime(safe)} elapsed`;
+  remainingTime.textContent = formatTime(Math.max(0, courseTotal() - safe));
+}
+
+function previewTimeline(value) {
+  const safe = Math.max(0, Math.min(courseTotal(), Number(value) || 0));
   elapsedTime.textContent = `${formatTime(safe)} elapsed`;
   remainingTime.textContent = formatTime(Math.max(0, courseTotal() - safe));
 }
@@ -553,9 +641,72 @@ function captionFor(scene, seconds) {
 function updateBoard(scene, seconds) {
   const beatIndex = activeBeatIndex(scene.beats, seconds);
   const states = scene.beats.slice(0, beatIndex + 1).map((beat) => beat.state);
-  resetBeatClasses();
-  states.forEach((state) => board.classList.add(`beat-${state}`));
-  board.dataset.activeBeat = scene.beats[beatIndex]?.state || "setup";
+  const activeBeat = scene.beats[beatIndex]?.state || "setup";
+  const beatKey = `${scene.id}:${states.join("|")}`;
+  if (beatKey !== activeBeatKey) {
+    resetBeatClasses();
+    states.forEach((state) => board.classList.add(`beat-${state}`));
+    board.dataset.activeBeat = activeBeat;
+    activeBeatKey = beatKey;
+  }
+  maybePauseForQuiz(scene, board.dataset.activeBeat);
+}
+
+function maybePauseForQuiz(scene, state) {
+  if (scene.id !== "pop-quiz" || !playing || !QUIZ_STATES.includes(state)) return;
+  if (Object.hasOwn(quizState.answered, state) || quizState.waiting || quizPausedState === state) return;
+  quizPausedState = state;
+  quizState.waiting = true;
+  pendingQuizResume = true;
+  pausePlayback();
+  showQuizQuestion(state);
+}
+
+function showQuizQuestion(state) {
+  const question = quizQuestions[state];
+  if (!quizOverlay || !question) return;
+  quizOverlay.querySelector("#quizTitle").textContent = `${question.number}. ${question.title}`;
+  quizOverlay.querySelector("#quizPrompt").textContent = question.prompt;
+  quizOverlay.querySelector("#quizFeedback").textContent = "Choose the best answer to continue.";
+  quizOverlay.querySelector("#quizContinue").disabled = true;
+  quizOverlay.querySelector("#quizOptions").innerHTML = question.options.map((option, index) => `
+    <button class="quiz-option" type="button" data-state="${state}" data-choice="${index}" data-correct="${index === question.correct}">${escapeHtml(option)}</button>
+  `).join("");
+  quizOverlay.classList.add("active");
+}
+
+function handleQuizChoice(event) {
+  const button = event.target.closest(".quiz-option");
+  if (!button) return;
+  const state = button.dataset.state;
+  const question = quizQuestions[state];
+  if (!question) return;
+  const choice = Number(button.dataset.choice);
+  quizState.answered[state] = choice;
+  quizOverlay.querySelectorAll(".quiz-option").forEach((option) => {
+    option.disabled = true;
+    const optionChoice = Number(option.dataset.choice);
+    option.classList.toggle("correct", optionChoice === question.correct);
+    option.classList.toggle("incorrect", optionChoice === choice && choice !== question.correct);
+  });
+  const prefix = choice === question.correct ? "Yes. " : "Not quite. ";
+  quizOverlay.querySelector("#quizFeedback").textContent = `${prefix}${question.feedback}`;
+  quizOverlay.querySelector("#quizContinue").disabled = false;
+  updateControls();
+}
+
+function continueQuiz() {
+  hideQuizOverlay();
+  if (!pendingQuizResume) return;
+  pendingQuizResume = false;
+  quizPausedState = null;
+  startPlayback();
+}
+
+function hideQuizOverlay() {
+  if (!quizOverlay) return;
+  quizOverlay.classList.remove("active");
+  quizState.waiting = false;
 }
 
 function activeBeatIndex(beats, seconds) {
@@ -689,9 +840,9 @@ function multiText(x, y, lines, delay, size = 25, color = "#f5f5f0") {
 
 function invariantBox(x, y, label, value, delay = 0) {
   return `
-    ${rect(x, y, 245, 86, delay, 0.8, "#f3d56b", 5, "rgba(243,213,107,0.1)")}
-    ${smallText(x + 122, y + 32, label, delay + 0.6, "#f3d56b")}
-    ${text(x + 122, y + 68, value, delay + 0.8, 30, "#f3d56b")}
+    ${rect(x, y, 255, 94, delay, 0.8, "#f3d56b", 5, "rgba(243,213,107,0.1)")}
+    ${text(x + 128, y + 29, label, delay + 0.6, 18, "#f3d56b")}
+    ${text(x + 128, y + 72, value, delay + 0.8, 28, "#f3d56b")}
   `;
 }
 
@@ -730,47 +881,51 @@ function renderIncludedAverage() {
 
 function renderDucksRabbits() {
   const duck = (x, y, delay) => `
-    ${path(`M${x - 54} ${y + 8} C${x - 40} ${y - 20} ${x + 5} ${y - 26} ${x + 38} ${y - 6} C${x + 52} ${y + 2} ${x + 54} ${y + 24} ${x + 30} ${y + 36} C${x - 8} ${y + 55} ${x - 52} ${y + 42} ${x - 62} ${y + 18} C${x - 66} ${y + 12} ${x - 62} ${y + 8} ${x - 54} ${y + 8}`, delay, 0.8, "#f3d56b", 4)}
-    ${path(`M${x + 32} ${y - 10} C${x + 42} ${y - 34} ${x + 70} ${y - 28} ${x + 72} ${y - 4} C${x + 72} ${y + 14} ${x + 48} ${y + 14} ${x + 38} ${y + 2}`, delay + 0.28, 0.55, "#f3d56b", 4)}
-    ${path(`M${x + 70} ${y - 3} L${x + 93} ${y + 6} L${x + 71} ${y + 16}`, delay + 0.75, 0.35, "#f4a6b8", 4)}
-    ${path(`M${x - 18} ${y + 46} L${x - 18} ${y + 70} M${x + 20} ${y + 43} L${x + 20} ${y + 70}`, delay + 1.0, 0.45, "#f3d56b", 3)}
+    ${path(`M${x - 46} ${y + 8} C${x - 32} ${y - 22} ${x + 22} ${y - 24} ${x + 44} ${y + 4} C${x + 26} ${y + 30} ${x - 24} ${y + 30} ${x - 46} ${y + 8}`, delay, 0.65, "#f3d56b", 4)}
+    ${circle(x + 52, y - 14, 17, delay + 0.32, 0.35, "#f3d56b", 4)}
+    ${path(`M${x + 66} ${y - 13} L${x + 88} ${y - 4} L${x + 66} ${y + 5}`, delay + 0.62, 0.25, "#f4a6b8", 4)}
+    ${line(x - 12, y + 32, x - 12, y + 54, delay + 0.86, 0.22, "#f3d56b", 3)}
+    ${line(x + 18, y + 32, x + 18, y + 54, delay + 0.98, 0.22, "#f3d56b", 3)}
   `;
   const rabbit = (x, y, delay) => `
-    ${path(`M${x - 72} ${y + 42} C${x - 70} ${y - 18} ${x - 26} ${y - 66} ${x + 36} ${y - 48} C${x + 82} ${y - 34} ${x + 90} ${y + 26} ${x + 48} ${y + 54} C${x + 8} ${y + 82} ${x - 60} ${y + 72} ${x - 72} ${y + 42}`, delay, 0.9, "#9fdf9f", 4)}
-    ${path(`M${x - 18} ${y - 56} C${x - 38} ${y - 112} ${x - 30} ${y - 154} ${x - 4} ${y - 126} C${x + 0} ${y - 96} ${x - 2} ${y - 78} ${x + 2} ${y - 54}`, delay + 0.32, 0.6, "#9fdf9f", 4)}
-    ${path(`M${x + 12} ${y - 52} C${x + 22} ${y - 110} ${x + 46} ${y - 140} ${x + 58} ${y - 106} C${x + 46} ${y - 84} ${x + 38} ${y - 66} ${x + 36} ${y - 44}`, delay + 0.58, 0.6, "#9fdf9f", 4)}
-    ${circle(x + 54, y - 32, 7, delay + 1.0, 0.25, "#f5f5f0", 3, "rgba(245,245,240,0.05)")}
-    ${path(`M${x - 40} ${y + 64} C${x - 62} ${y + 90} ${x - 100} ${y + 84} ${x - 92} ${y + 62} M${x + 40} ${y + 60} C${x + 70} ${y + 86} ${x + 108} ${y + 78} ${x + 92} ${y + 56}`, delay + 1.15, 0.55, "#9fdf9f", 4)}
+    ${path(`M${x - 64} ${y + 28} C${x - 42} ${y - 28} ${x + 42} ${y - 32} ${x + 66} ${y + 22} C${x + 42} ${y + 66} ${x - 38} ${y + 68} ${x - 64} ${y + 28}`, delay, 0.72, "#9fdf9f", 4)}
+    ${circle(x + 72, y - 4, 24, delay + 0.22, 0.36, "#9fdf9f", 4)}
+    ${path(`M${x + 56} ${y - 24} C${x + 46} ${y - 74} ${x + 60} ${y - 104} ${x + 78} ${y - 62}`, delay + 0.5, 0.34, "#9fdf9f", 4)}
+    ${path(`M${x + 78} ${y - 25} C${x + 88} ${y - 74} ${x + 110} ${y - 94} ${x + 104} ${y - 46}`, delay + 0.66, 0.34, "#9fdf9f", 4)}
+    ${circle(x + 84, y - 10, 5, delay + 0.92, 0.18, "#f5f5f0", 3, "rgba(245,245,240,0.05)")}
+    ${path(`M${x - 30} ${y + 62} C${x - 56} ${y + 82} ${x - 88} ${y + 78} ${x - 80} ${y + 55}`, delay + 1.04, 0.28, "#9fdf9f", 4)}
+    ${path(`M${x + 36} ${y + 58} C${x + 58} ${y + 79} ${x + 90} ${y + 75} ${x + 82} ${y + 52}`, delay + 1.16, 0.28, "#9fdf9f", 4)}
   `;
   return baseSvg(`
     <g class="math-phase phase-setup">
       ${text(600, 54, "Ducks And Rabbits", 0.1, 36)}
       ${text(600, 108, "4 ducks for every 1 rabbit", 0.8, 29)}
-      ${invariantBox(478, 142, "invariant", "1404 legs", 1.2)}
+      ${rect(380, 132, 440, 64, 1.2, 0.65, "#f3d56b", 4, "rgba(243,213,107,0.08)")}
+      ${text(600, 174, "fixed total = 1404 legs", 1.82, 27, "#f3d56b")}
     </g>
     <g class="math-phase phase-model">
-      ${rect(110, 328, 980, 228, 0.1, 0.9, "#8bd3dd", 5)}
-      ${rabbit(260, 452, 0.9)}
-      ${duck(500, 452, 1.9)}${duck(640, 452, 2.25)}${duck(780, 452, 2.6)}${duck(920, 452, 2.95)}
-      ${smallText(260, 600, "1 rabbit", 3.35, "#9fdf9f")}
-      ${smallText(760, 600, "4 ducks", 3.55, "#f3d56b")}
-      ${text(600, 632, "one complete unit group", 3.9, 29, "#8bd3dd")}
+      ${rect(92, 322, 1016, 220, 0.1, 0.9, "#8bd3dd", 5)}
+      ${rabbit(226, 418, 0.8)}
+      ${duck(472, 420, 1.75)}${duck(612, 420, 2.05)}${duck(752, 420, 2.35)}${duck(892, 420, 2.65)}
+      ${smallText(226, 574, "1 rabbit", 3.0, "#9fdf9f")}
+      ${smallText(755, 574, "4 ducks", 3.15, "#f3d56b")}
+      ${text(600, 616, "one complete unit group", 3.5, 27, "#8bd3dd")}
     </g>
     <g class="math-phase phase-calculate">
-      ${rect(130, 246, 305, 66, 0.2, 0.65, "#9fdf9f", 4)}
-      ${text(282, 288, "rabbit legs = 4", 0.85, 24, "#9fdf9f")}
-      ${rect(765, 246, 305, 66, 1.25, 0.65, "#f3d56b", 4)}
-      ${text(918, 288, "duck legs = 8", 1.9, 24, "#f3d56b")}
-      ${path("M438 280 C520 244 680 244 762 280", 2.45, 0.7, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
-      ${text(600, 306, "12 legs per group", 3.1, 28, "#f4a6b8")}
+      ${rect(105, 225, 300, 60, 0.2, 0.65, "#9fdf9f", 4)}
+      ${text(255, 264, "rabbit legs = 4", 0.85, 23, "#9fdf9f")}
+      ${rect(450, 225, 300, 60, 1.0, 0.65, "#f3d56b", 4)}
+      ${text(600, 264, "duck legs = 8", 1.55, 23, "#f3d56b")}
+      ${rect(795, 225, 300, 60, 1.8, 0.65, "#f4a6b8", 4)}
+      ${text(945, 264, "group total = 12", 2.35, 23, "#f4a6b8")}
     </g>
     <g class="math-phase phase-discover">
-      ${rect(175, 642, 470, 64, 0.2, 0.7, "#f3d56b", 4)}
-      ${text(410, 684, "1404 / 12 = 117 groups", 0.9, 31, "#f3d56b")}
+      ${rect(260, 620, 680, 48, 0.2, 0.7, "#f3d56b", 4)}
+      ${text(600, 652, "1404 / 12 = 117 groups", 0.9, 27, "#f3d56b")}
     </g>
     <g class="math-phase phase-apply">
-      ${rect(760, 642, 285, 64, 0.2, 0.7, "#9fdf9f", 4)}
-      ${text(902, 684, "117 rabbits", 0.85, 31, "#9fdf9f")}
+      ${rect(822, 124, 250, 54, 0.2, 0.55, "#9fdf9f", 4)}
+      ${text(947, 160, "answer: 117 rabbits", 0.75, 22, "#9fdf9f")}
     </g>
   `);
 }
@@ -887,11 +1042,11 @@ function renderCalendarCycle() {
     </g>
     <g class="math-phase phase-calculate">
       ${rect(110, 245, 260, 92, 0.2, 0.8, "#9fdf9f", 5)}
-      ${text(240, 283, "Aug: 31 - 11", 0.9, 25, "#9fdf9f")}
-      ${text(240, 318, "= 20", 1.2, 30, "#9fdf9f")}
+      ${text(240, 276, "Aug: 31 - 11", 0.9, 22, "#9fdf9f")}
+      ${text(240, 322, "= 20", 1.2, 25, "#9fdf9f")}
       ${rect(830, 245, 260, 92, 1.6, 0.8, "#f3d56b", 5)}
-      ${text(960, 283, "Sept: 21", 2.3, 25, "#f3d56b")}
-      ${text(960, 318, "total 41", 2.6, 30, "#f3d56b")}
+      ${text(960, 276, "Sept: 21", 2.3, 22, "#f3d56b")}
+      ${text(960, 322, "total 41", 2.6, 25, "#f3d56b")}
     </g>
     <g class="math-phase phase-discover">
       ${text(600, 585, "41 / 7 = 5 weeks remainder 6", 0.3, 34, "#f5f5f0")}
@@ -936,28 +1091,240 @@ function renderPracticeBoard(scene) {
   `);
 }
 
+function renderAveragePractice(scene) {
+  const marks = [0, 1, 2, 3].map((i) => circle(330 + i * 70, 330, 25, 0.2 + i * 0.12, 0.35, "#8bd3dd", 5, "rgba(139,211,221,0.1)")).join("");
+  return baseSvg(`
+    <g class="math-phase phase-setup">
+      ${text(600, 58, scene.title, 0.1, 36)}
+      ${text(600, 118, "4 scores average 15. Add one score -> average 18.", 0.75, 25)}
+    </g>
+    <g class="math-phase phase-model">
+      ${marks}
+      ${text(435, 392, "before: 4 scores", 0.9, 25, "#8bd3dd")}
+      ${circle(790, 330, 36, 1.3, 0.6, "#f3d56b", 6, "rgba(243,213,107,0.12)")}
+      ${text(790, 340, "?", 1.9, 34, "#f3d56b")}
+      ${text(790, 392, "added score", 2.1, 25, "#f3d56b")}
+    </g>
+    <g class="math-phase phase-calculate">
+      ${rect(145, 465, 390, 78, 0.15, 0.65, "#8bd3dd", 4)}
+      ${text(340, 514, "4 x 15 = 60", 0.8, 30, "#8bd3dd")}
+      ${rect(665, 465, 390, 78, 1.0, 0.65, "#f3d56b", 4)}
+      ${text(860, 514, "5 x 18 = 90", 1.65, 30, "#f3d56b")}
+    </g>
+    <g class="math-phase phase-discover">
+      ${rect(360, 570, 480, 62, 0.2, 0.6, "#f4a6b8", 4)}
+      ${text(600, 611, "90 - 60 = 30", 0.75, 33, "#f4a6b8")}
+    </g>
+    <g class="math-phase phase-apply">
+      ${text(600, 660, "added score = 30", 0.2, 26, "#9fdf9f")}
+    </g>
+  `);
+}
+
+function renderRatioPractice(scene) {
+  const miniDuck = (x, delay) => `${circle(x, 365, 24, delay, 0.32, "#f3d56b", 4)}${path(`M${x + 20} 360 L${x + 42} 368 L${x + 20} 376`, delay + 0.25, 0.22, "#f4a6b8", 4)}${line(x - 8, 389, x - 8, 414, delay + 0.45, 0.2, "#f3d56b", 3)}${line(x + 12, 389, x + 12, 414, delay + 0.5, 0.2, "#f3d56b", 3)}`;
+  return baseSvg(`
+    <g class="math-phase phase-setup">
+      ${text(600, 58, scene.title, 0.1, 36)}
+      ${text(600, 116, "3 ducks for every 1 rabbit, 150 legs total.", 0.75, 26)}
+    </g>
+    <g class="math-phase phase-model">
+      ${rect(130, 235, 940, 230, 0.15, 0.8, "#8bd3dd", 5)}
+      ${circle(285, 365, 42, 0.85, 0.5, "#9fdf9f", 5, "rgba(159,223,159,0.1)")}
+      ${path("M270 320 C260 280 278 250 294 318", 1.25, 0.35, "#9fdf9f", 4)}
+      ${path("M304 320 C326 280 346 260 326 328", 1.4, 0.35, "#9fdf9f", 4)}
+      ${miniDuck(500, 1.8)}${miniDuck(650, 2.1)}${miniDuck(800, 2.4)}
+      ${text(600, 512, "one group = 1 rabbit + 3 ducks", 2.85, 29, "#8bd3dd")}
+    </g>
+    <g class="math-phase phase-calculate">
+      ${rect(150, 548, 300, 58, 0.2, 0.55, "#9fdf9f", 4)}
+      ${text(300, 586, "rabbit: 4 legs", 0.8, 24, "#9fdf9f")}
+      ${rect(500, 548, 300, 58, 1.0, 0.55, "#f3d56b", 4)}
+      ${text(650, 586, "ducks: 6 legs", 1.6, 24, "#f3d56b")}
+      ${rect(850, 548, 210, 58, 1.8, 0.55, "#f4a6b8", 4)}
+      ${text(955, 586, "total 10", 2.35, 24, "#f4a6b8")}
+    </g>
+    <g class="math-phase phase-discover">
+      ${text(600, 630, "150 / 10 = 15 groups", 0.2, 29, "#f3d56b")}
+    </g>
+    <g class="math-phase phase-apply">
+      ${text(600, 670, "15 rabbits", 0.2, 22, "#9fdf9f")}
+    </g>
+  `);
+}
+
+function renderRemainderPractice(scene) {
+  return baseSvg(`
+    <g class="math-phase phase-setup">
+      ${text(600, 58, scene.title, 0.1, 36)}
+      ${text(600, 116, "36 sweets. Give 1/4, then 1/3 of what is left.", 0.75, 26)}
+    </g>
+    <g class="math-phase phase-model">
+      ${rect(155, 210, 890, 82, 0.15, 0.75, "#8bd3dd", 5)}
+      ${[1,2,3].map((i) => line(155 + i * 222.5, 210, 155 + i * 222.5, 292, 0.9 + i * 0.1, 0.25, "#8bd3dd", 3)).join("")}
+      ${text(270, 263, "9", 1.25, 29, "#f4a6b8")}
+      ${text(490, 263, "9", 1.38, 29, "#9fdf9f")}
+      ${text(712, 263, "9", 1.51, 29, "#9fdf9f")}
+      ${text(935, 263, "9", 1.64, 29, "#9fdf9f")}
+      ${smallText(270, 332, "give 1/4", 2.0, "#f4a6b8")}
+    </g>
+    <g class="math-phase phase-calculate">
+      ${text(600, 384, "new whole = 27", 0.2, 31, "#f3d56b")}
+      ${rect(265, 420, 670, 82, 0.8, 0.75, "#9fdf9f", 5)}
+      ${line(488, 420, 488, 502, 1.5, 0.25, "#9fdf9f", 3)}
+      ${line(711, 420, 711, 502, 1.65, 0.25, "#9fdf9f", 3)}
+      ${text(378, 473, "9", 1.95, 29, "#f4a6b8")}
+      ${text(600, 473, "9", 2.1, 29, "#9fdf9f")}
+      ${text(822, 473, "9", 2.25, 29, "#9fdf9f")}
+    </g>
+    <g class="math-phase phase-discover">
+      ${rect(365, 560, 470, 60, 0.2, 0.6, "#f3d56b", 4)}
+      ${text(600, 600, "27 - 9 = 18", 0.75, 32, "#f3d56b")}
+    </g>
+    <g class="math-phase phase-apply">
+      ${text(600, 656, "18 sweets remain", 0.2, 26, "#9fdf9f")}
+    </g>
+  `);
+}
+
+function renderShortagePractice(scene) {
+  return baseSvg(`
+    <g class="math-phase phase-setup">
+      ${text(600, 58, scene.title, 0.1, 36)}
+      ${text(600, 116, "9 each -> short 8. 6 each -> extra 7.", 0.75, 27)}
+    </g>
+    <g class="math-phase phase-model">
+      ${rect(130, 215, 760, 74, 0.2, 0.65, "#f4a6b8", 4)}
+      ${text(285, 263, "Plan A: 9 each", 0.8, 25, "#f4a6b8")}
+      ${rect(895, 215, 150, 74, 1.15, 0.5, "#f4a6b8", 4)}
+      ${text(970, 263, "short 8", 1.65, 24, "#f4a6b8")}
+      ${rect(130, 360, 610, 74, 2.0, 0.65, "#9fdf9f", 4)}
+      ${text(285, 408, "Plan B: 6 each", 2.6, 25, "#9fdf9f")}
+      ${rect(745, 360, 150, 74, 2.95, 0.5, "#9fdf9f", 4)}
+      ${text(820, 408, "extra 7", 3.45, 24, "#9fdf9f")}
+    </g>
+    <g class="math-phase phase-calculate">
+      ${rect(155, 508, 390, 62, 0.2, 0.55, "#8bd3dd", 4)}
+      ${text(350, 548, "per child gap: 9 - 6 = 3", 0.75, 24, "#8bd3dd")}
+      ${rect(655, 508, 390, 62, 1.05, 0.55, "#f3d56b", 4)}
+      ${text(850, 548, "total gap: 8 + 7 = 15", 1.6, 24, "#f3d56b")}
+    </g>
+    <g class="math-phase phase-discover">
+      ${text(600, 622, "15 / 3 = 5 children", 0.2, 31, "#f3d56b")}
+    </g>
+    <g class="math-phase phase-apply">
+      ${text(600, 660, "5 x 9 - 8 = 37 cards", 0.2, 25, "#9fdf9f")}
+    </g>
+  `);
+}
+
+function renderStrategyMap(scene) {
+  return baseSvg(`
+    <g class="math-phase phase-setup">
+      ${text(600, 58, scene.title, 0.1, 36)}
+      ${text(600, 116, "Ask: what stays the same?", 0.75, 29)}
+    </g>
+    <g class="math-phase phase-model">
+      ${circle(600, 260, 74, 0.2, 0.8, "#f3d56b", 5, "rgba(243,213,107,0.1)")}
+      ${text(600, 246, "spot the", 0.85, 23, "#f3d56b")}
+      ${text(600, 292, "invariant", 1.05, 27, "#f3d56b")}
+      ${line(545, 310, 300, 410, 1.5, 0.55, "#8bd3dd", 4)}
+      ${line(655, 310, 900, 410, 1.65, 0.55, "#9fdf9f", 4)}
+      ${line(600, 334, 600, 465, 1.8, 0.55, "#f4a6b8", 4)}
+    </g>
+    <g class="math-phase phase-calculate">
+      ${rect(115, 398, 350, 106, 0.2, 0.55, "#8bd3dd", 4)}
+      ${text(290, 438, "average changes", 0.75, 21, "#8bd3dd")}
+      ${text(290, 486, "compare totals", 0.95, 23, "#8bd3dd")}
+      ${rect(735, 398, 350, 106, 1.15, 0.55, "#9fdf9f", 4)}
+      ${text(910, 438, "ratio + total", 1.7, 21, "#9fdf9f")}
+      ${text(910, 486, "build one group", 1.9, 23, "#9fdf9f")}
+    </g>
+    <g class="math-phase phase-discover">
+      ${rect(425, 520, 350, 100, 0.2, 0.55, "#f4a6b8", 4)}
+      ${text(600, 558, "remainder", 0.75, 21, "#f4a6b8")}
+      ${text(600, 604, "redraw the whole", 0.95, 23, "#f4a6b8")}
+    </g>
+    <g class="math-phase phase-apply">
+      ${rect(345, 642, 510, 52, 0.2, 0.55, "#f3d56b", 4)}
+      ${text(600, 676, "shortage/excess -> compare plans", 0.75, 23, "#f3d56b")}
+    </g>
+  `);
+}
+
+function renderRateTimePractice(scene) {
+  return baseSvg(`
+    <g class="math-phase phase-setup">
+      ${text(600, 58, scene.title, 0.1, 36)}
+      ${text(600, 116, "12 km/h for 2.5 h. Same distance at 15 km/h?", 0.75, 26)}
+    </g>
+    <g class="math-phase phase-model">
+      ${line(180, 320, 1020, 320, 0.2, 1.0, "#8bd3dd", 7)}
+      ${circle(180, 320, 13, 1.05, 0.25, "#8bd3dd", 5)}
+      ${circle(1020, 320, 13, 1.15, 0.25, "#8bd3dd", 5)}
+      ${text(600, 282, "same distance", 1.45, 28, "#8bd3dd")}
+      ${text(600, 370, "12 x 2.5 = 30 km", 1.85, 31, "#f3d56b")}
+    </g>
+    <g class="math-phase phase-calculate">
+      ${rect(250, 445, 700, 78, 0.2, 0.7, "#9fdf9f", 4)}
+      ${text(600, 495, "time = distance / rate", 0.9, 31, "#9fdf9f")}
+    </g>
+    <g class="math-phase phase-discover">
+      ${rect(355, 565, 490, 62, 0.2, 0.6, "#f4a6b8", 4)}
+      ${text(600, 606, "30 / 15 = 2 hours", 0.8, 31, "#f4a6b8")}
+    </g>
+    <g class="math-phase phase-apply">
+      ${smallText(600, 658, "distance stayed fixed", 0.2, "#8bd3dd")}
+    </g>
+  `);
+}
+
+function renderPercentChangePractice(scene) {
+  return baseSvg(`
+    <g class="math-phase phase-setup">
+      ${text(600, 58, scene.title, 0.1, 36)}
+      ${text(600, 116, "Price rises from 80 to 100. What percent increase?", 0.75, 26)}
+    </g>
+    <g class="math-phase phase-model">
+      ${rect(220, 245, 520, 86, 0.2, 0.75, "#8bd3dd", 5, "rgba(139,211,221,0.1)")}
+      ${text(480, 298, "original base = 80", 0.95, 30, "#8bd3dd")}
+      ${rect(740, 245, 130, 86, 1.45, 0.45, "#f3d56b", 5, "rgba(243,213,107,0.1)")}
+      ${text(805, 298, "+20", 1.95, 29, "#f3d56b")}
+      ${text(600, 382, "new price = 100", 2.25, 28, "#f5f5f0")}
+    </g>
+    <g class="math-phase phase-calculate">
+      ${rect(245, 455, 710, 78, 0.2, 0.65, "#f4a6b8", 4)}
+      ${text(600, 504, "change / original = 20 / 80", 0.85, 31, "#f4a6b8")}
+    </g>
+    <g class="math-phase phase-discover">
+      ${rect(380, 575, 440, 58, 0.2, 0.55, "#9fdf9f", 4)}
+      ${text(600, 613, "1/4 = 25%", 0.8, 32, "#9fdf9f")}
+    </g>
+    <g class="math-phase phase-apply">
+      ${smallText(600, 660, "compare with the original value", 0.2, "#8bd3dd")}
+    </g>
+  `);
+}
+
 function renderPopQuiz() {
   return baseSvg(`
     <g class="math-phase phase-setup">
       ${text(600, 58, "Pop Quiz", 0.1, 38)}
-      ${text(600, 112, "Three quick method checks", 0.7, 28)}
+      ${text(600, 112, "Three touch checks: choose before the answer", 0.7, 28)}
       ${rect(170, 150, 860, 72, 1.0, 0.7, "#8bd3dd", 4)}
-      ${text(600, 196, "Pause before the answer appears if you want to try it.", 1.55, 25, "#8bd3dd")}
+      ${text(600, 196, "The voice pauses at each question until you answer.", 1.55, 25, "#8bd3dd")}
     </g>
     <g class="math-phase phase-model">
       ${rect(90, 260, 1020, 96, 0.2, 0.7, "#f3d56b", 4)}
-      ${text(600, 300, "Q1: 5 numbers average 18. Add 1 number -> average 20.", 0.85, 25, "#f3d56b")}
-      ${text(600, 334, "Answer: 6 x 20 - 5 x 18 = 30", 1.55, 25, "#f5f5f0")}
+      ${text(600, 316, "Q1: 5 numbers average 18. Add one -> average 20.", 0.85, 25, "#f3d56b")}
     </g>
     <g class="math-phase phase-calculate">
       ${rect(90, 388, 1020, 96, 0.2, 0.7, "#9fdf9f", 4)}
-      ${text(600, 428, "Q2: 3 ducks for every 1 rabbit, 150 legs total.", 0.85, 25, "#9fdf9f")}
-      ${text(600, 462, "Answer: 10 legs per group, so 15 rabbits", 1.55, 25, "#f5f5f0")}
+      ${text(600, 444, "Q2: 3 ducks for every 1 rabbit, 150 legs total.", 0.85, 25, "#9fdf9f")}
     </g>
     <g class="math-phase phase-discover">
       ${rect(90, 516, 1020, 96, 0.2, 0.7, "#f4a6b8", 4)}
-      ${text(600, 556, "Q3: 9 each short 8; 6 each leaves 7.", 0.85, 25, "#f4a6b8")}
-      ${text(600, 590, "Answer: gap 15, per child 3, so 5 children", 1.55, 25, "#f5f5f0")}
+      ${text(600, 572, "Q3: 9 each short 8; 6 each leaves 7.", 0.85, 25, "#f4a6b8")}
     </g>
     <g class="math-phase phase-apply">
       ${rect(335, 628, 530, 40, 0.2, 0.6, "#8bd3dd", 4)}
@@ -991,11 +1358,14 @@ sceneList.addEventListener("click", (event) => {
   loadScene(Number(button.dataset.scene), 0, true);
 });
 timeline.addEventListener("input", () => {
-  updateTimeline();
+  timelineSeeking = true;
+  previewTimeline(timeline.value);
 });
 timeline.addEventListener("change", () => {
+  timelineSeeking = false;
   seekTo(Number(timeline.value));
 });
 
+initQuizOverlay();
 setupEpisode(1, 0);
 console.info(`Maths Training loaded: ${COURSE_RELEASE}`);

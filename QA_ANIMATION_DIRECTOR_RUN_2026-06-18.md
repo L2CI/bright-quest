@@ -1,0 +1,52 @@
+# Bright Quest Animation Director QA - Run 1
+
+Scope: English Grammar and Maths Training production lesson pages before GitHub push/live QA.
+
+Method: local Chrome extension QA where available, DOM/layout inspection, syntax checks, and frame/timing review against the whiteboard-animation standard. This log intentionally separates first-run issues from the patch batch and second-run verification.
+
+## Run 1 Issues
+
+| ID | Severity | Area | Timestamp / Frame | What Viewer Sees Or Hears | Why It Feels Wrong | Likely Root Cause | Proposed Fix | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| QA-001 | High | Maths + Grammar timing | All animated beats | Board strokes can appear static, restart, or fail to complete cleanly while narration continues. | Audio and visuals feel out of sync even when the beat timestamps are roughly right. | Beat CSS classes were removed and re-added every animation frame, restarting CSS stroke animations. | Only reset/reapply beat classes when the active beat key changes; use audio currentTime as stable master clock. | Patched locally, needs live QA |
+| QA-002 | High | Grammar Step 1, Sentence Machine | ~0:48, "Maya reads the comic" | Maya example appears late/early relative to the voice in some runs. | The learner hears the example before the board clearly changes. | Fallback beat for `example` was at 40s while caption/narration cue is at 48s. | Move the example beat to 48s and preserve beat classes until the next real beat. | Patched locally, needs live QA |
+| QA-003 | High | Maths, Ducks And Rabbits | Model/calculation/final frames | Rabbit/duck labels and formula boxes collide with the animal lane; bottom answer can clip. | The board looks amateur and the learner has to untangle overlapping visual information. | Formula lane, animal lane, and label lane share the same vertical space. | Recompose into separate top formula lane, middle animal lane, lower group label lane; reduce animal complexity. | Patched locally, needs live QA |
+| QA-004 | Medium | Maths navigation/layout | On scene selection | Clicking a scene can pull the scene list into view and push the board partly offscreen. | The blackboard stops being the centrepiece immediately after a lesson choice. | `scrollIntoView` on the active scene button scrolls the page, not just the right rail. | Replace with internal `sceneList.scrollTop` adjustment. | Patched locally, needs live QA |
+| QA-005 | Medium | Maths responsive layout | Short Chrome QA viewport | Header/board can clip because the app was fixed to the viewport and page overflow was hidden. | On smaller or unusual windows the viewer sees controls/list without the full board. | `html/body overflow:hidden` and fixed-height app layout. | Allow vertical scrolling; keep horizontal overflow hidden. | Patched locally, needs live QA |
+| QA-006 | Medium | Maths scene list | Course overview | Episode tabs show around 4-6 minutes per part, while user expected each top episode to feel like a fuller 15 minute session. | The information architecture reads as "only two/few lessons" or too short, even though there are 14 modules total. | Course is currently 14:18 total; scene list shows all modules but visible rail height reveals only part of it. | Do not block current push. Clarify labels as parts/modules; consider adding more modules later if a true 15 minutes per part is required. | Open |
+| QA-007 | Medium | Maths, Excess And Shortage | Explanation beat | The topic still needs a clearer conceptual bridge from shortage/excess to "total gap". | Learner may memorize the trick instead of understanding the distance between two plans. | Current board jumps from plans to formula with limited visual bridge. | Future patch: add a number-line/gap bridge visual and one practice checkpoint. | Open |
+| QA-008 | Low | Chrome QA tooling | Screenshot capture | Some Chrome screenshots timed out even while DOM/layout inspection worked. | Visual QA is slower and less reliable than desired. | Chrome extension/CDP screenshot command instability after tab/session restart. | Use DOM/layout checks plus live-page manual screenshot if needed; close sessions after use. | Open |
+| QA-009 | Low | Grammar and Maths controls | Quiz sections | Interactive quiz can remain as-is for now. | User prefers not to overwork quiz if it is easier/better to leave it. | Quiz mechanics are less urgent than board sync and visuals. | Only fix clear timing defects; do not redesign quiz in this batch. | Accepted constraint |
+
+## Patch Batch Targets
+
+1. Preserve audio-clock beat classes until the beat actually changes.
+2. Align Grammar Step 1 Maya example beat to the narration cue.
+3. Recompose Maths Ducks And Rabbits to avoid accidental line and label intersections.
+4. Keep scene-list scrolling local to the right rail.
+5. Allow vertical scroll on Maths Training in short/tablet-like viewports.
+6. Bump asset versions so Cloudflare fetches the changed JS/CSS.
+
+## Local Verification After Patch Batch
+
+- `node --check maths-training\maths-training.js`: passed.
+- `node --check english-grammar\english-grammar.js`: passed.
+- Local Chrome smoke QA:
+  - Maths page loaded `maths-training.js?v=20260618f` and `maths-training.css?v=20260618f`.
+  - English page loaded `english-grammar.js?v=20260618d` and `english-grammar.css?v=20260618d`.
+  - Both pages rendered the blackboard in the viewport with no console errors.
+  - Maths initial board active beat: `setup`.
+  - Grammar initial board active beat: `intro`.
+
+## Second Run Verification Plan
+
+1. Local syntax checks: `node --check maths-training\maths-training.js` and `node --check english-grammar\english-grammar.js`.
+2. Local Chrome QA:
+   - Maths: Included Average, Ducks And Rabbits, Excess And Shortage, Pop Quiz.
+   - Grammar: Sentence Machine at 0:48 Maya cue, Nouns intro/number cue, Recap Quiz cue sequence.
+   - Check no visible label spills or accidental intersections on final frames.
+3. Commit and push to GitHub.
+4. Live Cloudflare QA:
+   - Confirm `maths-training.js?v=20260618f` and `english-grammar.js?v=20260618d` are served.
+   - Re-test the same scenes on live pages.
+5. Update this log statuses after second run.
