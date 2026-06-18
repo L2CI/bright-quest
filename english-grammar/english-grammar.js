@@ -466,6 +466,7 @@ function loadScene(index, offsetSeconds = 0, shouldPlay = playing) {
   lessonPoint.textContent = scene.point;
   captionText.textContent = captionFor(scene, offset);
   svg.innerHTML = renderers[scene.id] ? renderers[scene.id](scene) : genericLessonSvg(scene);
+  board.classList.toggle("seeked", offset > 0.75);
   updateBoardMoment(scene, offset);
   renderSceneList();
 

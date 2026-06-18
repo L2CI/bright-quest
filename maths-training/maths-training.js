@@ -908,8 +908,8 @@ function renderDucksRabbits() {
       ${rabbit(226, 418, 0.8)}
       ${duck(472, 420, 1.75)}${duck(612, 420, 2.05)}${duck(752, 420, 2.35)}${duck(892, 420, 2.65)}
       ${smallText(226, 574, "1 rabbit", 3.0, "#9fdf9f")}
-      ${smallText(755, 574, "4 ducks", 3.15, "#f3d56b")}
-      ${text(600, 616, "one complete unit group", 3.5, 27, "#8bd3dd")}
+      ${smallText(755, 552, "4 ducks", 3.15, "#f3d56b")}
+      ${text(600, 612, "one complete unit group", 3.5, 23, "#8bd3dd")}
     </g>
     <g class="math-phase phase-calculate">
       ${rect(105, 225, 300, 60, 0.2, 0.65, "#9fdf9f", 4)}
@@ -920,8 +920,8 @@ function renderDucksRabbits() {
       ${text(945, 264, "group total = 12", 2.35, 23, "#f4a6b8")}
     </g>
     <g class="math-phase phase-discover">
-      ${rect(260, 620, 680, 48, 0.2, 0.7, "#f3d56b", 4)}
-      ${text(600, 652, "1404 / 12 = 117 groups", 0.9, 27, "#f3d56b")}
+      ${rect(280, 640, 640, 36, 0.2, 0.7, "#f3d56b", 4)}
+      ${text(600, 664, "1404 / 12 = 117 groups", 0.9, 22, "#f3d56b")}
     </g>
     <g class="math-phase phase-apply">
       ${rect(822, 124, 250, 54, 0.2, 0.55, "#9fdf9f", 4)}

@@ -19,6 +19,8 @@ Method: local Chrome extension QA where available, DOM/layout inspection, syntax
 | QA-009 | Low | Grammar and Maths controls | Quiz sections | Interactive quiz can remain as-is for now. | User prefers not to overwork quiz if it is easier/better to leave it. | Quiz mechanics are less urgent than board sync and visuals. | Only fix clear timing defects; do not redesign quiz in this batch. | Accepted constraint |
 | QA-010 | Medium | Maths + Grammar responsive layout | Live Chrome at ~1037px width | Training layout collapses to one column too early, so choosing a scene can leave the board above the viewport. | Tablet/desktop-ish windows should keep board and controls together. | Breakpoint was 980-1100px and board min width forced a single-column layout. | Keep two-column layout down to 900px with flexible board column and 280px side rail. | Patched locally, needs live QA |
 | QA-011 | Medium | Maths + Grammar right rail containment | Live Chrome at ~1037px width | Scene list makes the right rail extremely tall instead of scrolling internally. | The stage becomes much taller than the viewport, making the board feel less like a focused training screen. | Right rail had no explicit viewport-constrained height in two-column mode. | Cap right rail height to available viewport and keep scene list as internal scroll. | Patched locally, needs live QA |
+| QA-012 | High | Grammar timeline seek | Live Chrome at 0:48 via timeline | Board reaches `example` beat, but seeked text can remain invisible when not actively playing. | Rewind/timeline review should restore the board state immediately. | Grammar player had no `seeked` static-render class equivalent to Maths. | Add `seeked` state and CSS to force drawn paths/text visible after a timeline seek. | Patched locally, needs live QA |
+| QA-013 | Medium | Maths Ducks And Rabbits | Live Chrome final frame | `one complete unit group` overlaps `1404 / 12 = 117 groups`. | The formula and teaching label compete in the same lower lane. | Lower label lane and discovery formula are too close. | Raise/shrink the group label and lower/shrink the formula box. | Patched locally, needs live QA |
 
 ## Patch Batch Targets
 
@@ -59,9 +61,26 @@ Method: local Chrome extension QA where available, DOM/layout inspection, syntax
 
 - QA-001 through QA-005: patched and smoke-verified live.
 - QA-010 and QA-011: patched and smoke-verified live.
+- QA-012 and QA-013: discovered in targeted live timeline QA and patched locally; targeted local Chrome QA now passes.
 - QA-006 and QA-007 remain content/design backlog items, not regressions.
 - QA-008 remains a tooling limitation: Chrome DOM/layout QA worked; screenshot capture was intermittent.
 - QA-009 remains accepted by user: leave quiz interaction mostly as-is unless clear timing defects appear.
+
+## Targeted Local Verification For Second Patch
+
+- Grammar at 0:48:
+  - Active scene: `The Sentence Machine`.
+  - Active beat: `example`.
+  - Board classes include `seeked` and `show-maya-example`.
+  - Visible board text includes `Quick check: Maya reads the comic.`, `Maya`, `reads`, and `the comic`.
+  - Visible-text overlap detector found no overlaps.
+  - Console error logs were empty.
+- Maths at 2:23:
+  - Active scene: `Ducks And Rabbits`.
+  - Active beat: `apply`.
+  - Visible board text includes `one complete unit group`, `group total = 12`, `1404 / 12 = 117 groups`, and `answer: 117 rabbits`.
+  - Effective-opacity visible-text overlap detector found no overlaps.
+  - Console error logs were empty.
 
 ## Second Run Verification Plan
 

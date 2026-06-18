@@ -351,6 +351,17 @@ h3 {
   animation-play-state: paused;
 }
 
+.seeked .draw-path,
+.seeked .draw-shape {
+  animation: none !important;
+  stroke-dashoffset: 0 !important;
+}
+
+.seeked .draw-text {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
 .lesson-side {
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr);
