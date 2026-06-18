@@ -73,6 +73,7 @@
   function startMapZone(zone) {
     const actions = {
       maths: () => clickFirst('[data-zone-level="1"]'),
+      mathsTraining: () => { window.location.href = 'maths-training/'; },
       english: () => { window.location.href = 'english-grammar/'; },
       grammar: () => { window.location.href = 'english-grammar/'; },
       reasoning: () => clickFirst('[data-zone-level="4"]'),
@@ -182,6 +183,7 @@
           <div class="academy-card-grid-ref">
             ${academyCard('maths', 'Maths Mountain', 'Number speed', '+x', scoreText(latest[1]), 'maths')}
             ${academyCard('english', 'English Forest', 'Reading power', 'ABC', scoreText(latest[2]), 'english')}
+            ${academyCard('maths-training', 'Maths Training', 'Animated lesson', 'MT', 'Start', 'mathsTraining')}
             ${academyCard('grammar', 'English Grammar', '15 minute lesson', 'EG', 'Start', 'grammar')}
             ${academyCard('reason', 'Reasoning Lab', 'Pattern moves', '?', scoreText(latest[4]), 'reasoning')}
             ${academyCard('world', 'International Tests', 'World arena', 'INT', `${internationalDone(latest)}/3`, 'world')}

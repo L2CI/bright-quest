@@ -1807,6 +1807,12 @@ body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.maths {
   background-image: url("assets/ui/maths-mountain.svg") !important;
 }
 
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.maths-training {
+  background-image:
+    linear-gradient(180deg, rgba(5, 14, 48, 0.05), rgba(5, 14, 48, 0.2) 42%, rgba(5, 14, 48, 0.88) 100%),
+    url("assets/ui/blackboard-lesson.svg") !important;
+}
+
 body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.english {
   background-image: url("assets/ui/reading-forest.svg") !important;
 }
@@ -2803,6 +2809,7 @@ body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref {
 }
 
 body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.maths,
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.maths-training,
 body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.english,
 body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.grammar,
 body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.reason,
@@ -2872,6 +2879,7 @@ body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref > i b {
 }
 
 body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.maths > span { background: linear-gradient(135deg, #2f80ed, #654fe8) !important; }
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.maths-training > span { background: linear-gradient(135deg, #176bff, #21c46b) !important; }
 body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.english > span { background: linear-gradient(135deg, #10a560, #26c987) !important; }
 body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.grammar > span { background: linear-gradient(135deg, #0b91b9, #6152f4) !important; }
 body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.reason > span { background: linear-gradient(135deg, #624fe8, #ffd34d) !important; }
@@ -2879,6 +2887,7 @@ body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.world > span { b
 body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.arcade > span { background: linear-gradient(135deg, #f56a77, #ffb12b) !important; }
 
 body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.maths > strong,
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.maths-training > strong,
 body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.english > strong,
 body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.grammar > strong,
 body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.reason > strong,
@@ -2894,6 +2903,7 @@ body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.arcade > strong 
 }
 
 body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.maths > small,
+body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.maths-training > small,
 body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.english > small,
 body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.grammar > small,
 body.bq-holistic-shell .academy-card-grid-ref .academy-tile-ref.reason > small,

@@ -223,6 +223,7 @@
         </div>
         <div class="studio-actions">
           <button class="button button-primary" type="button" data-studio-blackboard>Blackboard Training</button>
+          <button class="button button-soft" type="button" data-studio-maths>Maths Training</button>
           <button class="button button-soft" type="button" data-studio-grammar>Grammar</button>
           <button class="button button-soft" type="button" data-studio-games>Games</button>
         </div>
@@ -230,6 +231,7 @@
       const topbar = dashboard.querySelector(".reference-topbar");
       topbar?.after(banner);
       banner.querySelector("[data-studio-blackboard]")?.addEventListener("click", () => { window.location.href = "blackboard-focus-session/"; });
+      banner.querySelector("[data-studio-maths]")?.addEventListener("click", () => { window.location.href = "maths-training/"; });
       banner.querySelector("[data-studio-grammar]")?.addEventListener("click", () => { window.location.href = "english-grammar/"; });
       banner.querySelector("[data-studio-games]")?.addEventListener("click", () => {
         if (window.openGamesList) window.openGamesList();
