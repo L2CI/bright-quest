@@ -193,7 +193,7 @@ h3 {
 
 .lesson-stage {
   display: grid;
-  grid-template-columns: minmax(720px, 1260px) clamp(300px, 19vw, 370px);
+  grid-template-columns: minmax(0, 1fr) clamp(280px, 24vw, 370px);
   gap: 14px;
   align-items: start;
   justify-content: center;
@@ -949,7 +949,7 @@ h3 {
   }
 }
 
-@media (max-width: 980px) {
+@media (max-width: 900px) {
   .lesson-stage {
     grid-template-columns: 1fr;
   }
