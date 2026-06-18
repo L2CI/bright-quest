@@ -69,6 +69,10 @@ Method: local Chrome extension QA where available, DOM/layout inspection, syntax
 - QA-001 through QA-005: patched and smoke-verified live.
 - QA-010 and QA-011: patched and smoke-verified live.
 - QA-012 and QA-013: patched, targeted local Chrome QA passed, and targeted live Cloudflare QA passed.
+- Broad live Grammar board scan after `e58a4dd`: `english-grammar.css?v=20260618h` and `english-grammar.js?v=20260618f` served from Cloudflare, zero detected visible text overlaps/spills, and no console errors.
+- Broad live Maths board scan: `maths-training.css?v=20260618h` and `maths-training.js?v=20260618g` served from Cloudflare, zero detected visible text overlaps/spills, and no console errors.
+- Static voice asset coverage: 27 of 27 English Grammar lessons and 14 of 14 Maths Training lessons have local MP3 files present; no referenced lesson audio files are missing or tiny.
+- Restore point evidence: clean restore backup exists at `C:\Users\gupta\OneDrive\Documents\New project 2\backups\bright-quest-restore-clean-20260618-162402`.
 - QA-006 and QA-007 remain content/design backlog items, not regressions.
 - QA-008 remains a tooling limitation: Chrome DOM/layout QA worked; screenshot capture was intermittent.
 - QA-009 remains accepted by user: leave quiz interaction mostly as-is unless clear timing defects appear.
