@@ -15,7 +15,8 @@ const elapsedTime = document.querySelector("#elapsedTime");
 const remainingTime = document.querySelector("#remainingTime");
 const totalTime = document.querySelector("#totalTime");
 
-const COURSE_RELEASE = "maths-training-001";
+const COURSE_RELEASE = "maths-training-002";
+const AUDIO_PLAYBACK_RATE = 1.1;
 const speech = window.speechSynthesis;
 
 const episodes = [
@@ -30,20 +31,21 @@ const allScenes = [
     episode: 1,
     title: "Included Average",
     point: "Use totals to find the extra number that changed the average.",
-    duration: 300,
+    audio: "assets/audio/01-included-average.mp3",
+    duration: 54,
     beats: [
       { at: 0, state: "setup" },
-      { at: 42, state: "model" },
-      { at: 112, state: "calculate" },
-      { at: 192, state: "discover" },
-      { at: 250, state: "apply" }
+      { at: 6, state: "model" },
+      { at: 18, state: "calculate" },
+      { at: 34, state: "discover" },
+      { at: 44, state: "apply" }
     ],
     captions: [
       [0, "The average is a total shared equally."],
-      [42, "Seven numbers average 42, so the first total is 7 x 42."],
-      [112, "After one more number is included, eight numbers average 45."],
-      [192, "The included number is the difference between the new total and the old total."],
-      [250, "The invariant idea: totals explain averages."]
+      [6, "Seven numbers average 42, so the first total is 7 x 42."],
+      [18, "After one more number is included, eight numbers average 45."],
+      [34, "The included number is the difference between the new total and the old total."],
+      [44, "The invariant idea: totals explain averages."]
     ],
     script: "Welcome to Scholarship Maths Lab. First, we solve an included average problem. Seven numbers have an average of forty two. One more number is included, and the new average becomes forty five. The trap is to stare at the averages. Instead, Professor Pixel says: averages are really totals wearing a disguise. Seven numbers averaging forty two make a total of seven times forty two, which is two hundred and ninety four. Now eight numbers averaging forty five make a total of eight times forty five, which is three hundred and sixty. The only new thing added was the mystery number. So subtract the old total from the new total. Three hundred and sixty minus two hundred and ninety four equals sixty six. The mystery number is sixty six. Whenever an average changes after a new value joins, compare the before-total and after-total."
   },
@@ -52,20 +54,21 @@ const allScenes = [
     episode: 1,
     title: "Ducks And Rabbits",
     point: "Build one unit group, then divide the invariant total legs.",
-    duration: 300,
+    audio: "assets/audio/02-ducks-rabbits.mp3",
+    duration: 49,
     beats: [
       { at: 0, state: "setup" },
-      { at: 48, state: "model" },
-      { at: 116, state: "calculate" },
-      { at: 188, state: "discover" },
-      { at: 248, state: "apply" }
+      { at: 6, state: "model" },
+      { at: 18, state: "calculate" },
+      { at: 32, state: "discover" },
+      { at: 41, state: "apply" }
     ],
     captions: [
       [0, "There are four times as many ducks as rabbits."],
-      [48, "One unit group is 1 rabbit plus 4 ducks."],
-      [116, "Each group has 4 rabbit legs plus 8 duck legs, so 12 legs."],
-      [188, "The total legs are invariant: 1404."],
-      [248, "1404 divided by 12 gives 117 groups, so 117 rabbits."]
+      [6, "One unit group is 1 rabbit plus 4 ducks."],
+      [18, "Each group has 4 rabbit legs plus 8 duck legs, so 12 legs."],
+      [32, "The total legs are invariant: 1404."],
+      [41, "1404 divided by 12 gives 117 groups, so 117 rabbits."]
     ],
     script: "Next comes the ducks and rabbits leg-balance dilemma. The farm has four times as many ducks as rabbits, and there are one thousand four hundred and four legs altogether. Guessing would be slow. Instead, make one unit group. If there is one rabbit, there must be four ducks. The rabbit has four legs. Four ducks have eight legs. One full group therefore has twelve legs. The total number of legs is our invariant: it stays fixed, so we highlight it in gold. Now divide the total legs by the legs in one group. One thousand four hundred and four divided by twelve equals one hundred and seventeen. There are one hundred and seventeen groups, and each group has one rabbit, so there are one hundred and seventeen rabbits."
   },
@@ -74,20 +77,21 @@ const allScenes = [
     episode: 2,
     title: "Fraction Remaining Model",
     point: "When a fraction is taken from what is left, redraw the remaining bar.",
-    duration: 300,
+    audio: "assets/audio/03-fraction-remainder.mp3",
+    duration: 49,
     beats: [
       { at: 0, state: "setup" },
-      { at: 46, state: "model" },
-      { at: 118, state: "calculate" },
-      { at: 194, state: "discover" },
-      { at: 252, state: "apply" }
+      { at: 6, state: "model" },
+      { at: 18, state: "calculate" },
+      { at: 32, state: "discover" },
+      { at: 41, state: "apply" }
     ],
     captions: [
       [0, "Sarah starts with 24 stickers."],
-      [46, "She gives 1/3 away, leaving 16."],
-      [118, "Now take 1/4 of the remainder, not 1/4 of 24."],
-      [194, "The remaining 16 breaks into four equal parts of 4."],
-      [252, "Three parts stay with Sarah, so she has 12 stickers."]
+      [6, "She gives 1/3 away, leaving 16."],
+      [18, "Now take 1/4 of the remainder, not 1/4 of 24."],
+      [32, "The remaining 16 breaks into four equal parts of 4."],
+      [41, "Three parts stay with Sarah, so she has 12 stickers."]
     ],
     script: "Episode two is about visual heuristic models. Sarah has twenty four stickers. She gives one third to her brother. Then she gives one quarter of what is left to her sister. The key phrase is: of what is left. Draw one clean bar for twenty four. Split it into three equal parts. One part goes away, so eight stickers are given to her brother. Two parts remain, which is sixteen stickers. Now redraw that remaining block as the new whole. Slice the sixteen into four equal parts. One fourth is four stickers for her sister. Three parts remain. Three times four equals twelve. Sarah has twelve stickers left. When the question says of the remainder, redraw the bar before taking the next fraction."
   },
@@ -96,20 +100,21 @@ const allScenes = [
     episode: 2,
     title: "Excess And Shortage",
     point: "Compare two sharing plans by turning shortage and excess into one total gap.",
-    duration: 300,
+    audio: "assets/audio/04-excess-shortage.mp3",
+    duration: 50,
     beats: [
       { at: 0, state: "setup" },
-      { at: 48, state: "model" },
-      { at: 116, state: "calculate" },
-      { at: 188, state: "discover" },
-      { at: 246, state: "apply" }
+      { at: 6, state: "model" },
+      { at: 18, state: "calculate" },
+      { at: 32, state: "discover" },
+      { at: 42, state: "apply" }
     ],
     captions: [
       [0, "Seven each is short by 6. Four each has 3 left over."],
-      [48, "The two plans are 3 erasers apart for each boy."],
-      [116, "The whole gap is 6 plus 3, which equals 9."],
-      [188, "9 divided by 3 gives 3 boys."],
-      [246, "Check: 3 boys getting 7 each would need 21, short by 6, so there are 15 erasers."]
+      [6, "The two plans are 3 erasers apart for each boy."],
+      [18, "The whole gap is 6 plus 3, which equals 9."],
+      [32, "9 divided by 3 gives 3 boys."],
+      [42, "Check: 3 boys getting 7 each would need 21, short by 6, so there are 15 erasers."]
     ],
     script: "Now Professor Pixel shows the excess and shortage method. If each boy gets seven erasers, there is a shortage of six. If each boy gets four erasers, there is an excess of three. The individual difference between the two plans is seven minus four, which is three erasers per boy. The total gap is not just six and not just three. It is the shortage plus the excess, so six plus three equals nine. If the total gap is nine, and each boy accounts for three of that gap, then there are nine divided by three boys. That gives three boys. To find the packet size, use either plan. Three boys getting seven each would need twenty one, but we are short by six, so the packet has fifteen erasers."
   },
@@ -118,20 +123,21 @@ const allScenes = [
     episode: 3,
     title: "Glued Cube Faces",
     point: "Each glued joint hides exactly two faces.",
-    duration: 300,
+    audio: "assets/audio/05-cube-joints.mp3",
+    duration: 42,
     beats: [
       { at: 0, state: "setup" },
-      { at: 44, state: "model" },
-      { at: 112, state: "calculate" },
-      { at: 186, state: "discover" },
-      { at: 248, state: "apply" }
+      { at: 5, state: "model" },
+      { at: 15, state: "calculate" },
+      { at: 27, state: "discover" },
+      { at: 35, state: "apply" }
     ],
     captions: [
       [0, "Nine separate cubes would have 9 x 6 faces."],
-      [44, "In a straight line of nine cubes, there are eight glued joints."],
-      [112, "Each joint hides two touching faces."],
-      [186, "Eight joints times two hidden faces gives 16 hidden faces."],
-      [248, "Count joints, not cubes, when objects are glued face-to-face."]
+      [5, "In a straight line of nine cubes, there are eight glued joints."],
+      [15, "Each joint hides two touching faces."],
+      [27, "Eight joints times two hidden faces gives 16 hidden faces."],
+      [35, "Count joints, not cubes, when objects are glued face-to-face."]
     ],
     script: "Episode three starts with spatial visualization. Nine identical cubes are glued face to face in a straight line. How many faces are hidden? A single cube has six faces. Nine separate cubes would have nine times six, or fifty four faces. But glued cubes hide the touching faces. In a line of nine cubes, the number of joints is one less than the number of cubes. So there are eight joints. Each joint hides two faces: the right face of one cube and the left face of the next cube. Eight joints times two hidden faces gives sixteen hidden faces. The shortcut is simple: for a straight chain, count the joins, then multiply by two."
   },
@@ -140,20 +146,21 @@ const allScenes = [
     episode: 3,
     title: "Calendar Modulo Loop",
     point: "Use cycles of seven days; the remainder tells the landing day.",
-    duration: 300,
+    audio: "assets/audio/06-calendar-cycle.mp3",
+    duration: 42,
     beats: [
       { at: 0, state: "setup" },
-      { at: 48, state: "model" },
-      { at: 116, state: "calculate" },
-      { at: 190, state: "discover" },
-      { at: 248, state: "apply" }
+      { at: 5, state: "model" },
+      { at: 15, state: "calculate" },
+      { at: 27, state: "discover" },
+      { at: 35, state: "apply" }
     ],
     captions: [
       [0, "August 11 is Wednesday. What day is September 21?"],
-      [48, "Count days forward: 20 days left in August plus 21 days in September."],
-      [116, "The total jump is 41 days."],
-      [190, "41 divided by 7 gives 5 full weeks and remainder 6."],
-      [248, "Six days after Wednesday is Tuesday."]
+      [5, "Count days forward: 20 days left in August plus 21 days in September."],
+      [15, "The total jump is 41 days."],
+      [27, "41 divided by 7 gives 5 full weeks and remainder 6."],
+      [35, "Six days after Wednesday is Tuesday."]
     ],
     script: "Finally, we solve a calendar cycle. If August eleventh is a Wednesday, what day of the week is September twenty first? Fingers are easy to lose track of, so use a seven day loop. From August eleventh to the end of August there are twenty days left. Then add twenty one days in September. The total jump is forty one days. Days repeat every seven, so divide forty one by seven. That gives five full weeks with a remainder of six. Full weeks bring us back to Wednesday, so only the remainder matters. Count six steps forward from Wednesday: Thursday, Friday, Saturday, Sunday, Monday, Tuesday. The answer is Tuesday."
   }
@@ -170,6 +177,7 @@ let courseElapsedAtSceneStart = 0;
 let rafId = 0;
 let captionTimer = 0;
 let utterance = null;
+let audio = null;
 let captionsVisible = false;
 
 const renderers = {
@@ -230,6 +238,7 @@ function renderSceneList() {
 
 function loadScene(index, offsetSeconds = 0, autoPlay = playing) {
   stopSpeech();
+  stopAudio();
   window.cancelAnimationFrame(rafId);
   activeSceneIndex = Math.max(0, Math.min(scenes.length - 1, index));
   const scene = scenes[activeSceneIndex];
@@ -243,6 +252,7 @@ function loadScene(index, offsetSeconds = 0, autoPlay = playing) {
   lessonPoint.textContent = scene.point;
   captionText.textContent = captionFor(scene, offset);
   svg.innerHTML = renderers[scene.id](scene);
+  prepareAudio(scene);
   updateBoard(scene, offset);
   renderSceneList();
   updateControls();
@@ -256,7 +266,12 @@ function startPlayback() {
   board.classList.add("animating");
   board.classList.remove("paused", "finished");
   startedAt = performance.now() - elapsedOffset * 1000;
-  speakScene(scene, elapsedOffset);
+  const audioAttempt = playSceneAudio(scene, elapsedOffset);
+  if (audioAttempt) {
+    audioAttempt.catch(() => speakScene(scene, elapsedOffset));
+  } else {
+    speakScene(scene, elapsedOffset);
+  }
   updateControls();
   startCaptionLoop();
   tick();
@@ -266,7 +281,8 @@ function pausePlayback() {
   playing = false;
   elapsedOffset = currentSceneTime();
   board.classList.add("paused");
-  pauseSpeech();
+  if (audio) audio.pause();
+  else pauseSpeech();
   window.cancelAnimationFrame(rafId);
   updateControls();
 }
@@ -284,6 +300,7 @@ function playNextScene() {
   playing = false;
   board.classList.add("finished");
   stopSpeech();
+  stopAudio();
   updateControls();
 }
 
@@ -296,6 +313,7 @@ function currentCourseTime() {
 }
 
 function currentSceneTime() {
+  if (audio && Number.isFinite(audio.currentTime) && audio.readyState > 0) return audio.currentTime;
   if (!playing) return elapsedOffset;
   return Math.max(0, (performance.now() - startedAt) / 1000);
 }
@@ -389,6 +407,51 @@ function speakScene(scene, offsetSeconds) {
     if (playing && scenes[activeSceneIndex]?.id === scene.id && currentSceneTime() > scene.duration - 4) playNextScene();
   };
   speech.speak(utterance);
+}
+
+function prepareAudio(scene) {
+  if (!scene.audio) return;
+  audio = document.createElement("audio");
+  audio.dataset.mathsTrainingAudio = scene.id;
+  audio.src = scene.audio;
+  audio.preload = "auto";
+  audio.playbackRate = AUDIO_PLAYBACK_RATE;
+  audio.volume = 1;
+  audio.style.display = "none";
+  document.body.append(audio);
+  audio.addEventListener("ended", () => {
+    if (playing && scenes[activeSceneIndex]?.id === scene.id) playNextScene();
+  });
+  audio.addEventListener("loadedmetadata", () => {
+    if (!Number.isFinite(audio.duration) || audio.duration < 20) return;
+    scene.duration = Math.ceil(audio.duration);
+    renderSceneList();
+    updateTimeline();
+  });
+}
+
+function playSceneAudio(scene, offsetSeconds) {
+  if (!scene.audio) return null;
+  if (!audio) prepareAudio(scene);
+  if (!audio) return null;
+  try {
+    const safeDuration = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : scene.duration;
+    audio.playbackRate = AUDIO_PLAYBACK_RATE;
+    audio.volume = 1;
+    audio.currentTime = Math.max(0, Math.min(offsetSeconds, Math.max(0, safeDuration - 0.2)));
+    return audio.play();
+  } catch {
+    return null;
+  }
+}
+
+function stopAudio() {
+  if (!audio) return;
+  audio.pause();
+  audio.removeAttribute("src");
+  audio.load();
+  audio.remove();
+  audio = null;
 }
 
 function pauseSpeech() {
@@ -490,16 +553,17 @@ function renderIncludedAverage() {
 
 function renderDucksRabbits() {
   const duck = (x, y, delay) => `
-    ${circle(x, y, 22, delay, 0.35, "#f3d56b", 4, "rgba(243,213,107,0.12)")}
-    ${path(`M${x - 14} ${y + 22} L${x - 20} ${y + 42}`, delay + 0.2, 0.25, "#f3d56b", 3)}
-    ${path(`M${x + 12} ${y + 22} L${x + 18} ${y + 42}`, delay + 0.28, 0.25, "#f3d56b", 3)}
+    ${path(`M${x - 54} ${y + 8} C${x - 40} ${y - 20} ${x + 5} ${y - 26} ${x + 38} ${y - 6} C${x + 52} ${y + 2} ${x + 54} ${y + 24} ${x + 30} ${y + 36} C${x - 8} ${y + 55} ${x - 52} ${y + 42} ${x - 62} ${y + 18} C${x - 66} ${y + 12} ${x - 62} ${y + 8} ${x - 54} ${y + 8}`, delay, 0.8, "#f3d56b", 4)}
+    ${path(`M${x + 32} ${y - 10} C${x + 42} ${y - 34} ${x + 70} ${y - 28} ${x + 72} ${y - 4} C${x + 72} ${y + 14} ${x + 48} ${y + 14} ${x + 38} ${y + 2}`, delay + 0.28, 0.55, "#f3d56b", 4)}
+    ${path(`M${x + 70} ${y - 3} L${x + 93} ${y + 6} L${x + 71} ${y + 16}`, delay + 0.75, 0.35, "#f4a6b8", 4)}
+    ${path(`M${x - 18} ${y + 46} L${x - 18} ${y + 70} M${x + 20} ${y + 43} L${x + 20} ${y + 70}`, delay + 1.0, 0.45, "#f3d56b", 3)}
   `;
   const rabbit = (x, y, delay) => `
-    ${circle(x, y, 27, delay, 0.4, "#9fdf9f", 4, "rgba(159,223,159,0.12)")}
-    ${path(`M${x - 10} ${y - 24} L${x - 20} ${y - 58}`, delay + 0.25, 0.35, "#9fdf9f", 4)}
-    ${path(`M${x + 10} ${y - 24} L${x + 20} ${y - 58}`, delay + 0.32, 0.35, "#9fdf9f", 4)}
-    ${path(`M${x - 18} ${y + 26} L${x - 28} ${y + 52}`, delay + 0.45, 0.25, "#9fdf9f", 3)}
-    ${path(`M${x + 18} ${y + 26} L${x + 28} ${y + 52}`, delay + 0.5, 0.25, "#9fdf9f", 3)}
+    ${path(`M${x - 72} ${y + 42} C${x - 70} ${y - 18} ${x - 26} ${y - 66} ${x + 36} ${y - 48} C${x + 82} ${y - 34} ${x + 90} ${y + 26} ${x + 48} ${y + 54} C${x + 8} ${y + 82} ${x - 60} ${y + 72} ${x - 72} ${y + 42}`, delay, 0.9, "#9fdf9f", 4)}
+    ${path(`M${x - 18} ${y - 56} C${x - 38} ${y - 112} ${x - 30} ${y - 154} ${x - 4} ${y - 126} C${x + 0} ${y - 96} ${x - 2} ${y - 78} ${x + 2} ${y - 54}`, delay + 0.32, 0.6, "#9fdf9f", 4)}
+    ${path(`M${x + 12} ${y - 52} C${x + 22} ${y - 110} ${x + 46} ${y - 140} ${x + 58} ${y - 106} C${x + 46} ${y - 84} ${x + 38} ${y - 66} ${x + 36} ${y - 44}`, delay + 0.58, 0.6, "#9fdf9f", 4)}
+    ${circle(x + 54, y - 32, 7, delay + 1.0, 0.25, "#f5f5f0", 3, "rgba(245,245,240,0.05)")}
+    ${path(`M${x - 40} ${y + 64} C${x - 62} ${y + 90} ${x - 100} ${y + 84} ${x - 92} ${y + 62} M${x + 40} ${y + 60} C${x + 70} ${y + 86} ${x + 108} ${y + 78} ${x + 92} ${y + 56}`, delay + 1.15, 0.55, "#9fdf9f", 4)}
   `;
   return baseSvg(`
     <g class="math-phase phase-setup">
@@ -508,19 +572,24 @@ function renderDucksRabbits() {
       ${invariantBox(478, 168, "invariant", "1404 legs", 1.2)}
     </g>
     <g class="math-phase phase-model">
-      ${rect(178, 315, 844, 170, 0.1, 1, "#8bd3dd", 5)}
-      ${rabbit(330, 398, 0.8)}
-      ${duck(500, 398, 1.4)}${duck(610, 398, 1.7)}${duck(720, 398, 2.0)}${duck(830, 398, 2.3)}
-      ${text(600, 540, "1 unit group", 2.8, 31, "#8bd3dd")}
+      ${rect(120, 245, 960, 300, 0.1, 0.9, "#8bd3dd", 5)}
+      ${smallText(260, 286, "1 rabbit", 0.7, "#9fdf9f")}
+      ${smallText(705, 286, "4 ducks", 0.95, "#f3d56b")}
+      ${rabbit(260, 410, 1.1)}
+      ${duck(510, 410, 2.1)}${duck(650, 410, 2.45)}${duck(790, 410, 2.8)}${duck(930, 410, 3.15)}
+      ${text(600, 610, "one complete unit group", 3.9, 31, "#8bd3dd")}
     </g>
     <g class="math-phase phase-calculate">
-      ${text(340, 245, "rabbit: 4 legs", 0.2, 27, "#9fdf9f")}
-      ${text(760, 245, "4 ducks: 8 legs", 0.8, 27, "#f3d56b")}
-      ${line(430, 270, 670, 270, 1.4, 0.7, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
-      ${text(600, 305, "12 legs per group", 2.0, 34, "#f4a6b8")}
+      ${rect(165, 170, 280, 76, 0.2, 0.65, "#9fdf9f", 4)}
+      ${text(305, 218, "rabbit legs = 4", 0.85, 25, "#9fdf9f")}
+      ${rect(755, 170, 280, 76, 1.25, 0.65, "#f3d56b", 4)}
+      ${text(895, 218, "duck legs = 8", 1.9, 25, "#f3d56b")}
+      ${path("M448 208 C520 174 680 174 752 208", 2.45, 0.7, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
+      ${text(600, 276, "12 legs per group", 3.1, 34, "#f4a6b8")}
     </g>
     <g class="math-phase phase-discover">
-      ${text(600, 615, "1404 / 12 = 117 groups", 0.4, 38, "#f3d56b")}
+      ${rect(380, 618, 440, 72, 0.2, 0.7, "#f3d56b", 4)}
+      ${text(600, 665, "1404 / 12 = 117 groups", 0.9, 35, "#f3d56b")}
     </g>
     <g class="math-phase phase-apply">
       ${invariantBox(478, 80, "answer", "117 rabbits", 0.2)}

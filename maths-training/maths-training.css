@@ -234,18 +234,22 @@ h3 {
   stroke-dashoffset: 100;
 }
 .draw-text { opacity: 0; }
-.animating .draw-path, .animating .draw-shape, .finished .draw-path, .finished .draw-shape {
-  animation: chalkDraw var(--dur, 1s) ease-out var(--delay, 0s) forwards;
-}
-.animating .draw-text, .finished .draw-text {
-  animation: chalkFade 0.55s ease-out var(--delay, 0s) forwards;
-}
-.paused .draw-path, .paused .draw-shape, .paused .draw-text { animation-play-state: paused; }
 
 .math-phase {
   opacity: 0;
   transform: translateY(12px);
   transition: opacity 360ms ease, transform 360ms ease;
+}
+
+.math-phase .draw-path,
+.math-phase .draw-shape {
+  animation: none;
+  stroke-dashoffset: 100;
+}
+
+.math-phase .draw-text {
+  animation: none;
+  opacity: 0;
 }
 .beat-setup .phase-setup,
 .beat-model .phase-model,
@@ -265,6 +269,50 @@ h3 {
   opacity: 0.9;
   transform: translateY(0);
 }
+
+.animating.beat-setup .phase-setup .draw-path,
+.animating.beat-setup .phase-setup .draw-shape,
+.animating.beat-model .phase-setup .draw-path,
+.animating.beat-model .phase-setup .draw-shape,
+.animating.beat-model .phase-model .draw-path,
+.animating.beat-model .phase-model .draw-shape,
+.animating.beat-calculate .phase-setup .draw-path,
+.animating.beat-calculate .phase-setup .draw-shape,
+.animating.beat-calculate .phase-model .draw-path,
+.animating.beat-calculate .phase-model .draw-shape,
+.animating.beat-calculate .phase-calculate .draw-path,
+.animating.beat-calculate .phase-calculate .draw-shape,
+.animating.beat-discover .phase-setup .draw-path,
+.animating.beat-discover .phase-setup .draw-shape,
+.animating.beat-discover .phase-model .draw-path,
+.animating.beat-discover .phase-model .draw-shape,
+.animating.beat-discover .phase-calculate .draw-path,
+.animating.beat-discover .phase-calculate .draw-shape,
+.animating.beat-discover .phase-discover .draw-path,
+.animating.beat-discover .phase-discover .draw-shape,
+.animating.beat-apply .math-phase .draw-path,
+.animating.beat-apply .math-phase .draw-shape,
+.finished .math-phase .draw-path,
+.finished .math-phase .draw-shape {
+  animation: chalkDraw var(--dur, 1s) ease-out var(--delay, 0s) forwards;
+}
+
+.animating.beat-setup .phase-setup .draw-text,
+.animating.beat-model .phase-setup .draw-text,
+.animating.beat-model .phase-model .draw-text,
+.animating.beat-calculate .phase-setup .draw-text,
+.animating.beat-calculate .phase-model .draw-text,
+.animating.beat-calculate .phase-calculate .draw-text,
+.animating.beat-discover .phase-setup .draw-text,
+.animating.beat-discover .phase-model .draw-text,
+.animating.beat-discover .phase-calculate .draw-text,
+.animating.beat-discover .phase-discover .draw-text,
+.animating.beat-apply .math-phase .draw-text,
+.finished .math-phase .draw-text {
+  animation: chalkFade 0.55s ease-out var(--delay, 0s) forwards;
+}
+
+.paused .draw-path, .paused .draw-shape, .paused .draw-text { animation-play-state: paused; }
 
 .lesson-side {
   display: grid;

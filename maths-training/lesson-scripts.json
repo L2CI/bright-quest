@@ -1,0 +1,32 @@
+[
+  {
+    "id": "included-average",
+    "audio": "assets/audio/01-included-average.mp3",
+    "script": "Welcome to Scholarship Maths Lab. First, we solve an included average problem. Seven numbers have an average of forty two. One more number is included, and the new average becomes forty five. The trap is to stare at the averages. Instead, Professor Pixel says: averages are really totals wearing a disguise. Seven numbers averaging forty two make a total of seven times forty two, which is two hundred and ninety four. Now eight numbers averaging forty five make a total of eight times forty five, which is three hundred and sixty. The only new thing added was the mystery number. So subtract the old total from the new total. Three hundred and sixty minus two hundred and ninety four equals sixty six. The mystery number is sixty six. Whenever an average changes after a new value joins, compare the before-total and after-total."
+  },
+  {
+    "id": "ducks-rabbits",
+    "audio": "assets/audio/02-ducks-rabbits.mp3",
+    "script": "Next comes the ducks and rabbits leg-balance dilemma. The farm has four times as many ducks as rabbits, and there are one thousand four hundred and four legs altogether. Guessing would be slow. Instead, make one unit group. If there is one rabbit, there must be four ducks. The rabbit has four legs. Four ducks have eight legs. One full group therefore has twelve legs. The total number of legs is our invariant: it stays fixed, so we highlight it in gold. Now divide the total legs by the legs in one group. One thousand four hundred and four divided by twelve equals one hundred and seventeen. There are one hundred and seventeen groups, and each group has one rabbit, so there are one hundred and seventeen rabbits."
+  },
+  {
+    "id": "fraction-remainder",
+    "audio": "assets/audio/03-fraction-remainder.mp3",
+    "script": "Episode two is about visual heuristic models. Sarah has twenty four stickers. She gives one third to her brother. Then she gives one quarter of what is left to her sister. The key phrase is: of what is left. Draw one clean bar for twenty four. Split it into three equal parts. One part goes away, so eight stickers are given to her brother. Two parts remain, which is sixteen stickers. Now redraw that remaining block as the new whole. Slice the sixteen into four equal parts. One fourth is four stickers for her sister. Three parts remain. Three times four equals twelve. Sarah has twelve stickers left. When the question says of the remainder, redraw the bar before taking the next fraction."
+  },
+  {
+    "id": "excess-shortage",
+    "audio": "assets/audio/04-excess-shortage.mp3",
+    "script": "Now Professor Pixel shows the excess and shortage method. If each boy gets seven erasers, there is a shortage of six. If each boy gets four erasers, there is an excess of three. The individual difference between the two plans is seven minus four, which is three erasers per boy. The total gap is not just six and not just three. It is the shortage plus the excess, so six plus three equals nine. If the total gap is nine, and each boy accounts for three of that gap, then there are nine divided by three boys. That gives three boys. To find the packet size, use either plan. Three boys getting seven each would need twenty one, but we are short by six, so the packet has fifteen erasers."
+  },
+  {
+    "id": "cube-joints",
+    "audio": "assets/audio/05-cube-joints.mp3",
+    "script": "Episode three starts with spatial visualization. Nine identical cubes are glued face to face in a straight line. How many faces are hidden? A single cube has six faces. Nine separate cubes would have nine times six, or fifty four faces. But glued cubes hide the touching faces. In a line of nine cubes, the number of joints is one less than the number of cubes. So there are eight joints. Each joint hides two faces: the right face of one cube and the left face of the next cube. Eight joints times two hidden faces gives sixteen hidden faces. The shortcut is simple: for a straight chain, count the joins, then multiply by two."
+  },
+  {
+    "id": "calendar-cycle",
+    "audio": "assets/audio/06-calendar-cycle.mp3",
+    "script": "Finally, we solve a calendar cycle. If August eleventh is a Wednesday, what day of the week is September twenty first? Fingers are easy to lose track of, so use a seven day loop. From August eleventh to the end of August there are twenty days left. Then add twenty one days in September. The total jump is forty one days. Days repeat every seven, so divide forty one by seven. That gives five full weeks with a remainder of six. Full weeks bring us back to Wednesday, so only the remainder matters. Count six steps forward from Wednesday: Thursday, Friday, Saturday, Sunday, Monday, Tuesday. The answer is Tuesday."
+  }
+]
