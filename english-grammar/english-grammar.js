@@ -1028,8 +1028,8 @@ function grammarStudioModeMark(spec) {
   }
   if (spec.mode === "ghost") {
     return `
-      ${rect(494, 338, 212, 52, 3.4, 0.75, "rgba(243,213,107,0.72)", 4)}
-      ${text(600, 374, "chose", 4.0, 24, "rgba(243,213,107,0.72)")}
+      ${rect(740, 344, 172, 48, 3.4, 0.75, "rgba(243,213,107,0.72)", 4)}
+      ${text(826, 376, "chose", 4.0, 21, "rgba(243,213,107,0.72)")}
     `;
   }
   if (spec.mode === "split") {
@@ -1045,16 +1045,16 @@ function grammarStudioModeMark(spec) {
 function grammarStudioCheck(spec) {
   const check = wrapSvgText(spec.check || "", 32).slice(0, 2);
   return `
-    ${rect(842, 548, 270, 86, 0.0, 0.7, "#f3d56b", 4)}
-    ${smallText(977, 574, "quick check", 0.8, "#f3d56b")}
-    ${multiText(977, 604, check, 1.35, 18, "#f5f5f0")}
+    ${rect(842, 496, 270, 86, 0.0, 0.7, "#f3d56b", 4)}
+    ${smallText(977, 522, "quick check", 0.8, "#f3d56b")}
+    ${multiText(977, 552, check, 1.35, 18, "#f5f5f0")}
   `;
 }
 
 function grammarStudioApply(scene, spec) {
   return `
-    ${line(88, 604, 1112, 604, 0.0, 1.0, "rgba(245,245,240,0.38)", 3)}
-    ${multiText(600, 642, wrapSvgText(spec.chant || scene.point, 58).slice(0, 2), 0.85, 25, "#f3d56b")}
+    ${line(88, 612, 1112, 612, 0.0, 1.0, "rgba(245,245,240,0.38)", 3)}
+    ${multiText(600, 650, wrapSvgText(spec.chant || scene.point, 50).slice(0, 2), 0.85, 22, "#f3d56b")}
   `;
 }
 
@@ -1094,8 +1094,8 @@ function grammarSentenceMachineSvg() {
       ${smallText(600, 322, "what happened", 4.7)}
       ${path("M670 300 L806 300", 5.1, 0.5, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
       ${circle(900, 300, 70, 5.6, 0.9, "#f4a6b8", 7)}
-      ${text(900, 289, "Complete", 6.3, 24, "#f4a6b8")}
-      ${text(900, 320, "thought", 6.6, 24, "#f4a6b8")}
+      ${text(900, 286, "Complete", 6.3, 22, "#f4a6b8")}
+      ${text(900, 326, "thought", 6.6, 22, "#f4a6b8")}
       ${text(600, 420, "The curious dog chased the red ball.", 7.4, 30)}
       ${path("M285 450 C358 495 432 495 505 450", 8.2, 0.7, "#9fdf9f")}
       ${text(392, 528, "subject", 8.9, 22, "#9fdf9f")}
@@ -1217,14 +1217,14 @@ function grammarAdjectivesAdverbsSvg() {
     <g class="main-example">
     ${text(600, 58, "Adjectives and Adverbs add detail", 0.1, 32)}
     ${rect(92, 150, 450, 390, 0.7, 0.9, "#9fdf9f", 5)}
-    ${text(317, 205, "Adjective", 1.4, 32, "#9fdf9f")}
-    ${smallText(317, 238, "describes a noun", 1.8)}
+    ${text(317, 198, "Adjective", 1.4, 30, "#9fdf9f")}
+    ${smallText(317, 247, "describes a noun", 1.8)}
     ${path("M270 350 C292 270 418 270 440 350 C442 420 270 420 270 350", 2.4, 1.0, "#f5f5f0", 7)}
     ${path("M300 310 L330 250 L360 310 M390 310 L420 250 L450 310", 3.2, 0.6, "#f5f5f0", 5)}
     ${text(355, 465, "bright blue kite", 4.0, 29, "#9fdf9f")}
     ${rect(660, 150, 450, 390, 4.7, 0.9, "#f3d56b", 5)}
-    ${text(885, 205, "Adverb", 5.4, 32, "#f3d56b")}
-    ${smallText(885, 238, "describes a verb", 5.8)}
+    ${text(885, 198, "Adverb", 5.4, 30, "#f3d56b")}
+    ${smallText(885, 247, "describes a verb", 5.8)}
     ${path("M780 395 C860 320 942 320 1018 395", 6.4, 0.9, "#f5f5f0", 7, 'marker-end="url(#arrowHead)"')}
     ${circle(800, 415, 32, 7.1, 0.4, "#f5f5f0", 5)}
     ${circle(982, 415, 32, 7.35, 0.4, "#f5f5f0", 5)}
@@ -1306,9 +1306,9 @@ function grammarPunctuationSvg() {
   return baseSvg(`
     <g class="main-example">
     ${text(600, 58, "Punctuation is a reading signal", 0.1, 32)}
-    ${text(220, 195, "Capital", 0.8, 32, "#9fdf9f")}
-    ${text(220, 260, "M", 1.3, 82, "#9fdf9f")}
-    ${smallText(220, 310, "Monday, Maya, Mars", 1.8)}
+    ${text(220, 148, "Capital", 0.8, 28, "#9fdf9f")}
+    ${text(220, 275, "M", 1.3, 74, "#9fdf9f")}
+    ${smallText(220, 338, "Monday, Maya, Mars", 1.8)}
     ${text(535, 220, ".", 2.4, 92, "#f5f5f0")}
     ${text(650, 220, "?", 3.0, 92, "#8bd3dd")}
     ${text(765, 220, "!", 3.6, 92, "#f4a6b8")}
@@ -1395,9 +1395,9 @@ function grammarRecapQuizSvg() {
     </g>
 
     <g class="quiz-phase quiz-phase-4">
-      ${path("M235 660 C382 626 520 626 665 660", 0, 0.01, "#f5f5f0", 6, 'marker-end="url(#arrowHead)"')}
-      ${text(455, 655, "and", 0, 42, "#f3d56b")}
-      ${smallText(725, 660, "joins two related ideas", 0, "#f3d56b")}
+      ${path("M912 592 C970 548 1038 548 1096 592", 0, 0.01, "#f5f5f0", 5, 'marker-end="url(#arrowHead)"')}
+      ${text(1010, 574, "and", 0, 34, "#f3d56b")}
+      ${smallText(1010, 632, "joins ideas", 0, "#f3d56b")}
     </g>
     </g>
     <g class="board-moment">

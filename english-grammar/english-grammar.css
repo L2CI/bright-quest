@@ -637,6 +637,11 @@ h3 {
   opacity: 1;
 }
 
+.beat-apply .grammar-studio .phase-check {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .board-beat-1 .grammar-token.token-1,
 .board-beat-2 .grammar-token.token-2,
 .board-beat-3 .grammar-token.token-3,
