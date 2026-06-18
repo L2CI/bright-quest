@@ -332,7 +332,8 @@ h3 {
   grid-template-rows: auto auto minmax(0, 1fr);
   gap: 12px;
   min-height: 0;
-  max-height: 100%;
+  height: calc(100dvh - 226px);
+  max-height: 640px;
   padding: 10px;
   border: 1px solid rgba(255,255,255,0.28);
   border-radius: 24px;
@@ -573,7 +574,7 @@ h3 {
 
 @media (max-width: 900px) {
   .lesson-stage { grid-template-columns: 1fr; }
-  .lesson-side { grid-template-rows: auto auto auto; }
+  .lesson-side { grid-template-rows: auto auto auto; height: auto; max-height: none; }
   .scene-list { max-height: 320px; }
   .blackboard { width: min(100%, calc(56vh * 1200 / 680)); }
   html, body { overflow: auto; }

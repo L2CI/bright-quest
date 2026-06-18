@@ -18,6 +18,7 @@ Method: local Chrome extension QA where available, DOM/layout inspection, syntax
 | QA-008 | Low | Chrome QA tooling | Screenshot capture | Some Chrome screenshots timed out even while DOM/layout inspection worked. | Visual QA is slower and less reliable than desired. | Chrome extension/CDP screenshot command instability after tab/session restart. | Use DOM/layout checks plus live-page manual screenshot if needed; close sessions after use. | Open |
 | QA-009 | Low | Grammar and Maths controls | Quiz sections | Interactive quiz can remain as-is for now. | User prefers not to overwork quiz if it is easier/better to leave it. | Quiz mechanics are less urgent than board sync and visuals. | Only fix clear timing defects; do not redesign quiz in this batch. | Accepted constraint |
 | QA-010 | Medium | Maths + Grammar responsive layout | Live Chrome at ~1037px width | Training layout collapses to one column too early, so choosing a scene can leave the board above the viewport. | Tablet/desktop-ish windows should keep board and controls together. | Breakpoint was 980-1100px and board min width forced a single-column layout. | Keep two-column layout down to 900px with flexible board column and 280px side rail. | Patched locally, needs live QA |
+| QA-011 | Medium | Maths + Grammar right rail containment | Live Chrome at ~1037px width | Scene list makes the right rail extremely tall instead of scrolling internally. | The stage becomes much taller than the viewport, making the board feel less like a focused training screen. | Right rail had no explicit viewport-constrained height in two-column mode. | Cap right rail height to available viewport and keep scene list as internal scroll. | Patched locally, needs live QA |
 
 ## Patch Batch Targets
 
@@ -27,7 +28,8 @@ Method: local Chrome extension QA where available, DOM/layout inspection, syntax
 4. Keep scene-list scrolling local to the right rail.
 5. Allow vertical scroll on Maths Training in short/tablet-like viewports.
 6. Keep board and right rail side-by-side down to tablet-width layouts.
-7. Bump asset versions so Cloudflare fetches the changed JS/CSS.
+7. Constrain the right rail so lesson lists scroll internally.
+8. Bump asset versions so Cloudflare fetches the changed JS/CSS.
 
 ## Local Verification After Patch Batch
 
@@ -49,6 +51,6 @@ Method: local Chrome extension QA where available, DOM/layout inspection, syntax
    - Check no visible label spills or accidental intersections on final frames.
 3. Commit and push to GitHub.
 4. Live Cloudflare QA:
-   - Confirm `maths-training.js?v=20260618f`, `maths-training.css?v=20260618g`, `english-grammar.js?v=20260618d`, and `english-grammar.css?v=20260618e` are served.
+   - Confirm `maths-training.js?v=20260618f`, `maths-training.css?v=20260618h`, `english-grammar.js?v=20260618d`, and `english-grammar.css?v=20260618f` are served.
    - Re-test the same scenes on live pages.
 5. Update this log statuses after second run.
