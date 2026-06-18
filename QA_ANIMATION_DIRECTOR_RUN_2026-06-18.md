@@ -50,18 +50,25 @@ Method: local Chrome extension QA where available, DOM/layout inspection, syntax
   - `cf8989f` - training animation timing and QA log.
   - `8926bc4` - tablet/two-column board visibility.
   - `1360d2a` - right-rail containment.
+  - `68b2ff1` - targeted seek-state and Ducks/Rabbits spacing fixes.
 - Live Cloudflare checks through Chrome:
   - Maths page served `maths-training.js?v=20260618f` and `maths-training.css?v=20260618h`.
   - English page served `english-grammar.js?v=20260618d` and `english-grammar.css?v=20260618f`.
   - Both pages rendered as two columns at approximately 1037px browser width: board column about 686px, side rail 280px.
   - Both pages kept the board visible in the first viewport and constrained the right scene list to an internal scroll area.
   - Live console error logs were empty for both pages.
+- Second targeted live run:
+  - English page served `english-grammar.css?v=20260618g` and `english-grammar.js?v=20260618e`.
+  - Maths page served `maths-training.css?v=20260618h` and `maths-training.js?v=20260618g`.
+  - Grammar at 0:48 reached active beat `example`, showed `Quick check: Maya reads the comic.`, `Maya`, `reads`, and `the comic`, and produced no visible text overlaps.
+  - Maths at 2:23 reached active beat `apply`, showed the Ducks/Rabbits unit group and final formula, and produced no visible text overlaps.
+  - Console error logs were empty for both pages.
 
 ## Current Status
 
 - QA-001 through QA-005: patched and smoke-verified live.
 - QA-010 and QA-011: patched and smoke-verified live.
-- QA-012 and QA-013: discovered in targeted live timeline QA and patched locally; targeted local Chrome QA now passes.
+- QA-012 and QA-013: patched, targeted local Chrome QA passed, and targeted live Cloudflare QA passed.
 - QA-006 and QA-007 remain content/design backlog items, not regressions.
 - QA-008 remains a tooling limitation: Chrome DOM/layout QA worked; screenshot capture was intermittent.
 - QA-009 remains accepted by user: leave quiz interaction mostly as-is unless clear timing defects appear.
@@ -89,8 +96,6 @@ Method: local Chrome extension QA where available, DOM/layout inspection, syntax
    - Maths: Included Average, Ducks And Rabbits, Excess And Shortage, Pop Quiz.
    - Grammar: Sentence Machine at 0:48 Maya cue, Nouns intro/number cue, Recap Quiz cue sequence.
    - Check no visible label spills or accidental intersections on final frames.
-3. Commit and push to GitHub.
-4. Live Cloudflare QA:
-   - Confirm `maths-training.js?v=20260618f`, `maths-training.css?v=20260618h`, `english-grammar.js?v=20260618d`, and `english-grammar.css?v=20260618f` are served.
-   - Re-test the same scenes on live pages.
-5. Update this log statuses after second run.
+3. Commit and push to GitHub. Complete.
+4. Live Cloudflare QA. Complete for QA-012 and QA-013.
+5. Update this log statuses after second run. Complete.
