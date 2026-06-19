@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "grammar-cinematic-010";
+  const BUILD_ID = "grammar-cinematic-011";
   const voiceBase = "assets/audio/game-voice/";
   const questions = [
     {
@@ -121,8 +121,11 @@
     preload() {
       this.load.image("suburbPlate", "assets/generated/suburban-road-plate.png");
       this.load.image("kidStandingAsset", "assets/generated/kid-standing-alpha.png");
-      this.load.image("kidCarAsset", "assets/generated/kid-car-alpha.png");
-      this.load.image("policeCarAsset", "assets/generated/police-car-alpha.png");
+      this.load.image("kidCar", "assets/third-party/opengameart/unlucky-topdown-vehicles/selected/Car.png");
+      this.load.image("policeCar", "assets/third-party/opengameart/unlucky-topdown-vehicles/selected/Police.png");
+      this.load.image("policeCarFlash1", "assets/third-party/opengameart/unlucky-topdown-vehicles/selected/police-animation/1.png");
+      this.load.image("policeCarFlash2", "assets/third-party/opengameart/unlucky-topdown-vehicles/selected/police-animation/2.png");
+      this.load.image("policeCarFlash3", "assets/third-party/opengameart/unlucky-topdown-vehicles/selected/police-animation/3.png");
       this.load.image("officerAsset", "assets/generated/officer-alpha.png");
     }
 
@@ -201,52 +204,12 @@
   }
 
   function makeTextures(scene) {
-    drawCar(scene, "kidCar", 260, 150, 0x12b8d9, 0xffd15c);
-    drawCar(scene, "policeCar", 280, 156, 0xffffff, 0x2877ff, true);
     drawKid(scene);
     drawOfficer(scene);
     drawHouse(scene);
     drawTree(scene);
     drawSign(scene);
     drawBubbleFlash(scene);
-  }
-
-  function drawCar(scene, key, w, h, bodyColor, accentColor, police = false) {
-    const g = scene.make.graphics({ x: 0, y: 0, add: false });
-    g.clear();
-    g.fillStyle(0x000000, 0.18);
-    g.fillEllipse(w * 0.5, h * 0.56, w * 0.78, h * 0.64);
-    g.fillStyle(0x102a56, 0.18);
-    g.fillRoundedRect(w * 0.1, h * 0.18, w * 0.8, h * 0.64, 28);
-    g.fillStyle(bodyColor, 1);
-    g.fillRoundedRect(w * 0.08, h * 0.24, w * 0.84, h * 0.52, 28);
-    g.fillStyle(accentColor, 1);
-    g.fillRoundedRect(w * 0.32, h * 0.12, w * 0.34, h * 0.32, 18);
-    g.fillStyle(0xb8f3ff, 1);
-    g.fillRoundedRect(w * 0.35, h * 0.18, w * 0.12, h * 0.2, 8);
-    g.fillRoundedRect(w * 0.51, h * 0.18, w * 0.12, h * 0.2, 8);
-    g.fillRoundedRect(w * 0.36, h * 0.54, w * 0.28, h * 0.14, 10);
-    g.fillStyle(0xffffff, 0.95);
-    g.fillCircle(w * 0.93, h * 0.38, 8);
-    g.fillCircle(w * 0.93, h * 0.62, 8);
-    g.fillStyle(0xfff3a8, 1);
-    g.fillCircle(w * 0.08, h * 0.38, 7);
-    g.fillCircle(w * 0.08, h * 0.62, 7);
-    g.fillStyle(0x18223d, 1);
-    g.fillRoundedRect(w * 0.17, h * 0.12, w * 0.14, h * 0.2, 10);
-    g.fillRoundedRect(w * 0.69, h * 0.12, w * 0.14, h * 0.2, 10);
-    g.fillRoundedRect(w * 0.17, h * 0.68, w * 0.14, h * 0.2, 10);
-    g.fillRoundedRect(w * 0.69, h * 0.68, w * 0.14, h * 0.2, 10);
-    if (police) {
-      g.fillStyle(0x102a56, 1);
-      g.fillRoundedRect(w * 0.28, h * 0.45, w * 0.44, h * 0.12, 10);
-      g.fillStyle(0xff2d5f, 1);
-      g.fillRoundedRect(w * 0.42, h * 0.05, w * 0.08, h * 0.08, 5);
-      g.fillStyle(0x2877ff, 1);
-      g.fillRoundedRect(w * 0.51, h * 0.05, w * 0.08, h * 0.08, 5);
-    }
-    g.generateTexture(key, w, h);
-    g.destroy();
   }
 
   function drawKid(scene) {
@@ -461,10 +424,10 @@
     state.scene = "ready";
     scene.kid.setAlpha(1).setPosition(w * 0.34, h * 0.56);
     fitSpriteWidth(scene.kid, Math.min(150, w * 0.13));
-    scene.kidCar.setTexture("kidCar").setAlpha(1).setPosition(w * 0.56, h * 0.64).setAngle(0);
+    scene.kidCar.setTexture("kidCar").setAlpha(1).setPosition(w * 0.56, h * 0.64).setAngle(-90);
     fitSpriteWidth(scene.kidCar, Math.min(230, w * 0.2));
-    scene.policeCar.setTexture("policeCar").setAlpha(0).setPosition(w + 240, h * 0.66).setAngle(0);
-    fitSpriteWidth(scene.policeCar, Math.min(250, w * 0.22));
+    scene.policeCar.setTexture("policeCar").setAlpha(0).setPosition(w + 240, h * 0.58).setAngle(-90);
+    fitSpriteWidth(scene.policeCar, Math.min(220, w * 0.19));
     scene.officer.setAlpha(0).setPosition(w + 120, h * 0.55);
     fitSpriteWidth(scene.officer, Math.min(220, w * 0.18));
     pulseCar(scene);
@@ -525,7 +488,7 @@
       targets: scene.kidCar,
       x: state.width * 0.56,
       y: state.height * 0.58,
-      angle: { from: -2, to: 2 },
+      angle: { from: -92, to: -88 },
       duration: motion(520),
       yoyo: true,
       repeat: 7,
@@ -552,14 +515,14 @@
     playTone("siren");
     showSpeedLines(false);
     sweepPoliceLights(5);
-    scene.policeCar.setTexture("policeCar").setAlpha(1).setPosition(state.width + 160, state.height * 0.69);
-    fitSpriteWidth(scene.policeCar, Math.min(250, state.width * 0.22));
+    scene.policeCar.setTexture("policeCarFlash1").setAlpha(1).setPosition(state.width + 170, state.height * 0.59).setAngle(-90);
+    fitSpriteWidth(scene.policeCar, Math.min(220, state.width * 0.19));
     neonTrail(state.width * 0.98, state.height * 0.61, 0x2877ff);
     neonTrail(state.width * 0.98, state.height * 0.66, 0xff2d5f);
     scene.tweens.add({
       targets: scene.policeCar,
-      x: state.width * 0.62,
-      y: state.height * 0.68,
+      x: state.width * 0.68,
+      y: state.height * 0.59,
       duration: motion(1450),
       ease: "Cubic.easeOut",
       onComplete: () => {
@@ -571,8 +534,8 @@
         scene.tweens.add({
           targets: scene.officer,
           alpha: 1,
-          x: state.width * 0.72,
-          y: state.height * 0.58,
+          x: state.width * 0.8,
+          y: state.height * 0.51,
           duration: motion(520),
           ease: "Back.easeOut",
           onComplete: () => {
@@ -656,7 +619,7 @@
     scene.tweens.add({
       targets: scene.kidCar,
       x: scene.kidCar.x - state.width * 0.035,
-      angle: { from: 2, to: -2 },
+      angle: { from: -88, to: -92 },
       duration: motion(720),
       ease: "Sine.easeInOut",
       onStart: () => neonTrail(scene.kidCar.x + scene.kidCar.displayWidth * 0.32, scene.kidCar.y - scene.kidCar.displayHeight * 0.06, 0xffd15c),
@@ -686,7 +649,7 @@
       targets: scene.kidCar,
       x: state.width * 0.58,
       y: state.height * 0.69,
-      angle: 0,
+      angle: -90,
       duration: motion(950),
       ease: "Sine.easeInOut",
       onComplete: () => {
@@ -717,11 +680,11 @@
     state.scene = "stop";
     scene.tweens.killTweensOf([scene.kidCar, scene.policeCar, scene.officer]);
     scene.kid.setAlpha(0);
-    scene.kidCar.setTexture("kidCar").setAlpha(1).setPosition(state.width * 0.48, state.height * 0.58).setAngle(0);
+    scene.kidCar.setTexture("kidCar").setAlpha(1).setPosition(state.width * 0.45, state.height * 0.58).setAngle(-90);
     fitSpriteWidth(scene.kidCar, Math.min(230, state.width * 0.2));
-    scene.policeCar.setTexture("policeCar").setAlpha(1).setPosition(state.width * 0.64, state.height * 0.68).setAngle(0);
-    fitSpriteWidth(scene.policeCar, Math.min(250, state.width * 0.22));
-    scene.officer.setAlpha(1).setPosition(state.width * 0.74, state.height * 0.55).setAngle(0);
+    scene.policeCar.setTexture("policeCarFlash2").setAlpha(1).setPosition(state.width * 0.66, state.height * 0.58).setAngle(-90);
+    fitSpriteWidth(scene.policeCar, Math.min(220, state.width * 0.19));
+    scene.officer.setAlpha(1).setPosition(state.width * 0.8, state.height * 0.51).setAngle(0);
     fitSpriteWidth(scene.officer, Math.min(220, state.width * 0.18));
     say("Officer", "Good stop. Cars are adult responsibility, not a kid experiment.");
     setCaption("");
@@ -734,8 +697,9 @@
     idleReadyPose(sceneRef);
     el.startPanel.classList.add("hidden");
     sceneRef.kid.setAlpha(0);
-    sceneRef.policeCar.setAlpha(1).setPosition(state.width * 0.66, state.height * 0.7);
-    sceneRef.officer.setAlpha(1).setPosition(state.width * 0.72, state.height * 0.58);
+    sceneRef.policeCar.setAlpha(1).setPosition(state.width * 0.66, state.height * 0.58);
+    sceneRef.policeCar.setTexture("policeCarFlash1").setAngle(-90);
+    sceneRef.officer.setAlpha(1).setPosition(state.width * 0.8, state.height * 0.51);
     sceneRef.kidCar.setTexture("kidCar");
     fitSpriteWidth(sceneRef.kidCar, Math.min(230, state.width * 0.2));
     state.questionIndex = 0;
@@ -751,13 +715,13 @@
     state.scene = "finale";
     renderBadges();
     scene.tweens.killTweensOf([scene.kid, scene.kidCar, scene.policeCar, scene.officer]);
-    scene.kidCar.setTexture("kidCar").setAlpha(1).setPosition(state.width * 0.55, state.height * 0.67).setAngle(0);
+    scene.kidCar.setTexture("kidCar").setAlpha(1).setPosition(state.width * 0.55, state.height * 0.67).setAngle(-90);
     fitSpriteWidth(scene.kidCar, Math.min(230, state.width * 0.2));
     scene.kid.setAlpha(1).setPosition(state.width * 0.42, state.height * 0.56).setAngle(-3);
     fitSpriteWidth(scene.kid, Math.min(150, state.width * 0.13));
-    scene.policeCar.setTexture("policeCar").setAlpha(1).setPosition(state.width * 0.68, state.height * 0.68).setAngle(0);
-    fitSpriteWidth(scene.policeCar, Math.min(250, state.width * 0.22));
-    scene.officer.setAlpha(1).setPosition(state.width * 0.78, state.height * 0.55).setAngle(0);
+    scene.policeCar.setTexture("policeCarFlash3").setAlpha(1).setPosition(state.width * 0.68, state.height * 0.58).setAngle(-90);
+    fitSpriteWidth(scene.policeCar, Math.min(220, state.width * 0.19));
+    scene.officer.setAlpha(1).setPosition(state.width * 0.82, state.height * 0.51).setAngle(0);
     fitSpriteWidth(scene.officer, Math.min(220, state.width * 0.18));
     say("Officer", "All clear. Ask an adult, park the idea, and keep the good grammar.");
     setCaption("");
