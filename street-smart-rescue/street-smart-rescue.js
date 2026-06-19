@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "grammar-cinematic-007";
+  const BUILD_ID = "grammar-cinematic-008";
   const voiceBase = "assets/audio/game-voice/";
   const questions = [
     {
@@ -603,7 +603,7 @@
         state.questionIndex += 1;
         if (state.questionIndex >= questions.length) startFinale();
         else reverseTowardHome();
-      }, motion(900));
+      }, motion(520));
     } else {
       button.classList.add("wrong");
       el.feedback.textContent = `Try again. Hint: ${q.hint}`;
@@ -628,24 +628,32 @@
       duration: motion(720),
       ease: "Sine.easeInOut",
       onStart: () => neonTrail(scene.kidCar.x + scene.kidCar.displayWidth * 0.32, scene.kidCar.y - scene.kidCar.displayHeight * 0.06, 0xffd15c),
-      onComplete: () => setTimeout(showQuestion, motion(620))
+      onComplete: () => setTimeout(showQuestion, motion(280))
     });
   }
 
   function startFinale() {
     const scene = sceneRef;
     state.scene = "finale";
+    el.questionPanel.classList.add("hidden");
+    el.startPanel.classList.add("hidden");
     say("Officer", "Unlocked. Smart writers build clear sentences, and smart kids ask an adult.");
     playVoice("street-finale");
     setCaption("All five grammar checkpoints are solved. The car returns home safely.");
     sweepPoliceLights(2);
-    burstStars(state.width * 0.56, state.height * 0.55, 20, 0xffd15c);
+    burstStars(state.width * 0.64, state.height * 0.36, 20, 0xffd15c);
+    const revealFinale = () => {
+      el.questionPanel.classList.add("hidden");
+      el.finalePanel.classList.remove("hidden");
+      renderBadges();
+    };
+    const fallback = setTimeout(revealFinale, motion(2400));
     scene.tweens.add({
       targets: scene.kidCar,
       x: state.width * 0.58,
       y: state.height * 0.69,
       angle: 0,
-      duration: motion(1500),
+      duration: motion(950),
       ease: "Sine.easeInOut",
       onComplete: () => {
         scene.kid.setAlpha(1).setPosition(state.width * 0.49, state.height * 0.56);
@@ -655,12 +663,13 @@
           x: state.width * 0.42,
           y: state.height * 0.59,
           angle: -3,
-          duration: motion(520),
+          duration: motion(360),
           ease: "Back.easeOut",
           onComplete: () => {
-            correctBurst(state.width * 0.5, state.height * 0.44);
+            clearTimeout(fallback);
+            correctBurst(state.width * 0.5, state.height * 0.34);
             playTone("correct");
-            el.finalePanel.classList.remove("hidden");
+            revealFinale();
           }
         });
       }
@@ -680,11 +689,11 @@
     fitSpriteWidth(scene.policeCar, Math.min(390, state.width * 0.32));
     scene.officer.setAlpha(1).setPosition(state.width * 0.74, state.height * 0.55).setAngle(0);
     fitSpriteWidth(scene.officer, Math.min(220, state.width * 0.18));
-    say("Officer", "Show me your driver's licence!");
+    say("Officer", "Hold it. Street-smart choices start before the engine does.");
     setCaption("Red and blue lights flash. The police car has pulled in behind him.");
     sweepPoliceLights(2);
     impactRings(scene.policeCar.x, scene.policeCar.y - scene.policeCar.displayHeight * 0.3, 0x2877ff);
-    burstStars(scene.policeCar.x, scene.policeCar.y - scene.policeCar.displayHeight * 0.36, 18, 0xffffff);
+    burstStars(scene.policeCar.x - scene.policeCar.displayWidth * 0.22, scene.policeCar.y - scene.policeCar.displayHeight * 0.42, 18, 0xffffff);
   }
 
   function jumpToQuestion() {

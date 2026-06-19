@@ -261,6 +261,12 @@ a {
   transform: scale(0.96);
 }
 
+.finale-card .claim-button {
+  width: 100%;
+  margin-top: 12px;
+  animation: chestClaimPulse 1500ms ease-in-out infinite;
+}
+
 .feedback {
   min-height: 26px;
   margin: 14px 0 0;
@@ -280,6 +286,15 @@ a {
   100% {
     transform: translateY(0) scale(1);
     box-shadow: 0 34px 90px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255,255,255,0.18);
+  }
+}
+
+@keyframes chestClaimPulse {
+  0%, 100% {
+    box-shadow: 0 16px 30px rgba(255, 177, 64, 0.28), inset 0 -5px 0 rgba(106, 66, 9, 0.2), inset 0 1px 0 rgba(255,255,255,0.58);
+  }
+  50% {
+    box-shadow: 0 20px 46px rgba(255, 209, 92, 0.48), 0 0 28px rgba(91, 231, 255, 0.28), inset 0 -5px 0 rgba(106, 66, 9, 0.2), inset 0 1px 0 rgba(255,255,255,0.7);
   }
 }
 

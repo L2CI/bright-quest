@@ -642,7 +642,7 @@
     el.questionPanel.classList.add("hidden");
     el.finalePanel.classList.remove("hidden");
     el.guardianPanel.classList.add("hidden");
-    el.hint.textContent = "The treasure waits ahead. Tap the glowing chest.";
+    el.hint.textContent = "The treasure waits ahead. Tap the glowing chest or press Open the chest.";
     playSuccessSparkle();
   }
 
@@ -1297,9 +1297,10 @@
         el.hint.textContent = "Quest complete. You earned the Leadership Matrix.";
       } else {
         el.guardianPanel.classList.add("hidden");
-        el.hint.textContent = "The treasure waits ahead. Tap the glowing chest.";
+        el.hint.textContent = "The treasure waits ahead. Tap the glowing chest or press Open the chest.";
       }
-      el.finalePanel.classList.add("hidden");
+      if (state.finaleClaimed) el.finalePanel.classList.add("hidden");
+      else el.finalePanel.classList.remove("hidden");
       updateGateCount();
     }
   }
