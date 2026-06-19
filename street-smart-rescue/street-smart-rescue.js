@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "grammar-cinematic-009";
+  const BUILD_ID = "grammar-cinematic-010";
   const voiceBase = "assets/audio/game-voice/";
   const questions = [
     {
@@ -91,19 +91,19 @@
   const voiceCache = new Map();
 
   const voiceLines = {
-    "street-kid-intro": "No one's here. Maybe I can drive today.",
-    "street-kid-rollout": "Okay. Just a tiny drive. Nobody will know.",
-    "street-officer-stop": "Hold it. Street-smart choices start before the engine does.",
-    "street-kid-caught": "I don't have a licence. I was just trying.",
-    "street-officer-brief": "Then you solve five grammar checkpoints and take the safe way home.",
+    "street-kid-intro": "The keys are right there. I know I should not touch them.",
+    "street-kid-rollout": "This feels wrong already. I am stopping.",
+    "street-officer-stop": "Good stop. Cars are adult responsibility, not a kid experiment.",
+    "street-kid-caught": "I understand. I should have asked first.",
+    "street-officer-brief": "Exactly. We will turn this into a safety drill. Clear each grammar checkpoint, then head back.",
     "street-q1-sentence": "Checkpoint one. A complete sentence needs a subject and a predicate. Find what Maya does.",
     "street-q2-noun": "Checkpoint two. Proper nouns name someone or somewhere special. Pick the special name.",
     "street-q3-verb": "Checkpoint three. Modal helpers show duty, ability, or possibility. Listen for should, must, can, or might.",
     "street-q4-modifier": "Checkpoint four. Adverbs often tell how an action happens.",
     "street-q5-clause": "Checkpoint five. Choose the clause that can stand alone as a complete thought.",
-    "street-correct": "Correct. One grammar lock clears, and the safe route gets brighter.",
+    "street-correct": "Correct. That is one clear sentence choice, and one safer step home.",
     "street-try": "Not quite. Use the hint, then try again. Grammar is a map, not a trap.",
-    "street-finale": "Unlocked. Smart writers build clear sentences, and smart kids ask an adult before any drive."
+    "street-finale": "All clear. Smart writers build clear sentences, and smart kids ask an adult before going near the driver seat."
   };
 
   renderBadges();
@@ -115,6 +115,7 @@
       this.flashTimer = 0;
       this.sparkles = [];
       this.speedLines = [];
+      this.roadside = [];
     }
 
     preload() {
@@ -164,8 +165,11 @@
     update(time, delta) {
       const dt = Math.min(delta / 16.67, 2);
       animateAmbient(this, time, dt);
-      if (state.scene === "rollout") {
-        this.roadOffset += 4.2 * dt;
+      if (state.scene === "rollout" || state.scene === "stop") {
+        this.roadOffset += 7.4 * dt;
+        moveRoad(this);
+      } else if (state.scene === "return-step" || state.scene === "finale") {
+        this.roadOffset -= 3.6 * dt;
         moveRoad(this);
       }
     }
@@ -197,8 +201,8 @@
   }
 
   function makeTextures(scene) {
-    drawCar(scene, "kidCar", 260, 138, 0x12b8d9, 0xffd15c);
-    drawCar(scene, "policeCar", 282, 142, 0xffffff, 0x2877ff, true);
+    drawCar(scene, "kidCar", 260, 150, 0x12b8d9, 0xffd15c);
+    drawCar(scene, "policeCar", 280, 156, 0xffffff, 0x2877ff, true);
     drawKid(scene);
     drawOfficer(scene);
     drawHouse(scene);
@@ -211,35 +215,35 @@
     const g = scene.make.graphics({ x: 0, y: 0, add: false });
     g.clear();
     g.fillStyle(0x000000, 0.18);
-    g.fillEllipse(w * 0.5, h - 16, w * 0.78, 28);
+    g.fillEllipse(w * 0.5, h * 0.56, w * 0.78, h * 0.64);
+    g.fillStyle(0x102a56, 0.18);
+    g.fillRoundedRect(w * 0.1, h * 0.18, w * 0.8, h * 0.64, 28);
     g.fillStyle(bodyColor, 1);
-    g.fillRoundedRect(26, 48, w - 52, 54, 24);
+    g.fillRoundedRect(w * 0.08, h * 0.24, w * 0.84, h * 0.52, 28);
     g.fillStyle(accentColor, 1);
-    g.fillRoundedRect(64, 20, w * 0.42, 46, 22);
+    g.fillRoundedRect(w * 0.32, h * 0.12, w * 0.34, h * 0.32, 18);
     g.fillStyle(0xb8f3ff, 1);
-    g.fillRoundedRect(82, 27, 42, 28, 11);
-    g.fillRoundedRect(130, 27, 46, 28, 11);
+    g.fillRoundedRect(w * 0.35, h * 0.18, w * 0.12, h * 0.2, 8);
+    g.fillRoundedRect(w * 0.51, h * 0.18, w * 0.12, h * 0.2, 8);
+    g.fillRoundedRect(w * 0.36, h * 0.54, w * 0.28, h * 0.14, 10);
     g.fillStyle(0xffffff, 0.95);
-    g.fillCircle(42, 72, 13);
+    g.fillCircle(w * 0.93, h * 0.38, 8);
+    g.fillCircle(w * 0.93, h * 0.62, 8);
     g.fillStyle(0xfff3a8, 1);
-    g.fillCircle(w - 42, 72, 12);
+    g.fillCircle(w * 0.08, h * 0.38, 7);
+    g.fillCircle(w * 0.08, h * 0.62, 7);
     g.fillStyle(0x18223d, 1);
-    g.fillCircle(76, 104, 24);
-    g.fillCircle(w - 76, 104, 24);
-    g.fillStyle(0xffffff, 1);
-    g.fillCircle(76, 104, 10);
-    g.fillCircle(w - 76, 104, 10);
+    g.fillRoundedRect(w * 0.17, h * 0.12, w * 0.14, h * 0.2, 10);
+    g.fillRoundedRect(w * 0.69, h * 0.12, w * 0.14, h * 0.2, 10);
+    g.fillRoundedRect(w * 0.17, h * 0.68, w * 0.14, h * 0.2, 10);
+    g.fillRoundedRect(w * 0.69, h * 0.68, w * 0.14, h * 0.2, 10);
     if (police) {
       g.fillStyle(0x102a56, 1);
-      g.fillRoundedRect(102, 57, 80, 28, 12);
+      g.fillRoundedRect(w * 0.28, h * 0.45, w * 0.44, h * 0.12, 10);
       g.fillStyle(0xff2d5f, 1);
-      g.fillRoundedRect(118, 8, 28, 14, 6);
+      g.fillRoundedRect(w * 0.42, h * 0.05, w * 0.08, h * 0.08, 5);
       g.fillStyle(0x2877ff, 1);
-      g.fillRoundedRect(148, 8, 28, 14, 6);
-    } else {
-      g.fillStyle(0xff5f8a, 1);
-      g.fillCircle(w - 88, 52, 8);
-      g.fillCircle(w - 108, 50, 5);
+      g.fillRoundedRect(w * 0.51, h * 0.05, w * 0.08, h * 0.08, 5);
     }
     g.generateTexture(key, w, h);
     g.destroy();
@@ -357,7 +361,7 @@
 
   function createWorld(scene) {
     scene.sky = scene.add.graphics().setDepth(0);
-    scene.plate = scene.add.image(0, 0, "suburbPlate").setOrigin(0.5).setDepth(1);
+    scene.plate = scene.add.image(0, 0, "suburbPlate").setOrigin(0.5).setDepth(1).setAlpha(0.28);
     scene.clouds = [
       scene.add.ellipse(0, 0, 120, 34, 0xffffff, 0).setDepth(1),
       scene.add.ellipse(0, 0, 150, 42, 0xffffff, 0).setDepth(1)
@@ -368,12 +372,18 @@
     scene.sign = scene.add.image(0, 0, "schoolSign").setDepth(4).setAlpha(0);
     scene.road = scene.add.graphics().setDepth(3);
     scene.roadMarks = scene.add.group();
-    for (let i = 0; i < 16; i += 1) {
-      scene.roadMarks.add(scene.add.rectangle(0, 0, 72, 10, 0xffffff, 0).setDepth(4));
+    for (let i = 0; i < 26; i += 1) {
+      scene.roadMarks.add(scene.add.rectangle(0, 0, 14, 76, 0xffffff, 0.88).setDepth(4));
+    }
+    for (let i = 0; i < 18; i += 1) {
+      const prop = i % 3 === 0
+        ? scene.add.image(0, 0, "tree").setDepth(2).setAlpha(0.9)
+        : scene.add.rectangle(0, 0, 46, 28, i % 2 ? 0xffd15c : 0x35d7ff, 0.55).setDepth(2);
+      scene.roadside.push(prop);
     }
     scene.kid = scene.add.image(0, 0, "kidStandingAsset").setDepth(8);
-    scene.kidCar = scene.add.image(0, 0, "kidCarAsset").setDepth(7);
-    scene.policeCar = scene.add.image(0, 0, "policeCarAsset").setDepth(6).setAlpha(0);
+    scene.kidCar = scene.add.image(0, 0, "kidCar").setDepth(7);
+    scene.policeCar = scene.add.image(0, 0, "policeCar").setDepth(6).setAlpha(0);
     scene.officer = scene.add.image(0, 0, "officerAsset").setDepth(9).setAlpha(0);
     scene.policeLight = scene.add.rectangle(0, 0, 10, 10, 0xffffff, 0).setDepth(13).setBlendMode(Phaser.BlendModes.SCREEN);
     scene.whiteFlash = scene.add.rectangle(0, 0, 10, 10, 0xffffff, 0).setOrigin(0).setDepth(30);
@@ -402,10 +412,10 @@
     scene.sun.setPosition(w - 96, 104);
     scene.clouds[0].setPosition(w * 0.18, 92);
     scene.clouds[1].setPosition(w * 0.48, 132);
-    scene.house.setPosition(w * 0.18, h * 0.48).setScale(scaleFor(w, 0.92, 0.58));
-    scene.trees[0].setPosition(w * 0.08, h * 0.48).setScale(scaleFor(w, 0.9, 0.55));
-    scene.trees[1].setPosition(w * 0.72, h * 0.5).setScale(scaleFor(w, 0.74, 0.5));
-    scene.sign.setPosition(w * 0.79, h * 0.58).setScale(scaleFor(w, 0.8, 0.54));
+    scene.house.setPosition(w * 0.16, h * 0.27).setScale(scaleFor(w, 0.72, 0.44));
+    scene.trees[0].setPosition(w * 0.08, h * 0.31).setScale(scaleFor(w, 0.74, 0.48));
+    scene.trees[1].setPosition(w * 0.78, h * 0.24).setScale(scaleFor(w, 0.58, 0.38));
+    scene.sign.setPosition(w * 0.84, h * 0.34).setScale(scaleFor(w, 0.58, 0.36));
 
     drawRoad(scene);
     moveRoad(scene);
@@ -415,16 +425,33 @@
 
   function drawRoad(scene) {
     scene.road.clear();
+    const w = state.width;
+    const h = state.height;
+    scene.road.fillStyle(0x5c6370, 1);
+    scene.road.fillRect(0, h * 0.36, w, h * 0.52);
+    scene.road.fillStyle(0x47505e, 1);
+    scene.road.fillRect(0, h * 0.41, w, h * 0.42);
+    scene.road.fillStyle(0x2dd46f, 1);
+    scene.road.fillRect(0, h * 0.88, w, h * 0.12);
+    scene.road.fillStyle(0xe9f8ff, 1);
+    scene.road.fillRect(0, h * 0.35, w, 8);
+    scene.road.fillRect(0, h * 0.83, w, 8);
   }
 
   function moveRoad(scene) {
     const w = state.width;
     const h = state.height;
-    const y = h * 0.79;
-    const spacing = 152;
+    const y = h * 0.62;
+    const spacing = 120;
     scene.roadMarks.getChildren().forEach((mark, index) => {
       const x = ((index * spacing - scene.roadOffset) % (w + spacing)) - spacing * 0.5;
       mark.setPosition(x, y);
+    });
+    scene.roadside.forEach((prop, index) => {
+      const lane = index % 2 === 0 ? h * 0.32 : h * 0.9;
+      const x = ((index * 210 - scene.roadOffset * 0.55) % (w + 240)) - 120;
+      prop.setPosition(x, lane + Math.sin(index) * 18);
+      if (prop.setScale) prop.setScale(index % 3 === 0 ? scaleFor(w, 0.34, 0.22) : 1);
     });
   }
 
@@ -434,10 +461,10 @@
     state.scene = "ready";
     scene.kid.setAlpha(1).setPosition(w * 0.34, h * 0.56);
     fitSpriteWidth(scene.kid, Math.min(150, w * 0.13));
-    scene.kidCar.setTexture("kidCar").setAlpha(1).setPosition(w * 0.56, h * 0.67);
-    fitSpriteWidth(scene.kidCar, Math.min(360, w * 0.3));
-    scene.policeCar.setAlpha(0).setPosition(w + 240, h * 0.69);
-    fitSpriteWidth(scene.policeCar, Math.min(390, w * 0.32));
+    scene.kidCar.setTexture("kidCar").setAlpha(1).setPosition(w * 0.56, h * 0.64).setAngle(0);
+    fitSpriteWidth(scene.kidCar, Math.min(230, w * 0.2));
+    scene.policeCar.setTexture("policeCar").setAlpha(0).setPosition(w + 240, h * 0.66).setAngle(0);
+    fitSpriteWidth(scene.policeCar, Math.min(250, w * 0.22));
     scene.officer.setAlpha(0).setPosition(w + 120, h * 0.55);
     fitSpriteWidth(scene.officer, Math.min(220, w * 0.18));
     pulseCar(scene);
@@ -452,8 +479,8 @@
     el.startPanel.classList.add("hidden");
     el.finalePanel.classList.add("hidden");
     el.questionPanel.classList.add("hidden");
-    setCaption("The driveway is quiet. The jazzy car blinks like it has an idea.");
-    say("Kid", "No one's here... maybe I can drive today.");
+    setCaption("");
+    say("Kid", "The keys are right there. I know I should not touch them.");
     const introVoiceDone = playVoice("street-kid-intro");
     flashWhite(0.18);
     const scene = sceneRef;
@@ -470,8 +497,8 @@
       onComplete: () => {
         popDialogue();
         scene.kid.setAlpha(0);
-        scene.kidCar.setTexture("kidCarAsset");
-        fitSpriteWidth(scene.kidCar, Math.min(360, state.width * 0.3));
+        scene.kidCar.setTexture("kidCar");
+        fitSpriteWidth(scene.kidCar, Math.min(230, state.width * 0.2));
         scene.tweens.add({
           targets: scene.kidCar,
           y: scene.kidCar.y - 12,
@@ -489,26 +516,28 @@
   function startRollout() {
     const scene = sceneRef;
     state.scene = "rollout";
-    setCaption("The car rolls onto the road. It wobbles. This is already a bad idea.");
-    say("Kid", "Okay... just a little drive.");
+    setCaption("");
+    say("Kid", "This feels wrong already. I am stopping.");
     const rolloutVoiceDone = playVoice("street-kid-rollout");
     playTone("engine");
     showSpeedLines(true);
     scene.tweens.add({
       targets: scene.kidCar,
-      x: state.width * 0.5,
-      angle: { from: -3, to: 5 },
-      duration: motion(420),
+      x: state.width * 0.56,
+      y: state.height * 0.58,
+      angle: { from: -2, to: 2 },
+      duration: motion(520),
       yoyo: true,
-      repeat: 5,
+      repeat: 7,
       ease: "Sine.easeInOut"
     });
     scene.tweens.add({
       targets: scene.kidCar,
-      x: state.width * 0.36,
-      duration: motion(2200),
+      x: state.width * 0.5,
+      y: state.height * 0.57,
+      duration: motion(3600),
       ease: "Sine.easeInOut",
-      onComplete: () => rolloutVoiceDone.then(() => delay(240)).then(startPoliceStop)
+      onComplete: () => rolloutVoiceDone.then(() => delay(380)).then(startPoliceStop)
     });
     burstStars(state.width * 0.5, state.height * 0.62, 16, 0xffd15c);
     impactRings(state.width * 0.54, state.height * 0.67, 0x35d7ff);
@@ -517,20 +546,21 @@
   function startPoliceStop() {
     const scene = sceneRef;
     state.scene = "stop";
-    setCaption("Red and blue lights flash. The police car pulls in behind him.");
-    say("Officer", "Hold it. Street-smart choices start before the engine does.");
+    setCaption("");
+    say("Officer", "Good stop. Cars are adult responsibility, not a kid experiment.");
     const stopVoiceDone = playVoice("street-officer-stop");
     playTone("siren");
     showSpeedLines(false);
     sweepPoliceLights(5);
-    scene.policeCar.setAlpha(1).setPosition(state.width + 260, state.height * 0.69);
-    fitSpriteWidth(scene.policeCar, Math.min(390, state.width * 0.32));
+    scene.policeCar.setTexture("policeCar").setAlpha(1).setPosition(state.width + 160, state.height * 0.69);
+    fitSpriteWidth(scene.policeCar, Math.min(250, state.width * 0.22));
     neonTrail(state.width * 0.98, state.height * 0.61, 0x2877ff);
     neonTrail(state.width * 0.98, state.height * 0.66, 0xff2d5f);
     scene.tweens.add({
       targets: scene.policeCar,
-      x: state.width * 0.66,
-      duration: motion(900),
+      x: state.width * 0.62,
+      y: state.height * 0.68,
+      duration: motion(1450),
       ease: "Cubic.easeOut",
       onComplete: () => {
         cameraPunch();
@@ -548,13 +578,13 @@
           onComplete: () => {
             popDialogue();
             stopVoiceDone.then(() => delay(320)).then(() => {
-              say("Kid", "I don't have one. I was just trying.");
+              say("Kid", "I understand. I should have asked first.");
               return playVoice("street-kid-caught");
             }).then(() => delay(320)).then(() => {
-                say("Officer", "Solve five grammar checkpoints, then take the safe way home.");
+                say("Officer", "Exactly. We will turn this into a safety drill. Clear each grammar checkpoint, then head back.");
                 return playVoice("street-officer-brief");
               }).then(() => delay(420)).then(() => {
-                setCaption("Five grammar checkpoints appear. Wrong answers stay put until corrected.");
+                setCaption("");
                 showQuestion();
               });
           }
@@ -575,7 +605,7 @@
     el.questionPanel.classList.remove("flash-hit");
     void el.questionPanel.offsetWidth;
     el.questionPanel.classList.add("flash-hit");
-    setCaption(`Grammar checkpoint ${state.questionIndex + 1} of ${questions.length}. Read it like a sentence detective.`);
+    setCaption("");
     say("Officer", q.hint);
     playVoice(q.voice).then(() => {
       el.answerGrid.querySelectorAll("button").forEach((button) => {
@@ -621,11 +651,11 @@
   function reverseTowardHome() {
     const scene = sceneRef;
     state.scene = "return-step";
-    say("Officer", "Good. Back it up one safe step.");
-    setCaption("The car reverses toward the driveway after the solved grammar checkpoint.");
+    say("Officer", "Nice. Ease back one safe step.");
+    setCaption("");
     scene.tweens.add({
       targets: scene.kidCar,
-      x: scene.kidCar.x - state.width * 0.055,
+      x: scene.kidCar.x - state.width * 0.035,
       angle: { from: 2, to: -2 },
       duration: motion(720),
       ease: "Sine.easeInOut",
@@ -640,10 +670,10 @@
     el.questionPanel.classList.add("hidden");
     el.startPanel.classList.add("hidden");
     scene.kidCar.setTexture("kidCar");
-    fitSpriteWidth(scene.kidCar, Math.min(360, state.width * 0.3));
-    say("Officer", "Unlocked. Smart writers build clear sentences, and smart kids ask an adult.");
+    fitSpriteWidth(scene.kidCar, Math.min(230, state.width * 0.2));
+    say("Officer", "All clear. Smart writers build clear sentences, and smart kids ask an adult.");
     playVoice("street-finale");
-    setCaption("All five grammar checkpoints are solved. The car returns home safely.");
+    setCaption("");
     sweepPoliceLights(2);
     burstStars(state.width * 0.64, state.height * 0.36, 20, 0xffd15c);
     const revealFinale = () => {
@@ -687,14 +717,14 @@
     state.scene = "stop";
     scene.tweens.killTweensOf([scene.kidCar, scene.policeCar, scene.officer]);
     scene.kid.setAlpha(0);
-    scene.kidCar.setTexture("kidCarAsset").setAlpha(1).setPosition(state.width * 0.42, state.height * 0.67).setAngle(0);
-    fitSpriteWidth(scene.kidCar, Math.min(360, state.width * 0.3));
-    scene.policeCar.setAlpha(1).setPosition(state.width * 0.68, state.height * 0.69).setAngle(0);
-    fitSpriteWidth(scene.policeCar, Math.min(390, state.width * 0.32));
+    scene.kidCar.setTexture("kidCar").setAlpha(1).setPosition(state.width * 0.48, state.height * 0.58).setAngle(0);
+    fitSpriteWidth(scene.kidCar, Math.min(230, state.width * 0.2));
+    scene.policeCar.setTexture("policeCar").setAlpha(1).setPosition(state.width * 0.64, state.height * 0.68).setAngle(0);
+    fitSpriteWidth(scene.policeCar, Math.min(250, state.width * 0.22));
     scene.officer.setAlpha(1).setPosition(state.width * 0.74, state.height * 0.55).setAngle(0);
     fitSpriteWidth(scene.officer, Math.min(220, state.width * 0.18));
-    say("Officer", "Hold it. Street-smart choices start before the engine does.");
-    setCaption("Red and blue lights flash. The police car has pulled in behind him.");
+    say("Officer", "Good stop. Cars are adult responsibility, not a kid experiment.");
+    setCaption("");
     sweepPoliceLights(2);
     impactRings(scene.policeCar.x, scene.policeCar.y - scene.policeCar.displayHeight * 0.3, 0x2877ff);
     burstStars(scene.policeCar.x - scene.policeCar.displayWidth * 0.22, scene.policeCar.y - scene.policeCar.displayHeight * 0.42, 18, 0xffffff);
@@ -706,7 +736,8 @@
     sceneRef.kid.setAlpha(0);
     sceneRef.policeCar.setAlpha(1).setPosition(state.width * 0.66, state.height * 0.7);
     sceneRef.officer.setAlpha(1).setPosition(state.width * 0.72, state.height * 0.58);
-    sceneRef.kidCar.setTexture("kidCarAsset");
+    sceneRef.kidCar.setTexture("kidCar");
+    fitSpriteWidth(sceneRef.kidCar, Math.min(230, state.width * 0.2));
     state.questionIndex = 0;
     showQuestion();
   }
@@ -721,15 +752,15 @@
     renderBadges();
     scene.tweens.killTweensOf([scene.kid, scene.kidCar, scene.policeCar, scene.officer]);
     scene.kidCar.setTexture("kidCar").setAlpha(1).setPosition(state.width * 0.55, state.height * 0.67).setAngle(0);
-    fitSpriteWidth(scene.kidCar, Math.min(360, state.width * 0.3));
+    fitSpriteWidth(scene.kidCar, Math.min(230, state.width * 0.2));
     scene.kid.setAlpha(1).setPosition(state.width * 0.42, state.height * 0.56).setAngle(-3);
     fitSpriteWidth(scene.kid, Math.min(150, state.width * 0.13));
-    scene.policeCar.setAlpha(1).setPosition(state.width * 0.74, state.height * 0.69).setAngle(0);
-    fitSpriteWidth(scene.policeCar, Math.min(390, state.width * 0.32));
+    scene.policeCar.setTexture("policeCar").setAlpha(1).setPosition(state.width * 0.68, state.height * 0.68).setAngle(0);
+    fitSpriteWidth(scene.policeCar, Math.min(250, state.width * 0.22));
     scene.officer.setAlpha(1).setPosition(state.width * 0.78, state.height * 0.55).setAngle(0);
     fitSpriteWidth(scene.officer, Math.min(220, state.width * 0.18));
-    say("Officer", "Last warning. Smart kids ask an adult. Now go back.");
-    setCaption("All five grammar checkpoints are solved. The car returns home safely.");
+    say("Officer", "All clear. Ask an adult, park the idea, and keep the good grammar.");
+    setCaption("");
     el.finalePanel.classList.remove("hidden");
   }
 

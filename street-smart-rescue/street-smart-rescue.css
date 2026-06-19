@@ -6,7 +6,7 @@
   --gold: #ffd15c;
   --pink: #ff5f8a;
   --green: #2dd46f;
-  --panel: rgba(255, 255, 255, 0.94);
+  --panel: rgba(255, 255, 255, 0.98);
   --shadow: rgba(13, 29, 70, 0.24);
 }
 
@@ -143,6 +143,7 @@ a {
 }
 
 .scene-caption {
+  display: none;
   position: absolute;
   z-index: 9;
   left: 50%;
@@ -158,6 +159,7 @@ a {
 }
 
 .dialogue-panel {
+  display: none;
   position: absolute;
   z-index: 12;
   left: max(16px, env(safe-area-inset-left));
@@ -252,6 +254,7 @@ a {
   padding: clamp(18px, 3vw, 28px);
   border-radius: 26px;
   border-color: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.98);
   animation: cardPop 360ms cubic-bezier(0.2, 1.4, 0.3, 1) both;
 }
 
