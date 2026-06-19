@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "grammar-cinematic-008";
+  const BUILD_ID = "grammar-cinematic-009";
   const voiceBase = "assets/audio/game-voice/";
   const questions = [
     {
@@ -86,6 +86,8 @@
   let sceneRef = null;
   let audioContext = null;
   let activeVoice = null;
+  let activeVoiceCleanup = null;
+  let activeVoiceToken = 0;
   const voiceCache = new Map();
 
   const voiceLines = {
@@ -432,7 +434,7 @@
     state.scene = "ready";
     scene.kid.setAlpha(1).setPosition(w * 0.34, h * 0.56);
     fitSpriteWidth(scene.kid, Math.min(150, w * 0.13));
-    scene.kidCar.setAlpha(1).setPosition(w * 0.56, h * 0.67);
+    scene.kidCar.setTexture("kidCar").setAlpha(1).setPosition(w * 0.56, h * 0.67);
     fitSpriteWidth(scene.kidCar, Math.min(360, w * 0.3));
     scene.policeCar.setAlpha(0).setPosition(w + 240, h * 0.69);
     fitSpriteWidth(scene.policeCar, Math.min(390, w * 0.32));
@@ -452,7 +454,7 @@
     el.questionPanel.classList.add("hidden");
     setCaption("The driveway is quiet. The jazzy car blinks like it has an idea.");
     say("Kid", "No one's here... maybe I can drive today.");
-    playVoice("street-kid-intro");
+    const introVoiceDone = playVoice("street-kid-intro");
     flashWhite(0.18);
     const scene = sceneRef;
     scene.tweens.killTweensOf([scene.kid, scene.kidCar]);
@@ -467,13 +469,9 @@
       ease: "Sine.easeInOut",
       onComplete: () => {
         popDialogue();
-        scene.tweens.add({
-          targets: scene.kid,
-          alpha: 0,
-          y: scene.kid.y - 24,
-          duration: motion(360),
-          ease: "Back.easeIn"
-        });
+        scene.kid.setAlpha(0);
+        scene.kidCar.setTexture("kidCarAsset");
+        fitSpriteWidth(scene.kidCar, Math.min(360, state.width * 0.3));
         scene.tweens.add({
           targets: scene.kidCar,
           y: scene.kidCar.y - 12,
@@ -482,7 +480,7 @@
           yoyo: true,
           duration: motion(220),
           ease: "Quad.easeOut",
-          onComplete: () => startRollout()
+          onComplete: () => introVoiceDone.then(() => delay(220)).then(startRollout)
         });
       }
     });
@@ -493,7 +491,7 @@
     state.scene = "rollout";
     setCaption("The car rolls onto the road. It wobbles. This is already a bad idea.");
     say("Kid", "Okay... just a little drive.");
-    playVoice("street-kid-rollout");
+    const rolloutVoiceDone = playVoice("street-kid-rollout");
     playTone("engine");
     showSpeedLines(true);
     scene.tweens.add({
@@ -510,7 +508,7 @@
       x: state.width * 0.36,
       duration: motion(2200),
       ease: "Sine.easeInOut",
-      onComplete: () => startPoliceStop()
+      onComplete: () => rolloutVoiceDone.then(() => delay(240)).then(startPoliceStop)
     });
     burstStars(state.width * 0.5, state.height * 0.62, 16, 0xffd15c);
     impactRings(state.width * 0.54, state.height * 0.67, 0x35d7ff);
@@ -521,7 +519,7 @@
     state.scene = "stop";
     setCaption("Red and blue lights flash. The police car pulls in behind him.");
     say("Officer", "Hold it. Street-smart choices start before the engine does.");
-    playVoice("street-officer-stop");
+    const stopVoiceDone = playVoice("street-officer-stop");
     playTone("siren");
     showSpeedLines(false);
     sweepPoliceLights(5);
@@ -549,16 +547,16 @@
           ease: "Back.easeOut",
           onComplete: () => {
             popDialogue();
-            setTimeout(() => {
+            stopVoiceDone.then(() => delay(320)).then(() => {
               say("Kid", "I don't have one. I was just trying.");
-              playVoice("street-kid-caught");
-              setTimeout(() => {
+              return playVoice("street-kid-caught");
+            }).then(() => delay(320)).then(() => {
                 say("Officer", "Solve five grammar checkpoints, then take the safe way home.");
-                playVoice("street-officer-brief");
+                return playVoice("street-officer-brief");
+              }).then(() => delay(420)).then(() => {
                 setCaption("Five grammar checkpoints appear. Wrong answers stay put until corrected.");
-                setTimeout(showQuestion, motion(1700));
-              }, motion(1700));
-            }, motion(1350));
+                showQuestion();
+              });
           }
         });
       }
@@ -572,14 +570,18 @@
     el.questionTitle.textContent = q.title;
     el.questionText.textContent = q.text;
     el.feedback.textContent = "";
-    el.answerGrid.innerHTML = q.answers.map((answer) => `<button type="button">${escapeHtml(answer)}</button>`).join("");
+    el.answerGrid.innerHTML = q.answers.map((answer) => `<button type="button" disabled>${escapeHtml(answer)}</button>`).join("");
     el.questionPanel.classList.remove("hidden");
     el.questionPanel.classList.remove("flash-hit");
     void el.questionPanel.offsetWidth;
     el.questionPanel.classList.add("flash-hit");
     setCaption(`Grammar checkpoint ${state.questionIndex + 1} of ${questions.length}. Read it like a sentence detective.`);
     say("Officer", q.hint);
-    playVoice(q.voice);
+    playVoice(q.voice).then(() => {
+      el.answerGrid.querySelectorAll("button").forEach((button) => {
+        button.disabled = false;
+      });
+    });
     sweepPoliceLights(1);
     impactRings(state.width * 0.5, state.height * 0.5, 0xffffff);
     el.answerGrid.querySelectorAll("button").forEach((button) => {
@@ -593,17 +595,17 @@
       button.classList.add("correct");
       el.feedback.textContent = "Correct. One grammar lock cleared.";
       playTone("correct");
-      playVoice("street-correct");
+      const correctVoiceDone = playVoice("street-correct");
       correctBurst();
       burstStars(state.width * 0.5, state.height * 0.42, 18, 0x20d982);
       state.solved += 1;
       renderBadges();
-      setTimeout(() => {
+      Promise.all([correctVoiceDone, delay(520)]).then(() => {
         el.questionPanel.classList.add("hidden");
         state.questionIndex += 1;
         if (state.questionIndex >= questions.length) startFinale();
         else reverseTowardHome();
-      }, motion(520));
+      });
     } else {
       button.classList.add("wrong");
       el.feedback.textContent = `Try again. Hint: ${q.hint}`;
@@ -637,6 +639,8 @@
     state.scene = "finale";
     el.questionPanel.classList.add("hidden");
     el.startPanel.classList.add("hidden");
+    scene.kidCar.setTexture("kidCar");
+    fitSpriteWidth(scene.kidCar, Math.min(360, state.width * 0.3));
     say("Officer", "Unlocked. Smart writers build clear sentences, and smart kids ask an adult.");
     playVoice("street-finale");
     setCaption("All five grammar checkpoints are solved. The car returns home safely.");
@@ -683,7 +687,7 @@
     state.scene = "stop";
     scene.tweens.killTweensOf([scene.kidCar, scene.policeCar, scene.officer]);
     scene.kid.setAlpha(0);
-    scene.kidCar.setAlpha(1).setPosition(state.width * 0.42, state.height * 0.67).setAngle(0);
+    scene.kidCar.setTexture("kidCarAsset").setAlpha(1).setPosition(state.width * 0.42, state.height * 0.67).setAngle(0);
     fitSpriteWidth(scene.kidCar, Math.min(360, state.width * 0.3));
     scene.policeCar.setAlpha(1).setPosition(state.width * 0.68, state.height * 0.69).setAngle(0);
     fitSpriteWidth(scene.policeCar, Math.min(390, state.width * 0.32));
@@ -699,8 +703,10 @@
   function jumpToQuestion() {
     idleReadyPose(sceneRef);
     el.startPanel.classList.add("hidden");
+    sceneRef.kid.setAlpha(0);
     sceneRef.policeCar.setAlpha(1).setPosition(state.width * 0.66, state.height * 0.7);
     sceneRef.officer.setAlpha(1).setPosition(state.width * 0.72, state.height * 0.58);
+    sceneRef.kidCar.setTexture("kidCarAsset");
     state.questionIndex = 0;
     showQuestion();
   }
@@ -714,7 +720,7 @@
     state.scene = "finale";
     renderBadges();
     scene.tweens.killTweensOf([scene.kid, scene.kidCar, scene.policeCar, scene.officer]);
-    scene.kidCar.setAlpha(1).setPosition(state.width * 0.55, state.height * 0.67).setAngle(0);
+    scene.kidCar.setTexture("kidCar").setAlpha(1).setPosition(state.width * 0.55, state.height * 0.67).setAngle(0);
     fitSpriteWidth(scene.kidCar, Math.min(360, state.width * 0.3));
     scene.kid.setAlpha(1).setPosition(state.width * 0.42, state.height * 0.56).setAngle(-3);
     fitSpriteWidth(scene.kid, Math.min(150, state.width * 0.13));
@@ -907,26 +913,54 @@
   }
 
   function playVoice(id) {
-    if (!id) return;
-    try {
-      if (activeVoice) {
-        activeVoice.pause();
-        activeVoice.currentTime = 0;
+    if (!id) return Promise.resolve(false);
+    return new Promise((resolve) => {
+      try {
+        if (activeVoiceCleanup) activeVoiceCleanup();
+        if (activeVoice) {
+          activeVoice.pause();
+          activeVoice.currentTime = 0;
+        }
+
+        let clip = voiceCache.get(id);
+        if (!clip) {
+          clip = new Audio(`${voiceBase}${id}.mp3`);
+          clip.preload = "auto";
+          clip.volume = 0.94;
+          voiceCache.set(id, clip);
+        }
+
+        const token = ++activeVoiceToken;
+        const fallbackMs = Math.max(2600, (voiceLines[id] || "").length * 95 + 900);
+        let settled = false;
+        let fallbackId = null;
+        const finish = (played) => {
+          if (settled) return;
+          settled = true;
+          clip.removeEventListener("ended", onEnded);
+          clip.removeEventListener("error", onError);
+          if (fallbackId) clearTimeout(fallbackId);
+          if (activeVoice === clip && token === activeVoiceToken) activeVoice = null;
+          if (activeVoiceCleanup === cleanup) activeVoiceCleanup = null;
+          resolve(played);
+        };
+        const onEnded = () => finish(true);
+        const onError = () => finish(false);
+        const cleanup = () => finish(false);
+        activeVoiceCleanup = cleanup;
+        activeVoice = clip;
+        clip.addEventListener("ended", onEnded, { once: true });
+        clip.addEventListener("error", onError, { once: true });
+        clip.currentTime = 0;
+        fallbackId = setTimeout(() => finish(true), fallbackMs);
+        const attempt = clip.play();
+        if (attempt?.catch) attempt.catch(() => finish(false));
+      } catch {
+        activeVoice = null;
+        activeVoiceCleanup = null;
+        resolve(false);
       }
-      let clip = voiceCache.get(id);
-      if (!clip) {
-        clip = new Audio(`${voiceBase}${id}.mp3`);
-        clip.preload = "auto";
-        clip.volume = 0.94;
-        voiceCache.set(id, clip);
-      }
-      activeVoice = clip;
-      clip.currentTime = 0;
-      const attempt = clip.play();
-      if (attempt?.catch) attempt.catch(() => {});
-    } catch {
-      activeVoice = null;
-    }
+    });
   }
 
   function setCaption(text) {
@@ -991,6 +1025,10 @@
 
   function motion(ms) {
     return state.reduceMotion ? 1 : ms;
+  }
+
+  function delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, motion(ms)));
   }
 
   function escapeHtml(value) {

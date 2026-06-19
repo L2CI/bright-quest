@@ -301,8 +301,14 @@ a {
   font-weight: 900;
 }
 
-.answer-grid button:hover,
-.answer-grid button:focus-visible {
+.answer-grid button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+  transform: none;
+}
+
+.answer-grid button:not(:disabled):hover,
+.answer-grid button:not(:disabled):focus-visible {
   outline: 0;
   border-color: var(--blue);
   transform: translateY(-1px);
