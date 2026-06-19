@@ -1,47 +1,53 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "street-smart-voice-006";
+  const BUILD_ID = "grammar-cinematic-007";
+  const voiceBase = "assets/audio/game-voice/";
   const questions = [
     {
-      type: "Number Riddle",
-      title: "Blinking Headlights",
-      text: "My car blinks 3 times. Each blink has 4 tiny sparkles. Two sparkles fade away. How many sparkles are still shining?",
-      answers: ["10", "12", "14", "9"],
-      correct: "10",
-      hint: "First find 3 groups of 4, then take away 2."
+      type: "Sentence Checkpoint",
+      title: "Maya Reads",
+      text: "In 'Maya reads the comic,' which part is the predicate?",
+      answers: ["Maya", "reads the comic", "the comic", "reads"],
+      correct: "reads the comic",
+      hint: "The predicate tells what the subject does or is.",
+      voice: "street-q1-sentence"
     },
     {
-      type: "Pattern Puzzle",
-      title: "Traffic Light Code",
-      text: "The lights flash red, blue, blue, red, blue, blue. What colour comes next?",
-      answers: ["red", "blue", "green", "yellow"],
-      correct: "red",
-      hint: "Look for the repeating group."
+      type: "Noun Checkpoint",
+      title: "Name The Thing",
+      text: "Which word is a proper noun?",
+      answers: ["city", "teacher", "Maya", "book"],
+      correct: "Maya",
+      hint: "A proper noun names one special person, place, or thing.",
+      voice: "street-q2-noun"
     },
     {
-      type: "Time Riddle",
-      title: "Back Before Bell",
-      text: "The car left at 8:10. The officer stops it 15 minutes later. What time is it?",
-      answers: ["8:20", "8:25", "8:30", "8:15"],
-      correct: "8:25",
-      hint: "Add 10 minutes, then 5 more."
+      type: "Verb Checkpoint",
+      title: "Engine Word",
+      text: "In 'Omar should read the poem,' what is the modal helper verb?",
+      answers: ["Omar", "should", "read", "poem"],
+      correct: "should",
+      hint: "Modal verbs include can, could, should, must, and might.",
+      voice: "street-q3-verb"
     },
     {
-      type: "Word Riddle",
-      title: "The Careful Clue",
-      text: "I mean 'careful because danger may be near.' I rhyme with nothing here, but I starts with c. What word am I?",
-      answers: ["cautious", "curious", "careless", "cheerful"],
-      correct: "cautious",
-      hint: "Careful around danger means cautious."
+      type: "Modifier Checkpoint",
+      title: "Useful Detail",
+      text: "In 'The brave girl spoke clearly,' which word is an adverb?",
+      answers: ["brave", "girl", "spoke", "clearly"],
+      correct: "clearly",
+      hint: "An adverb can describe how an action happens.",
+      voice: "street-q4-modifier"
     },
     {
-      type: "Logic Riddle",
-      title: "Safest Choice",
-      text: "I am the smartest move when you want to go somewhere by car. I am not grabbing keys. What am I?",
-      answers: ["Ask a licensed adult", "Drive very slowly", "Hide the car", "Guess the pedals"],
-      correct: "Ask a licensed adult",
-      hint: "The safe answer involves a grown-up who is allowed to drive."
+      type: "Clause Checkpoint",
+      title: "Complete Thought",
+      text: "Which one can stand alone as a complete sentence?",
+      answers: ["because the road was busy", "when the lights flashed", "The officer stopped the car.", "after Maya opened the book"],
+      correct: "The officer stopped the car.",
+      hint: "An independent clause has a subject, a predicate, and a complete thought.",
+      voice: "street-q5-clause"
     }
   ];
 
@@ -79,7 +85,24 @@
 
   let sceneRef = null;
   let audioContext = null;
-  let speechVoices = [];
+  let activeVoice = null;
+  const voiceCache = new Map();
+
+  const voiceLines = {
+    "street-kid-intro": "No one's here. Maybe I can drive today.",
+    "street-kid-rollout": "Okay. Just a tiny drive. Nobody will know.",
+    "street-officer-stop": "Hold it. Street-smart choices start before the engine does.",
+    "street-kid-caught": "I don't have a licence. I was just trying.",
+    "street-officer-brief": "Then you solve five grammar checkpoints and take the safe way home.",
+    "street-q1-sentence": "Checkpoint one. A complete sentence needs a subject and a predicate. Find what Maya does.",
+    "street-q2-noun": "Checkpoint two. Proper nouns name someone or somewhere special. Pick the special name.",
+    "street-q3-verb": "Checkpoint three. Modal helpers show duty, ability, or possibility. Listen for should, must, can, or might.",
+    "street-q4-modifier": "Checkpoint four. Adverbs often tell how an action happens.",
+    "street-q5-clause": "Checkpoint five. Choose the clause that can stand alone as a complete thought.",
+    "street-correct": "Correct. One grammar lock clears, and the safe route gets brighter.",
+    "street-try": "Not quite. Use the hint, then try again. Grammar is a map, not a trap.",
+    "street-finale": "Unlocked. Smart writers build clear sentences, and smart kids ask an adult before any drive."
+  };
 
   renderBadges();
 
@@ -162,7 +185,6 @@
   new Phaser.Game(config);
 
   function setupInput() {
-    setupSpeech();
     el.startButton.addEventListener("click", () => {
       unlockAudio();
       startIntro();
@@ -430,7 +452,7 @@
     el.questionPanel.classList.add("hidden");
     setCaption("The driveway is quiet. The jazzy car blinks like it has an idea.");
     say("Kid", "No one's here... maybe I can drive today.");
-    speakLine("Kid", "No one's here... maybe I can drive today.");
+    playVoice("street-kid-intro");
     flashWhite(0.18);
     const scene = sceneRef;
     scene.tweens.killTweensOf([scene.kid, scene.kidCar]);
@@ -471,7 +493,7 @@
     state.scene = "rollout";
     setCaption("The car rolls onto the road. It wobbles. This is already a bad idea.");
     say("Kid", "Okay... just a little drive.");
-    speakLine("Kid", "Okay... just a little drive.");
+    playVoice("street-kid-rollout");
     playTone("engine");
     showSpeedLines(true);
     scene.tweens.add({
@@ -498,8 +520,8 @@
     const scene = sceneRef;
     state.scene = "stop";
     setCaption("Red and blue lights flash. The police car pulls in behind him.");
-    say("Officer", "Show me your driver's licence!");
-    speakLine("Officer", "Show me your driver's licence!");
+    say("Officer", "Hold it. Street-smart choices start before the engine does.");
+    playVoice("street-officer-stop");
     playTone("siren");
     showSpeedLines(false);
     sweepPoliceLights(5);
@@ -529,11 +551,11 @@
             popDialogue();
             setTimeout(() => {
               say("Kid", "I don't have one. I was just trying.");
-              speakLine("Kid", "I don't have one. I was just trying.");
+              playVoice("street-kid-caught");
               setTimeout(() => {
-                say("Officer", "Driving is not a game. Solve five puzzles, then go straight back.");
-                speakLine("Officer", "Driving is not a game. Solve five puzzles, then go straight back.");
-                setCaption("Five puzzle checkpoints appear. Wrong answers stay put until corrected.");
+                say("Officer", "Solve five grammar checkpoints, then take the safe way home.");
+                playVoice("street-officer-brief");
+                setCaption("Five grammar checkpoints appear. Wrong answers stay put until corrected.");
                 setTimeout(showQuestion, motion(1700));
               }, motion(1700));
             }, motion(1350));
@@ -545,7 +567,6 @@
 
   function showQuestion() {
     state.scene = "question";
-    showDialogueCaptions();
     const q = questions[state.questionIndex];
     el.questionType.textContent = q.type;
     el.questionTitle.textContent = q.title;
@@ -556,8 +577,9 @@
     el.questionPanel.classList.remove("flash-hit");
     void el.questionPanel.offsetWidth;
     el.questionPanel.classList.add("flash-hit");
-    setCaption(`Puzzle ${state.questionIndex + 1} of ${questions.length}. Read it like a riddle.`);
-    say("Officer", "Think carefully. A smart answer gets you closer to home.");
+    setCaption(`Grammar checkpoint ${state.questionIndex + 1} of ${questions.length}. Read it like a sentence detective.`);
+    say("Officer", q.hint);
+    playVoice(q.voice);
     sweepPoliceLights(1);
     impactRings(state.width * 0.5, state.height * 0.5, 0xffffff);
     el.answerGrid.querySelectorAll("button").forEach((button) => {
@@ -569,8 +591,9 @@
     const selected = button.textContent;
     if (selected === q.correct) {
       button.classList.add("correct");
-      el.feedback.textContent = "Correct. Cha-ching. One checkpoint cleared.";
+      el.feedback.textContent = "Correct. One grammar lock cleared.";
       playTone("correct");
+      playVoice("street-correct");
       correctBurst();
       burstStars(state.width * 0.5, state.height * 0.42, 18, 0x20d982);
       state.solved += 1;
@@ -585,6 +608,7 @@
       button.classList.add("wrong");
       el.feedback.textContent = `Try again. Hint: ${q.hint}`;
       playTone("wrong");
+      playVoice("street-try");
       sweepPoliceLights(1);
       cameraShake();
       impactRings(state.width * 0.5, state.height * 0.48, 0xff2d5f);
@@ -596,7 +620,7 @@
     const scene = sceneRef;
     state.scene = "return-step";
     say("Officer", "Good. Back it up one safe step.");
-    setCaption("The car reverses toward the driveway after the solved riddle.");
+    setCaption("The car reverses toward the driveway after the solved grammar checkpoint.");
     scene.tweens.add({
       targets: scene.kidCar,
       x: scene.kidCar.x - state.width * 0.055,
@@ -611,8 +635,9 @@
   function startFinale() {
     const scene = sceneRef;
     state.scene = "finale";
-    say("Officer", "Last warning. Smart kids ask an adult. Now go back.");
-    setCaption("All five puzzles are solved. The car returns home safely.");
+    say("Officer", "Unlocked. Smart writers build clear sentences, and smart kids ask an adult.");
+    playVoice("street-finale");
+    setCaption("All five grammar checkpoints are solved. The car returns home safely.");
     sweepPoliceLights(2);
     burstStars(state.width * 0.56, state.height * 0.55, 20, 0xffd15c);
     scene.tweens.add({
@@ -689,7 +714,7 @@
     scene.officer.setAlpha(1).setPosition(state.width * 0.78, state.height * 0.55).setAngle(0);
     fitSpriteWidth(scene.officer, Math.min(220, state.width * 0.18));
     say("Officer", "Last warning. Smart kids ask an adult. Now go back.");
-    setCaption("All five puzzles are solved. The car returns home safely.");
+    setCaption("All five grammar checkpoints are solved. The car returns home safely.");
     el.finalePanel.classList.remove("hidden");
   }
 
@@ -872,50 +897,27 @@
     popDialogue();
   }
 
-  function setupSpeech() {
-    if (!("speechSynthesis" in window)) return;
-    const loadVoices = () => {
-      speechVoices = window.speechSynthesis.getVoices();
-    };
-    loadVoices();
-    window.speechSynthesis.onvoiceschanged = loadVoices;
-  }
-
-  function speakLine(speaker, line) {
-    if (!("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(line);
-    utterance.lang = "en-US";
-    utterance.volume = 0.95;
-    utterance.rate = speaker === "Officer" ? 0.9 : 1.04;
-    utterance.pitch = speaker === "Officer" ? 0.82 : 1.14;
-    const voice = pickVoice(speaker);
-    if (voice) utterance.voice = voice;
-    hideDialogueCaptions();
-    window.speechSynthesis.speak(utterance);
-  }
-
-  function pickVoice(speaker) {
-    if (!speechVoices.length && "speechSynthesis" in window) {
-      speechVoices = window.speechSynthesis.getVoices();
+  function playVoice(id) {
+    if (!id) return;
+    try {
+      if (activeVoice) {
+        activeVoice.pause();
+        activeVoice.currentTime = 0;
+      }
+      let clip = voiceCache.get(id);
+      if (!clip) {
+        clip = new Audio(`${voiceBase}${id}.mp3`);
+        clip.preload = "auto";
+        clip.volume = 0.94;
+        voiceCache.set(id, clip);
+      }
+      activeVoice = clip;
+      clip.currentTime = 0;
+      const attempt = clip.play();
+      if (attempt?.catch) attempt.catch(() => {});
+    } catch {
+      activeVoice = null;
     }
-    const englishVoices = speechVoices.filter((voice) => /^en[-_]/i.test(voice.lang || ""));
-    const pool = englishVoices.length ? englishVoices : speechVoices;
-    const maleVoices = pool.filter((voice) => !/zira|susan|samantha|aria|jenny|female/i.test(voice.name));
-    if (speaker === "Officer") {
-      return maleVoices.find((voice) => /george|david|daniel|mark|guy|male/i.test(voice.name)) || maleVoices[0] || pool[0];
-    }
-    return maleVoices.find((voice) => /ryan|mark|david|daniel|guy|male/i.test(voice.name)) || maleVoices[0] || pool[0];
-  }
-
-  function hideDialogueCaptions() {
-    el.dialogue.classList.add("voice-caption-off");
-    el.dialogue.setAttribute("aria-hidden", "true");
-  }
-
-  function showDialogueCaptions() {
-    el.dialogue.classList.remove("voice-caption-off");
-    el.dialogue.removeAttribute("aria-hidden");
   }
 
   function setCaption(text) {

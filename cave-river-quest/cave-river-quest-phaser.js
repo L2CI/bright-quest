@@ -1,78 +1,99 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "guardian-finale-011";
+  const BUILD_ID = "maths-cinematic-012";
   const assetBase = "./assets/generated/";
+  const voiceBase = "./assets/audio/game-voice/";
   const questions = [
     {
-      type: "Maths Gate",
-      title: "Lantern Rows",
-      text: "Four rows have 6 lanterns each. Three lanterns go out, then 5 new ones are lit. How many glow now?",
-      answers: ["21", "24", "26", "29"],
-      correct: "26"
+      type: "Average Gate",
+      title: "Included Average",
+      text: "Seven numbers average 42. One more number joins, and the new average is 45. What was the new number?",
+      answers: ["45", "48", "66", "360"],
+      correct: "66",
+      hint: "Turn both averages into totals, then compare.",
+      voice: "cave-q1-average"
     },
     {
-      type: "Logic Gate",
-      title: "Factor Lock",
-      text: "The lock opens for a number that is a factor of 36 and also greater than 6. Which number works?",
-      answers: ["5", "6", "9", "14"],
-      correct: "9"
+      type: "Ratio Gate",
+      title: "Ducks And Rabbits",
+      text: "A farm has 4 ducks for every 1 rabbit. One group has 12 legs. If there are 1404 legs, how many rabbits are there?",
+      answers: ["112", "117", "234", "351"],
+      correct: "117",
+      hint: "One complete group has one rabbit, so groups equal rabbits.",
+      voice: "cave-q2-ratio"
     },
     {
-      type: "Word Gate",
-      title: "Cave Meaning",
-      text: "In 'The narrow tunnel made the rower cautious,' which clue best helps you know cautious means careful?",
-      answers: ["narrow tunnel", "the rower", "made the", "cave color"],
-      correct: "narrow tunnel"
+      type: "Remainder Gate",
+      title: "Sticker Bar",
+      text: "Sarah has 24 stickers. She gives away 1/3, then 1/4 of what is left. How many stickers remain?",
+      answers: ["8", "12", "16", "18"],
+      correct: "12",
+      hint: "After giving away 1/3, redraw the remaining 16 as the new whole.",
+      voice: "cave-q3-remainder"
     },
     {
-      type: "Pattern Gate",
-      title: "Fraction Torch",
-      text: "A torch burns for 3/4 of an hour. Another burns for 1/4 of an hour. How long do they burn altogether?",
-      answers: ["1/2 hour", "1 hour", "1 1/4 hours", "2 hours"],
-      correct: "1 hour"
+      type: "Shortage Gate",
+      title: "Eraser Packet",
+      text: "Seven erasers each is short by 6. Four erasers each leaves 3 spare. How many boys are sharing?",
+      answers: ["2", "3", "6", "9"],
+      correct: "3",
+      hint: "The gap is 6 plus 3. Divide by the per-boy change: 7 minus 4.",
+      voice: "cave-q4-shortage"
     },
     {
-      type: "Inference Gate",
-      title: "Wet Footprints",
-      text: "Wet footprints lead from the river to a dry tunnel, and the lantern there is still swinging. What is the best inference?",
-      answers: ["Someone climbed out recently", "The cave is dry", "The boat flew", "The lantern walked"],
-      correct: "Someone climbed out recently"
+      type: "Cube Gate",
+      title: "Hidden Faces",
+      text: "Nine cubes are glued in a straight line. There are 8 joins, and each join hides 2 faces. How many faces are hidden?",
+      answers: ["8", "16", "18", "54"],
+      correct: "16",
+      hint: "Count joins, not cubes.",
+      voice: "cave-q5-cubes"
     },
     {
-      type: "Maths Gate",
-      title: "Elapsed Time",
-      text: "The boat leaves at 3:20 and reaches the next gate at 4:05. How long did the trip take?",
-      answers: ["35 minutes", "45 minutes", "50 minutes", "1 hour"],
-      correct: "45 minutes"
+      type: "Calendar Gate",
+      title: "Seven-Day Loop",
+      text: "A jump of 41 days is 5 full weeks plus 6 extra days. Starting on Wednesday, where do you land?",
+      answers: ["Monday", "Tuesday", "Wednesday", "Sunday"],
+      correct: "Tuesday",
+      hint: "Full weeks do not move the weekday. Count six days after Wednesday.",
+      voice: "cave-q6-calendar"
     },
     {
-      type: "Grammar Gate",
-      title: "Best Sentence",
-      text: "Which revision combines the ideas best? 'The river was dark. The river was calm.'",
-      answers: ["The river was dark and calm.", "The river was dark calm.", "Dark the river was calm.", "The river and was dark calm."],
-      correct: "The river was dark and calm."
+      type: "Practice Gate",
+      title: "Average Lock",
+      text: "Four scores average 15. One score is added, and the new average is 18. What was the added score?",
+      answers: ["18", "24", "30", "90"],
+      correct: "30",
+      hint: "Before total: 4 x 15. After total: 5 x 18.",
+      voice: "cave-q7-practice-average"
     },
     {
-      type: "Geometry Gate",
-      title: "Angle Signal",
-      text: "The gate symbol has an angle smaller than a right angle. What kind of angle is it?",
-      answers: ["acute", "obtuse", "straight", "square"],
-      correct: "acute"
+      type: "Rate Gate",
+      title: "Same Distance",
+      text: "A cyclist rides 12 km/h for 2.5 hours. The same distance at 15 km/h takes how long?",
+      answers: ["1.5 hours", "2 hours", "2.5 hours", "30 hours"],
+      correct: "2 hours",
+      hint: "Find the shared distance first: 12 times 2.5.",
+      voice: "cave-q8-rate"
     },
     {
-      type: "Word Gate",
-      title: "Prefix Power",
-      text: "If a map is 'misread,' what most likely happened?",
-      answers: ["It was read wrongly", "It was read twice", "It was read aloud", "It was not a map"],
-      correct: "It was read wrongly"
+      type: "Percent Gate",
+      title: "Original Whole",
+      text: "A price rises from 80 to 100. The change is 20. What is the percent increase?",
+      answers: ["20%", "25%", "80%", "100%"],
+      correct: "25%",
+      hint: "Compare the change with the original value, not the new value.",
+      voice: "cave-q9-percent"
     },
     {
       type: "Final Gate",
-      title: "Leadership Choice",
-      text: "Your team is nervous before the final gate. What is the strongest leadership choice?",
-      answers: ["Blame them", "Make a plan together", "Quit the quest", "Grab the treasure alone"],
-      correct: "Make a plan together"
+      title: "Invariant Choice",
+      text: "Which question helps unlock most of these problems?",
+      answers: ["What stays the same?", "Which answer is longest?", "Can I guess faster?", "Where is the nearest number?"],
+      correct: "What stays the same?",
+      hint: "Averages, ratios, rates, and shortages all protect an invariant.",
+      voice: "cave-q10-invariant"
     }
   ];
 
@@ -118,6 +139,7 @@
     lastSplashAt: 0,
     lane: 0,
     soundEnabled: true,
+    introVoicePlayed: false,
     finalStarted: false,
     finaleClaimed: false,
     width: window.innerWidth,
@@ -126,6 +148,25 @@
 
   let sceneRef = null;
   let audio = null;
+  let activeVoice = null;
+  const voiceCache = new Map();
+
+  const voiceLines = {
+    "cave-intro": "Maths gates ahead. Row steadily, protect the invariant, and let the cave reveal the answer.",
+    "cave-q1-average": "Average gate. Do not subtract the averages. Turn both averages into totals, then find the number that joined.",
+    "cave-q2-ratio": "Ratio gate. Build one complete group first. The group count will tell you the rabbits.",
+    "cave-q3-remainder": "Remainder gate. The words what is left mean the whole has changed. Redraw the bar in your mind.",
+    "cave-q4-shortage": "Shortage gate. Travel from missing six to spare three. That whole distance is the gap.",
+    "cave-q5-cubes": "Cube gate. Count the joins. Every join hides two faces.",
+    "cave-q6-calendar": "Calendar gate. Full weeks vanish. Only the remainder moves the weekday.",
+    "cave-q7-practice-average": "Practice gate. Before total, after total, difference. That is the clean average move.",
+    "cave-q8-rate": "Rate gate. Distance stays the same. Find it once, then divide by the new speed.",
+    "cave-q9-percent": "Percent gate. The base is the original value. Guard it.",
+    "cave-q10-invariant": "Final gate. Ask the strongest question in maths: what stays the same?",
+    "cave-correct": "Correct. The lock hears the method, and the gate opens.",
+    "cave-try": "Not yet. Slow down and use the hint. The cave rewards clean thinking.",
+    "cave-finale": "You carried the invariant through every gate. The Bright Quest vault is open."
+  };
 
   class CaveRiverScene extends Phaser.Scene {
     constructor() {
@@ -239,6 +280,10 @@
     const setRowing = (active) => {
       if (state.mode !== "rowing") return;
       if (active) startRiverAmbience();
+      if (active && !state.introVoicePlayed) {
+        state.introVoicePlayed = true;
+        playVoice("cave-intro");
+      }
       state.forwardInput = active ? 1 : 0;
       if (active) startWaterLoop();
       else stopWaterLoop();
@@ -527,6 +572,7 @@
     state.arrivalTimer = 0;
     state.boatPass = 0;
     el.hint.textContent = "The gate is ahead. Keep rowing into the lantern light.";
+    playVoice(questions[state.questionIndex]?.voice || "cave-intro");
     startWaterLoop();
     startRiverAmbience();
   }
@@ -1020,19 +1066,23 @@
       el.answerGrid.appendChild(button);
     });
     el.questionPanel.classList.remove("hidden");
-    el.hint.textContent = "Answer the gate challenge to open the way.";
+    el.questionPanel.classList.add("voice-lit");
+    window.setTimeout(() => el.questionPanel.classList.remove("voice-lit"), 700);
+    el.hint.textContent = question.hint || "Answer the gate challenge to open the way.";
   }
 
   function answerQuestion(answer) {
     const question = questions[state.questionIndex];
     if (!question) return;
     if (answer !== question.correct) {
-      el.feedback.textContent = "Try again. Read it carefully.";
+      el.feedback.textContent = question.hint ? `Try again. ${question.hint}` : "Try again. Read it carefully.";
       playTone("wrong");
+      playVoice("cave-try");
       return;
     }
     el.feedback.textContent = "Correct. The gate opens.";
     playGateOpenSound();
+    playVoice("cave-correct");
     sceneRef?.cameras.main.shake(180, 0.004);
     setTimeout(() => {
       const currentGate = gateProgress[state.questionIndex] || state.progress;
@@ -1061,21 +1111,31 @@
     el.guardianLine.textContent = "Autobot, you now have the Matrix of Leadership.";
     el.guardianPanel.classList.remove("hidden");
     el.hint.textContent = "Quest complete. You earned the Leadership Matrix.";
-    speakFinale();
+    playVoice("cave-finale");
     playSuccessSparkle();
   }
 
-  function speakFinale() {
-    if (!state.soundEnabled || !("speechSynthesis" in window)) return;
-    const utterance = new SpeechSynthesisUtterance("Autobot, you now have the Matrix of Leadership.");
-    utterance.rate = 0.72;
-    utterance.pitch = 0.62;
-    utterance.volume = 0.95;
-    const voices = window.speechSynthesis.getVoices();
-    const preferred = voices.find((voice) => /male|david|mark|guy|english/i.test(voice.name));
-    if (preferred) utterance.voice = preferred;
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
+  function playVoice(id) {
+    if (!state.soundEnabled || !id) return;
+    try {
+      if (activeVoice) {
+        activeVoice.pause();
+        activeVoice.currentTime = 0;
+      }
+      let clip = voiceCache.get(id);
+      if (!clip) {
+        clip = new Audio(`${voiceBase}${id}.mp3`);
+        clip.preload = "auto";
+        clip.volume = 0.92;
+        voiceCache.set(id, clip);
+      }
+      activeVoice = clip;
+      clip.currentTime = 0;
+      const attempt = clip.play();
+      if (attempt?.catch) attempt.catch(() => {});
+    } catch {
+      activeVoice = null;
+    }
   }
 
   function layoutStaticObjects(scene) {

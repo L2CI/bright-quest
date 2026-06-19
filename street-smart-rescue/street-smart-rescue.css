@@ -239,15 +239,47 @@ a {
   display: grid;
   place-items: center;
   padding: 92px 18px 82px;
-  background: linear-gradient(90deg, rgba(40, 119, 255, 0.18), rgba(255, 95, 138, 0.12));
+  background:
+    radial-gradient(circle at 50% 40%, rgba(255, 209, 92, 0.16), transparent 32%),
+    linear-gradient(90deg, rgba(40, 119, 255, 0.2), rgba(255, 95, 138, 0.14));
 }
 
 .question-card {
+  position: relative;
+  overflow: hidden;
   width: 100%;
   max-width: 760px;
   padding: clamp(18px, 3vw, 28px);
   border-radius: 26px;
+  border-color: rgba(255, 255, 255, 0.82);
   animation: cardPop 360ms cubic-bezier(0.2, 1.4, 0.3, 1) both;
+}
+
+.question-card::before {
+  content: "GRAMMAR LOCK";
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--blue), #7446ff);
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 1000;
+  letter-spacing: 0.08em;
+  box-shadow: 0 12px 22px rgba(40, 119, 255, 0.22);
+}
+
+.question-card::after {
+  content: "";
+  position: absolute;
+  left: -20%;
+  right: -20%;
+  top: 0;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, var(--cyan), var(--gold), transparent);
+  opacity: 0.88;
+  animation: grammarScan 1.4s ease-in-out infinite;
 }
 
 .answer-grid {
@@ -280,6 +312,7 @@ a {
   color: #0b4f2c;
   border-color: var(--green);
   background: linear-gradient(180deg, #eafff1, #bcffd4);
+  box-shadow: 0 0 0 4px rgba(45, 212, 111, 0.12), 0 16px 34px rgba(45, 212, 111, 0.22);
 }
 
 .answer-grid button.wrong {
@@ -359,6 +392,18 @@ a {
   }
   100% {
     filter: brightness(1);
+  }
+}
+
+@keyframes grammarScan {
+  0% {
+    transform: translateX(-24%);
+  }
+  50% {
+    transform: translateX(24%);
+  }
+  100% {
+    transform: translateX(-24%);
   }
 }
 
