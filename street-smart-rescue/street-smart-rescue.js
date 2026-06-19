@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "grammar-cinematic-011";
+  const BUILD_ID = "grammar-cinematic-012";
   const voiceBase = "assets/audio/game-voice/";
   const questions = [
     {
@@ -101,10 +101,17 @@
     "street-q3-verb": "Checkpoint three. Modal helpers show duty, ability, or possibility. Listen for should, must, can, or might.",
     "street-q4-modifier": "Checkpoint four. Adverbs often tell how an action happens.",
     "street-q5-clause": "Checkpoint five. Choose the clause that can stand alone as a complete thought.",
-    "street-correct": "Correct. That is one clear sentence choice, and one safer step home.",
     "street-try": "Not quite. Use the hint, then try again. Grammar is a map, not a trap.",
     "street-finale": "All clear. Smart writers build clear sentences, and smart kids ask an adult before going near the driver seat."
   };
+
+  const correctFeedback = [
+    "Yes, that's it.",
+    "Good choice.",
+    "That one works.",
+    "Exactly right.",
+    "Nice, keep going."
+  ];
 
   renderBadges();
 
@@ -424,9 +431,9 @@
     state.scene = "ready";
     scene.kid.setAlpha(1).setPosition(w * 0.34, h * 0.56);
     fitSpriteWidth(scene.kid, Math.min(150, w * 0.13));
-    scene.kidCar.setTexture("kidCar").setAlpha(1).setPosition(w * 0.56, h * 0.64).setAngle(-90);
+    scene.kidCar.setTexture("kidCar").setAlpha(1).setPosition(w * 0.56, h * 0.64).setAngle(90);
     fitSpriteWidth(scene.kidCar, Math.min(230, w * 0.2));
-    scene.policeCar.setTexture("policeCar").setAlpha(0).setPosition(w + 240, h * 0.58).setAngle(-90);
+    scene.policeCar.setTexture("policeCar").setAlpha(0).setPosition(w + 240, h * 0.58).setAngle(90);
     fitSpriteWidth(scene.policeCar, Math.min(220, w * 0.19));
     scene.officer.setAlpha(0).setPosition(w + 120, h * 0.55);
     fitSpriteWidth(scene.officer, Math.min(220, w * 0.18));
@@ -488,7 +495,7 @@
       targets: scene.kidCar,
       x: state.width * 0.56,
       y: state.height * 0.58,
-      angle: { from: -92, to: -88 },
+      angle: { from: 88, to: 92 },
       duration: motion(520),
       yoyo: true,
       repeat: 7,
@@ -515,7 +522,7 @@
     playTone("siren");
     showSpeedLines(false);
     sweepPoliceLights(5);
-    scene.policeCar.setTexture("policeCarFlash1").setAlpha(1).setPosition(state.width + 170, state.height * 0.59).setAngle(-90);
+    scene.policeCar.setTexture("policeCarFlash1").setAlpha(1).setPosition(state.width + 170, state.height * 0.59).setAngle(90);
     fitSpriteWidth(scene.policeCar, Math.min(220, state.width * 0.19));
     neonTrail(state.width * 0.98, state.height * 0.61, 0x2877ff);
     neonTrail(state.width * 0.98, state.height * 0.66, 0xff2d5f);
@@ -586,14 +593,13 @@
     const selected = button.textContent;
     if (selected === q.correct) {
       button.classList.add("correct");
-      el.feedback.textContent = "Correct. One grammar lock cleared.";
+      el.feedback.textContent = correctFeedback[state.questionIndex] || "Yes, that's it.";
       playTone("correct");
-      const correctVoiceDone = playVoice("street-correct");
       correctBurst();
       burstStars(state.width * 0.5, state.height * 0.42, 18, 0x20d982);
       state.solved += 1;
       renderBadges();
-      Promise.all([correctVoiceDone, delay(520)]).then(() => {
+      delay(560).then(() => {
         el.questionPanel.classList.add("hidden");
         state.questionIndex += 1;
         if (state.questionIndex >= questions.length) startFinale();
@@ -619,7 +625,7 @@
     scene.tweens.add({
       targets: scene.kidCar,
       x: scene.kidCar.x - state.width * 0.035,
-      angle: { from: -88, to: -92 },
+      angle: { from: 92, to: 88 },
       duration: motion(720),
       ease: "Sine.easeInOut",
       onStart: () => neonTrail(scene.kidCar.x + scene.kidCar.displayWidth * 0.32, scene.kidCar.y - scene.kidCar.displayHeight * 0.06, 0xffd15c),
@@ -649,7 +655,7 @@
       targets: scene.kidCar,
       x: state.width * 0.58,
       y: state.height * 0.69,
-      angle: -90,
+      angle: 90,
       duration: motion(950),
       ease: "Sine.easeInOut",
       onComplete: () => {
@@ -680,9 +686,9 @@
     state.scene = "stop";
     scene.tweens.killTweensOf([scene.kidCar, scene.policeCar, scene.officer]);
     scene.kid.setAlpha(0);
-    scene.kidCar.setTexture("kidCar").setAlpha(1).setPosition(state.width * 0.45, state.height * 0.58).setAngle(-90);
+    scene.kidCar.setTexture("kidCar").setAlpha(1).setPosition(state.width * 0.45, state.height * 0.58).setAngle(90);
     fitSpriteWidth(scene.kidCar, Math.min(230, state.width * 0.2));
-    scene.policeCar.setTexture("policeCarFlash2").setAlpha(1).setPosition(state.width * 0.66, state.height * 0.58).setAngle(-90);
+    scene.policeCar.setTexture("policeCarFlash2").setAlpha(1).setPosition(state.width * 0.66, state.height * 0.58).setAngle(90);
     fitSpriteWidth(scene.policeCar, Math.min(220, state.width * 0.19));
     scene.officer.setAlpha(1).setPosition(state.width * 0.8, state.height * 0.51).setAngle(0);
     fitSpriteWidth(scene.officer, Math.min(220, state.width * 0.18));
@@ -698,7 +704,7 @@
     el.startPanel.classList.add("hidden");
     sceneRef.kid.setAlpha(0);
     sceneRef.policeCar.setAlpha(1).setPosition(state.width * 0.66, state.height * 0.58);
-    sceneRef.policeCar.setTexture("policeCarFlash1").setAngle(-90);
+    sceneRef.policeCar.setTexture("policeCarFlash1").setAngle(90);
     sceneRef.officer.setAlpha(1).setPosition(state.width * 0.8, state.height * 0.51);
     sceneRef.kidCar.setTexture("kidCar");
     fitSpriteWidth(sceneRef.kidCar, Math.min(230, state.width * 0.2));
@@ -715,11 +721,11 @@
     state.scene = "finale";
     renderBadges();
     scene.tweens.killTweensOf([scene.kid, scene.kidCar, scene.policeCar, scene.officer]);
-    scene.kidCar.setTexture("kidCar").setAlpha(1).setPosition(state.width * 0.55, state.height * 0.67).setAngle(-90);
+    scene.kidCar.setTexture("kidCar").setAlpha(1).setPosition(state.width * 0.55, state.height * 0.67).setAngle(90);
     fitSpriteWidth(scene.kidCar, Math.min(230, state.width * 0.2));
     scene.kid.setAlpha(1).setPosition(state.width * 0.42, state.height * 0.56).setAngle(-3);
     fitSpriteWidth(scene.kid, Math.min(150, state.width * 0.13));
-    scene.policeCar.setTexture("policeCarFlash3").setAlpha(1).setPosition(state.width * 0.68, state.height * 0.58).setAngle(-90);
+    scene.policeCar.setTexture("policeCarFlash3").setAlpha(1).setPosition(state.width * 0.68, state.height * 0.58).setAngle(90);
     fitSpriteWidth(scene.policeCar, Math.min(220, state.width * 0.19));
     scene.officer.setAlpha(1).setPosition(state.width * 0.82, state.height * 0.51).setAngle(0);
     fitSpriteWidth(scene.officer, Math.min(220, state.width * 0.18));
