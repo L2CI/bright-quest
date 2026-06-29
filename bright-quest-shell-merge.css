@@ -469,8 +469,8 @@ body.bq-shell-merge {
 .bq-prep-grid,
 .bq-winter-topic-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
 }
 
 .bq-prep-card,
@@ -535,15 +535,38 @@ body.bq-shell-merge {
 
 .bq-winter-hero {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(210px, 0.42fr) minmax(0, 1fr) auto;
   gap: 18px;
   align-items: center;
   border-radius: 32px;
-  padding: 18px;
+  padding: 20px;
   background:
     radial-gradient(circle at 92% 10%, rgba(125, 211, 252, 0.24), transparent 24%),
     linear-gradient(135deg, rgba(255,255,255,0.96), rgba(239,246,255,0.9));
   border: 1px solid rgba(37, 99, 235, 0.14);
+}
+
+.bq-winter-hero-art,
+.bq-kid-page-head .bq-art-winter {
+  display: block;
+  width: min(100%, 300px);
+  min-height: 150px;
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.72)),
+    url("assets/ui/blackboard-lesson.svg") center / cover no-repeat;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.72),
+    0 18px 34px rgba(14, 43, 97, 0.16);
+}
+
+.bq-kid-page-head .bq-art-winter {
+  width: 150px;
+  min-height: 112px;
+}
+
+.bq-kid-page-head .bq-art-winter svg {
+  display: none;
 }
 
 .bq-winter-hero h3 {
@@ -565,13 +588,169 @@ body.bq-shell-merge {
 }
 
 .bq-winter-topic {
-  min-height: 128px;
+  position: relative;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto auto 1fr;
+  min-height: 320px;
+  border-radius: 30px;
+  cursor: pointer;
+  overflow: hidden;
+  padding: 18px;
 }
 
-.bq-winter-topic span {
+.bq-winter-topic::after {
+  content: "";
+  position: absolute;
+  inset: auto 18px 14px auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.12);
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.bq-winter-topic:hover::after,
+.bq-winter-topic:focus-visible::after {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.bq-winter-thumb {
+  grid-row: auto;
+  width: 100%;
+  min-height: 172px;
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)),
+    url("assets/ui/blackboard-lesson.svg") center / contain no-repeat,
+    linear-gradient(135deg, #eff6ff, #ecfeff);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.7),
+    0 14px 24px rgba(7, 24, 73, 0.12);
+}
+
+.bq-winter-topic.workbench .bq-winter-thumb {
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/test-workbench-scene.svg"), linear-gradient(135deg, #f8fafc, #ecfeff);
+  background-size: auto, contain, auto;
+  background-position: center, center, center;
+  background-repeat: no-repeat;
+}
+
+.bq-winter-topic.mountain .bq-winter-thumb {
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/maths-mountain.svg"), linear-gradient(135deg, #eff6ff, #dbeafe);
+  background-size: auto, contain, auto;
+  background-position: center, center, center;
+  background-repeat: no-repeat;
+}
+
+.bq-winter-topic.reasoning .bq-winter-thumb {
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/reasoning-lab.svg"), linear-gradient(135deg, #f5f3ff, #eff6ff);
+  background-size: auto, contain, auto;
+  background-position: center, center, center;
+  background-repeat: no-repeat;
+}
+
+.bq-winter-topic.core .bq-winter-thumb {
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/core-test-path.svg"), linear-gradient(135deg, #f8fafc, #dbeafe);
+  background-size: auto, contain, auto;
+  background-position: center, center, center;
+  background-repeat: no-repeat;
+}
+
+.bq-winter-topic.notebook .bq-winter-thumb {
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/grammar-notebook.svg"), linear-gradient(135deg, #fefce8, #ecfeff);
+  background-size: auto, contain, auto;
+  background-position: center, center, center;
+  background-repeat: no-repeat;
+}
+
+.bq-winter-topic.progress .bq-winter-thumb {
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/progress-dashboard.svg"), linear-gradient(135deg, #f0fdf4, #eff6ff);
+  background-size: auto, contain, auto;
+  background-position: center, center, center;
+  background-repeat: no-repeat;
+}
+
+.bq-winter-topic.world .bq-winter-thumb {
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/world-challenge.svg"), linear-gradient(135deg, #ecfeff, #eef2ff);
+  background-size: auto, contain, auto;
+  background-position: center, center, center;
+  background-repeat: no-repeat;
+}
+
+.bq-winter-topic.reading .bq-winter-thumb {
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/reading-forest.svg"), linear-gradient(135deg, #f0fdf4, #eff6ff);
+  background-size: auto, contain, auto;
+  background-position: center, center, center;
+  background-repeat: no-repeat;
+}
+
+.bq-winter-topic.academy .bq-winter-thumb {
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/academy-hub-illustration.svg"), linear-gradient(135deg, #eff6ff, #dcfce7);
+  background-size: auto, contain, auto;
+  background-position: center, center, center;
+  background-repeat: no-repeat;
+}
+
+.bq-winter-number {
   color: #2563eb;
   font-size: 1.6rem;
   font-weight: 1000;
+}
+
+.bq-winter-status-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  align-self: end;
+}
+
+.bq-status-pill {
+  display: grid;
+  gap: 2px;
+  border-radius: 16px;
+  padding: 9px 10px;
+  background: #f8fafc;
+  border: 1px solid #dbeafe;
+}
+
+.bq-status-pill b,
+.bq-status-pill em {
+  display: block;
+  font-style: normal;
+}
+
+.bq-status-pill b {
+  color: #475569;
+  font-size: 0.68rem;
+  font-weight: 950;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.bq-status-pill em {
+  color: #172554;
+  font-size: 0.82rem;
+  font-weight: 1000;
+}
+
+.bq-status-pill.done {
+  background: #ecfdf5;
+  border-color: #bbf7d0;
+}
+
+.bq-status-pill.done em {
+  color: #047857;
+}
+
+.bq-status-pill.pending em {
+  color: #9a3412;
+}
+
+.bq-status-pill.checking em {
+  color: #2563eb;
 }
 
 .bq-progress-board {

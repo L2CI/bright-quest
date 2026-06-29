@@ -3,6 +3,7 @@
   const AGMATHS_URL = "https://agmaths.dipanjan-gupta.workers.dev/?from=brightquest#map";
   const AGMATHS_COCKPIT_URL = "https://agmaths.dipanjan-gupta.workers.dev/?from=brightquest#cockpit";
   const DRAGON_FORGE_URL = "https://agmaths.dipanjan-gupta.workers.dev/?from=brightquest#game";
+  const AGMATHS_API_BASE = "https://agmaths.dipanjan-gupta.workers.dev";
   let pendingKidProfile = null;
 
   document.body.classList.add("bq-shell-merge");
@@ -308,16 +309,13 @@
   }
 
   function renderWinterTrainingPage() {
-    const topics = [
-      "Place value", "Multi-step arithmetic", "Multiplication", "Division", "Fraction equivalence",
-      "Fraction operations", "Decimals and data", "Angles and geometry", "Word problems", "Mixed revision"
-    ];
+    const topics = winterTopics();
     const body = `
       <section class="bq-winter-hero">
-        ${art("winter")}
+        <span class="bq-winter-hero-art" aria-hidden="true"></span>
         <div>
           <h3>Winter 2026 Training 1</h3>
-          <p>AGMaths stays the source of truth for its course progress, tests, cockpit, and Dragon Forge. Bright Quest now opens it on the course map, not the generic home screen.</p>
+          <p>Pick a maths path. Each card shows two signals from AGMaths: training completion and whether the test has been taken.</p>
         </div>
         <div class="bq-winter-actions">
           <button type="button" class="button button-primary" data-bq-action="open-agmaths">Open training map</button>
@@ -326,16 +324,83 @@
         </div>
       </section>
       <section class="bq-winter-topic-grid" aria-label="Winter 2026 topics">
-        ${topics.map((topic, index) => `
-          <article class="bq-winter-topic">
-            <span>${String(index + 1).padStart(2, "0")}</span>
-            <strong>${escapeHtml(topic)}</strong>
-            <small>Open in AGMaths</small>
-          </article>
-        `).join("")}
+        ${topics.map(winterTopicCard).join("")}
       </section>
     `;
     kidPageShell("Winter 2026 Training 1", "A structured Grade 4 maths module with its own progress and cockpit.", "winter", body);
+    requestAnimationFrame(loadWinterTrainingStatus);
+  }
+
+  function winterTopics() {
+    return [
+      { id: "place-value", title: "Place value", visual: "blackboard" },
+      { id: "multi-arithmetic", title: "Multi-step arithmetic", visual: "workbench" },
+      { id: "multiplication", title: "Multiplication", visual: "mountain" },
+      { id: "division", title: "Division", visual: "reasoning" },
+      { id: "fraction-equivalence", title: "Fraction equivalence", visual: "core" },
+      { id: "fraction-operations", title: "Fraction operations", visual: "notebook" },
+      { id: "decimals-data", title: "Decimals and data", visual: "progress" },
+      { id: "angles-geometry", title: "Angles and geometry", visual: "world" },
+      { id: "word-problems", title: "Word problems", visual: "reading" },
+      { id: "factors-patterns", title: "Mixed revision", visual: "academy" }
+    ];
+  }
+
+  function winterTopicCard(topic, index) {
+    return `
+      <button class="bq-winter-topic ${escapeAttr(topic.visual)}" type="button" data-bq-action="open-agmaths" data-ag-topic-id="${escapeAttr(topic.id)}">
+        <span class="bq-winter-thumb" aria-hidden="true"></span>
+        <span class="bq-winter-number">${String(index + 1).padStart(2, "0")}</span>
+        <strong>${escapeHtml(topic.title)}</strong>
+        <span class="bq-winter-status-row" aria-label="${escapeAttr(topic.title)} progress">
+          <span class="bq-status-pill checking" data-ag-status="training"><b>Training</b><em>Checking...</em></span>
+          <span class="bq-status-pill checking" data-ag-status="test"><b>Test</b><em>Checking...</em></span>
+        </span>
+      </button>
+    `;
+  }
+
+  async function loadWinterTrainingStatus() {
+    const cards = [...document.querySelectorAll("[data-ag-topic-id]")];
+    if (!cards.length) return;
+    try {
+      const [progress, attempts] = await Promise.all([
+        fetch(`${AGMATHS_API_BASE}/api/progress?studentId=demo-student`, { headers: { accept: "application/json" } }).then((res) => res.ok ? res.json() : []),
+        fetch(`${AGMATHS_API_BASE}/api/attempts?studentId=demo-student`, { headers: { accept: "application/json" } }).then((res) => res.ok ? res.json() : [])
+      ]);
+      const progressByTopic = new Map((Array.isArray(progress) ? progress : []).map((item) => [agTopicId(item), item]));
+      const attemptsByTopic = new Map();
+      (Array.isArray(attempts) ? attempts : []).forEach((item) => {
+        const topicId = agTopicId(item);
+        if (topicId && !attemptsByTopic.has(topicId)) attemptsByTopic.set(topicId, item);
+      });
+      cards.forEach((card) => {
+        const topicId = card.dataset.agTopicId;
+        updateAgStatus(card, "training", progressByTopic.get(topicId)?.status === "completed", "Done", "Pending");
+        const attempt = attemptsByTopic.get(topicId);
+        const testCopy = attempt ? `${Number(attempt.score ?? 0)}/${Number(attempt.total ?? 10)}` : "Pending";
+        updateAgStatus(card, "test", Boolean(attempt), testCopy, "Pending");
+      });
+    } catch {
+      cards.forEach((card) => {
+        updateAgStatus(card, "training", false, "Done", "Open AGMaths");
+        updateAgStatus(card, "test", false, "Taken", "Open AGMaths");
+      });
+    }
+  }
+
+  function agTopicId(item) {
+    return item?.topicId || item?.topic_id || item?.topic || "";
+  }
+
+  function updateAgStatus(card, kind, isDone, doneCopy, pendingCopy) {
+    const pill = card.querySelector(`[data-ag-status="${kind}"]`);
+    if (!pill) return;
+    pill.classList.toggle("done", isDone);
+    pill.classList.toggle("pending", !isDone);
+    pill.classList.remove("checking");
+    const value = pill.querySelector("em");
+    if (value) value.textContent = isDone ? doneCopy : pendingCopy;
   }
 
   function renderKidProgressPage() {
