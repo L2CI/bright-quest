@@ -211,6 +211,11 @@
       state.parentProfileId = event.target.value;
       parentNavigate("overview");
     });
+    header.querySelector("[data-parent-options]")?.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      header.querySelector(".parent-options-menu")?.classList.toggle("hidden");
+    });
   }
 
   function renderParentRoute(profile) {
