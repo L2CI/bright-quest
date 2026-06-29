@@ -57,7 +57,6 @@
     saveProfiles();
     renderDashboard();
     showScreen("dashboard");
-    showToast(`Welcome back, ${profile.name}.`);
   }
 
   function confirmationProfile(profiles) {
@@ -85,6 +84,15 @@
     const attempts = state.profile.attempts || [];
     const best = attempts.reduce((max, item) => Math.max(max, item.percent || 0), 0);
     const weak = Object.entries(weakSkillCounts()).sort((a, b) => b[1] - a[1])[0];
+    const latest = attempts.at(-1);
+    const todayTitle = latest
+      ? latest.percent >= 75 ? "Keep the streak going" : "Repair the latest weak spot"
+      : "Start today&apos;s quest";
+    const todayCopy = latest
+      ? latest.percent >= 75
+        ? `Last score ${latest.percent}%. Try the next City School Exam Prep set, then choose a reward game.`
+        : `Last score ${latest.percent}%. ${weak ? `Focus on ${escapeHtml(weak[0])}, then try another short set.` : "Use a short training run, then try another set."}`
+      : "Begin with City School Exam Prep, then unlock a reward game after the first result.";
     ref.className = "reference-dashboard bq-home-shell";
     ref.innerHTML = `
       <section class="bq-home-hero">
@@ -97,12 +105,26 @@
           <span><strong>${attempts.length}</strong><small>tests</small></span>
           <span><strong>${best}%</strong><small>best</small></span>
           <span><strong>${state.profile.stars || 0}</strong><small>stars</small></span>
+          <button type="button" class="bq-logout-chip" data-bq-action="logout">Log out</button>
+        </div>
+      </section>
+
+      <section class="bq-today-card" aria-label="Recommended next action">
+        ${art("compass")}
+        <div>
+          <span class="bq-today-label">Continue today</span>
+          <h3>${todayTitle}</h3>
+          <p>${todayCopy}</p>
+        </div>
+        <div class="bq-today-actions">
+          <button type="button" class="button button-primary" data-bq-action="city-exam">Continue exam prep</button>
+          <button type="button" class="button button-soft" data-bq-action="${weak ? "progress" : "games"}">${weak ? "See progress" : "Pick a reward game"}</button>
         </div>
       </section>
 
       <section class="bq-zone-grid" aria-label="Bright Quest zones">
         <article class="bq-zone-card training">
-          <span class="bq-zone-icon" aria-hidden="true">${icon("book")}</span>
+          ${art("school")}
           <div>
             <p class="eyebrow">Training</p>
             <h3>Pick the learning path</h3>
@@ -121,13 +143,13 @@
         </article>
 
         <button type="button" class="bq-zone-card games" data-bq-action="games">
-          <span class="bq-zone-icon" aria-hidden="true">${icon("game")}</span>
+          ${art("treasure")}
           <strong>Games & Rewards</strong>
           <span>Cave River Quest, Street Smart Rescue, Treasure Quest, Dragon Forge, and arcade unlocks.</span>
         </button>
 
         <button type="button" class="bq-zone-card progress" data-bq-action="progress">
-          <span class="bq-zone-icon" aria-hidden="true">${icon("chart")}</span>
+          ${art("mountain")}
           <strong>Progress</strong>
           <span>${weak ? `Current focus: ${escapeHtml(weak[0])}` : "Stars, trend, best score, and progress badges."}</span>
         </button>
@@ -154,6 +176,10 @@
     }
     if (action === "progress") {
       document.querySelector(".insight-grid")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (action === "logout") {
+      switchProfileButton.click();
     }
   }
 
@@ -300,12 +326,23 @@
   function renderParentOverviewPage(metrics) {
     const trend = metrics.latest && metrics.previous ? metrics.latest.percent - metrics.previous.percent : 0;
     const focus = metrics.focus[0];
+    const trendCopy = !metrics.latest
+      ? "No completed City School Exam Prep attempt yet."
+      : metrics.previous
+        ? trend > 0 ? `Improved by ${trend} points since the previous test.` : trend < 0 ? `Dropped by ${Math.abs(trend)} points since the previous test.` : "Score is flat against the previous test."
+        : "First saved result is ready for review.";
+    const nextRoute = focus ? "focus" : metrics.latest ? "exam-results" : "training";
+    const nextCopy = focus
+      ? `Review ${escapeHtml(focus.skill)} first, then assign a short training path.`
+      : metrics.latest
+        ? "Review the latest attempt, then decide whether to practise or play."
+        : "Start with City School Exam Prep or Winter 2026 Training 1.";
     return parentPageShell("overview", `
       <section class="bq-cockpit-status">
         <div>
-          <p class="eyebrow">Status</p>
+          <p class="eyebrow">Parent answer desk</p>
           <h3>${metrics.latest ? `${metrics.profile.name} scored ${metrics.latest.percent}% last time.` : `${metrics.profile.name} is ready for the first saved result.`}</h3>
-          <p>${focus ? `Next useful review: ${escapeHtml(focus.skill)}.` : "No recurring weak spot is visible yet."}</p>
+          <p>${nextCopy}</p>
         </div>
         <div class="bq-status-metrics">
           ${metric("Tests", metrics.attempts.length)}
@@ -314,14 +351,27 @@
           ${metric("Trend", metrics.attempts.length > 1 ? `${trend > 0 ? "+" : ""}${trend}%` : "--")}
         </div>
       </section>
-      <section class="bq-parent-query-grid">
-        ${queryCard("exam-results", "Exam Prep Results", "Saved City School Exam Prep attempts, scores, and answer records.", "file")}
-        ${queryCard("focus", "Focus Areas", "Recurring missed or slow skills with evidence.", "alert")}
-        ${queryCard("training", "Training Coverage", "Completed, untouched, and recommended Bright Quest training.", "book")}
-        ${queryCard("writing", "Writing Signals", "Saved writing responses and English signals.", "pen")}
-        ${queryCard("games", "Games & Rewards", "Reward-game access and recommendation context.", "game")}
-        ${queryCard("winter-2026", "Winter 2026 Training 1", "Open AGMaths results and training in its own module.", "snow")}
-        ${queryCard("records", "All Records", "Complete saved Bright Quest records for audit access.", "database")}
+
+      <section class="bq-answer-grid" aria-label="Parent cockpit answers">
+        ${answerCard("Is my child on track?", metrics.latest ? `${metrics.latest.percent}% latest / ${metrics.average}% average` : "No test record yet", metrics.latest ? scoreLabel(metrics.latest.percent) : "Needs first attempt", "exam-results", "compass")}
+        ${answerCard("What changed recently?", trendCopy, metrics.attempts.length > 1 ? "Trend signal" : "Baseline", metrics.attempts.length ? "exam-results" : "training", "mountain")}
+        ${answerCard("What should I do next?", nextCopy, focus ? `Focus: ${focus.skill}` : "Next action", nextRoute, "focus")}
+      </section>
+
+      <section class="bq-parent-groups" aria-label="Detailed cockpit areas">
+        ${queryGroup("Learning", "Exam prep, weak spots, training coverage, and Winter 2026.", [
+          queryCard("exam-results", "City School Exam Prep", "Attempts, scores, and answer records.", "school"),
+          queryCard("focus", "Focus Areas", "Recurring missed or slow skills with evidence.", "focus"),
+          queryCard("training", "Training Coverage", "Completed, untouched, and recommended Bright Quest training.", "book"),
+          queryCard("winter-2026", "Winter 2026 Training 1", "Open AGMaths training and cockpit as the linked module.", "winter")
+        ])}
+        ${queryGroup("Play", "Reward games and motivation signals.", [
+          queryCard("games", "Games & Rewards", "Reward-game access and recommendation context.", "treasure")
+        ])}
+        ${queryGroup("Records", "Detailed saved evidence when you want to interrogate the data.", [
+          queryCard("writing", "Writing Signals", "Saved writing responses and English signals.", "writing"),
+          queryCard("records", "All Records", "Complete saved Bright Quest records for audit access.", "records")
+        ])}
       </section>
     `, true);
   }
@@ -495,8 +545,29 @@
     return `<span><strong>${escapeHtml(value)}</strong><small>${escapeHtml(label)}</small></span>`;
   }
 
+  function answerCard(question, answer, status, route, artName) {
+    return `<button class="bq-answer-card" type="button" data-parent-route="${escapeAttr(route)}">
+      ${art(artName)}
+      <span class="bq-answer-copy">
+        <strong>${escapeHtml(question)}</strong>
+        <em>${escapeHtml(status)}</em>
+        <span>${escapeHtml(answer)}</span>
+      </span>
+    </button>`;
+  }
+
+  function queryGroup(title, copy, cards) {
+    return `<section class="bq-query-group">
+      <div class="bq-query-group-head">
+        <h4>${escapeHtml(title)}</h4>
+        <p>${escapeHtml(copy)}</p>
+      </div>
+      <div class="bq-parent-query-grid">${cards.join("")}</div>
+    </section>`;
+  }
+
   function queryCard(route, title, copy, iconName) {
-    return `<button class="bq-query-card" type="button" data-parent-route="${escapeAttr(route)}">${icon(iconName)}<strong>${escapeHtml(title)}</strong><span>${escapeHtml(copy)}</span></button>`;
+    return `<button class="bq-query-card" type="button" data-parent-route="${escapeAttr(route)}">${art(iconName)}<strong>${escapeHtml(title)}</strong><span>${escapeHtml(copy)}</span></button>`;
   }
 
   function questionCard(question) {
@@ -514,6 +585,38 @@
 
   function recordBlock(title, rows) {
     return `<p class="eyebrow">${escapeHtml(title)}</p><div class="bq-record-lines">${rows.map((row) => `<div><span>${escapeHtml(row.label)}</span><strong>${escapeHtml(row.value)}</strong></div>`).join("") || `<div><span>No records</span><strong>--</strong></div>`}</div>`;
+  }
+
+  function art(name) {
+    const palette = {
+      school: ["#2563eb", "#14b8a6", "#facc15"],
+      winter: ["#0ea5e9", "#7c3aed", "#e0f2fe"],
+      treasure: ["#f97316", "#facc15", "#22c55e"],
+      mountain: ["#16a34a", "#38bdf8", "#f59e0b"],
+      compass: ["#1d4ed8", "#8b5cf6", "#f43f5e"],
+      focus: ["#0f766e", "#f97316", "#fde68a"],
+      records: ["#4f46e5", "#06b6d4", "#f8fafc"],
+      writing: ["#be123c", "#f59e0b", "#fff7ed"],
+      book: ["#2563eb", "#22c55e", "#fef3c7"]
+    }[name] || ["#2563eb", "#14b8a6", "#facc15"];
+    const [a, b, c] = palette;
+    const drawings = {
+      school: `<path d="M25 62h58v30H25z" fill="${c}"/><path d="M32 45h44l10 17H22z" fill="${a}"/><path d="M48 62h13v30H48z" fill="#fff7ed"/><path d="M36 70h8M66 70h8" stroke="${b}" stroke-width="5" stroke-linecap="round"/><circle cx="55" cy="36" r="10" fill="${b}"/><path d="M88 32l8-11M91 42l13-3" stroke="${c}" stroke-width="5" stroke-linecap="round"/>`,
+      winter: `<path d="M25 68l30-28 30 28v24H25z" fill="${a}"/><path d="M38 67h34v25H38z" fill="${c}"/><path d="M20 69h70L55 35z" fill="#f8fafc"/><path d="M47 76h16M47 84h16" stroke="${b}" stroke-width="5" stroke-linecap="round"/><circle cx="85" cy="29" r="5" fill="${c}"/><circle cx="28" cy="36" r="4" fill="${c}"/>`,
+      treasure: `<path d="M24 55h64v33H24z" fill="${a}"/><path d="M24 55c7-20 57-20 64 0z" fill="${c}"/><path d="M24 66h64M56 52v38" stroke="#7c2d12" stroke-width="5"/><circle cx="56" cy="70" r="7" fill="${b}"/><path d="M32 30l5 9 10 1-8 6 3 10-10-5-9 5 2-10-7-6 10-1z" fill="${b}"/>`,
+      mountain: `<path d="M16 88l27-49 17 27 11-18 25 40z" fill="${a}"/><path d="M43 39l8 13-14 2zM71 48l6 10-12 1z" fill="#f8fafc"/><path d="M28 82c20-9 36-11 61-3" stroke="${b}" stroke-width="6" stroke-linecap="round"/><path d="M80 32v26M80 33h18l-5 8 5 8H80" stroke="${c}" stroke-width="5" fill="none" stroke-linejoin="round"/>`,
+      compass: `<circle cx="56" cy="58" r="34" fill="${c}"/><circle cx="56" cy="58" r="24" fill="#fff"/><path d="M67 42L59 68 45 75l8-26z" fill="${a}"/><path d="M49 44l14 28" stroke="${b}" stroke-width="5" stroke-linecap="round"/><path d="M20 92h72" stroke="${b}" stroke-width="5" stroke-linecap="round"/>`,
+      focus: `<circle cx="47" cy="48" r="24" fill="${c}" stroke="${a}" stroke-width="7"/><path d="M64 65l24 24" stroke="${a}" stroke-width="9" stroke-linecap="round"/><path d="M39 44h16M39 54h23" stroke="${b}" stroke-width="5" stroke-linecap="round"/><path d="M23 84h34" stroke="${b}" stroke-width="5" stroke-linecap="round"/>`,
+      records: `<path d="M28 24h49l12 13v57H28z" fill="${c}" stroke="${a}" stroke-width="5" stroke-linejoin="round"/><path d="M77 24v16h14" fill="none" stroke="${a}" stroke-width="5"/><path d="M39 48h34M39 62h38M39 76h25" stroke="${b}" stroke-width="5" stroke-linecap="round"/><path d="M21 34h12M21 50h12M21 66h12" stroke="${a}" stroke-width="5" stroke-linecap="round"/>`,
+      writing: `<path d="M24 68c14-8 32-8 44 0v25c-13-7-30-7-44 0z" fill="${c}" stroke="${a}" stroke-width="5"/><path d="M68 68c9-6 17-7 25-2v26c-8-4-16-3-25 1z" fill="#fff" stroke="${a}" stroke-width="5"/><path d="M71 28l18 8-28 35-12 4 3-13z" fill="${b}"/><path d="M39 80h19" stroke="${a}" stroke-width="5" stroke-linecap="round"/>`,
+      book: `<path d="M24 30h30c8 0 12 4 12 12v52c-4-5-9-7-16-7H24z" fill="${c}" stroke="${a}" stroke-width="5"/><path d="M66 42c0-8 4-12 12-12h18v57H80c-7 0-11 2-14 7z" fill="#fff" stroke="${b}" stroke-width="5"/><path d="M36 47h16M36 61h18M78 49h10M78 63h10" stroke="${a}" stroke-width="5" stroke-linecap="round"/>`
+    };
+    return `<span class="bq-art bq-art-${escapeAttr(name)}" aria-hidden="true">
+      <svg viewBox="0 0 112 112" role="img" focusable="false">
+        <rect x="8" y="8" width="96" height="96" rx="26" fill="rgba(255,255,255,0.72)"/>
+        ${drawings[name] || drawings.book}
+      </svg>
+    </span>`;
   }
 
   function icon(name) {
