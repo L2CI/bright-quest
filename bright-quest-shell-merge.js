@@ -484,8 +484,86 @@
     wireParentPage();
   }
 
+  function validDate(value) {
+    const date = value ? new Date(value) : null;
+    return date && Number.isFinite(date.getTime()) ? date : null;
+  }
+
+  function displayDate(value) {
+    const date = validDate(value);
+    return date ? date.toLocaleString() : "Date not captured";
+  }
+
+  function normalText(value, fallback = "") {
+    if (value === undefined || value === null) return fallback;
+    return String(value);
+  }
+
+  function matchingAnswer(left, right) {
+    if (!left || !right) return undefined;
+    return String(left).trim().toLowerCase() === String(right).trim().toLowerCase();
+  }
+
+  function normalizeQuestionRecord(rawQuestion, index) {
+    const raw = rawQuestion || {};
+    const selected = raw.selectedText ?? raw.selectedAnswer ?? raw.selected ?? raw.answer ?? raw.answerText ?? "";
+    const correctAnswer = raw.correctText ?? raw.correctAnswer ?? raw.expectedAnswer ?? raw.solution ?? "";
+    let correct = typeof raw.correct === "boolean" ? raw.correct : undefined;
+    if (correct === undefined && typeof raw.isCorrect === "boolean") correct = raw.isCorrect;
+    if (correct === undefined) correct = matchingAnswer(selected, correctAnswer);
+    return {
+      ...raw,
+      number: raw.number ?? raw.questionNumber ?? raw.questionIndex ?? index + 1,
+      prompt: normalText(raw.prompt ?? raw.question ?? raw.text ?? raw.title ?? raw.skill, "Question detail not captured"),
+      skill: normalText(raw.skill ?? raw.topic ?? raw.section, "Saved question"),
+      section: normalText(raw.section ?? raw.topic ?? raw.skill, "Saved question"),
+      format: raw.format || (raw.writingResponse || raw.answerText && !correctAnswer ? "writing" : "choice"),
+      selectedText: normalText(selected, "No answer"),
+      correctText: normalText(correctAnswer, "Not captured"),
+      answerText: normalText(raw.answerText ?? raw.writingResponse ?? selected, ""),
+      secondsSpent: Number(raw.secondsSpent ?? raw.seconds ?? raw.timeSeconds ?? raw.durationSeconds ?? 0) || 0,
+      correct
+    };
+  }
+
+  function normalizeParentAttempt(rawAttempt, index) {
+    const raw = rawAttempt || {};
+    const level = raw.level ?? raw.levelId ?? raw.set ?? raw.stage ?? "";
+    const levelInfo = typeof getAllLevels === "function"
+      ? getAllLevels().find((item) => String(item.level) === String(level))
+      : null;
+    const questionStats = Array.isArray(raw.questionStats)
+      ? raw.questionStats.map(normalizeQuestionRecord)
+      : Array.isArray(raw.answers)
+        ? raw.answers.map(normalizeQuestionRecord)
+        : [];
+    const inferredCorrect = questionStats.length
+      ? questionStats.filter((question) => question.correct === true).length
+      : 0;
+    const total = Number(raw.total ?? raw.questionCount ?? questionStats.length ?? 0) || 0;
+    const correct = Number(raw.correct ?? raw.score ?? inferredCorrect ?? 0) || 0;
+    const percent = Number.isFinite(Number(raw.percent))
+      ? Number(raw.percent)
+      : total ? Math.round((correct / total) * 100) : 0;
+    const date = raw.date ?? raw.completedAt ?? raw.finishedAt ?? raw.startedAt ?? raw.createdAt ?? "";
+    const fallbackId = [level || "attempt", date || index].join("-");
+    return {
+      ...raw,
+      id: normalText(raw.id ?? raw.attemptId ?? fallbackId),
+      level,
+      levelName: normalText(raw.levelName ?? raw.name ?? levelInfo?.name ?? (level ? `Level ${level}` : "City School Exam Prep")),
+      date,
+      displayDate: displayDate(date),
+      correct,
+      total,
+      percent,
+      secondsUsed: Number(raw.secondsUsed ?? raw.durationSeconds ?? raw.elapsedSeconds ?? raw.timeSeconds ?? 0) || 0,
+      questionStats
+    };
+  }
+
   function buildParentMetrics(profile) {
-    const attempts = profile.attempts || [];
+    const attempts = (profile.attempts || []).map(normalizeParentAttempt);
     const questionStats = attempts.flatMap((attempt) =>
       (attempt.questionStats || []).map((question) => ({ ...question, attempt }))
     );
@@ -578,7 +656,7 @@
       <button class="bq-result-row" type="button" data-parent-route="exam-results/${escapeAttr(attempt.id)}">
         <span>${escapeHtml(attempt.levelName)}</span>
         <strong>${attempt.percent}%</strong>
-        <small>${new Date(attempt.date).toLocaleString()} / ${attempt.correct} of ${attempt.total} / ${formatDuration(attempt.secondsUsed || 0)}</small>
+        <small>${escapeHtml(attempt.displayDate)} / ${attempt.correct} of ${attempt.total} / ${formatDuration(attempt.secondsUsed || 0)}</small>
       </button>
     `).join("") || `<div class="empty-state">No City School Exam Prep attempts yet.</div>`;
     return parentPageShell("exam-results", `<div class="bq-page-list">${rows}</div>`);
@@ -601,7 +679,7 @@
     const wrong = questions.filter((item) => item.correct === false).length;
     return parentPageShell("exam-results", `
       <section class="bq-attempt-hero">
-        <div><p class="eyebrow">Attempt detail</p><h3>${escapeHtml(attempt.levelName)}</h3><p>${new Date(attempt.date).toLocaleString()}</p></div>
+        <div><p class="eyebrow">Attempt detail</p><h3>${escapeHtml(attempt.levelName)}</h3><p>${escapeHtml(attempt.displayDate)}</p></div>
         <div class="bq-attempt-score"><strong>${attempt.percent}%</strong><span>${attempt.correct}/${attempt.total} correct</span><small>${wrong} to review first</small></div>
       </section>
       <button class="button button-soft bq-page-return-inline" type="button" data-parent-route="exam-results">Back to Exam Results</button>
