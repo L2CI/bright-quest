@@ -185,18 +185,31 @@
 
   function addDragonForgeKidCard() {
     const list = document.getElementById("gamesList");
-    if (!list || list.querySelector("[data-open-game-url*='agmaths']")) return;
-    const card = document.createElement("article");
-    card.className = "game-card bq-dragon-forge-card";
-    card.innerHTML = `
-      <div class="game-thumb dragon" aria-hidden="true">DF</div>
-      <div>
-        <h3>Dragon Forge</h3>
-        <p>Winter 2026 maths reward game with harder Grade 4 multiplication gates.</p>
-        <button class="button button-primary" type="button" data-open-game-url="${DRAGON_FORGE_URL}">Open Dragon Forge</button>
-      </div>
+    if (!list) return;
+    if (!list.querySelector("[data-bq-treasure-map-card]")) {
+      const treasureCard = document.createElement("article");
+      treasureCard.className = "game-tile bq-reward-game-tile bq-treasure-map-card unlocked";
+      treasureCard.dataset.bqTreasureMapCard = "true";
+      treasureCard.innerHTML = `
+        ${art("treasure")}
+        <p class="eyebrow">Pirate map quest</p>
+        <h3>Treasure Quest</h3>
+        <p>Follow the pirate map, collect treasure, and keep the reward-game trail visible.</p>
+        <button class="button button-primary" type="button" data-open-game-url="treasure-quest/">Open Treasure Quest</button>
+      `;
+      list.appendChild(treasureCard);
+    }
+    if (list.querySelector("[data-open-game-url*='agmaths']")) return;
+    const dragonCard = document.createElement("article");
+    dragonCard.className = "game-tile bq-reward-game-tile bq-dragon-forge-card unlocked";
+    dragonCard.innerHTML = `
+      ${art("winter")}
+      <p class="eyebrow">Winter maths quest</p>
+      <h3>Dragon Forge</h3>
+      <p>Winter 2026 maths reward game with harder Grade 4 multiplication gates.</p>
+      <button class="button button-primary" type="button" data-open-game-url="${DRAGON_FORGE_URL}">Open Dragon Forge</button>
     `;
-    list.appendChild(card);
+    list.appendChild(dragonCard);
   }
 
   function getParentProfile(profiles) {
@@ -407,6 +420,7 @@
         <div><p class="eyebrow">Attempt detail</p><h3>${escapeHtml(attempt.levelName)}</h3><p>${new Date(attempt.date).toLocaleString()}</p></div>
         <div class="bq-attempt-score"><strong>${attempt.percent}%</strong><span>${attempt.correct}/${attempt.total} correct</span><small>${wrong} to review first</small></div>
       </section>
+      <button class="button button-soft bq-page-return-inline" type="button" data-parent-route="exam-results">Back to Exam Results</button>
       <section class="bq-question-stack">
         ${sorted.map(questionCard).join("") || `<div class="empty-state">No question records saved for this attempt.</div>`}
       </section>
@@ -450,9 +464,10 @@
     }).join("");
     return parentPageShell("games", `
       <section class="bq-parent-query-grid compact">
-        <button class="bq-query-card" type="button" data-open-game-url="cave-river-quest/">${icon("game")}<strong>Cave River Quest</strong><span>3D reward quest</span></button>
-        <button class="bq-query-card" type="button" data-open-game-url="street-smart-rescue/">${icon("game")}<strong>Street Smart Rescue</strong><span>Animated puzzle quest</span></button>
-        <button class="bq-query-card" type="button" data-open-game-url="${DRAGON_FORGE_URL}">${icon("snow")}<strong>Dragon Forge</strong><span>Winter 2026 Training 1 game</span></button>
+        <button class="bq-query-card" type="button" data-open-game-url="cave-river-quest/">${art("mountain")}<strong>Cave River Quest</strong><span>3D reward quest</span></button>
+        <button class="bq-query-card" type="button" data-open-game-url="street-smart-rescue/">${art("focus")}<strong>Street Smart Rescue</strong><span>Animated puzzle quest</span></button>
+        <button class="bq-query-card" type="button" data-open-game-url="treasure-quest/">${art("treasure")}<strong>Treasure Quest</strong><span>Pirate map reward prototype</span></button>
+        <button class="bq-query-card" type="button" data-open-game-url="${DRAGON_FORGE_URL}">${art("winter")}<strong>Dragon Forge</strong><span>Winter 2026 Training 1 game</span></button>
       </section>
       <section class="bq-page-list">${rows}</section>
     `);
