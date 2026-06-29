@@ -39,13 +39,13 @@
     if (state.selectedRole !== "kid") return;
     if (modePassword.value !== "abcde") return;
     const profiles = Object.values(state.profiles);
-    if (profiles.length !== 1) return;
+    const profile = confirmationProfile(profiles);
+    if (!profile) return;
 
     event.preventDefault();
     event.stopImmediatePropagation();
     modePassword.value = "";
 
-    const profile = profiles[0];
     if (!window.confirm(`Are you ${profile.name}?`)) {
       renderProfileScreen();
       showScreen("profile");
@@ -58,6 +58,25 @@
     renderDashboard();
     showScreen("dashboard");
     showToast(`Welcome back, ${profile.name}.`);
+  }
+
+  function confirmationProfile(profiles) {
+    if (!profiles.length) return null;
+    if (profiles.length === 1) return profiles[0];
+    const names = new Set(profiles.map((profile) => normalizedName(profile.name)));
+    if (names.size !== 1) return null;
+    return [...profiles].sort((a, b) => profileActivityScore(b) - profileActivityScore(a))[0];
+  }
+
+  function normalizedName(name) {
+    return String(name || "").trim().toLowerCase().replace(/\s+/g, " ");
+  }
+
+  function profileActivityScore(profile) {
+    return (profile.attempts || []).length * 100
+      + Object.keys(profile.trainingCompleted || {}).length * 20
+      + (profile.writingSamples || []).length * 10
+      + (profile.stars || 0);
   }
 
   function renderKidShell() {
