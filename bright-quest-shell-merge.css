@@ -20,6 +20,11 @@ body.bq-shell-merge {
   display: none !important;
 }
 
+.bq-shell-merge #parentScreen .parent-premium-frame {
+  inset: 0;
+  border-radius: 30px;
+}
+
 .bq-home-shell {
   display: grid;
   gap: 18px;
