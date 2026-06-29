@@ -554,7 +554,8 @@ body.bq-shell-merge {
   border-radius: 28px;
   background:
     linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.72)),
-    url("assets/ui/blackboard-lesson.svg") center / cover no-repeat;
+    url("assets/ui/winter-2026/place-value.png") center / contain no-repeat,
+    linear-gradient(135deg, #faf4e8, #eef7ff);
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,0.72),
     0 18px 34px rgba(14, 43, 97, 0.16);
@@ -624,7 +625,7 @@ body.bq-shell-merge {
   border-radius: 24px;
   background:
     linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)),
-    url("assets/ui/blackboard-lesson.svg") center / contain no-repeat,
+    url("assets/ui/winter-2026/place-value.png") center / contain no-repeat,
     linear-gradient(135deg, #eff6ff, #ecfeff);
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,0.7),
@@ -632,63 +633,63 @@ body.bq-shell-merge {
 }
 
 .bq-winter-topic.workbench .bq-winter-thumb {
-  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/test-workbench-scene.svg"), linear-gradient(135deg, #f8fafc, #ecfeff);
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/winter-2026/multi-arithmetic.png"), linear-gradient(135deg, #f8fafc, #ecfeff);
   background-size: auto, contain, auto;
   background-position: center, center, center;
   background-repeat: no-repeat;
 }
 
 .bq-winter-topic.mountain .bq-winter-thumb {
-  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/maths-mountain.svg"), linear-gradient(135deg, #eff6ff, #dbeafe);
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/winter-2026/multiplication.png"), linear-gradient(135deg, #eff6ff, #dbeafe);
   background-size: auto, contain, auto;
   background-position: center, center, center;
   background-repeat: no-repeat;
 }
 
 .bq-winter-topic.reasoning .bq-winter-thumb {
-  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/reasoning-lab.svg"), linear-gradient(135deg, #f5f3ff, #eff6ff);
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/winter-2026/division.png"), linear-gradient(135deg, #f5f3ff, #eff6ff);
   background-size: auto, contain, auto;
   background-position: center, center, center;
   background-repeat: no-repeat;
 }
 
 .bq-winter-topic.core .bq-winter-thumb {
-  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/core-test-path.svg"), linear-gradient(135deg, #f8fafc, #dbeafe);
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/winter-2026/fraction-equivalence.png"), linear-gradient(135deg, #f8fafc, #dbeafe);
   background-size: auto, contain, auto;
   background-position: center, center, center;
   background-repeat: no-repeat;
 }
 
 .bq-winter-topic.notebook .bq-winter-thumb {
-  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/grammar-notebook.svg"), linear-gradient(135deg, #fefce8, #ecfeff);
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/winter-2026/fraction-operations.png"), linear-gradient(135deg, #fefce8, #ecfeff);
   background-size: auto, contain, auto;
   background-position: center, center, center;
   background-repeat: no-repeat;
 }
 
 .bq-winter-topic.progress .bq-winter-thumb {
-  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/progress-dashboard.svg"), linear-gradient(135deg, #f0fdf4, #eff6ff);
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/winter-2026/decimals-data.png"), linear-gradient(135deg, #f0fdf4, #eff6ff);
   background-size: auto, contain, auto;
   background-position: center, center, center;
   background-repeat: no-repeat;
 }
 
 .bq-winter-topic.world .bq-winter-thumb {
-  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/world-challenge.svg"), linear-gradient(135deg, #ecfeff, #eef2ff);
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/winter-2026/angles-geometry.png"), linear-gradient(135deg, #ecfeff, #eef2ff);
   background-size: auto, contain, auto;
   background-position: center, center, center;
   background-repeat: no-repeat;
 }
 
 .bq-winter-topic.reading .bq-winter-thumb {
-  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/reading-forest.svg"), linear-gradient(135deg, #f0fdf4, #eff6ff);
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/winter-2026/word-problems.png"), linear-gradient(135deg, #f0fdf4, #eff6ff);
   background-size: auto, contain, auto;
   background-position: center, center, center;
   background-repeat: no-repeat;
 }
 
 .bq-winter-topic.academy .bq-winter-thumb {
-  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/academy-hub-illustration.svg"), linear-gradient(135deg, #eff6ff, #dcfce7);
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.6)), url("assets/ui/winter-2026/factors-patterns.png"), linear-gradient(135deg, #eff6ff, #dcfce7);
   background-size: auto, contain, auto;
   background-position: center, center, center;
   background-repeat: no-repeat;
