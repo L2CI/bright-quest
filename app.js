@@ -378,10 +378,10 @@ function activateProfile(name) {
 
 function renderProfileScreen() {
   profileName.value = "";
-  const profiles = Object.values(state.profiles);
+  const profiles = visibleKidProfiles(Object.values(state.profiles));
   profileForm.classList.toggle("hidden", profiles.length > 0);
   savedProfiles.innerHTML = profiles.length
-    ? `<p class="saved-label">Continue a journey</p>${profiles.map((profile) => `<button class="profile-chip" type="button" data-profile="${profile.id}">${escapeHtml(profile.name)}</button>`).join("")}<p class="saved-label">New kid profiles are added from Parent Cockpit.</p>`
+    ? `<p class="saved-label">Continue a journey</p>${profiles.map((profile) => `<button class="profile-chip" type="button" data-profile="${profile.id}">${escapeHtml(profile.name)}</button>`).join("")}<div class="profile-note-box">New kid profiles are added from Parent Cockpit.</div>`
     : `<p class="saved-label">No profiles yet. A parent can add the first kid profile from Parent Cockpit.</p>`;
 
   savedProfiles.querySelectorAll("[data-profile]").forEach((button) => {
@@ -393,6 +393,27 @@ function renderProfileScreen() {
       showScreen("dashboard");
     });
   });
+}
+
+function visibleKidProfiles(profiles) {
+  const byName = new Map();
+  profiles.forEach((profile) => {
+    const key = profileKey(profile.name || profile.id || "");
+    const existing = byName.get(key);
+    if (!existing || profileDisplayRank(profile) > profileDisplayRank(existing)) {
+      byName.set(key, profile);
+    }
+  });
+  return [...byName.values()];
+}
+
+function profileDisplayRank(profile) {
+  return (profile.createdByParent ? 100000 : 0)
+    + (profile.id !== "test" ? 10000 : 0)
+    + (profile.attempts || []).length * 100
+    + Object.keys(profile.trainingCompleted || {}).length * 20
+    + (profile.writingSamples || []).length * 10
+    + (profile.stars || 0);
 }
 
 function renderDashboard() {

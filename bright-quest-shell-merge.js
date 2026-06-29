@@ -30,6 +30,7 @@
   };
 
   renderParentDashboard = function shellMergeParentDashboard() {
+    dedupeSameNameProfiles();
     normalizeProfiles();
     document.querySelector("#parentScreen")?.classList.add("parent-cockpit-redesign", "parent-page-cockpit");
     const profiles = Object.values(state.profiles);
@@ -41,6 +42,7 @@
   function handleKidConfirmation(event) {
     if (state.selectedRole !== "kid") return;
     if (modePassword.value !== "abcde") return;
+    dedupeSameNameProfiles();
     const profiles = Object.values(state.profiles);
     const profile = confirmationProfile(profiles);
     if (!profile) return;
@@ -125,6 +127,102 @@
       + Object.keys(profile.trainingCompleted || {}).length * 20
       + (profile.writingSamples || []).length * 10
       + (profile.stars || 0);
+  }
+
+  function dedupeSameNameProfiles() {
+    const groups = Object.values(state.profiles).reduce((acc, profile) => {
+      const key = normalizedName(profile.name || profile.id);
+      if (!key) return acc;
+      (acc[key] ||= []).push(profile);
+      return acc;
+    }, {});
+    let changed = false;
+    Object.values(groups).forEach((profiles) => {
+      if (profiles.length < 2) return;
+      const canonical = [...profiles].sort((a, b) => profileCanonicalScore(b) - profileCanonicalScore(a))[0];
+      profiles.forEach((profile) => {
+        if (profile.id === canonical.id) return;
+        mergeProfileData(canonical, profile);
+        if (state.profileId === profile.id) state.profileId = canonical.id;
+        if (state.parentProfileId === profile.id) state.parentProfileId = canonical.id;
+        delete state.profiles[profile.id];
+        deleteCloudProfile(profile.id);
+        changed = true;
+      });
+      canonical.createdByParent ||= profiles.some((profile) => profile.createdByParent);
+      if (state.profileId === canonical.id) state.profile = canonical;
+      syncProfileToCloud(canonical);
+    });
+    if (changed) {
+      normalizeProfiles();
+      saveProfiles();
+    }
+  }
+
+  function profileCanonicalScore(profile) {
+    return (profile.createdByParent ? 100000 : 0)
+      + (profile.id !== "test" ? 10000 : 0)
+      + profileActivityScore(profile);
+  }
+
+  function mergeProfileData(target, source) {
+    target.stars = Math.max(Number(target.stars || 0), Number(source.stars || 0));
+    target.createdAt = earliestDate(target.createdAt, source.createdAt);
+    target.attempts = mergeArrayRecords(target.attempts || [], source.attempts || [], attemptKey);
+    target.writingSamples = mergeArrayRecords(target.writingSamples || [], source.writingSamples || [], writingKey);
+    target.trainingCompleted = mergeTraining(target.trainingCompleted || {}, source.trainingCompleted || {});
+  }
+
+  function mergeArrayRecords(primary, secondary, keyFn) {
+    const seen = new Set();
+    return [...primary, ...secondary].filter((item) => {
+      const key = keyFn(item);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  function attemptKey(item) {
+    return [item?.date || item?.createdAt || "", item?.level || "", item?.percent || "", item?.score || ""].join("|");
+  }
+
+  function writingKey(item) {
+    return [item?.date || item?.createdAt || "", item?.prompt || "", item?.response || ""].join("|");
+  }
+
+  function mergeTraining(primary, secondary) {
+    const merged = { ...secondary, ...primary };
+    Object.keys(secondary).forEach((key) => {
+      if (!primary[key]) return;
+      merged[key] = {
+        ...secondary[key],
+        ...primary[key],
+        count: Math.max(Number(primary[key].count || 0), Number(secondary[key].count || 0)),
+        date: latestDate(primary[key].date, secondary[key].date)
+      };
+    });
+    return merged;
+  }
+
+  function earliestDate(a, b) {
+    if (!a) return b;
+    if (!b) return a;
+    return new Date(a) <= new Date(b) ? a : b;
+  }
+
+  function latestDate(a, b) {
+    if (!a) return b;
+    if (!b) return a;
+    return new Date(a) >= new Date(b) ? a : b;
+  }
+
+  async function deleteCloudProfile(profileId) {
+    try {
+      await fetch(`/api/profiles?profileId=${encodeURIComponent(profileId)}`, { method: "DELETE" });
+    } catch (error) {
+      console.warn("Cloud profile delete skipped", error);
+    }
   }
 
   function renderKidShell() {

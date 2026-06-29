@@ -437,6 +437,13 @@
       const name = window.prompt("New kid first name");
       if (!name?.trim()) return;
       const id = profileKey(name.trim());
+      const existing = findProfileByName(name.trim());
+      if (existing) {
+        state.parentProfileId = existing.id;
+        renderParentDashboard();
+        showToast(`${existing.name}'s profile already exists.`);
+        return;
+      }
       if (!state.profiles[id]) {
         state.profiles[id] = { id, name: name.trim(), createdAt: new Date().toISOString(), createdByParent: true, stars: 0, attempts: [], trainingCompleted: {}, writingSamples: [] };
         normalizeProfiles();
@@ -451,6 +458,21 @@
   function prepareAarinProfile(showMessage) {
     const testProfile = state.profiles.test;
     if (!testProfile) return;
+    const canonical = state.profiles.aarin || Object.values(state.profiles).find((profile) => profile.id !== "test" && profileKey(profile.name || "") === "aarin");
+    if (canonical) {
+      mergeProfileData(canonical, testProfile);
+      canonical.name = canonical.name || "Aarin";
+      canonical.createdByParent = true;
+      if (state.profileId === "test") state.profileId = canonical.id;
+      if (state.parentProfileId === "test" || !state.parentProfileId) state.parentProfileId = canonical.id;
+      if (state.profileId === canonical.id) state.profile = canonical;
+      delete state.profiles.test;
+      normalizeProfiles();
+      syncProfileToCloud(canonical);
+      deleteCloudProfile("test");
+      if (showMessage) showToast("Aarin is preserved; duplicate legacy profile was merged.");
+      return;
+    }
     let changed = false;
     if (testProfile.name !== "Aarin") {
       testProfile.name = "Aarin";
@@ -474,6 +496,66 @@
       syncProfileToCloud(testProfile);
     }
     if (showMessage) showToast("Aarin is preserved; empty extra profiles were removed.");
+  }
+
+  function findProfileByName(name) {
+    const key = profileKey(name || "");
+    return Object.values(state.profiles).find((profile) => profileKey(profile.name || "") === key);
+  }
+
+  function mergeProfileData(target, source) {
+    if (!target || !source || target.id === source.id) return;
+    target.stars = Math.max(Number(target.stars || 0), Number(source.stars || 0));
+    target.createdAt = earliestDate(target.createdAt, source.createdAt);
+    target.attempts = mergeArrayRecords(target.attempts || [], source.attempts || [], attemptKey);
+    target.writingSamples = mergeArrayRecords(target.writingSamples || [], source.writingSamples || [], writingKey);
+    target.trainingCompleted = mergeTraining(target.trainingCompleted || {}, source.trainingCompleted || {});
+  }
+
+  function mergeArrayRecords(primary, secondary, keyFn) {
+    const seen = new Set();
+    return [...primary, ...secondary].filter((item) => {
+      const key = keyFn(item);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  function attemptKey(item) {
+    return [item?.date || item?.createdAt || "", item?.level || "", item?.percent || "", item?.score || ""].join("|");
+  }
+
+  function writingKey(item) {
+    return [item?.date || item?.createdAt || "", item?.prompt || "", item?.response || ""].join("|");
+  }
+
+  function mergeTraining(primary, secondary) {
+    const merged = { ...secondary, ...primary };
+    Object.keys(secondary).forEach((key) => {
+      if (!primary[key]) return;
+      const primaryCount = Number(primary[key].count || 0);
+      const secondaryCount = Number(secondary[key].count || 0);
+      merged[key] = {
+        ...secondary[key],
+        ...primary[key],
+        count: Math.max(primaryCount, secondaryCount),
+        date: latestDate(primary[key].date, secondary[key].date)
+      };
+    });
+    return merged;
+  }
+
+  function earliestDate(a, b) {
+    if (!a) return b;
+    if (!b) return a;
+    return new Date(a) <= new Date(b) ? a : b;
+  }
+
+  function latestDate(a, b) {
+    if (!a) return b;
+    if (!b) return a;
+    return new Date(a) >= new Date(b) ? a : b;
   }
 
   async function deleteCloudProfile(profileId) {
