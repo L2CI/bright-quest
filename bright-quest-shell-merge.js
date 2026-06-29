@@ -1,7 +1,9 @@
 (() => {
-  const AGMATHS_URL = "https://agmaths.dipanjan-gupta.workers.dev/";
-  const AGMATHS_COCKPIT_URL = "https://agmaths.dipanjan-gupta.workers.dev/#cockpit";
-  const DRAGON_FORGE_URL = "https://agmaths.dipanjan-gupta.workers.dev/#game";
+  const BRIGHT_QUEST_URL = "https://bright-quest.pages.dev/";
+  const AGMATHS_URL = "https://agmaths.dipanjan-gupta.workers.dev/?from=brightquest#map";
+  const AGMATHS_COCKPIT_URL = "https://agmaths.dipanjan-gupta.workers.dev/?from=brightquest#cockpit";
+  const DRAGON_FORGE_URL = "https://agmaths.dipanjan-gupta.workers.dev/?from=brightquest#game";
+  let pendingKidProfile = null;
 
   document.body.classList.add("bq-shell-merge");
 
@@ -46,17 +48,63 @@
     event.stopImmediatePropagation();
     modePassword.value = "";
 
-    if (!window.confirm(`Are you ${profile.name}?`)) {
-      renderProfileScreen();
-      showScreen("profile");
-      return;
-    }
+    showKidConfirmation(profile);
+  }
 
+  function showKidConfirmation(profile) {
+    pendingKidProfile = profile;
+    let screen = document.querySelector("#bqKidConfirmScreen");
+    if (!screen) {
+      screen = document.createElement("section");
+      screen.id = "bqKidConfirmScreen";
+      screen.className = "screen bq-kid-confirm-screen hidden";
+      screen.innerHTML = `
+        <div class="bq-kid-confirm-card">
+          <div class="bq-confirm-art"></div>
+          <div>
+            <p class="eyebrow">Bright Quest check-in</p>
+            <h1></h1>
+            <p class="bq-confirm-copy"></p>
+            <div class="bq-confirm-actions">
+              <button class="button button-primary" type="button" data-bq-confirm-yes>Yes, that's me</button>
+              <button class="button button-soft" type="button" data-bq-confirm-no>No, go back</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.querySelector("#app")?.append(screen);
+      screen.querySelector("[data-bq-confirm-yes]")?.addEventListener("click", confirmKidProfile);
+      screen.querySelector("[data-bq-confirm-no]")?.addEventListener("click", rejectKidProfile);
+    }
+    screen.querySelector(".bq-confirm-art").innerHTML = art("compass");
+    screen.querySelector("h1").textContent = `Confirm you are ${profile.name}`;
+    screen.querySelector(".bq-confirm-copy").textContent = `This keeps stars, tests, games, and training saved under ${profile.name}'s Bright Quest journey.`;
+    showOnlyKidConfirm();
+  }
+
+  function showOnlyKidConfirm() {
+    Object.values(screens).forEach((screen) => screen.classList.add("hidden"));
+    document.querySelector("#bqKidConfirmScreen")?.classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function confirmKidProfile() {
+    const profile = pendingKidProfile;
+    if (!profile) return rejectKidProfile();
     state.profileId = profile.id;
     state.profile = state.profiles[profile.id];
+    pendingKidProfile = null;
     saveProfiles();
+    document.querySelector("#bqKidConfirmScreen")?.classList.add("hidden");
     renderDashboard();
     showScreen("dashboard");
+  }
+
+  function rejectKidProfile() {
+    pendingKidProfile = null;
+    document.querySelector("#bqKidConfirmScreen")?.classList.add("hidden");
+    renderProfileScreen();
+    showScreen("profile");
   }
 
   function confirmationProfile(profiles) {
@@ -93,6 +141,7 @@
         ? `Last score ${latest.percent}%. Try the next City School Exam Prep set, then choose a reward game.`
         : `Last score ${latest.percent}%. ${weak ? `Focus on ${escapeHtml(weak[0])}, then try another short set.` : "Use a short training run, then try another set."}`
       : "Begin with City School Exam Prep, then unlock a reward game after the first result.";
+    document.querySelector("#dashboardScreen")?.classList.remove("bq-kid-subpage");
     ref.className = "reference-dashboard bq-home-shell";
     ref.innerHTML = `
       <section class="bq-home-hero">
@@ -128,16 +177,18 @@
           <div>
             <p class="eyebrow">Training</p>
             <h3>Pick the learning path</h3>
-            <p>Exam preparation and structured maths training live here.</p>
+            <p>Choose a path first. Tests open after the prep map.</p>
           </div>
           <div class="bq-module-list">
             <button type="button" class="bq-module-card exam" data-bq-action="city-exam">
+              ${art("school")}
               <strong>City School Exam Prep</strong>
-              <span>Timed Bright Quest maths, English, reasoning, writing, and weak-spot practice.</span>
+              <span>View all sets</span>
             </button>
             <button type="button" class="bq-module-card winter" data-bq-action="winter-training">
+              ${art("winter")}
               <strong>Winter 2026 Training 1</strong>
-              <span>Structured Grade 4 maths training, tests, parent results, and Dragon Forge.</span>
+              <span>Maths course map</span>
             </button>
           </div>
         </article>
@@ -163,11 +214,11 @@
 
   function handleKidAction(action) {
     if (action === "city-exam") {
-      startLevel(nextSuggestedLevel());
+      renderCityExamPrepPage();
       return;
     }
     if (action === "winter-training") {
-      window.location.href = AGMATHS_URL;
+      renderWinterTrainingPage();
       return;
     }
     if (action === "games") {
@@ -175,12 +226,145 @@
       return;
     }
     if (action === "progress") {
-      document.querySelector(".insight-grid")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      renderKidProgressPage();
+      return;
+    }
+    if (action === "kid-home") {
+      renderKidShell();
+      return;
+    }
+    if (action === "open-agmaths") {
+      window.location.href = AGMATHS_URL;
+      return;
+    }
+    if (action === "open-agmaths-cockpit") {
+      window.location.href = AGMATHS_COCKPIT_URL;
+      return;
+    }
+    if (action === "open-dragon-forge") {
+      window.location.href = DRAGON_FORGE_URL;
       return;
     }
     if (action === "logout") {
       switchProfileButton.click();
     }
+  }
+
+  function kidPageShell(title, copy, artName, body) {
+    const ref = document.querySelector("#brightReferenceDashboard");
+    if (!ref || !state.profile) return null;
+    document.querySelector("#dashboardScreen")?.classList.add("bq-kid-subpage");
+    ref.className = "reference-dashboard bq-home-shell bq-kid-page";
+    ref.innerHTML = `
+      <section class="bq-kid-page-head">
+        ${art(artName)}
+        <div>
+          <p class="eyebrow">Bright Quest</p>
+          <h3>${escapeHtml(title)}</h3>
+          <p>${escapeHtml(copy)}</p>
+        </div>
+        <button type="button" class="button button-soft" data-bq-action="kid-home">Back to dashboard</button>
+      </section>
+      ${body}
+    `;
+    ref.querySelectorAll("[data-bq-action]").forEach((button) => {
+      button.addEventListener("click", () => handleKidAction(button.dataset.bqAction));
+    });
+    ref.querySelectorAll("[data-start-level]").forEach((button) => {
+      button.addEventListener("click", () => startLevel(Number(button.dataset.startLevel)));
+    });
+    return ref;
+  }
+
+  function renderCityExamPrepPage() {
+    const latest = latestAttemptsByLevel();
+    const recommended = nextSuggestedLevel();
+    const levels = getAllLevels();
+    const completed = levels.filter((level) => latest[level.level]).length;
+    const body = `
+      <section class="bq-prep-summary">
+        <div><strong>${completed}/${levels.length}</strong><span>sets attempted</span></div>
+        <div><strong>${bestAttemptScore()}%</strong><span>best score</span></div>
+        <div><strong>${recommended}</strong><span>suggested set</span></div>
+      </section>
+      <section class="bq-prep-grid" aria-label="City School Exam Prep sets">
+        ${levels.map((level) => {
+          const attempt = latest[level.level];
+          const status = attempt ? `${attempt.percent}% ${scoreLabel(attempt.percent)}` : "Pending";
+          const isRecommended = level.level === recommended;
+          return `
+            <button type="button" class="bq-prep-card ${attempt ? "done" : "pending"} ${isRecommended ? "recommended" : ""}" data-start-level="${escapeAttr(level.level)}">
+              ${art(attempt ? "mountain" : "school")}
+              <span class="bq-prep-state">${isRecommended ? "Suggested next" : attempt ? "Done" : "Pending"}</span>
+              <strong>${escapeHtml(level.name)}</strong>
+              <small>${escapeHtml(level.challengeLabel || level.difficulty || "City School Prep")}</small>
+              <em>${escapeHtml(status)}</em>
+            </button>
+          `;
+        }).join("")}
+      </section>
+    `;
+    kidPageShell("City School Exam Prep", "Choose a set, see what is done, and start the real test only when ready.", "school", body);
+  }
+
+  function renderWinterTrainingPage() {
+    const topics = [
+      "Place value", "Multi-step arithmetic", "Multiplication", "Division", "Fraction equivalence",
+      "Fraction operations", "Decimals and data", "Angles and geometry", "Word problems", "Mixed revision"
+    ];
+    const body = `
+      <section class="bq-winter-hero">
+        ${art("winter")}
+        <div>
+          <h3>Winter 2026 Training 1</h3>
+          <p>AGMaths stays the source of truth for its course progress, tests, cockpit, and Dragon Forge. Bright Quest now opens it on the course map, not the generic home screen.</p>
+        </div>
+        <div class="bq-winter-actions">
+          <button type="button" class="button button-primary" data-bq-action="open-agmaths">Open training map</button>
+          <button type="button" class="button button-soft" data-bq-action="open-agmaths-cockpit">Open AGMaths cockpit</button>
+          <button type="button" class="button button-soft" data-bq-action="open-dragon-forge">Play Dragon Forge</button>
+        </div>
+      </section>
+      <section class="bq-winter-topic-grid" aria-label="Winter 2026 topics">
+        ${topics.map((topic, index) => `
+          <article class="bq-winter-topic">
+            <span>${String(index + 1).padStart(2, "0")}</span>
+            <strong>${escapeHtml(topic)}</strong>
+            <small>Open in AGMaths</small>
+          </article>
+        `).join("")}
+      </section>
+    `;
+    kidPageShell("Winter 2026 Training 1", "A structured Grade 4 maths module with its own progress and cockpit.", "winter", body);
+  }
+
+  function renderKidProgressPage() {
+    const attempts = state.profile.attempts || [];
+    const weak = Object.entries(weakSkillCounts()).sort((a, b) => b[1] - a[1]);
+    const latest = latestAttemptsByLevel();
+    const levels = getAllLevels();
+    const body = `
+      <section class="bq-prep-summary progress">
+        <div><strong>${attempts.length}</strong><span>tests taken</span></div>
+        <div><strong>${bestAttemptScore()}%</strong><span>best score</span></div>
+        <div><strong>${state.profile.stars || 0}</strong><span>stars</span></div>
+      </section>
+      <section class="bq-progress-board">
+        <article>
+          <h3>Done and pending</h3>
+          <div class="bq-mini-status-list">
+            ${levels.map((level) => `<div><span>${escapeHtml(level.name)}</span><strong>${latest[level.level] ? `${latest[level.level].percent}%` : "Pending"}</strong></div>`).join("")}
+          </div>
+        </article>
+        <article>
+          <h3>Focus areas</h3>
+          <div class="bq-chip-cloud">
+            ${weak.length ? weak.slice(0, 8).map(([skill, count]) => `<span>${escapeHtml(skill)} / ${count}</span>`).join("") : "<span>No weak spots yet</span>"}
+          </div>
+        </article>
+      </section>
+    `;
+    kidPageShell("Progress", "See what is done, what is pending, and where to focus next.", "mountain", body);
   }
 
   function addDragonForgeKidCard() {
