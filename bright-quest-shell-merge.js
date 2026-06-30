@@ -359,12 +359,17 @@
     return profileKey(agProfile?.id || agProfile?.name || "demo-student");
   }
 
-  function agmathsUrl(route, profile = null) {
+  function agmathsUrl(route, profile = null, returnRoute = "") {
     const agProfile = activeAgmathsProfile(profile);
     const url = new URL(AGMATHS_BASE_URL);
     url.searchParams.set("from", "brightquest");
     url.searchParams.set("studentId", agmathsStudentId(agProfile));
     if (agProfile?.name) url.searchParams.set("studentName", agProfile.name);
+    if (returnRoute) {
+      const returnUrl = new URL(BRIGHT_QUEST_URL);
+      returnUrl.hash = returnRoute;
+      url.searchParams.set("return", returnUrl.toString());
+    }
     url.hash = route || "map";
     return url.toString();
   }
@@ -822,7 +827,7 @@
           queryCard("exam-results", "City School Exam Prep", "Attempts, scores, and answer records.", "school"),
           queryCard("focus", "Focus Areas", "Recurring missed or slow skills with evidence.", "focus"),
           queryCard("training", "Training Coverage", "Completed, untouched, and recommended Bright Quest training.", "book"),
-          queryCard("winter-2026", "Winter 2026 Training 1", "Open AGMaths training and cockpit as the linked module.", "winter")
+          queryLinkCard(agmathsUrl("cockpit", metrics.profile, "parent/overview"), "Winter 2026 Training 1", "Open the AGMaths cockpit for this child.", "winter")
         ])}
         ${queryGroup("Play", "Reward games and motivation signals.", [
           queryCard("games", "Games & Rewards", "Reward-game access and recommendation context.", "treasure")
@@ -1029,6 +1034,10 @@
 
   function queryCard(route, title, copy, iconName) {
     return `<button class="bq-query-card" type="button" data-parent-route="${escapeAttr(route)}">${art(iconName)}<strong>${escapeHtml(title)}</strong><span>${escapeHtml(copy)}</span></button>`;
+  }
+
+  function queryLinkCard(url, title, copy, iconName) {
+    return `<button class="bq-query-card" type="button" data-open-game-url="${escapeAttr(url)}">${art(iconName)}<strong>${escapeHtml(title)}</strong><span>${escapeHtml(copy)}</span></button>`;
   }
 
   function questionCard(question) {
