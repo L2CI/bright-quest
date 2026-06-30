@@ -7,14 +7,14 @@
       title: "Chemistry starts with evidence",
       short: "What chemists do",
       phaseCount: 4,
-      narration: "Welcome to Chemistry Foundations. Not baby chemistry. Real chemistry, made clear. Today we start with matter, materials, and evidence. Chemistry is the study of what things are made of, what properties they have, and how they change. The important word is evidence. We do not say, that looks sciencey, therefore it is true. We observe, test, compare, and then decide. On the bench today we have metal, plastic, wax, salt, water, graphite, and copper wire. Each one is a suspect in our material mystery. Sensible goggles on. Serious eyebrows optional.",
+      narration: "Welcome to Chemistry Foundations. Not baby chemistry. Real chemistry, made clear. Today we start with matter, materials, and evidence. Chemistry is the study of what things are made of, what properties they have, and how they change. The important word is evidence. We do not say, that looks sciencey, therefore it is true. We observe, test, compare, and then decide. On the bench today we have metal, plastic, wax, salt, water, and graphite. Each one is a suspect in our material mystery. Sensible goggles on. Serious eyebrows optional.",
       caption: "Chemistry is evidence work: observe, test, compare, decide."
     },
     {
       title: "Object or material?",
       short: "Object vs material",
       phaseCount: 5,
-      narration: "First distinction. An object is the thing. A material is what the thing is made from. A spoon is an object. Metal is the material. A bottle is an object. It might be made from glass or plastic. This sounds simple, but it matters. Chemists ask material questions. Is it flexible? Does it dissolve? Is it magnetic? Does it conduct heat? If a rubber duck applies to be a window, we can admire the confidence, but we still have to ask for evidence. Is it transparent enough? No. The duck has been rejected by the window committee.",
+      narration: "First distinction. An object is the thing. A material is what the thing is made from. A spoon is an object. Metal is the material. A bottle is an object. It might be made from glass or plastic. This sounds simple, but it matters. Chemists ask material questions. Is it flexible? Does it dissolve? Is it magnetic? Does it conduct heat? If a rubber duck applies to be a window, we can admire the confidence, but we still have to ask for evidence. Is it transparent enough? No. Excellent confidence. Terrible transparency.",
       caption: "Object = the thing. Material = what it is made from."
     },
     {
@@ -35,7 +35,7 @@
       title: "Choose the material for the job",
       short: "Material choices",
       phaseCount: 5,
-      narration: "Let us make decisions. For a window, transparent glass wins because light passes through it and it keeps out wind and rain. For a raincoat, flexible waterproof fabric beats cardboard. Cardboard can be noble, but in a thunderstorm it becomes sad breakfast cereal. For electrical wire, copper is useful because it conducts electricity and can be drawn into thin wire. Notice the pattern. We do not ask, what material is best? We ask, best for what job?",
+      narration: "Let us make decisions. For a window, glass wins because it is transparent: light passes through, so we can see out. For a raincoat, flexible waterproof fabric beats cardboard. Cardboard can be noble, but in a thunderstorm it becomes sad breakfast cereal. For electrical wire, copper is useful because it conducts electricity and can be drawn into thin wire. Notice the pattern. We do not ask, what material is best? We ask, best for what job?",
       caption: "The best material depends on the job."
     },
     {
@@ -455,7 +455,7 @@
       <circle cx="112" cy="50" r="4" fill="#1f2a26"/>
       <path d="M58 82c28 12 69 12 96 0" stroke="#8a5b1d" stroke-width="4" fill="none" stroke-linecap="round"/>
       <text x="242" y="44" fill="#f7f1df" font-size="20" font-weight="900">Window job?</text>
-      ${showReject ? `<text class="pop-in" x="242" y="78" fill="#f2c35e" font-size="22" font-weight="950">Terrible transparency.</text>` : ""}
+      ${showReject ? `<text class="pop-in" x="242" y="78" fill="#f2c35e" font-size="22" font-weight="950">Excellent confidence. Terrible transparency.</text>` : ""}
     </g>`;
   }
 
