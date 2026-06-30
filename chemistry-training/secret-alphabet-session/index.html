@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bright Quest Chemistry - Secret Alphabet Session</title>
+    <link rel="icon" href="data:,">
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0f151a;
+        --panel: #182028;
+        --panel-2: #11181e;
+        --ink: #f5f1e7;
+        --muted: #aeb8c2;
+        --cyan: #69c9dc;
+        --gold: #d7a84f;
+        --line: rgba(245, 241, 231, 0.16);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 10% 0%, rgba(105, 201, 220, 0.15), transparent 28%),
+          radial-gradient(circle at 88% 6%, rgba(215, 168, 79, 0.12), transparent 24%),
+          var(--bg);
+        color: var(--ink);
+        font-family: "Segoe UI", Arial, sans-serif;
+      }
+
+      main {
+        width: min(1180px, 100%);
+        margin: 0 auto;
+        padding: 18px 14px 24px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .brand {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .brand strong {
+        font-size: clamp(21px, 4.8vw, 36px);
+        line-height: 1.03;
+      }
+
+      .brand span {
+        color: var(--muted);
+        font-size: clamp(13px, 2vw, 16px);
+      }
+
+      .home {
+        min-height: 36px;
+        border: 1px solid rgba(105, 201, 220, 0.38);
+        border-radius: 6px;
+        padding: 8px 11px;
+        color: var(--cyan);
+        font-weight: 800;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+
+      .home:hover,
+      .home:focus-visible {
+        border-color: rgba(215, 168, 79, 0.78);
+        color: var(--gold);
+        outline: none;
+      }
+
+      .player {
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #070a0c;
+        box-shadow: 0 18px 64px rgba(0, 0, 0, 0.38);
+      }
+
+      video {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        background: #070a0c;
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+        border-top: 1px solid rgba(245, 241, 231, 0.12);
+        background: rgba(7, 10, 12, 0.94);
+      }
+
+      button {
+        min-height: 40px;
+        border: 1px solid rgba(245, 241, 231, 0.22);
+        border-radius: 6px;
+        padding: 0 14px;
+        background: #151c22;
+        color: var(--ink);
+        font: 800 14px "Segoe UI", Arial, sans-serif;
+        cursor: pointer;
+      }
+
+      button:hover,
+      button:focus-visible {
+        border-color: rgba(105, 201, 220, 0.78);
+        color: var(--cyan);
+        outline: none;
+      }
+
+      button[aria-pressed="true"] {
+        border-color: rgba(215, 168, 79, 0.86);
+        color: var(--gold);
+      }
+
+      .meta {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: center;
+        margin-top: 14px;
+        padding: 14px;
+        border: 1px solid rgba(245, 241, 231, 0.08);
+        border-radius: 8px;
+        background: rgba(24, 32, 40, 0.92);
+      }
+
+      .title {
+        margin: 0;
+        color: var(--ink);
+        font-size: clamp(22px, 4vw, 34px);
+        line-height: 1.08;
+        font-weight: 900;
+      }
+
+      .details {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: clamp(14px, 2.4vw, 17px);
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 34px;
+        padding: 0 11px;
+        border: 1px solid rgba(105, 201, 220, 0.34);
+        border-radius: 6px;
+        color: var(--cyan);
+        font-size: 14px;
+        font-weight: 900;
+        white-space: nowrap;
+      }
+
+      @media (max-width: 700px) {
+        main {
+          padding: 10px 8px 18px;
+        }
+
+        .topbar,
+        .meta {
+          align-items: flex-start;
+          grid-template-columns: 1fr;
+        }
+
+        .topbar {
+          flex-direction: column;
+        }
+
+        .controls {
+          justify-content: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="topbar">
+        <div class="brand">
+          <strong>The Secret Alphabet Of Matter</strong>
+          <span>Bright Quest Chemistry Chapter 1</span>
+        </div>
+        <a class="home" href="../../">Bright Quest</a>
+      </header>
+
+      <section class="player" aria-label="Chemistry Chapter 1 Scene 1 video">
+        <video id="sceneVideo" controls playsinline preload="metadata" poster="./poster-scene-01.jpg">
+          <source src="./chemistry-scene-01-manim.mp4" type="video/mp4">
+          <track id="captionTrack" kind="captions" src="./scene-01-captions.vtt" srclang="en" label="English">
+        </video>
+        <div class="controls" aria-label="Playback controls">
+          <button id="playPause" type="button">Play</button>
+          <button id="rewind" type="button">-15s</button>
+          <button id="stop" type="button">Stop</button>
+          <button id="cc" type="button" aria-pressed="false">CC</button>
+        </div>
+      </section>
+
+      <section class="meta" aria-label="Session details">
+        <div>
+          <p class="title">Everything Has A Hidden Code</p>
+          <p class="details">Scene 1 of the chemistry session. Manim-rendered video with stored OpenAI teacher MP3 and optional captions.</p>
+        </div>
+        <span class="badge">Scene 1</span>
+      </section>
+    </main>
+
+    <script>
+      const video = document.getElementById("sceneVideo");
+      const playPause = document.getElementById("playPause");
+      const rewind = document.getElementById("rewind");
+      const stop = document.getElementById("stop");
+      const cc = document.getElementById("cc");
+
+      function syncPlayLabel() {
+        playPause.textContent = video.paused ? "Play" : "Pause";
+      }
+
+      playPause.addEventListener("click", async () => {
+        if (video.paused) {
+          await video.play();
+        } else {
+          video.pause();
+        }
+        syncPlayLabel();
+      });
+
+      rewind.addEventListener("click", () => {
+        video.currentTime = Math.max(0, video.currentTime - 15);
+      });
+
+      stop.addEventListener("click", () => {
+        video.pause();
+        video.currentTime = 0;
+        syncPlayLabel();
+      });
+
+      cc.addEventListener("click", () => {
+        const track = video.textTracks[0];
+        const showing = track.mode === "showing";
+        track.mode = showing ? "hidden" : "showing";
+        cc.setAttribute("aria-pressed", String(!showing));
+      });
+
+      video.addEventListener("play", syncPlayLabel);
+      video.addEventListener("pause", syncPlayLabel);
+      video.addEventListener("ended", syncPlayLabel);
+      video.addEventListener("loadedmetadata", () => {
+        if (video.textTracks[0]) {
+          video.textTracks[0].mode = "hidden";
+        }
+      });
+    </script>
+  </body>
+</html>
