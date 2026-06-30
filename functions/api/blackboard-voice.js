@@ -9,18 +9,13 @@ export async function onRequestPost(context) {
   const input = cleanInput(body.text);
   if (!input) return json({ error: "Missing text" }, 400);
 
-  const primaryInstructions = [
-    "You are recording premium narration for an 8-year-old's chalkboard tutoring app.",
-    "Sound like a real private teacher: warm, bright, confident, and alive.",
-    "Use a slightly deeper baritone adult male tone, with calm authority and clear diction.",
-    "Keep the energy at 7.5 out of 10: enthusiastic and teacher-like, never cartoonish.",
-    "Smile in the voice. Lift discovery words like 'watch this', 'here comes the neat bit', 'ready', and the final answer.",
-    "Use expressive rhythm and short natural pauses before important reveals.",
-    "Do not drone, mumble, sound sleepy, sound robotic, or read like an audiobook.",
-    "Treat every sentence as if it is being spoken while chalk is being drawn on a board."
-  ].join(" ");
+  const voiceProfile = String(body.voiceProfile || "");
+  const voiceConfig = voiceProfile === "chemistry-teacher-v1"
+    ? chemistryTeacherVoice()
+    : defaultTeacherVoice();
+  const primaryInstructions = voiceConfig.instructions;
 
-  const cacheRequest = await makeVoiceCacheRequest(context.request, input, primaryInstructions);
+  const cacheRequest = await makeVoiceCacheRequest(context.request, input, primaryInstructions, voiceConfig);
   const cached = await readVoiceCache(cacheRequest);
   if (cached) {
     const headers = new Headers(cached.headers);
@@ -34,7 +29,7 @@ export async function onRequestPost(context) {
   const attempts = [
     {
       model: "gpt-4o-mini-tts",
-      voice: "onyx",
+      voice: voiceConfig.voice,
       input,
       instructions: primaryInstructions,
       response_format: "mp3"
@@ -66,7 +61,8 @@ export async function onRequestPost(context) {
           "cache-control": "public, max-age=2592000, immutable",
           "x-bq-voice-cache": "MISS",
           "x-bq-voice-model": payload.model,
-          "x-bq-voice-name": payload.voice
+          "x-bq-voice-name": payload.voice,
+          "x-bq-voice-profile": voiceConfig.profile
         }
       });
       writeVoiceCache(cacheRequest, audioResponse.clone(), context);
@@ -78,6 +74,41 @@ export async function onRequestPost(context) {
   return json({ error: "OpenAI voice request failed", detail: lastError.slice(0, 500) }, 502);
 }
 
+function defaultTeacherVoice() {
+  return {
+    profile: "blackboard-default-v3",
+    version: "blackboard-teacher-openai-voice-003",
+    voice: "onyx",
+    instructions: [
+      "You are recording premium narration for an 8-year-old's chalkboard tutoring app.",
+      "Sound like a real private teacher: warm, bright, confident, and alive.",
+      "Use a slightly deeper baritone adult male tone, with calm authority and clear diction.",
+      "Keep the energy at 7.5 out of 10: enthusiastic and teacher-like, never cartoonish.",
+      "Smile in the voice. Lift discovery words like 'watch this', 'here comes the neat bit', 'ready', and the final answer.",
+      "Use expressive rhythm and short natural pauses before important reveals.",
+      "Do not drone, mumble, sound sleepy, sound robotic, or read like an audiobook.",
+      "Treat every sentence as if it is being spoken while chalk is being drawn on a board."
+    ].join(" ")
+  };
+}
+
+function chemistryTeacherVoice() {
+  return {
+    profile: "chemistry-teacher-v1",
+    version: "chemistry-teacher-openai-voice-001",
+    voice: "coral",
+    instructions: [
+      "Speak like a warm, energetic Grade 4-5 chemistry teacher standing beside a bright child.",
+      "Be lively, clear, and precise, about 10 percent faster than a normal classroom explanation.",
+      "Sound experienced and alert, not like an audiobook narrator.",
+      "Use short natural pauses before evidence reveals.",
+      "Give extra lift to teacher moves such as 'watch', 'observe', 'test', 'compare', 'decide', and 'best for what job'.",
+      "Keep humour dry and quick. Never sound cartoonish, sleepy, robotic, or over-performed.",
+      "Treat every sentence as if an animation beat is being drawn at the same time."
+    ].join(" ")
+  };
+}
+
 function cleanInput(value) {
   return String(value || "")
     .replace(/\s+/g, " ")
@@ -85,13 +116,14 @@ function cleanInput(value) {
     .slice(0, 1200);
 }
 
-async function makeVoiceCacheRequest(originalRequest, input, instructions) {
+async function makeVoiceCacheRequest(originalRequest, input, instructions, voiceConfig) {
   const url = new URL(originalRequest.url);
   const hash = await sha256(JSON.stringify({
-    version: "blackboard-teacher-openai-voice-003",
+    version: voiceConfig.version,
     model: "gpt-4o-mini-tts",
     fallback: "tts-1",
-    voice: "onyx",
+    voice: voiceConfig.voice,
+    profile: voiceConfig.profile,
     instructions,
     input
   }));

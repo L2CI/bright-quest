@@ -4,23 +4,23 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#17201d" />
-    <title>Chemistry Foundations - Lesson 1</title>
+    <title>The Secret Alphabet of Matter - Bright Quest Chemistry</title>
     <link rel="icon" href="data:," />
-    <link rel="stylesheet" href="lesson-1.css?v=chem-lesson1-001" />
+    <link rel="stylesheet" href="lesson-1.css?v=chem-lesson1-010" />
   </head>
   <body>
     <main class="chem-app">
-      <section class="lesson-shell" aria-label="Chemistry Foundations Lesson 1">
+      <section class="lesson-shell" aria-label="Chemistry Chapter 1 lesson">
         <header class="lesson-header">
-          <a class="return-link" href="../../">Bright Quest</a>
-          <div>
+          <a class="return-link" href="../../" aria-label="Return to Bright Quest">Bright Quest</a>
+          <div class="lesson-heading">
             <p class="kicker">Winter 2026 Training 2</p>
-            <h1>Matter, Materials, and Evidence</h1>
-            <p class="lesson-subtitle">A serious first chemistry lesson: observe, test, decide.</p>
+            <h1>The Secret Alphabet of Matter</h1>
+            <p class="lesson-subtitle">Atoms, elements, molecules, compounds, and mixtures - taught like a proper chemistry mystery.</p>
           </div>
           <div class="lesson-meta" aria-label="Lesson status">
-            <span id="sceneCounter">Scene 1 of 7</span>
-            <span id="voiceStatus">Voice ready</span>
+            <span id="sceneCounter">Scene 1 of 12</span>
+            <span id="voiceStatus">Ready</span>
           </div>
         </header>
 
@@ -28,43 +28,47 @@
           <article class="stage-card">
             <div class="stage-toolbar">
               <div>
-                <p class="kicker">Animated lab board</p>
-                <h2 id="sceneTitle">Chemistry starts with evidence</h2>
+                <p class="kicker">Animated lesson board</p>
+                <h2 id="sceneTitle">Everything Has a Hidden Code</h2>
               </div>
-              <button class="icon-button" id="captionToggle" type="button" aria-pressed="true">Captions</button>
+              <button class="icon-button" id="captionToggle" type="button" aria-pressed="false" aria-label="Toggle captions">CC off</button>
             </div>
             <div class="svg-stage" id="svgStage" aria-live="polite"></div>
-            <p class="caption" id="caption"></p>
+            <p class="caption is-hidden" id="caption"></p>
           </article>
 
-          <aside class="lesson-panel">
+          <aside class="lesson-panel" aria-label="Lesson controls">
             <div class="control-card">
               <button class="start-button" id="startButton" type="button">Start lesson</button>
               <div class="time-row">
                 <span id="timeLabel">00:00</span>
-                <span id="durationLabel">review build</span>
+                <span id="durationLabel">14:55 target</span>
               </div>
               <div class="progress-track" aria-hidden="true">
                 <span id="progressBar"></span>
               </div>
               <div class="small-actions">
-                <button type="button" id="previousButton">Previous</button>
                 <button type="button" id="pauseButton">Pause</button>
-                <button type="button" id="nextButton">Next</button>
+                <button type="button" id="rewindButton">-15s</button>
+                <button type="button" id="stopButton">Stop</button>
+              </div>
+              <div class="small-actions">
+                <button type="button" id="previousButton">Previous</button>
+                <button type="button" id="nextButton">Next scene</button>
               </div>
             </div>
 
-            <div class="scene-list" id="sceneList" aria-label="Lesson scenes"></div>
+            <div class="scene-list" id="sceneList" aria-label="Chapter scenes"></div>
 
             <section class="quiz-preview" aria-label="Test preview">
-              <p class="kicker">10-question test shape</p>
-              <h3>Evidence, not guessing</h3>
+              <p class="kicker">After the lesson</p>
+              <h3>10-question test</h3>
               <ul>
-                <li>3 material-property decisions</li>
-                <li>3 image/model interpretation questions</li>
-                <li>2 prediction questions</li>
-                <li>1 misconception trap</li>
-                <li>1 short explanation</li>
+                <li>Matter vs non-matter</li>
+                <li>Atoms, elements, molecules</li>
+                <li>Compound vs mixture</li>
+                <li>Dissolving and particle models</li>
+                <li>Graphite vs diamond thinking</li>
               </ul>
             </section>
           </aside>
@@ -72,6 +76,6 @@
       </section>
     </main>
 
-    <script src="lesson-1.js?v=chem-lesson1-003"></script>
+    <script src="lesson-1.js?v=chem-lesson1-010"></script>
   </body>
 </html>
