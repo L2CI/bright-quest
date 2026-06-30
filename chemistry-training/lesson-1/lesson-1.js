@@ -965,17 +965,17 @@
   function quizCard(q, selected) {
     const status = selected < 0 ? "" : selected === q.answer ? "Correct" : "Not quite";
     return `<g class="slide-in">
-      <rect x="110" y="122" width="740" height="400" rx="18" fill="rgba(247,241,223,.95)"/>
-      <text x="480" y="174" text-anchor="middle" fill="#17201d" font-size="25" font-weight="950">${escapeHtml(q.q)}</text>
+      <rect x="80" y="108" width="800" height="420" rx="18" fill="rgba(247,241,223,.95)"/>
+      <text x="480" y="166" text-anchor="middle" fill="#17201d" font-size="32" font-weight="950">${escapeHtml(q.q)}</text>
       ${q.choices.map((choice, i) => {
         const isSelected = selected === i;
         const fill = isSelected ? (i === q.answer ? "#dff1e8" : "#f3d9cf") : "#fffaf0";
         return `<g data-choice="${i}" role="button" tabindex="0">
-          <rect x="170" y="${218 + i * 58}" width="620" height="44" rx="10" fill="${fill}" stroke="#d9cdbb"/>
-          <text x="198" y="${246 + i * 58}" fill="#17201d" font-size="18" font-weight="850">${escapeHtml(choice)}</text>
+          <rect x="132" y="${212 + i * 64}" width="696" height="50" rx="10" fill="${fill}" stroke="#d9cdbb"/>
+          <text x="164" y="${244 + i * 64}" fill="#17201d" font-size="24" font-weight="850">${escapeHtml(choice)}</text>
         </g>`;
       }).join("")}
-      ${selected >= 0 ? `<text x="480" y="474" text-anchor="middle" fill="${selected === q.answer ? "#206c5a" : "#a3543c"}" font-size="22" font-weight="950">${status}. ${escapeHtml(q.why)}</text>` : ""}
+      ${selected >= 0 ? `<text x="480" y="488" text-anchor="middle" fill="${selected === q.answer ? "#206c5a" : "#a3543c"}" font-size="26" font-weight="950">${status}. ${escapeHtml(q.why)}</text>` : ""}
     </g>`;
   }
 
