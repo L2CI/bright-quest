@@ -6,49 +6,49 @@
     {
       title: "Chemistry starts with evidence",
       short: "What chemists do",
-      phaseCount: 4,
+      phaseCount: 8,
       narration: "Welcome to Chemistry Foundations. Not baby chemistry. Real chemistry, made clear. Today we start with matter, materials, and evidence. Chemistry is the study of what things are made of, what properties they have, and how they change. The important word is evidence. We do not say, that looks sciencey, therefore it is true. We observe, test, compare, and then decide. On the bench today we have metal, plastic, wax, salt, water, and graphite. Each one is a suspect in our material mystery. Sensible goggles on. Serious eyebrows optional.",
       caption: "Chemistry is evidence work: observe, test, compare, decide."
     },
     {
       title: "Object or material?",
       short: "Object vs material",
-      phaseCount: 5,
+      phaseCount: 8,
       narration: "First distinction. An object is the thing. A material is what the thing is made from. A spoon is an object. Metal is the material. A bottle is an object. It might be made from glass or plastic. This sounds simple, but it matters. Chemists ask material questions. Is it flexible? Does it dissolve? Is it magnetic? Does it conduct heat? If a rubber duck applies to be a window, we can admire the confidence, but we still have to ask for evidence. Is it transparent enough? No. Excellent confidence. Terrible transparency.",
       caption: "Object = the thing. Material = what it is made from."
     },
     {
       title: "The property test bench",
       short: "Properties",
-      phaseCount: 5,
+      phaseCount: 8,
       narration: "A property is a feature we can observe or test. Some properties are visible, like colour and transparency. Some need a test, like magnetism, flexibility, waterproofing, and heat conduction. The clever part is that we do not test everything randomly. We choose a test that answers a question. Want a raincoat material? Test waterproofing and flexibility. Want a saucepan handle? Test whether heat travels through it easily. Want a bridge cable? Test strength. Chemistry is not just naming materials. It is matching properties to a job.",
       caption: "Properties are features we can observe or test."
     },
     {
       title: "Fair comparison",
       short: "Fair tests",
-      phaseCount: 4,
+      phaseCount: 7,
       narration: "Now the quiet superpower: fair comparison. If we test two materials, we keep the test fair. Same amount of water. Same time. Same magnet. Same kind of bend. Otherwise we are not comparing materials; we are comparing messy tests. Imagine testing a raincoat with one tiny drip, then testing paper with a bucket. The paper complains, and honestly, the paper has a point. A fair test changes one thing at a time, so the evidence actually means something.",
       caption: "A fair test changes one thing at a time."
     },
     {
       title: "Choose the material for the job",
       short: "Material choices",
-      phaseCount: 5,
+      phaseCount: 7,
       narration: "Let us make decisions. For a window, glass wins because it is transparent: light passes through, so we can see out. For a raincoat, flexible waterproof fabric beats cardboard. Cardboard can be noble, but in a thunderstorm it becomes sad breakfast cereal. For electrical wire, copper is useful because it conducts electricity and can be drawn into thin wire. Notice the pattern. We do not ask, what material is best? We ask, best for what job?",
       caption: "The best material depends on the job."
     },
     {
       title: "When one property is not enough",
       short: "Trade-offs",
-      phaseCount: 5,
+      phaseCount: 7,
       narration: "Real chemists also look for trade-offs. Glass is transparent, but it can break. Metal can be strong, but it can heat up. Plastic can be light and waterproof, but it may not be strong enough for every job. Good material decisions balance several properties. That is why engineers and chemists work together. One says, I need this to be strong. The other says, fine, but do you also need it light, safe, cheap, waterproof, and not secretly terrible? Evidence keeps the conversation honest.",
       caption: "Good material choices balance several properties."
     },
     {
       title: "Evidence summary",
       short: "Review",
-      phaseCount: 5,
+      phaseCount: 6,
       narration: "Recap time. Matter is the stuff around us. Materials are what objects are made from. Properties are features we can observe or test. Evidence comes from careful comparison. And the best material depends on the job. If you remember one sentence, remember this: chemistry is how we use evidence to understand and choose materials. Next lesson, we go smaller. Much smaller. We meet atoms, the tiny building blocks behind the materials on this bench. Tiny, but not cute. Atoms do serious work.",
       caption: "Chemistry uses evidence to understand and choose materials."
     }
@@ -129,7 +129,7 @@
     el.start.classList.add("playing");
     el.pause.textContent = "Pause";
     renderSceneList();
-    renderScene(index, scenes[index].phaseCount - 1);
+    renderScene(index, 0);
 
     try {
       if (!canUseCloudVoice()) throw new Error("local voice fallback");
@@ -198,7 +198,7 @@
     const scene = scenes[state.sceneIndex];
     const safeDuration = Math.max(1, duration || FALLBACK_SCENE_SECONDS);
     const progress = Math.min(1, seconds / safeDuration);
-    const phase = Math.min(scene.phaseCount - 1, Math.floor(progress * scene.phaseCount));
+    const phase = visualPhase(scene, seconds, safeDuration);
     el.timeLabel.textContent = formatTime(seconds);
     el.durationLabel.textContent = formatTime(safeDuration);
     el.progressBar.style.width = `${Math.round(progress * 100)}%`;
@@ -219,6 +219,15 @@
       state.paused ? state.audio.pause() : state.audio.play();
     }
     el.pause.textContent = state.paused ? "Resume" : "Pause";
+  }
+
+  function visualPhase(scene, seconds, duration) {
+    const firstBeat = 2.5;
+    const maxGap = 6.5;
+    if (seconds < firstBeat) return 0;
+    const timedPhase = 1 + Math.floor((seconds - firstBeat) / maxGap);
+    const proportionalPhase = Math.floor((seconds / Math.max(1, duration)) * scene.phaseCount);
+    return Math.min(scene.phaseCount - 1, Math.max(timedPhase, proportionalPhase));
   }
 
   function previousScene() {
@@ -305,9 +314,9 @@
     return board(`
       ${labBench()}
       ${phase >= 0 ? titleText("Matter, Materials, Evidence") : ""}
-      ${phase >= 1 ? sampleSet() : ""}
-      ${phase >= 2 ? detectiveLens(710, 150, "observe") : ""}
-      ${phase >= 3 ? evidenceSteps(["Observe", "Test", "Compare", "Decide"]) : ""}
+      ${phase >= 1 ? sampleSet(230, phase === 1 ? 2 : 6) : ""}
+      ${phase >= 3 ? detectiveLens(710, 150, "observe") : ""}
+      ${phase >= 4 ? evidenceSteps(["Observe", "Test", "Compare", "Decide"].slice(0, Math.min(4, phase - 3))) : ""}
     `);
   }
 
@@ -315,9 +324,12 @@
     return board(`
       ${phase >= 0 ? titleText("Object vs Material") : ""}
       ${phase >= 1 ? objectCard(170, 165, "Spoon", "object", "#e8eef0") : ""}
-      ${phase >= 1 ? objectCard(450, 165, "Metal", "material", "#d7c7a0") : ""}
-      ${phase >= 2 ? arrow(360, 215, 440, 215) : ""}
-      ${phase >= 3 ? duckWindow(phase >= 4) : ""}
+      ${phase >= 2 ? objectCard(450, 165, "Metal", "material", "#d7c7a0") : ""}
+      ${phase >= 3 ? arrow(360, 215, 440, 215) : ""}
+      ${phase >= 4 ? evidenceMini("Question", "What is it made from?", 330, 365) : ""}
+      ${phase === 5 ? duckWindow(false) : ""}
+      ${phase >= 6 ? duckWindow(true) : ""}
+      ${phase >= 7 ? jobBanner("Chemists ask material questions.") : ""}
     `);
   }
 
@@ -332,9 +344,12 @@
     return board(`
       ${phase >= 0 ? titleText("Property Test Bench") : ""}
       ${phase >= 1 ? sampleSet(92) : ""}
-      ${phase >= 2 ? tests.slice(0, 3).map(([label, x, color]) => testTool(x, 375, label, color)).join("") : ""}
-      ${phase >= 3 ? tests.slice(3).map(([label, x, color]) => testTool(x, 375, label, color)).join("") : ""}
-      ${phase >= 4 ? jobBanner("Choose the test that answers the question.") : ""}
+      ${phase >= 2 ? evidenceMini("Visible", "colour, shape, transparency", 260, 300) : ""}
+      ${phase >= 3 ? tests.slice(0, 2).map(([label, x, color]) => testTool(x, 395, label, color)).join("") : ""}
+      ${phase >= 4 ? tests.slice(2, 3).map(([label, x, color]) => testTool(x, 395, label, color)).join("") : ""}
+      ${phase >= 5 ? tests.slice(3).map(([label, x, color]) => testTool(x, 395, label, color)).join("") : ""}
+      ${phase >= 6 ? evidenceMini("Rule", "choose the test for the question", 455, 300) : ""}
+      ${phase >= 7 ? jobBanner("Choose the test that answers the question.") : ""}
     `);
   }
 
@@ -342,9 +357,11 @@
     return board(`
       ${phase >= 0 ? titleText("Fair Comparison") : ""}
       ${phase >= 1 ? testColumn(175, "Material A", "same water", "#deefe9") : ""}
-      ${phase >= 1 ? testColumn(510, "Material B", "same water", "#f5e8cf") : ""}
-      ${phase >= 2 ? rulerLine(160, 385, 680, "same time") : ""}
-      ${phase >= 3 ? warningCard("Change one thing at a time") : ""}
+      ${phase >= 2 ? testColumn(510, "Material B", "same water", "#f5e8cf") : ""}
+      ${phase >= 3 ? rulerLine(160, 385, 680, "same time") : ""}
+      ${phase >= 4 ? evidenceMini("Same", "amount, time, tool", 320, 115) : ""}
+      ${phase >= 5 ? warningCard("Change one thing at a time") : ""}
+      ${phase >= 6 ? jobBanner("Fair evidence beats messy tests.") : ""}
     `);
   }
 
@@ -354,7 +371,9 @@
       ${phase >= 1 ? jobChoice(115, "Window", "transparent", "glass", "#8fd3e8") : ""}
       ${phase >= 2 ? jobChoice(335, "Raincoat", "waterproof + flexible", "fabric", "#58a777") : ""}
       ${phase >= 3 ? jobChoice(555, "Wire", "conducts electricity", "copper", "#c7763a") : ""}
-      ${phase >= 4 ? jobBanner("The real question is: best for what job?") : ""}
+      ${phase >= 4 ? arrow(265, 438, 365, 438) : ""}
+      ${phase >= 5 ? arrow(485, 438, 585, 438) : ""}
+      ${phase >= 6 ? jobBanner("The real question is: best for what job?") : ""}
     `);
   }
 
@@ -364,7 +383,9 @@
       ${phase >= 1 ? balanceScale("Glass", "transparent", "breaks", 150) : ""}
       ${phase >= 2 ? balanceScale("Metal", "strong", "heats up", 395) : ""}
       ${phase >= 3 ? balanceScale("Plastic", "light", "not always strong", 640) : ""}
-      ${phase >= 4 ? warningCard("Good choices balance several properties") : ""}
+      ${phase >= 4 ? evidenceMini("Trade-off", "one good property is not enough", 285, 435) : ""}
+      ${phase >= 5 ? warningCard("Good choices balance several properties") : ""}
+      ${phase >= 6 ? jobBanner("Evidence keeps the choice honest.") : ""}
     `);
   }
 
@@ -372,10 +393,10 @@
     return board(`
       ${phase >= 0 ? titleText("Evidence Summary") : ""}
       ${phase >= 1 ? recapTile(110, 160, "Matter", "stuff around us") : ""}
-      ${phase >= 1 ? recapTile(330, 160, "Materials", "what objects are made from") : ""}
-      ${phase >= 2 ? recapTile(550, 160, "Properties", "features we test") : ""}
-      ${phase >= 3 ? recapTile(220, 375, "Evidence", "observe, test, compare") : ""}
-      ${phase >= 4 ? recapTile(500, 375, "Next", "atoms") : ""}
+      ${phase >= 2 ? recapTile(330, 160, "Materials", "what objects are made from") : ""}
+      ${phase >= 3 ? recapTile(550, 160, "Properties", "features we test") : ""}
+      ${phase >= 4 ? recapTile(220, 375, "Evidence", "observe, test, compare") : ""}
+      ${phase >= 5 ? recapTile(500, 375, "Next", "atoms") : ""}
     `);
   }
 
@@ -400,7 +421,7 @@
       <path class="draw" pathLength="1" d="M150 472 v52 M750 472 v52" stroke="#d7c7a0" stroke-width="7" stroke-linecap="round"/>`;
   }
 
-  function sampleSet(y = 230) {
+  function sampleSet(y = 230, limit = 6) {
     const samples = [
       sampleBlock(98, y, "Metal", "#c7d0d0", "M0 0h78v54H0z"),
       sampleBlock(205, y, "Plastic", "#6fb593", "M39 0c26 0 45 15 45 34s-19 34-45 34S-6 53-6 34 13 0 39 0z"),
@@ -409,7 +430,7 @@
       sampleBlock(565, y, "Water", "#7fc4d3", "M38 0c22 26 36 46 36 66 0 21-16 36-36 36S2 87 2 66C2 46 16 26 38 0z"),
       sampleBlock(700, y, "Graphite", "#747c7a", "M0 28 50 0l45 28-50 30z")
     ];
-    return `<g class="pop-in">${samples.join("")}</g>`;
+    return `<g class="pop-in">${samples.slice(0, limit).join("")}</g>`;
   }
 
   function sampleBlock(x, y, label, color, path) {
@@ -435,6 +456,14 @@
     </g>`).join("");
   }
 
+  function evidenceMini(label, copy, x, y) {
+    return `<g class="slide-in" transform="translate(${x} ${y})">
+      <rect width="250" height="78" rx="15" fill="#f7f1df" opacity=".96"/>
+      <text x="125" y="31" text-anchor="middle" fill="#1f6f5b" font-size="18" font-weight="950">${escapeHtml(label)}</text>
+      <text x="125" y="57" text-anchor="middle" fill="#1f2a26" font-size="17" font-weight="850">${escapeHtml(copy)}</text>
+    </g>`;
+  }
+
   function objectCard(x, y, big, small, fill) {
     return `<g class="pop-in" transform="translate(${x} ${y})">
       <rect width="210" height="170" rx="18" fill="${fill}" stroke="#f7f1df" stroke-width="3"/>
@@ -455,7 +484,10 @@
       <circle cx="112" cy="50" r="4" fill="#1f2a26"/>
       <path d="M58 82c28 12 69 12 96 0" stroke="#8a5b1d" stroke-width="4" fill="none" stroke-linecap="round"/>
       <text x="242" y="44" fill="#f7f1df" font-size="20" font-weight="900">Window job?</text>
-      ${showReject ? `<text class="pop-in" x="242" y="78" fill="#f2c35e" font-size="22" font-weight="950">Excellent confidence. Terrible transparency.</text>` : ""}
+      ${showReject ? `<g class="pop-in">
+        <text x="270" y="75" text-anchor="middle" fill="#f2c35e" font-size="20" font-weight="950">Excellent confidence.</text>
+        <text x="270" y="101" text-anchor="middle" fill="#f2c35e" font-size="20" font-weight="950">Terrible transparency.</text>
+      </g>` : ""}
     </g>`;
   }
 
