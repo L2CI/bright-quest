@@ -409,23 +409,23 @@
   function renderWinterTrainingPage() {
     const topics = winterTopics();
     const body = `
-      <section class="bq-winter-hero">
-        <span class="bq-winter-hero-art" aria-hidden="true"></span>
+      <section class="bq-winter-brief">
         <div>
-          <h3>Winter 2026 Training 1</h3>
-          <p>Pick a maths path. Each card shows two signals from AGMaths: training completion and whether the test has been taken.</p>
+          <span class="bq-section-kicker">AGMaths module</span>
+          <h4>Choose a topic</h4>
+          <p>Each topic shows two signals: training done and test taken.</p>
         </div>
         <div class="bq-winter-actions">
-          <button type="button" class="button button-primary" data-bq-action="open-agmaths">Open training map</button>
-          <button type="button" class="button button-soft" data-bq-action="open-agmaths-cockpit">Open AGMaths cockpit</button>
-          <button type="button" class="button button-soft" data-bq-action="open-dragon-forge">Play Dragon Forge</button>
+          <button type="button" class="bq-command-button primary" data-bq-action="open-agmaths"><span>Open training map</span></button>
+          <button type="button" class="bq-command-button" data-bq-action="open-agmaths-cockpit"><span>Open AGMaths cockpit</span></button>
+          <button type="button" class="bq-command-button" data-bq-action="open-dragon-forge"><span>Play Dragon Forge</span></button>
         </div>
       </section>
       <section class="bq-winter-topic-grid" aria-label="Winter 2026 topics">
         ${topics.map(winterTopicCard).join("")}
       </section>
     `;
-    kidPageShell("Winter 2026 Training 1", "A structured Grade 4 maths module with its own progress and cockpit.", "winter", body);
+    kidPageShell("Winter 2026 Training 1", "Training done and test taken are shown on every topic.", "book", body);
     requestAnimationFrame(loadWinterTrainingStatus);
   }
 
