@@ -1,8 +1,6 @@
 (() => {
   const BRIGHT_QUEST_URL = "https://bright-quest.pages.dev/";
-  const AGMATHS_URL = "https://agmaths.dipanjan-gupta.workers.dev/?from=brightquest#map";
-  const AGMATHS_COCKPIT_URL = "https://agmaths.dipanjan-gupta.workers.dev/?from=brightquest#cockpit";
-  const DRAGON_FORGE_URL = "https://agmaths.dipanjan-gupta.workers.dev/?from=brightquest#game";
+  const AGMATHS_BASE_URL = "https://agmaths.dipanjan-gupta.workers.dev/";
   const AGMATHS_API_BASE = "https://agmaths.dipanjan-gupta.workers.dev";
   let pendingKidProfile = null;
 
@@ -333,20 +331,42 @@
       return;
     }
     if (action === "open-agmaths") {
-      window.location.href = AGMATHS_URL;
+      window.location.href = agmathsUrl("map");
       return;
     }
     if (action === "open-agmaths-cockpit") {
-      window.location.href = AGMATHS_COCKPIT_URL;
+      window.location.href = agmathsUrl("cockpit");
       return;
     }
     if (action === "open-dragon-forge") {
-      window.location.href = DRAGON_FORGE_URL;
+      window.location.href = agmathsUrl("game");
       return;
     }
     if (action === "logout") {
       switchProfileButton.click();
     }
+  }
+
+  function activeAgmathsProfile(profile = null) {
+    if (profile) return profile;
+    if (state.profile?.id) return state.profile;
+    if (state.parentProfileId && state.profiles[state.parentProfileId]) return state.profiles[state.parentProfileId];
+    return Object.values(state.profiles || {})[0] || null;
+  }
+
+  function agmathsStudentId(profile = null) {
+    const agProfile = activeAgmathsProfile(profile);
+    return profileKey(agProfile?.id || agProfile?.name || "demo-student");
+  }
+
+  function agmathsUrl(route, profile = null) {
+    const agProfile = activeAgmathsProfile(profile);
+    const url = new URL(AGMATHS_BASE_URL);
+    url.searchParams.set("from", "brightquest");
+    url.searchParams.set("studentId", agmathsStudentId(agProfile));
+    if (agProfile?.name) url.searchParams.set("studentName", agProfile.name);
+    url.hash = route || "map";
+    return url.toString();
   }
 
   function kidPageShell(title, copy, artName, body) {
@@ -461,10 +481,11 @@
   async function loadWinterTrainingStatus() {
     const cards = [...document.querySelectorAll("[data-ag-topic-id]")];
     if (!cards.length) return;
+    const studentId = agmathsStudentId();
     try {
       const [progress, attempts] = await Promise.all([
-        fetch(`${AGMATHS_API_BASE}/api/progress?studentId=demo-student`, { headers: { accept: "application/json" } }).then((res) => res.ok ? res.json() : []),
-        fetch(`${AGMATHS_API_BASE}/api/attempts?studentId=demo-student`, { headers: { accept: "application/json" } }).then((res) => res.ok ? res.json() : [])
+        fetch(`${AGMATHS_API_BASE}/api/progress?studentId=${encodeURIComponent(studentId)}`, { headers: { accept: "application/json" } }).then((res) => res.ok ? res.json() : []),
+        fetch(`${AGMATHS_API_BASE}/api/attempts?studentId=${encodeURIComponent(studentId)}`, { headers: { accept: "application/json" } }).then((res) => res.ok ? res.json() : [])
       ]);
       const progressByTopic = new Map((Array.isArray(progress) ? progress : []).map((item) => [agTopicId(item), item]));
       const attemptsByTopic = new Map();
@@ -554,7 +575,7 @@
       <p class="eyebrow">Winter maths quest</p>
       <h3>Dragon Forge</h3>
       <p>Winter 2026 maths reward game with harder Grade 4 multiplication gates.</p>
-      <button class="button button-primary" type="button" data-open-game-url="${DRAGON_FORGE_URL}">Open Dragon Forge</button>
+      <button class="button button-primary" type="button" data-open-game-url="${agmathsUrl("game")}">Open Dragon Forge</button>
     `;
     list.appendChild(dragonCard);
   }
@@ -892,13 +913,13 @@
         <button class="bq-query-card" type="button" data-open-game-url="cave-river-quest/">${art("mountain")}<strong>Cave River Quest</strong><span>3D reward quest</span></button>
         <button class="bq-query-card" type="button" data-open-game-url="street-smart-rescue/">${art("focus")}<strong>Street Smart Rescue</strong><span>Animated puzzle quest</span></button>
         <button class="bq-query-card" type="button" data-open-game-url="treasure-quest/">${art("treasure")}<strong>Treasure Quest</strong><span>Pirate map reward prototype</span></button>
-        <button class="bq-query-card" type="button" data-open-game-url="${DRAGON_FORGE_URL}">${art("winter")}<strong>Dragon Forge</strong><span>Winter 2026 Training 1 game</span></button>
+        <button class="bq-query-card" type="button" data-open-game-url="${agmathsUrl("game", metrics.profile)}">${art("winter")}<strong>Dragon Forge</strong><span>Winter 2026 Training 1 game</span></button>
       </section>
       <section class="bq-page-list">${rows}</section>
     `);
   }
 
-  function renderWinterPage() {
+  function renderWinterPage(metrics) {
     return parentPageShell("winter-2026", `
       <section class="bq-cockpit-status winter">
         <div>
@@ -907,8 +928,8 @@
           <p>AGMaths remains the source of truth for its Grade 4 training, tests, cockpit, and Dragon Forge data.</p>
         </div>
         <div class="bq-linked-actions">
-          <button class="button button-primary" type="button" data-open-game-url="${AGMATHS_URL}">Open training</button>
-          <button class="button button-soft" type="button" data-open-game-url="${AGMATHS_COCKPIT_URL}">Open AGMaths cockpit</button>
+          <button class="button button-primary" type="button" data-open-game-url="${agmathsUrl("map", metrics.profile)}">Open training</button>
+          <button class="button button-soft" type="button" data-open-game-url="${agmathsUrl("cockpit", metrics.profile)}">Open AGMaths cockpit</button>
         </div>
       </section>
     `);
