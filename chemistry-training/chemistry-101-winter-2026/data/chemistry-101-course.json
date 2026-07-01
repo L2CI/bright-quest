@@ -33,7 +33,7 @@
         "Today we start the code: atoms, elements, molecules, compounds, and mixtures."
       ],
       "tests": [
-        { "prompt": "Which choice is matter?", "options": ["A copper coin", "A beam of light", "A shadow", "A reflection"], "answer": 0, "concept": "matter", "feedback": "A copper coin has mass and takes up space, so it is matter." },
+        { "prompt": "Which evidence-bench example is ordinary matter?", "options": ["A copper coin", "A beam of light", "A shadow", "A reflection"], "answer": 0, "concept": "matter", "feedback": "The chapter treats the copper coin as ordinary matter on the evidence bench." },
         { "prompt": "What is an atom in this chapter?", "options": ["A tiny unit of matter", "A kind of breakfast mixture", "A beam of energy", "A map of elements"], "answer": 0, "concept": "atoms", "feedback": "Atoms are tiny units that help build matter." },
         { "prompt": "Pure gold is an element because it has...", "options": ["one type of atom", "many foods mixed together", "water particles inside it", "no particles at all"], "answer": 0, "concept": "elements", "feedback": "An element is made from one type of atom." },
         { "prompt": "Oxygen gas is a trick case because it is...", "options": ["both a molecule and an element", "neither matter nor gas", "a compound and a mixture", "a salt molecule"], "answer": 0, "concept": "molecules", "feedback": "Oxygen gas has joined oxygen atoms, so it is a molecule, but only one atom type, so it is an element." },

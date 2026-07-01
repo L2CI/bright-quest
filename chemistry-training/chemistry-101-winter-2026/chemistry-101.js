@@ -305,7 +305,7 @@
         ${chapter.tests.map((question, index) => `
           <fieldset class="test-question">
             <strong>${index + 1}. ${escapeHtml(question.prompt)}</strong>
-            ${question.options.map((option, optionIndex) => `
+            ${orderedOptions(chapter, question, index).map(({ option, optionIndex }) => `
               <label>
                 <input type="radio" name="q${index}" value="${optionIndex}" required />
                 <span>${escapeHtml(option)}</span>
@@ -317,6 +317,13 @@
       </form>
     `;
     document.querySelector("#chapterTestForm").addEventListener("submit", submitTest);
+  }
+
+  function orderedOptions(chapter, question, questionIndex) {
+    const options = question.options.map((option, optionIndex) => ({ option, optionIndex }));
+    if (options.length < 2) return options;
+    const shift = (Number(chapter.number || 0) + questionIndex) % options.length;
+    return [...options.slice(shift), ...options.slice(0, shift)];
   }
 
   function submitTest(event) {
