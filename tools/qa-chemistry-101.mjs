@@ -6,11 +6,13 @@ const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
 
 const baseUrl = process.env.QA_BASE_URL || "http://127.0.0.1:4174";
-const outDir = path.resolve("..", "outputs", "chemistry-101-winter-2026-build", "qa", "web");
+const qaLabel = process.env.QA_LABEL || "web";
+const outDir = path.resolve("..", "outputs", "chemistry-101-winter-2026-build", "qa", qaLabel);
 mkdirSync(outDir, { recursive: true });
 
 const route = `${baseUrl}/chemistry-training/chemistry-101-winter-2026/`;
 const issues = [];
+const runtimeSummaries = [];
 
 function record(condition, message) {
   if (!condition) issues.push(message);
@@ -180,6 +182,7 @@ async function runViewport(browser, name, viewport) {
     record((await page.locator("#testStatus").textContent()) === "10/10", `${name}: chapter ${index + 1} test score was not saved as 10/10`);
   }
   const totalRuntime = actualDurations.reduce((sum, duration) => sum + duration, 0);
+  runtimeSummaries.push(`${name}: ${actualDurations.map((duration) => `${duration.toFixed(1)}s`).join(" + ")} = ${totalRuntime.toFixed(1)}s`);
   record(totalRuntime >= 900 && totalRuntime <= 1200, `${name}: total runtime ${totalRuntime.toFixed(1)}s is outside 15-20 minutes`);
   await page.screenshot({ path: path.join(outDir, `${name}-after-test.png`), fullPage: true });
 
@@ -296,4 +299,5 @@ if (issues.length) {
 }
 
 console.log("Chemistry 101 QA passed");
+for (const summary of runtimeSummaries) console.log(`Media duration metadata: ${summary}`);
 console.log(`Screenshots: ${outDir}`);
