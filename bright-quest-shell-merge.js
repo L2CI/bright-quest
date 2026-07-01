@@ -287,6 +287,11 @@
               <strong>Winter 2026 Training 1</strong>
               <span>Maths course map</span>
             </button>
+            <button type="button" class="bq-module-card chemistry" data-bq-action="chemistry-training">
+              ${art("chemistry")}
+              <strong>Chemistry 101 Winter 2026</strong>
+              <span>Video chapters + tests</span>
+            </button>
           </div>
         </article>
 
@@ -316,6 +321,10 @@
     }
     if (action === "winter-training") {
       renderWinterTrainingPage();
+      return;
+    }
+    if (action === "chemistry-training") {
+      window.location.href = chemistry101Url();
       return;
     }
     if (action === "games") {
@@ -372,6 +381,10 @@
     }
     url.hash = route || "map";
     return url.toString();
+  }
+
+  function chemistry101Url() {
+    return "chemistry-training/chemistry-101-winter-2026/";
   }
 
   function kidPageShell(title, copy, artName, body) {
@@ -666,6 +679,7 @@
       training: () => renderTrainingPage(metrics),
       writing: () => renderWritingPage(metrics),
       games: () => renderGamesPage(metrics),
+      chemistry: () => renderChemistryPage(metrics),
       "winter-2026": () => renderWinterPage(metrics),
       records: () => renderRecordsPage(metrics)
     };
@@ -827,6 +841,7 @@
           queryCard("exam-results", "City School Exam Prep", "Attempts, scores, and answer records.", "school"),
           queryCard("focus", "Focus Areas", "Recurring missed or slow skills with evidence.", "focus"),
           queryCard("training", "Training Coverage", "Completed, untouched, and recommended Bright Quest training.", "book"),
+          queryCard("chemistry", "Chemistry 101 Winter 2026", "Video chapters, tests, and course progress.", "chemistry"),
           queryLinkCard(agmathsUrl("cockpit", metrics.profile, "parent/overview"), "Winter 2026 Training 1", "Open the AGMaths cockpit for this child.", "winter")
         ])}
         ${queryGroup("Play", "Reward games and motivation signals.", [
@@ -940,6 +955,58 @@
     `);
   }
 
+  function renderChemistryPage(metrics) {
+    const status = chemistryProgress(metrics.profile);
+    const rows = status.chapters.map((chapter) => ({ label: chapter.title, value: chapter.test ? `${chapter.test.score}/${chapter.test.total || 10}` : chapter.completed ? "Test ready" : "Pending" }));
+    return parentPageShell("chemistry", `
+      <section class="bq-cockpit-status winter">
+        <div>
+          <p class="eyebrow">Bright Quest module</p>
+          <h3>Chemistry 101 Winter 2026</h3>
+          <p>${status.completed}/5 chapters watched, ${status.tests}/5 chapter tests submitted. Total video runtime is about 16 minutes.</p>
+        </div>
+        <div class="bq-linked-actions">
+          <button class="button button-primary" type="button" data-open-game-url="${chemistry101Url()}">Open Chemistry 101</button>
+        </div>
+      </section>
+      <section class="bq-two-column records">
+        <article>${recordBlock("Chemistry chapters", rows)}</article>
+        <article>${recordBlock("Course summary", [
+          { label: "Video chapters", value: `${status.completed}/5 complete` },
+          { label: "Chapter tests", value: `${status.tests}/5 submitted` },
+          { label: "Question bank", value: "50 questions" }
+        ])}</article>
+      </section>
+    `);
+  }
+
+  function chemistryProgress(profile) {
+    const titles = [
+      "Matter Has A Hidden Code",
+      "The Periodic Table Is A Map",
+      "Particles Explain States",
+      "Mixtures, Solutions, And Separation",
+      "Chemical Change Clues"
+    ];
+    const ids = ["hidden-code", "periodic-map", "particle-states", "mixtures-separation", "chemical-clues"];
+    let saved = {};
+    try {
+      saved = JSON.parse(localStorage.getItem("brightQuestChemistry101ProgressV1")) || {};
+    } catch {
+      saved = {};
+    }
+    const profileId = profile?.id || "demo-student";
+    const chapters = ids.map((id, index) => {
+      const chapter = saved[profileId]?.chapters?.[id] || {};
+      return { id, title: titles[index], completed: Boolean(chapter.completed), test: chapter.test || null };
+    });
+    return {
+      chapters,
+      completed: chapters.filter((chapter) => chapter.completed).length,
+      tests: chapters.filter((chapter) => chapter.test).length
+    };
+  }
+
   function renderRecordsPage(metrics) {
     return parentPageShell("records", `
       <section class="bq-two-column records">
@@ -976,6 +1043,7 @@
       training: ["Training", "Training Coverage", "Completed, untouched, and recommended Bright Quest training."],
       writing: ["English and writing", "Writing Signals", "Saved writing responses and parent review signals."],
       games: ["Rewards", "Games & Rewards", "Unlocked and recommended Bright Quest game experiences."],
+      chemistry: ["Bright Quest module", "Chemistry 101 Winter 2026", "Video chapter progress and chapter-test results."],
       "winter-2026": ["Linked module", "Winter 2026 Training 1", "Open AGMaths without moving its data."],
       records: ["Audit", "All Records", "Complete saved Bright Quest records remain accessible here."]
     }[route] || ["Parent cockpit", "Parent Cockpit", "Review saved progress."]);
@@ -1061,6 +1129,7 @@
     const palette = {
       school: ["#2563eb", "#14b8a6", "#facc15"],
       winter: ["#0ea5e9", "#7c3aed", "#e0f2fe"],
+      chemistry: ["#54c8de", "#cf7b3f", "#f5f1e8"],
       treasure: ["#f97316", "#facc15", "#22c55e"],
       mountain: ["#16a34a", "#38bdf8", "#f59e0b"],
       compass: ["#1d4ed8", "#8b5cf6", "#f43f5e"],
@@ -1073,6 +1142,7 @@
     const drawings = {
       school: `<path d="M25 62h58v30H25z" fill="${c}"/><path d="M32 45h44l10 17H22z" fill="${a}"/><path d="M48 62h13v30H48z" fill="#fff7ed"/><path d="M36 70h8M66 70h8" stroke="${b}" stroke-width="5" stroke-linecap="round"/><circle cx="55" cy="36" r="10" fill="${b}"/><path d="M88 32l8-11M91 42l13-3" stroke="${c}" stroke-width="5" stroke-linecap="round"/>`,
       winter: `<path d="M25 68l30-28 30 28v24H25z" fill="${a}"/><path d="M38 67h34v25H38z" fill="${c}"/><path d="M20 69h70L55 35z" fill="#f8fafc"/><path d="M47 76h16M47 84h16" stroke="${b}" stroke-width="5" stroke-linecap="round"/><circle cx="85" cy="29" r="5" fill="${c}"/><circle cx="28" cy="36" r="4" fill="${c}"/>`,
+      chemistry: `<path d="M35 24h40v10l-13 18v30c0 8-7 14-16 14s-16-6-16-14V52L35 34z" fill="${c}" stroke="${a}" stroke-width="5" stroke-linejoin="round"/><path d="M32 72h28" stroke="${a}" stroke-width="5" stroke-linecap="round"/><path d="M39 59c8 6 18 0 25 5" stroke="${b}" stroke-width="5" stroke-linecap="round"/><circle cx="78" cy="39" r="7" fill="${a}"/><circle cx="88" cy="56" r="5" fill="${b}"/><circle cx="75" cy="73" r="6" fill="${b}"/><path d="M74 43l10 9M84 59l-7 9" stroke="${a}" stroke-width="4" stroke-linecap="round"/><path d="M35 34h40" stroke="${a}" stroke-width="5" stroke-linecap="round"/>`,
       treasure: `<path d="M24 55h64v33H24z" fill="${a}"/><path d="M24 55c7-20 57-20 64 0z" fill="${c}"/><path d="M24 66h64M56 52v38" stroke="#7c2d12" stroke-width="5"/><circle cx="56" cy="70" r="7" fill="${b}"/><path d="M32 30l5 9 10 1-8 6 3 10-10-5-9 5 2-10-7-6 10-1z" fill="${b}"/>`,
       mountain: `<path d="M16 88l27-49 17 27 11-18 25 40z" fill="${a}"/><path d="M43 39l8 13-14 2zM71 48l6 10-12 1z" fill="#f8fafc"/><path d="M28 82c20-9 36-11 61-3" stroke="${b}" stroke-width="6" stroke-linecap="round"/><path d="M80 32v26M80 33h18l-5 8 5 8H80" stroke="${c}" stroke-width="5" fill="none" stroke-linejoin="round"/>`,
       compass: `<circle cx="56" cy="58" r="34" fill="${c}"/><circle cx="56" cy="58" r="24" fill="#fff"/><path d="M67 42L59 68 45 75l8-26z" fill="${a}"/><path d="M49 44l14 28" stroke="${b}" stroke-width="5" stroke-linecap="round"/><path d="M20 92h72" stroke="${b}" stroke-width="5" stroke-linecap="round"/>`,

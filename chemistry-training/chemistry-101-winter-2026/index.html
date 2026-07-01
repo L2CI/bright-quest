@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chemistry 101 Winter 2026 | Bright Quest</title>
+    <link rel="stylesheet" href="./chemistry-101.css?v=20260701a" />
+  </head>
+  <body>
+    <main class="chem-app">
+      <header class="lesson-header">
+        <a class="back-link" href="../../" aria-label="Back to Bright Quest">Bright Quest</a>
+        <div>
+          <p class="eyebrow">Winter Training</p>
+          <h1>Chemistry 101</h1>
+        </div>
+        <div class="lesson-stat">
+          <strong id="courseProgress">0/5</strong>
+          <span>chapters done</span>
+        </div>
+      </header>
+
+      <nav class="chapter-tabs" id="chapterTabs" aria-label="Chemistry chapters"></nav>
+
+      <section class="lesson-stage" aria-label="Chemistry video lesson">
+        <div class="video-shell">
+          <div class="video-topline">
+            <div>
+              <p class="eyebrow" id="chapterCount">Chapter 1 of 5</p>
+              <h2 id="chapterTitle">Matter Has A Hidden Code</h2>
+            </div>
+            <div class="chapter-badge" id="chapterDuration">3:14</div>
+          </div>
+
+          <div class="video-frame">
+            <video id="lessonVideo" preload="metadata" playsinline poster="./assets/posters/chapter-01.jpg">
+              <source id="videoSource" src="./assets/videos/chapter-01.mp4" type="video/mp4" />
+              <track id="captionTrack" kind="subtitles" srclang="en" label="English" src="./assets/captions/chapter-01.vtt" />
+            </video>
+          </div>
+
+          <footer class="timeline-wrap" aria-label="Lesson timeline">
+            <div class="timeline-meta">
+              <span id="elapsedTime">0:00 elapsed</span>
+              <span id="totalTime">0:00 total</span>
+            </div>
+            <input id="timeline" class="timeline" type="range" min="0" max="100" value="0" step="0.1" aria-label="Chapter timeline" />
+          </footer>
+        </div>
+
+        <aside class="lesson-side" aria-label="Lesson controls and test">
+          <section class="side-card current-card">
+            <div class="lesson-card-top">
+              <p class="eyebrow">Now Teaching</p>
+              <button class="cc-button" id="ccButton" type="button" aria-pressed="false">CC</button>
+            </div>
+            <h3 id="lessonPoint">Explain what ordinary matter is made from.</h3>
+            <p class="caption-readout hidden" id="captionReadout">Captions are off.</p>
+          </section>
+
+          <section class="control-card">
+            <button class="primary-control" id="playButton" type="button">Play</button>
+            <button class="control-button" id="rewindButton" type="button">-15s</button>
+            <button class="control-button" id="stopButton" type="button">Stop</button>
+          </section>
+
+          <section class="side-card test-card" id="testCard">
+            <div class="lesson-card-top">
+              <p class="eyebrow">Chapter Test</p>
+              <span class="status-pill" id="testStatus">Locked</span>
+            </div>
+            <div id="testPanel"></div>
+          </section>
+        </aside>
+      </section>
+
+      <section class="chapter-map" id="chapterMap" aria-label="Course map"></section>
+    </main>
+
+    <script src="./chemistry-101.js?v=20260701a"></script>
+  </body>
+</html>
