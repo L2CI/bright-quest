@@ -236,6 +236,9 @@ h3 {
 .hidden { display: none !important; }
 
 .cc-button, .control-button, .primary-control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 46px;
   border: 1px solid rgba(18, 35, 63, 0.18);
   border-radius: 14px;
@@ -243,6 +246,16 @@ h3 {
   background: #fff;
   color: var(--navy);
   font-weight: 950;
+  box-shadow: 0 10px 22px rgba(18, 35, 63, 0.08);
+}
+.cc-button:focus-visible, .control-button:focus-visible, .primary-control:focus-visible,
+.back-link:focus-visible, .chapter-tab:focus-visible, .chapter-card:focus-visible, .submit-test:focus-visible {
+  outline: 3px solid rgba(84, 200, 222, 0.72);
+  outline-offset: 3px;
+}
+.control-button:hover, .cc-button:hover {
+  border-color: rgba(11,111,143,0.32);
+  background: #f8fcfd;
 }
 .cc-button[aria-pressed="true"] {
   background: var(--navy);
@@ -255,8 +268,13 @@ h3 {
   padding: 12px;
 }
 .primary-control {
-  background: linear-gradient(135deg, var(--blue), #123f51);
+  border: 0;
+  background: linear-gradient(135deg, #087a8b, #1b9c75 58%, #d99b20);
   color: #fff;
+  box-shadow: 0 14px 28px rgba(11,111,143,0.24);
+}
+.primary-control:hover, .submit-test:hover, .back-link:hover {
+  filter: brightness(1.04);
 }
 
 .timeline-wrap {
