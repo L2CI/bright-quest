@@ -86,9 +86,21 @@ async function runViewport(browser, name, viewport) {
   await page.waitForTimeout(400);
   record((await page.locator("#testStatus").textContent()) === "10/10", `${name}: test score was not saved as 10/10`);
 
-  await page.locator(".chapter-tab").nth(3).click();
-  await page.waitForTimeout(500);
-  record((await page.locator("#chapterTitle").textContent()).includes("Mixtures"), `${name}: chapter tab switch failed`);
+  const chapterExpectations = [
+    ["Matter Has A Hidden Code", "chapter-01.mp4", "chapter-01.vtt"],
+    ["The Periodic Table Is A Map", "chapter-02.mp4", "chapter-02.vtt"],
+    ["Particles Explain States", "chapter-03.mp4", "chapter-03.vtt"],
+    ["Mixtures, Solutions, And Separation", "chapter-04.mp4", "chapter-04.vtt"],
+    ["Chemical Change Clues", "chapter-05.mp4", "chapter-05.vtt"]
+  ];
+  for (let index = 0; index < chapterExpectations.length; index += 1) {
+    const [title, video, vtt] = chapterExpectations[index];
+    await page.locator(".chapter-tab").nth(index).click();
+    await page.waitForTimeout(350);
+    record((await page.locator("#chapterTitle").textContent()).includes(title), `${name}: chapter ${index + 1} title mismatch`);
+    record((await page.locator("video source").getAttribute("src"))?.endsWith(video), `${name}: chapter ${index + 1} video source mismatch`);
+    record((await page.locator("track").getAttribute("src"))?.endsWith(vtt), `${name}: chapter ${index + 1} VTT source mismatch`);
+  }
   await page.screenshot({ path: path.join(outDir, `${name}-after-test.png`), fullPage: true });
 
   record(consoleErrors.length === 0, `${name}: console errors ${consoleErrors.join(" | ")}`);
@@ -113,6 +125,16 @@ async function runShellIntegration(browser) {
   });
 
   const kid = await context.newPage();
+  const shellErrors = [];
+  const shellFailures = [];
+  kid.on("console", (msg) => {
+    if (msg.type() === "error" && !msg.text().includes("favicon") && !msg.text().includes("Failed to load resource")) {
+      shellErrors.push(`kid: ${msg.text()}`);
+    }
+  });
+  kid.on("response", (res) => {
+    if (res.status() >= 400 && !res.url().includes("favicon") && !res.url().includes("/api/profiles")) shellFailures.push(`kid: ${res.status()} ${res.url()}`);
+  });
   await kid.goto(`${baseUrl}/`, { waitUntil: "domcontentloaded" });
   await kid.locator('[data-role="kid"]').click();
   await kid.locator("#modePassword").fill("abcde");
@@ -126,13 +148,28 @@ async function runShellIntegration(browser) {
   record(kid.url().includes("chemistry-training/chemistry-101-winter-2026"), "kid shell: Chemistry card did not navigate to route");
 
   const parent = await context.newPage();
+  parent.on("console", (msg) => {
+    if (msg.type() === "error" && !msg.text().includes("favicon") && !msg.text().includes("Failed to load resource")) {
+      shellErrors.push(`parent: ${msg.text()}`);
+    }
+  });
+  parent.on("response", (res) => {
+    if (res.status() >= 400 && !res.url().includes("favicon") && !res.url().includes("/api/profiles")) shellFailures.push(`parent: ${res.status()} ${res.url()}`);
+  });
   await parent.goto(`${baseUrl}/`, { waitUntil: "domcontentloaded" });
   await parent.locator('[data-role="parent"]').click();
   await parent.locator("#modePassword").fill("12345");
   await parent.locator("#passwordForm button").click();
-  await parent.waitForSelector("text=Chemistry 101 Winter 2026");
+  await parent.waitForSelector(".parent-cockpit-redesign", { timeout: 10000 });
+  await parent.waitForSelector(".bq-parent-page", { timeout: 10000 });
+  await parent.waitForTimeout(500);
   record(await parent.locator("text=Chemistry 101 Winter 2026").count() > 0, "parent shell: Chemistry cockpit entry missing");
+  record(await parent.locator(".bq-parent-page").isVisible(), "parent shell: parent page is not visible");
+  const parentBox = await parent.locator(".bq-parent-page").boundingBox();
+  record(Boolean(parentBox && parentBox.width > 400 && parentBox.height > 200), "parent shell: cockpit content did not render to a visible area");
   await parent.screenshot({ path: path.join(outDir, "shell-parent-cockpit.png"), fullPage: true });
+  record(shellErrors.length === 0, `shell integration console errors ${shellErrors.join(" | ")}`);
+  record(shellFailures.length === 0, `shell integration failed responses ${shellFailures.join(" | ")}`);
   await context.close();
 }
 
@@ -141,11 +178,12 @@ const browser = await chromium.launch({
   executablePath: process.env.PLAYWRIGHT_CHROME_PATH || "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
 });
 await runViewport(browser, "desktop", { width: 1440, height: 1000 });
+await runViewport(browser, "tablet", { width: 820, height: 1180 });
 await runViewport(browser, "mobile", { width: 390, height: 844 });
 await runShellIntegration(browser);
 await browser.close();
 
-for (const file of ["desktop-initial.png", "desktop-after-test.png", "mobile-initial.png", "mobile-after-test.png"]) {
+for (const file of ["desktop-initial.png", "desktop-after-test.png", "tablet-initial.png", "tablet-after-test.png", "mobile-initial.png", "mobile-after-test.png", "shell-kid-card.png", "shell-parent-cockpit.png"]) {
   record(existsSync(path.join(outDir, file)), `missing screenshot ${file}`);
 }
 

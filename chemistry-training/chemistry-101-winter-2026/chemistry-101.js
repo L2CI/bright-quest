@@ -3,6 +3,13 @@
   const RELEASE = "chemistry-101-winter-2026-001";
   const progressKey = "brightQuestChemistry101ProgressV1";
   const profilesKey = "brightQuestProfilesV2";
+  const runtimeSeconds = {
+    "hidden-code": 194,
+    "periodic-map": 186,
+    "particle-states": 189,
+    "mixtures-separation": 219,
+    "chemical-clues": 194
+  };
 
   const els = {
     tabs: document.querySelector("#chapterTabs"),
@@ -157,9 +164,10 @@
     els.count.textContent = `Chapter ${chapter.number} of ${state.course.chapters.length}`;
     els.title.textContent = chapter.title;
     els.point.textContent = chapter.learningOutcome;
-    els.duration.textContent = "--:--";
+    const fallbackDuration = chapterRuntime(chapter);
+    els.duration.textContent = formatTime(fallbackDuration);
     els.elapsed.textContent = "0:00 elapsed";
-    els.total.textContent = "0:00 total";
+    els.total.textContent = `${formatTime(fallbackDuration)} total`;
     els.timeline.value = "0";
     els.play.textContent = "Play";
     renderTabs();
@@ -234,10 +242,13 @@
   function updateTimeline() {
     const duration = Number.isFinite(els.video.duration) ? els.video.duration : 0;
     const current = Number.isFinite(els.video.currentTime) ? els.video.currentTime : 0;
+    const displayDuration = duration || chapterRuntime(activeChapter());
     if (duration > 0) {
       els.timeline.value = String((current / duration) * 100);
-      els.duration.textContent = formatTime(duration);
-      els.total.textContent = `${formatTime(duration)} total`;
+    }
+    if (displayDuration > 0) {
+      els.duration.textContent = formatTime(displayDuration);
+      els.total.textContent = `${formatTime(displayDuration)} total`;
     }
     els.elapsed.textContent = `${formatTime(current)} elapsed`;
     const progress = chapterProgress(activeChapter());
@@ -345,6 +356,10 @@
     const mins = Math.floor(safe / 60);
     const secs = String(safe % 60).padStart(2, "0");
     return `${mins}:${secs}`;
+  }
+
+  function chapterRuntime(chapter) {
+    return runtimeSeconds[chapter?.id] || Number(chapter?.durationTarget || 0);
   }
 
   function escapeHtml(value) {
