@@ -1,8 +1,8 @@
 {
   "id": "chemistry-101-winter-2026",
   "title": "Chemistry 101 Winter 2026",
-  "release": "chemistry-101-winter-2026-001",
-  "voiceProfile": "steady-onyx-chemistry-teacher",
+  "release": "chemistry-101-winter-2026-002",
+  "voiceProfile": "ash-brisk-chemistry-teacher-v2",
   "chapters": [
     {
       "id": "hidden-code",
@@ -13,36 +13,146 @@
       "visualType": "evidence-bench",
       "learningOutcome": "Explain that ordinary matter is built from tiny particles and distinguish atoms, elements, molecules, compounds, and mixtures.",
       "segments": [
-        "Look at this evidence bench for a second. Pencil. Water. Spoon. Salt. A copper coin. Even the air you just breathed out.",
-        "They could not look more different. One writes, one flows, one clinks, and one sits there pretending to be a tiny shiny medal.",
-        "And the salt? Stir it into water and it seems to vanish. It has not vanished. It is hiding in plain sight.",
-        "Chemistry starts with one brilliant idea: none of this is magic. It is all built from pieces so small your eyes will never win that argument.",
-        "Chemists use models because we cannot directly see that tiny world. A model is not a photograph. It is a thinking tool, like a map.",
-        "A useful model does not show every detail. It shows the detail we need for the question. If the question is about sorting matter, the model should show what particles are present and whether they are connected.",
-        "One important tiny unit is an atom. Atoms are the basic characters in the chemistry alphabet.",
-        "An element is matter made from one type of atom. Pure gold has gold atoms. Pure copper has copper atoms. The graphite in a pencil contains carbon atoms.",
-        "Atoms can join together as units called molecules. Oxygen gas is a useful trick case: it is a molecule because oxygen atoms are joined in pairs, and it is still an element because it has only oxygen atoms.",
-        "When different elements are chemically joined, we call the substance a compound. Water is a compound. Table salt is a compound too, but it is not a neat little salt molecule; later we learn the more advanced word ions.",
-        "A mixture is different. In a mixture, substances are together, but they have not been rebuilt into one new substance. Air is a mixture. Salt water is a mixture. Cereal and milk is a mixture.",
-        "Now sort three examples. Copper coin: one type of atom, so element. Water: hydrogen and oxygen chemically joined, so compound. Salt water: water and salt together, so mixture.",
-        "The words can overlap in careful ways. Water is a molecule and a compound. Oxygen gas is a molecule and an element. That is not a mistake; the words answer different questions.",
-        "Molecule asks: are atoms joined as a unit? Element asks: is there only one type of atom? Compound asks: are different elements chemically joined? Mixture asks: are substances just together?",
-        "Here is a tiny exam-style trap. A thing can fit more than one word. Oxygen gas is an element and a molecule. Water is a molecule and a compound. But air is not a compound, because its gases are mixed, not chemically joined into one new substance.",
-        "Another trap: do not call every tiny dot an atom. Salt water has water molecules and dissolved salt particles. The model is allowed to be simple, but our words still need to be careful.",
-        "So here is the first chemist move. Ask: what is it made from, and are the pieces joined or just together?",
-        "Today we start the code: atoms, elements, molecules, compounds, and mixtures."
+        "Take a look at this evidence bench. A pencil. A glass of water. A spoon. Salt. A coil of copper wire. And the air you just breathed out - yes, that counts too.",
+        "They could not look more different. One writes, one flows, one clinks, and one sits there pretending to be a tiny orange gym spring.",
+        "And the salt? Stir it into the water and it seems to vanish. It has not vanished. It is hiding in plain sight - and by the end of this chapter, you will know exactly where.",
+        "Chemistry begins with one brilliant idea: none of this is magic. Everything on this bench is built from pieces so small your eyes will never win that argument.",
+        "Since we cannot see that tiny world directly, chemists use models. A model is not a photograph. It is a thinking tool - like a map that skips the trees so you can find the road.",
+        "A good model shows only the detail the question needs. Our question today is about sorting matter, so our model shows two things: what particles are there, and whether they are connected.",
+        "The basic unit is the atom. Atoms are the letters of the chemistry alphabet - and just like letters, they get interesting when they team up.",
+        "An element is matter made from only one type of atom. Pure gold: gold atoms, nothing else. Pure copper wire: copper atoms all the way down. Your pencil's graphite: carbon atoms, stacked in sheets.",
+        "Atoms can join together into units called molecules. Oxygen gas is a sneaky example: its atoms travel in joined pairs, so it is a molecule - but since both atoms are oxygen, it is still an element. One thing, two correct labels.",
+        "When different elements are chemically joined, we get a compound. Water is a compound: hydrogen and oxygen, locked together into something new - a liquid you can drink, made from two gases you cannot. Table salt is a compound too, though it is not built from neat little molecules; that involves a fancier word, ions, which we will meet later.",
+        "A mixture is different. In a mixture, substances share the same space but have not been rebuilt into anything new. Air is a mixture of gases. Salt water is a mixture. Cereal and milk is a mixture - a delicious one, but chemistry does not judge.",
+        "Time to sort the bench. Copper wire: one type of atom - element. Water: two elements chemically joined - compound. Salt water: salt and water together, neither one changed - mixture.",
+        "Notice the labels can overlap, and that is on purpose. Each word answers a different question. Molecule asks: are atoms joined as one unit? Element asks: is there only one type of atom? Compound asks: are different elements chemically joined? Mixture asks: are substances just sharing space?",
+        "So water is both a molecule and a compound. Oxygen gas is both a molecule and an element. That is not sloppy science - that is answering two questions at once.",
+        "But here is the trap that catches almost everyone: air is not a compound. Its gases are mixed together, not chemically joined into one new substance. Mixed is not the same as married.",
+        "One more careful habit: not every tiny dot in a diagram is an atom. In salt water, there are water molecules and dissolved salt particles. The model can be simple. Our words still have to be exact.",
+        "And that is the first real chemist move. When you meet any material, ask: what is it made from - and are the pieces joined, or just together?",
+        "That question is the start of the code: atoms, elements, molecules, compounds, and mixtures. Five words, and suddenly the whole bench makes sense. Next up: what is inside the atom itself."
       ],
       "tests": [
-        { "prompt": "Which evidence-bench example is ordinary matter?", "options": ["A copper coin", "A beam of light", "A shadow", "A reflection"], "answer": 0, "concept": "matter", "feedback": "The chapter treats the copper coin as ordinary matter on the evidence bench." },
-        { "prompt": "What is an atom in this chapter?", "options": ["A tiny unit of matter", "A kind of breakfast mixture", "A beam of energy", "A map of elements"], "answer": 0, "concept": "atoms", "feedback": "Atoms are tiny units that help build matter." },
-        { "prompt": "Pure gold is an element because it has...", "options": ["one type of atom", "many foods mixed together", "water particles inside it", "no particles at all"], "answer": 0, "concept": "elements", "feedback": "An element is made from one type of atom." },
-        { "prompt": "Oxygen gas is a trick case because it is...", "options": ["both a molecule and an element", "neither matter nor gas", "a compound and a mixture", "a salt molecule"], "answer": 0, "concept": "molecules", "feedback": "Oxygen gas has joined oxygen atoms, so it is a molecule, but only one atom type, so it is an element." },
-        { "prompt": "Water is a compound because...", "options": ["hydrogen and oxygen are chemically joined", "it is always cold", "it contains cereal", "it has no atoms"], "answer": 0, "concept": "compounds", "feedback": "A compound has different elements chemically joined." },
-        { "prompt": "Air is best described as a...", "options": ["mixture", "single gold atom", "pure element only", "beam of light"], "answer": 0, "concept": "mixtures", "feedback": "Air has different gases together, so it is a mixture." },
-        { "prompt": "Salt dissolving in water means the salt has...", "options": ["spread out at a tiny scale", "vanished from the universe", "turned into light", "become a spoon"], "answer": 0, "concept": "dissolving", "feedback": "Dissolved means spread out, not gone." },
-        { "prompt": "Why do chemists use particle models?", "options": ["To think about things too small to see", "To prove atoms are tiny photographs", "To avoid evidence", "To make matter disappear"], "answer": 0, "concept": "models", "feedback": "Models help us reason about the tiny world we cannot see directly." },
-        { "prompt": "Which question is the best chemist move?", "options": ["What is it made from, and are the pieces joined or just together?", "What colour looks most exciting?", "Can I guess from the loudest word?", "Does it have a funny name?"], "answer": 0, "concept": "reasoning", "feedback": "The chemist move asks about ingredients and connection." },
-        { "prompt": "Which sentence is most accurate?", "options": ["Table salt is a compound, but not a neat little salt molecule.", "Table salt is made of salt atoms.", "All compounds are breakfast mixtures.", "Atoms are visible if you stare hard enough."], "answer": 0, "concept": "misconceptions", "feedback": "Table salt is a compound; the more advanced structure uses ions." }
+        {
+          "prompt": "Which choice is matter?",
+          "options": [
+            "A reflection",
+            "A beam of light",
+            "A coil of copper wire",
+            "A shadow"
+          ],
+          "answer": 2,
+          "concept": "matter",
+          "feedback": "Copper wire has mass and takes up space, so it is matter."
+        },
+        {
+          "prompt": "What does a model do in this chapter?",
+          "options": [
+            "Shows every tree on the map",
+            "Helps us think about things too small to see",
+            "Proves atoms are tiny photographs",
+            "Makes matter disappear"
+          ],
+          "answer": 1,
+          "concept": "models",
+          "feedback": "A model is a thinking tool for the tiny world we cannot see directly."
+        },
+        {
+          "prompt": "Pure copper wire is an element because it has...",
+          "options": [
+            "hydrogen and oxygen joined",
+            "no particles at all",
+            "one type of atom",
+            "cereal mixed into it"
+          ],
+          "answer": 2,
+          "concept": "elements",
+          "feedback": "An element is made from one type of atom."
+        },
+        {
+          "prompt": "Oxygen gas is a sneaky case because it is...",
+          "options": [
+            "both a molecule and an element",
+            "a mixture and a compound",
+            "not matter",
+            "made of salt particles"
+          ],
+          "answer": 0,
+          "concept": "molecules",
+          "feedback": "Oxygen gas has joined oxygen atoms, so it is a molecule, but only one atom type, so it is an element."
+        },
+        {
+          "prompt": "Water is a compound because...",
+          "options": [
+            "it is always cold",
+            "hydrogen and oxygen are chemically joined",
+            "it contains cereal",
+            "it has no atoms"
+          ],
+          "answer": 1,
+          "concept": "compounds",
+          "feedback": "A compound has different elements chemically joined."
+        },
+        {
+          "prompt": "Air is not a compound because its gases are...",
+          "options": [
+            "chemically married",
+            "all copper atoms",
+            "not matter",
+            "mixed, not chemically joined"
+          ],
+          "answer": 3,
+          "concept": "mixtures",
+          "feedback": "Air has different gases sharing space, so it is a mixture."
+        },
+        {
+          "prompt": "Salt dissolving in water means the salt has...",
+          "options": [
+            "spread out at a tiny scale",
+            "vanished from the universe",
+            "turned into light",
+            "become a spoon"
+          ],
+          "answer": 0,
+          "concept": "dissolving",
+          "feedback": "Dissolved means spread out, not gone."
+        },
+        {
+          "prompt": "Which question is the best chemist move?",
+          "options": [
+            "Does it have the funniest name?",
+            "What colour looks most exciting?",
+            "What is it made from, and are the pieces joined or just together?",
+            "Can I guess from the loudest word?"
+          ],
+          "answer": 2,
+          "concept": "reasoning",
+          "feedback": "The chemist move asks about ingredients and connection."
+        },
+        {
+          "prompt": "Which statement is most accurate?",
+          "options": [
+            "Table salt is made of salt atoms.",
+            "All compounds are breakfast mixtures.",
+            "Atoms are visible if you stare hard enough.",
+            "Table salt is a compound, but not a neat little salt molecule."
+          ],
+          "answer": 3,
+          "concept": "misconceptions",
+          "feedback": "Table salt is a compound; the more advanced structure uses ions."
+        },
+        {
+          "prompt": "A mixture is different from a compound because in a mixture...",
+          "options": [
+            "the parts share space without being rebuilt",
+            "all atoms vanish",
+            "only gold can appear",
+            "the periodic table stops working"
+          ],
+          "answer": 0,
+          "concept": "mixtures",
+          "feedback": "Mixture parts stay together without being chemically rebuilt into one new substance."
+        }
       ]
     },
     {
@@ -54,37 +164,147 @@
       "visualType": "control-room",
       "learningOutcome": "Describe the periodic table as a map of element types and read common element symbols.",
       "segments": [
-        "The periodic table is not a colourful wall poster invented to frighten classrooms. It is a map of the element types.",
-        "Each tile says: here is one kind of atom that nature can use.",
+        "The periodic table is not a colourful poster designed to frighten classrooms. It is a map - every element type nature can build with, laid out in order.",
+        "Each tile means: here is one kind of atom. One tile, one element, no repeats.",
         "Hydrogen is H. Oxygen is O. Carbon is C. Copper is Cu. Iron is Fe. Gold is Au.",
         "Some symbols are obvious. C for carbon is friendly. O for oxygen is practically waving.",
-        "Some are older-name surprises. Iron is Fe from ferrum. Copper is Cu from cuprum. Gold is Au from aurum. Chemistry has history tucked inside its labels.",
-        "You do not need to memorise the whole table today. But you should know what the table is doing.",
-        "Each element has a position. The position is not random. The table is arranged by atomic number. For this course, think of atomic number as the element's address on the map.",
-        "Hydrogen is number one. Helium is number two. Carbon is six. Oxygen is eight. Copper is twenty-nine. Gold is seventy-nine.",
-        "The table also shows patterns. Many metals live across the left and middle. Non-metals sit mostly toward the right.",
-        "Columns are called groups. Elements in the same group often behave in related ways. Rows are called periods. They show the order across the map.",
-        "Try reading the map like a chemist. A tile gives you the symbol, the name, and the address number. It is not asking you to panic; it is giving you coordinates.",
-        "If the control room lights up C, think carbon: graphite in pencil, diamond, and lots of living things. If it lights up O, think oxygen: air, water, and many compounds.",
-        "If it lights up Fe, think iron: nails, tools, and rust problems. If it lights up Cu, think copper: wires, coins, and that warm orange-brown metal colour.",
-        "Now compare two tiles. Carbon and oxygen have different symbols and different atomic numbers, so they are different element types. A carbon atom does not become oxygen just because it is drawn with the same circle shape in a model.",
-        "That is why labels matter. In a particle diagram, two circles can look similar, but C and O tell you they are different atoms. The periodic table is the label key for the model.",
-        "The table also helps avoid a common mistake. Water is not on the periodic table because water is not an element. It is made from elements. The table lists the building blocks, not every substance built from them.",
-        "Try this quick read: Na and Cl are element symbols. Sodium chloride, table salt, is not a new periodic-table tile. It is a compound made using element types from the table.",
-        "We are not doing electron shells today. The big idea is enough: the periodic table is a map, not a memory punishment.",
-        "When you see Cu on a coin or Fe on a lab card, think: atom type. When you see the whole table, think: organised map of elements."
+        "Others are old-name surprises. Iron is Fe, from the Latin ferrum. Copper is Cu, from cuprum. Gold is Au, from aurum. Chemistry keeps its history tucked inside the labels.",
+        "You do not need to memorise the whole table today. You need to know how to read it.",
+        "Every element has an address on the map: its atomic number. The tiles are arranged by that number - in order, no gaps.",
+        "Hydrogen is number one. Helium is two. Carbon is six. Oxygen is eight. Copper is twenty-nine. Gold is seventy-nine.",
+        "The neighbourhoods have patterns too. Metals fill the left and middle of the map. Non-metals cluster toward the right.",
+        "Columns are called groups - elements in the same group often behave in related ways, like family members. Rows are called periods - they show the order running across the map.",
+        "So one tile hands you three things: the symbol, the name, and the address number. It is not asking you to panic. It is giving you coordinates.",
+        "When the control room lights up C, think carbon: pencil graphite, diamond, and nearly everything alive. When it lights up O, think oxygen: air, water, and a very long list of compounds.",
+        "Fe means iron: nails, tools, and rust waiting to happen. Cu means copper: wires, coins, and that warm orange-brown shine.",
+        "Here is where the labels earn their keep. In a particle diagram, a carbon atom and an oxygen atom might both be drawn as plain circles. The letters C and O tell you they are different atoms - the drawing does not change what they are.",
+        "The periodic table is the key to that code. Different symbol, different atomic number, different element. Always.",
+        "One tile you will never find: water. Water is not an element. It is built from hydrogen and oxygen. The table lists the building blocks, not everything built from them.",
+        "Run the same test on salt. Na is sodium, Cl is chlorine - both on the table. Sodium chloride, table salt, is not a new tile. It is a compound made from two tiles you already know.",
+        "We are saving electron shells for later. Today's big idea is enough: the periodic table is a map, not a memory punishment.",
+        "So when you spot Cu on a copper wire or Fe on a lab card, think: atom type, with an address. When you see the whole table, think: the map of everything matter is made from."
       ],
       "tests": [
-        { "prompt": "What is the periodic table mainly doing in this chapter?", "options": ["Mapping element types", "Listing breakfast mixtures", "Showing only gases", "Replacing all models"], "answer": 0, "concept": "periodic-table", "feedback": "The periodic table maps element types and patterns." },
-        { "prompt": "Which symbol means oxygen?", "options": ["O", "Ox", "Au", "Fe"], "answer": 0, "concept": "symbols", "feedback": "O is the chemical symbol for oxygen." },
-        { "prompt": "Which symbol means copper?", "options": ["Cu", "Co", "Cp", "C"], "answer": 0, "concept": "symbols", "feedback": "Copper is Cu, from an older name, cuprum." },
-        { "prompt": "Why is iron written Fe?", "options": ["It comes from ferrum", "It has no symbol", "It is always two atoms", "It is not an element"], "answer": 0, "concept": "symbols", "feedback": "Fe comes from the older name ferrum." },
-        { "prompt": "For this course, atomic number is treated like an element's...", "options": ["address on the map", "favourite colour", "breakfast order", "weather report"], "answer": 0, "concept": "atomic-number", "feedback": "Atomic number helps locate and order elements on the map." },
-        { "prompt": "Where do many metals sit on the periodic table?", "options": ["Across the left and middle", "Only in the top right corner", "Outside the table", "Only in one row"], "answer": 0, "concept": "patterns", "feedback": "Many metals occupy the left and middle regions." },
-        { "prompt": "A column on the periodic table is called a...", "options": ["group", "period", "mixture", "solution"], "answer": 0, "concept": "groups-periods", "feedback": "Columns are groups." },
-        { "prompt": "A row on the periodic table is called a...", "options": ["period", "group", "compound", "filter"], "answer": 0, "concept": "groups-periods", "feedback": "Rows are periods." },
-        { "prompt": "Which is the best reason not to memorise the whole table today?", "options": ["The goal is to understand how it maps patterns", "The table is fake", "Symbols do not matter", "Elements have no order"], "answer": 0, "concept": "reasoning", "feedback": "Understanding the table as a map matters more than memorising every tile now." },
-        { "prompt": "Seeing Au on a card should make you think...", "options": ["gold atom type", "air mixture", "water molecule only", "filter paper"], "answer": 0, "concept": "symbols", "feedback": "Au is the symbol for gold." }
+        {
+          "prompt": "What is the periodic table mainly doing in this chapter?",
+          "options": [
+            "Listing breakfast mixtures",
+            "Mapping element types",
+            "Showing only gases",
+            "Replacing all models"
+          ],
+          "answer": 1,
+          "concept": "periodic-table",
+          "feedback": "The periodic table maps element types and patterns."
+        },
+        {
+          "prompt": "Which symbol means oxygen?",
+          "options": [
+            "Au",
+            "Ox",
+            "O",
+            "Fe"
+          ],
+          "answer": 2,
+          "concept": "symbols",
+          "feedback": "O is the chemical symbol for oxygen."
+        },
+        {
+          "prompt": "Which symbol means copper?",
+          "options": [
+            "Co",
+            "Cp",
+            "C",
+            "Cu"
+          ],
+          "answer": 3,
+          "concept": "symbols",
+          "feedback": "Copper is Cu, from the older name cuprum."
+        },
+        {
+          "prompt": "Why is iron written Fe?",
+          "options": [
+            "It has no symbol",
+            "It is always two atoms",
+            "It comes from ferrum",
+            "It is not an element"
+          ],
+          "answer": 2,
+          "concept": "symbols",
+          "feedback": "Fe comes from the older name ferrum."
+        },
+        {
+          "prompt": "Atomic number is like an element's...",
+          "options": [
+            "favourite colour",
+            "address on the map",
+            "breakfast order",
+            "weather report"
+          ],
+          "answer": 1,
+          "concept": "atomic-number",
+          "feedback": "Atomic number helps locate and order elements on the map."
+        },
+        {
+          "prompt": "Where do many metals sit on the periodic table?",
+          "options": [
+            "Only in the top right corner",
+            "Outside the table",
+            "Across the left and middle",
+            "Only in one row"
+          ],
+          "answer": 2,
+          "concept": "patterns",
+          "feedback": "Many metals occupy the left and middle regions."
+        },
+        {
+          "prompt": "A column on the periodic table is called a...",
+          "options": [
+            "period",
+            "mixture",
+            "group",
+            "solution"
+          ],
+          "answer": 2,
+          "concept": "groups-periods",
+          "feedback": "Columns are groups."
+        },
+        {
+          "prompt": "A row on the periodic table is called a...",
+          "options": [
+            "period",
+            "group",
+            "compound",
+            "filter"
+          ],
+          "answer": 0,
+          "concept": "groups-periods",
+          "feedback": "Rows are periods."
+        },
+        {
+          "prompt": "Why is water not a periodic-table tile?",
+          "options": [
+            "It is built from elements, but is not an element",
+            "The table is fake",
+            "Symbols do not matter",
+            "Water has no particles"
+          ],
+          "answer": 0,
+          "concept": "compounds",
+          "feedback": "The table lists element building blocks, not every substance made from them."
+        },
+        {
+          "prompt": "Seeing Au on a card should make you think...",
+          "options": [
+            "air mixture",
+            "water molecule only",
+            "gold atom type",
+            "filter paper"
+          ],
+          "answer": 2,
+          "concept": "symbols",
+          "feedback": "Au is the symbol for gold."
+        }
       ]
     },
     {
@@ -96,39 +316,149 @@
       "visualType": "state-container",
       "learningOutcome": "Use particle models to explain solids, liquids, gases, and common state changes.",
       "segments": [
-        "Now let us use particles to explain why solids, liquids, and gases behave so differently.",
-        "A solid keeps its shape. A metal spoon does not slowly pour off the table, which is helpful for lunch.",
-        "In a simple particle model, solid particles are close together and arranged in a pattern. They vibrate, but they do not wander around the room.",
-        "A liquid keeps its volume but changes shape. Water sits in a glass, then takes the shape of the glass.",
-        "In the particle model, liquid particles are still close together, but they can slide past each other.",
-        "A gas spreads out. Air fills a balloon. Take away the balloon and the gas does not stay in a neat balloon-shaped lump.",
-        "The model explains why solids hold shape, liquids flow, and gases fill containers.",
-        "Heating gives particles more energy. In a solid, enough heating can let particles move out of fixed positions. That is melting: solid to liquid.",
-        "Cooling removes energy. A liquid can slow down until its particles settle into a solid pattern. That is freezing: liquid to solid.",
-        "Evaporation is liquid to gas. It can happen at the surface even without boiling. A wet towel drying is water particles escaping into the air.",
-        "Condensation is gas to liquid. Water vapour meets a cold surface, slows down, and becomes tiny droplets.",
-        "Use the model to predict. If particles are close and locked into a pattern, the substance keeps its shape. If they are close but sliding, it flows. If they are far apart, it spreads.",
-        "That is why a balloon gets bigger when you blow air into it. You are adding gas particles, and they push out into the space available.",
-        "It is also why a puddle slowly dries. The water is not being deleted. Some particles at the surface have enough energy to escape into the air.",
-        "The model also stops a common mistake. Melting does not always mean turning into water. Wax can melt. Butter can melt. Some metals can melt. The state changes; the substance may still be the same substance.",
-        "Now test the model. Why does a liquid pour? Because its particles can move past each other. Why does a solid spoon keep its shape? Because its particles are held in a more fixed arrangement.",
-        "Why can you squeeze air in a syringe more than water? Gas particles have much more empty space between them. Liquid particles are already close together, so there is much less room to squeeze.",
-        "The particle model is powerful because it connects what you see to what you cannot see. Shape, flow, spreading, drying, fogging, melting, and freezing all become less mysterious.",
-        "It also helps with mass. When water evaporates from an open puddle, the puddle loses water because particles leave into the air. The water particles have moved; they have not become nothing.",
-        "Do not imagine the particles as tiny ice cubes or tiny wet drops. The dots are a model. They show spacing and movement, not microscopic photographs.",
-        "The chemist move here is: if the state changes, ask how the particles are arranged and moving."
+        "Let's use particles to explain why solids, liquids, and gases behave so differently. Same idea, three very different results.",
+        "A solid keeps its shape. A metal spoon does not slowly pour off the table, which is helpful at lunch.",
+        "In the particle model, solid particles are packed close together in a regular pattern. They vibrate in place, but they do not wander off. Picture a crowd holding hands and jiggling.",
+        "A liquid keeps its volume but changes shape. Pour water from a bottle into a glass: same amount, new shape.",
+        "Liquid particles are still close together, but they can slide past each other. No fixed pattern, no fixed shape.",
+        "A gas spreads out to fill whatever space it gets. Air fills a balloon. Pop the balloon and the gas does not stay in a polite balloon-shaped lump.",
+        "Gas particles are far apart and zooming in all directions, bouncing off each other and the walls. Mostly, a gas is empty space with particles racing through it.",
+        "Heating gives particles more energy, so they move more. Give a solid enough heat and its particles shake free of their fixed positions. That is melting: solid to liquid.",
+        "Cooling removes energy. Slow a liquid's particles down enough and they settle back into a pattern. That is freezing: liquid to solid. Same particles, different behaviour.",
+        "Evaporation is liquid to gas, and it can happen at the surface without boiling. A wet towel dries because water particles at the surface gain enough energy to escape into the air, one at a time.",
+        "Condensation is gas to liquid. Water vapour hits a cold mirror, its particles slow down, huddle together, and become tiny droplets. That is the fog after a hot shower.",
+        "Now you can predict. Particles locked in a pattern: keeps its shape. Close but sliding: it flows. Far apart and zooming: it spreads to fill the container.",
+        "It explains the balloon, too. Blow in air and you add gas particles, which push outward into every bit of available space. Balloons are just particle containers with stretch.",
+        "And it explains a drying puddle. The water is not being deleted. Surface particles escape into the air. The puddle shrinks because its particles left, not because they stopped existing.",
+        "Here is a common mistake the model prevents: melting does not mean turning into water. Wax melts. Butter melts. Iron melts, at a temperature you should not test at home. The state changes; the substance stays the same substance.",
+        "Test the model. Why does a liquid pour? Its particles slide past each other. Why does a spoon keep its shape? Its particles are held in a fixed arrangement.",
+        "Why can you squash air in a syringe but not water? Gas particles have lots of empty space between them, so there is room to push them closer. Liquid particles are already close together. Nowhere to go.",
+        "The model's real power: it connects what you can see to what you cannot. Pouring, spreading, drying, fogging, melting, freezing - one invisible explanation for all of it.",
+        "It also keeps track of mass. When a puddle evaporates, the water particles move into the air. They have travelled; they have not vanished.",
+        "One warning. Do not imagine water particles as tiny wet drops or ice particles as tiny ice cubes. The dots in the model show spacing and movement. They are not microscopic photographs, and single particles are not wet.",
+        "The chemist's move: when a state changes, don't ask what the stuff looks like. Ask how its particles are arranged and how they are moving."
       ],
       "tests": [
-        { "prompt": "In the particle model, solid particles are usually...", "options": ["close together in a pattern", "far apart and filling all space", "not moving at all", "large wet drops"], "answer": 0, "concept": "solid", "feedback": "Solid particles are close and patterned, though they still vibrate." },
-        { "prompt": "Liquid particles can...", "options": ["slide past each other", "only stay in perfect rows", "turn into tiny spoons", "vanish when poured"], "answer": 0, "concept": "liquid", "feedback": "Liquid particles stay close but can slide." },
-        { "prompt": "Gas particles are best shown as...", "options": ["far apart and moving freely", "locked in a fixed pattern", "one solid block", "tiny ice cubes"], "answer": 0, "concept": "gas", "feedback": "Gas particles spread out and move freely." },
-        { "prompt": "Melting is...", "options": ["solid to liquid", "liquid to solid", "gas to liquid", "mixture to element"], "answer": 0, "concept": "melting", "feedback": "Melting changes a solid into a liquid." },
-        { "prompt": "Freezing is...", "options": ["liquid to solid", "solid to gas", "gas to mixture", "element to compound"], "answer": 0, "concept": "freezing", "feedback": "Freezing changes a liquid into a solid." },
-        { "prompt": "Evaporation is...", "options": ["liquid to gas", "gas to liquid", "solid to liquid", "compound to element"], "answer": 0, "concept": "evaporation", "feedback": "Evaporation changes liquid particles into gas particles at the surface." },
-        { "prompt": "Condensation happens when...", "options": ["gas cools into liquid droplets", "a solid becomes a mixture", "salt becomes light", "particles stop existing"], "answer": 0, "concept": "condensation", "feedback": "Condensation is gas changing to liquid." },
-        { "prompt": "Heating usually gives particles...", "options": ["more energy", "less movement", "no mass", "a new name only"], "answer": 0, "concept": "heating", "feedback": "Heating gives particles more energy." },
-        { "prompt": "The dots in a particle diagram are...", "options": ["a model", "tiny photographs", "always wet", "actual visible atoms on the page"], "answer": 0, "concept": "models", "feedback": "Particle dots are a model, not photographs." },
-        { "prompt": "A gas fills a bigger container because its particles...", "options": ["spread out freely", "become heavier", "freeze immediately", "join into a compound"], "answer": 0, "concept": "prediction", "feedback": "Gas particles spread to fill available space." }
+        {
+          "prompt": "In the particle model, solid particles are usually...",
+          "options": [
+            "far apart and filling all space",
+            "close together in a pattern",
+            "not moving at all",
+            "large wet drops"
+          ],
+          "answer": 1,
+          "concept": "solid",
+          "feedback": "Solid particles are close and patterned, though they still vibrate."
+        },
+        {
+          "prompt": "Liquid particles can...",
+          "options": [
+            "only stay in perfect rows",
+            "turn into tiny spoons",
+            "slide past each other",
+            "vanish when poured"
+          ],
+          "answer": 2,
+          "concept": "liquid",
+          "feedback": "Liquid particles stay close but can slide."
+        },
+        {
+          "prompt": "Gas particles are best shown as...",
+          "options": [
+            "locked in a fixed pattern",
+            "one solid block",
+            "tiny ice cubes",
+            "far apart and moving freely"
+          ],
+          "answer": 3,
+          "concept": "gas",
+          "feedback": "Gas particles spread out and move freely."
+        },
+        {
+          "prompt": "Melting is...",
+          "options": [
+            "solid to liquid",
+            "liquid to solid",
+            "gas to liquid",
+            "mixture to element"
+          ],
+          "answer": 0,
+          "concept": "melting",
+          "feedback": "Melting changes a solid into a liquid."
+        },
+        {
+          "prompt": "Freezing is...",
+          "options": [
+            "solid to gas",
+            "liquid to solid",
+            "gas to mixture",
+            "element to compound"
+          ],
+          "answer": 1,
+          "concept": "freezing",
+          "feedback": "Freezing changes a liquid into a solid."
+        },
+        {
+          "prompt": "Evaporation can happen when...",
+          "options": [
+            "particles stop existing",
+            "surface liquid particles escape into the air",
+            "a compound becomes an element",
+            "ice turns into tiny ice cubes"
+          ],
+          "answer": 1,
+          "concept": "evaporation",
+          "feedback": "Evaporation can happen at the surface without boiling."
+        },
+        {
+          "prompt": "Condensation happens when...",
+          "options": [
+            "gas cools into liquid droplets",
+            "a solid becomes a mixture",
+            "salt becomes light",
+            "particles stop existing"
+          ],
+          "answer": 0,
+          "concept": "condensation",
+          "feedback": "Condensation is gas changing to liquid."
+        },
+        {
+          "prompt": "Why can air squash more than water in a syringe?",
+          "options": [
+            "Gas particles have more empty space between them",
+            "Water is not matter",
+            "Atoms vanish under pressure",
+            "Liquids are mostly empty space"
+          ],
+          "answer": 0,
+          "concept": "compression",
+          "feedback": "Gas particles are far apart, so they can be pushed closer together."
+        },
+        {
+          "prompt": "The dots in a particle diagram are...",
+          "options": [
+            "tiny photographs",
+            "always wet",
+            "a model",
+            "actual visible atoms on the page"
+          ],
+          "answer": 2,
+          "concept": "models",
+          "feedback": "Particle dots are a model, not photographs."
+        },
+        {
+          "prompt": "Which statement avoids the common melting mistake?",
+          "options": [
+            "Only water can melt",
+            "Melting changes state, not necessarily substance",
+            "Melting makes atoms disappear",
+            "Melting always creates a compound"
+          ],
+          "answer": 1,
+          "concept": "misconceptions",
+          "feedback": "Wax, butter, and metals can melt; the state changes, not necessarily the substance."
+        }
       ]
     },
     {
@@ -140,42 +470,152 @@
       "visualType": "joined-vs-together",
       "learningOutcome": "Distinguish mixtures from compounds and choose separation methods from material properties.",
       "segments": [
-        "A mixture is what happens when substances are together, but not chemically rebuilt into one new substance.",
-        "Think of cereal and milk. The cereal is still cereal. The milk is still milk.",
-        "That is different from a compound. In a compound, atoms of different elements are chemically joined in a fixed arrangement.",
-        "Water is not a loose pile of hydrogen and oxygen. It is a new substance with its own properties.",
-        "Mixtures can be obvious: sand and pebbles, cereal and milk, paper clips and rice.",
-        "Some mixtures are less obvious. Salt water looks clear, but salt particles are spread through the water. That kind of mixture is a solution.",
-        "Dissolved does not mean gone. If sugar dissolves in water, the sweetness tells you the sugar is still there.",
-        "Dissolving sugar is a physical change. The sugar is spread out, not rebuilt into a new substance.",
-        "Chemists separate mixtures by using properties.",
-        "If pieces are different sizes, use sieving. A sieve can separate pebbles from sand because the holes care about size.",
-        "If an insoluble solid is mixed with a liquid, use filtering. Filter paper can catch sand from muddy water.",
-        "But filtering will not remove dissolved salt from water. The salt particles are too spread out and too small for normal filter paper to catch.",
-        "For salt water, use evaporation. Let the water leave as vapour, and the salt can be left behind.",
-        "If one part is magnetic, use a magnet. A magnet can pull iron filings from sand. It will not help with rice, because rice is not secretly metal.",
-        "Another useful word is soluble. A soluble substance can dissolve in a liquid. Salt is soluble in water. Sand is insoluble in water, which is why it can be caught by a filter.",
-        "If a mixture has a liquid sitting above a solid, sometimes you can pour the liquid off carefully. That is called decanting. It is not as precise as filtering, but it is a real separation idea.",
-        "For coloured inks or dyes, chemists can use chromatography. The colours travel different distances through paper because they interact with the paper and liquid differently. It looks like a tiny race where the colours finally stop pretending to be one colour.",
-        "Sometimes you need a sequence. Imagine a mixture of sand, salt, and iron filings. First use a magnet for the iron. Then add water to dissolve the salt. Filter out the sand. Finally evaporate the water to recover the salt.",
-        "That sounds like several steps because the mixture has several different properties to exploit. Size, solubility, and magnetism each give you a different handle.",
-        "This is why one magic separation tool does not exist. A filter is brilliant for muddy water and useless for dissolved salt. A magnet is brilliant for iron and deeply uninterested in sugar.",
-        "A solution can still be a mixture even when it looks uniform. Clear salt water does not show separate grains, but the salt particles are still present throughout the water.",
-        "A saturated solution is what happens when the water cannot dissolve more of that substance at that temperature. Extra solid may sit at the bottom, not because chemistry gave up, but because there is no more dissolving room in the model.",
-        "So separation is a planning problem. Identify the parts, list their properties, then pick the method that uses the biggest useful difference between them.",
-        "The separation question is: what property lets me separate these parts?"
+        "A mixture is what you get when substances hang around together without being chemically rebuilt into anything new.",
+        "Picture cereal and milk. The cereal is still cereal. The milk is still milk. You could, with patience and a spoon, fish every piece back out.",
+        "A compound is different. In a compound, atoms of different elements are chemically joined in a fixed arrangement.",
+        "Water is not a loose pile of hydrogen and oxygen. It is a new substance with its own properties, and no spoon will un-join it.",
+        "That gives us the big rule: mixtures can be pulled apart with physical tricks. Compounds need a chemical reaction to take apart.",
+        "Some mixtures are obvious. Sand and pebbles. Paper clips and rice. You can see the parts.",
+        "Some hide well. Salt water looks like plain water, but salt particles are spread all through it. A mixture that looks uniform like this is called a solution.",
+        "Dissolved does not mean gone. Stir sugar into water, taste it, and the sweetness reports that the sugar is still in there.",
+        "Dissolving is a physical change: the sugar is spread out, not rebuilt. Salt is soluble in water. Sand is insoluble - it refuses to dissolve, and that refusal will come in handy.",
+        "Now for the fun part: getting mixtures apart. Chemists pick a separation method by looking at properties.",
+        "Different sizes? Use a sieve. Pebbles stay on top, sand falls through. The holes only care about size.",
+        "Insoluble solid in a liquid? Use a filter. Filter paper catches sand from muddy water like a very fine net.",
+        "But a filter will not remove dissolved salt from water. Dissolved particles are far too small - they sail straight through the paper.",
+        "For salt water, use evaporation. Let the water leave as vapour, and the salt is left behind as crystals, looking slightly betrayed.",
+        "Something magnetic in the mix? Use a magnet. It pulls iron filings straight out of sand. It does nothing for rice, because rice is not secretly metal.",
+        "If a liquid is sitting above a settled solid, you can sometimes pour the liquid off carefully. That is decanting. Less precise than filtering, but a real method.",
+        "For mixed inks or dyes, chemists use chromatography. On paper, the colours travel different distances and spread apart - a tiny race where the colours finally stop pretending to be one colour.",
+        "Sometimes you need a sequence. Take sand, salt, and iron filings. Magnet out the iron. Add water to dissolve the salt. Filter out the sand. Evaporate the water to get the salt back.",
+        "Four steps, because the mixture offers four different handles: magnetism, solubility, size, and evaporation.",
+        "This is why there is no magic separation machine. A filter is brilliant for muddy water and useless for dissolved salt. A magnet is brilliant for iron and deeply uninterested in sugar.",
+        "One more solution fact: keep adding salt to water and eventually no more will dissolve. The solution is saturated - extra salt just sits at the bottom, waiting.",
+        "Warmer water can usually dissolve more than cold water, which is why sugar vanishes faster in hot tea than in iced tea.",
+        "So separation is a planning problem. Identify the parts, list their properties, then pick the method that uses the biggest difference between them.",
+        "The separation question is always the same: what property lets me pull these parts apart?"
       ],
       "tests": [
-        { "prompt": "A mixture has substances that are...", "options": ["together but not chemically rebuilt", "always one type of atom", "never matter", "all invisible"], "answer": 0, "concept": "mixture", "feedback": "Mixtures keep substances together without rebuilding them into one new substance." },
-        { "prompt": "Water is a compound because...", "options": ["hydrogen and oxygen are chemically joined", "cereal is floating in it", "it is transparent", "it can be poured"], "answer": 0, "concept": "compound", "feedback": "Water has different elements chemically joined." },
-        { "prompt": "Salt water is a...", "options": ["solution", "pure element", "single atom", "beam of light"], "answer": 0, "concept": "solution", "feedback": "Salt water is a solution: dissolved salt spread through water." },
-        { "prompt": "Dissolving sugar in water is best described here as...", "options": ["a physical change", "creating gold atoms", "a new gas reaction", "turning sugar into light"], "answer": 0, "concept": "dissolving", "feedback": "The sugar spreads out; it is not rebuilt into a new substance." },
-        { "prompt": "Which method separates pebbles from sand by size?", "options": ["sieving", "evaporation", "indicator testing", "rusting"], "answer": 0, "concept": "sieving", "feedback": "Sieving uses different particle sizes." },
-        { "prompt": "Which method can catch sand from muddy water?", "options": ["filtering", "atomic number", "condensation only", "periodic table groups"], "answer": 0, "concept": "filtering", "feedback": "Filtering can catch an insoluble solid like sand." },
-        { "prompt": "Why will normal filtering not remove dissolved salt?", "options": ["The particles are too spread out and small", "Salt is not matter", "Filters only work on gases", "The water becomes gold"], "answer": 0, "concept": "misconceptions", "feedback": "Dissolved salt particles are too small/spread out for normal filter paper." },
-        { "prompt": "Which method can recover salt from salt water?", "options": ["evaporation", "sieving only", "a magnet", "a colour chart"], "answer": 0, "concept": "evaporation", "feedback": "Evaporation removes water and can leave salt behind." },
-        { "prompt": "A magnet is useful when one part is...", "options": ["magnetic", "transparent", "a liquid", "dissolved sugar"], "answer": 0, "concept": "magnetism", "feedback": "Magnetism separates magnetic materials from non-magnetic ones." },
-        { "prompt": "Best separation question:", "options": ["What property lets me separate these parts?", "Which tool looks coolest?", "Can I call every mixture a compound?", "Can I ignore evidence?"], "answer": 0, "concept": "reasoning", "feedback": "Choose the separation method from the properties." }
+        {
+          "prompt": "A mixture has substances that are...",
+          "options": [
+            "always one type of atom",
+            "together but not chemically rebuilt",
+            "never matter",
+            "all invisible"
+          ],
+          "answer": 1,
+          "concept": "mixture",
+          "feedback": "Mixtures keep substances together without rebuilding them into one new substance."
+        },
+        {
+          "prompt": "Water is a compound because...",
+          "options": [
+            "cereal is floating in it",
+            "it is transparent",
+            "hydrogen and oxygen are chemically joined",
+            "it can be poured"
+          ],
+          "answer": 2,
+          "concept": "compound",
+          "feedback": "Water has different elements chemically joined."
+        },
+        {
+          "prompt": "Salt water is a...",
+          "options": [
+            "pure element",
+            "single atom",
+            "beam of light",
+            "solution"
+          ],
+          "answer": 3,
+          "concept": "solution",
+          "feedback": "Salt water is a solution: dissolved salt spread through water."
+        },
+        {
+          "prompt": "Dissolving sugar in water is best described here as...",
+          "options": [
+            "a physical change",
+            "creating gold atoms",
+            "a new gas reaction",
+            "turning sugar into light"
+          ],
+          "answer": 0,
+          "concept": "dissolving",
+          "feedback": "The sugar spreads out; it is not rebuilt into a new substance."
+        },
+        {
+          "prompt": "Which method separates pebbles from sand by size?",
+          "options": [
+            "evaporation",
+            "indicator testing",
+            "sieving",
+            "rusting"
+          ],
+          "answer": 2,
+          "concept": "sieving",
+          "feedback": "Sieving uses different particle sizes."
+        },
+        {
+          "prompt": "Which method can catch sand from muddy water?",
+          "options": [
+            "atomic number",
+            "filtering",
+            "condensation only",
+            "periodic table groups"
+          ],
+          "answer": 1,
+          "concept": "filtering",
+          "feedback": "Filtering can catch an insoluble solid like sand."
+        },
+        {
+          "prompt": "Why will normal filtering not remove dissolved salt?",
+          "options": [
+            "Salt is not matter",
+            "Filters only work on gases",
+            "The particles are too spread out and small",
+            "The water becomes gold"
+          ],
+          "answer": 2,
+          "concept": "misconceptions",
+          "feedback": "Dissolved salt particles are too small/spread out for normal filter paper."
+        },
+        {
+          "prompt": "Which method can recover salt from salt water?",
+          "options": [
+            "sieving only",
+            "a magnet",
+            "a colour chart",
+            "evaporation"
+          ],
+          "answer": 3,
+          "concept": "evaporation",
+          "feedback": "Evaporation removes water and can leave salt behind."
+        },
+        {
+          "prompt": "In the sand, salt, and iron example, the first useful handle is...",
+          "options": [
+            "magnetism",
+            "the alphabet",
+            "temperature clues only",
+            "tasting"
+          ],
+          "answer": 0,
+          "concept": "sequence",
+          "feedback": "Iron filings can be removed first with a magnet."
+        },
+        {
+          "prompt": "Best separation question:",
+          "options": [
+            "Which tool looks coolest?",
+            "What property lets me separate these parts?",
+            "Can I call every mixture a compound?",
+            "Can I ignore evidence?"
+          ],
+          "answer": 1,
+          "concept": "reasoning",
+          "feedback": "Choose the separation method from the properties."
+        }
       ]
     },
     {
@@ -187,38 +627,148 @@
       "visualType": "clue-console",
       "learningOutcome": "Identify clues that suggest chemical change, while avoiding overclaiming from one clue.",
       "segments": [
-        "Some changes are physical. The material changes form, shape, or position, but it is not made into a new substance.",
-        "Melting ice is physical. Cutting paper is physical. Dissolving sugar is physical, because the sugar is spread out, not rebuilt.",
-        "A chemical change is different. In a chemical change, new substances form.",
-        "Chemists look for clues. Not proof from one clue, but evidence.",
-        "One clue is gas being made. Fizzing can mean a gas is forming. But boiling water also makes bubbles, and that is not the same as a new gas from a reaction.",
-        "Another clue is colour change. If a substance changes colour during a reaction, something new may be forming.",
-        "A temperature change can be a clue too. Some reactions warm up. Some cool down. The point is that energy is involved.",
-        "Sometimes a new solid appears inside a liquid. It may look cloudy, or like tiny particles forming. Later we call that a precipitate.",
-        "Light can be a clue. Burning and some reactions give off light. We are not doing unsafe flames here; we are reading evidence.",
-        "Rusting is a slow chemical change. Iron reacts with oxygen and water. It slowly ruins things unless we protect the metal with paint, oil, or keeping it dry.",
-        "Indicators give another kind of evidence. A safe indicator can change colour in acids or alkalis. That does not mean we taste unknown liquids. Chemistry has rules because eyebrows are useful.",
-        "Now compare two changes. Ice melting gives liquid water, but no new substance. Toast browning makes new substances, which is why burnt toast does not unburn when it cools down.",
-        "Another comparison: salt dissolving can be reversed by evaporating the water. Rusting iron is much harder to reverse because a new substance has formed on the metal.",
-        "The clue checklist helps you avoid guessing from one loud word. Bubbles, colour, temperature, light, or a new solid can all matter, but the strongest answer explains what new substance may have formed.",
-        "The deepest idea is this: in a chemical reaction, atoms are rearranged. They do not vanish. They connect in new ways to make new substances.",
-        "That also means mass does not simply disappear. In a closed system, the atoms are still there, even if they have rearranged into gases, liquids, or solids that look different from the start.",
-        "For this course, you do not need balanced equations. You need the idea behind them: the starting particles are reactants, the ending substances are products, and the atoms have been rearranged.",
-        "This is why chemical-change questions should not be answered from one word alone. Burn, fizz, colour, warm, cloudy: each word is a clue, but the best answer explains the new substance idea.",
-        "So when a question shows a before-and-after particle model, count the atom types. If the same atoms are connected differently at the end, you are probably looking at a chemical reaction model.",
-        "The chemist move is: look for clues, ask whether a new substance formed, and use a particle model to explain the change."
+        "Some changes are physical. The material changes shape, form, or place, but nothing new is made. Same substance, new outfit.",
+        "Melting ice: physical. Cutting paper: physical. Dissolving sugar: physical - the sugar spreads out among the water particles, but it is not rebuilt into anything new.",
+        "A chemical change is different. New substances form, with new properties. Keep that word in mind: new.",
+        "Chemists hunt for clues. One clue is a hint, not proof. We are detectives, not fortune tellers.",
+        "Clue one: a gas is made. Fizzing can mean a new gas is forming. But be careful - boiling water bubbles too, and that is just water changing state, not a new substance.",
+        "Clue two: colour change. If a substance changes colour during a reaction, something new may be forming.",
+        "Clue three: temperature change. Some reactions warm up. Some cool down. Either way, energy is on the move, and that is worth noticing.",
+        "Clue four: a new solid appears inside a liquid. It might look cloudy, or like tiny specks drifting down. Chemists call that solid a precipitate - and it counts as a new substance.",
+        "Clue five: light. Burning and some other reactions give off light. We are reading evidence today, not lighting flames.",
+        "Rusting is a chemical change in slow motion. Iron reacts with oxygen and water to make rust - a new, crumbly, orange substance. Paint, oil, or keeping things dry all work the same way: they keep the oxygen out.",
+        "Indicators give another kind of evidence. A safe indicator changes colour in acids or alkalis. What we never do is taste or sniff unknown liquids. Chemistry has rules because eyebrows are useful.",
+        "Now compare two changes. Ice melts into liquid water: same substance, different state. Toast browns: new substances form, which is why burnt toast does not un-burn when it cools down.",
+        "Another pair. Salt dissolving can be reversed - evaporate the water and the salt comes back. Rust is far harder to reverse, because a brand-new substance now coats the metal.",
+        "So keep the checklist: gas, colour, temperature, light, new solid. Any of them can matter. But the strongest answer always asks the real question - did a new substance form?",
+        "Here is the deepest idea. In a chemical reaction, atoms are rearranged. None vanish. None appear from nowhere. They simply link up in new combinations.",
+        "That means mass does not disappear either. In a closed container, every atom you started with is still there - even if some are now hiding as an invisible gas.",
+        "You do not need balanced equations yet. You need the idea behind them: the starting substances are reactants, the ending substances are products, and the same atoms did all the work.",
+        "One more warning: some clues show up in physical changes too. Boiling makes bubbles. Even dissolving can change the temperature a little. That is why a chemist never trusts one clue alone.",
+        "When a question shows a before-and-after particle model, count the atom types. Same atoms at the end, but connected differently? You are almost certainly looking at a chemical reaction.",
+        "That is the chemist move: spot the clues, ask whether a new substance formed, and use a particle model to explain what really happened."
       ],
       "tests": [
-        { "prompt": "A physical change means the material...", "options": ["changes form but is not made into a new substance", "always becomes a new element", "stops being matter", "must give off light"], "answer": 0, "concept": "physical-change", "feedback": "Physical changes alter form or position without making a new substance." },
-        { "prompt": "A chemical change means...", "options": ["new substances form", "nothing changes", "all atoms vanish", "it must be safe to taste"], "answer": 0, "concept": "chemical-change", "feedback": "Chemical change forms new substances." },
-        { "prompt": "Fizzing can be a clue for...", "options": ["gas being made", "freezing only", "a periodic table group", "a magnet working"], "answer": 0, "concept": "gas-clue", "feedback": "Fizzing may show gas forming, but it needs context." },
-        { "prompt": "Why are boiling-water bubbles not automatically a chemical reaction?", "options": ["They are water changing state, not a new gas from a reaction", "Boiling water is not matter", "Bubbles are always fake", "Water has no particles"], "answer": 0, "concept": "misconceptions", "feedback": "Boiling is a state change; it is not automatically a new substance forming." },
-        { "prompt": "Which could be a chemical-change clue?", "options": ["colour change during a reaction", "a page being folded", "a spoon being moved", "a shadow growing"], "answer": 0, "concept": "colour-clue", "feedback": "A colour change can be evidence of chemical change." },
-        { "prompt": "A cloudy new solid appearing in a liquid is a clue called later...", "options": ["a precipitate", "a period", "a sieve", "a noble gas"], "answer": 0, "concept": "new-solid", "feedback": "A new solid forming in liquid is later called a precipitate." },
-        { "prompt": "Rusting needs iron plus...", "options": ["oxygen and water", "gold and sugar", "helium and light", "salt and cereal"], "answer": 0, "concept": "rust", "feedback": "Rusting involves iron, oxygen, and water." },
-        { "prompt": "A safe indicator helps chemists...", "options": ["gather colour evidence about acids or alkalis", "taste unknown liquids", "turn every mixture into gold", "remove atoms"], "answer": 0, "concept": "indicators", "feedback": "Indicators give colour evidence; they are not for tasting unknowns." },
-        { "prompt": "In a chemical reaction, atoms usually...", "options": ["rearrange into new substances", "vanish completely", "become tiny photographs", "stop taking up space"], "answer": 0, "concept": "rearrangement", "feedback": "Atoms rearrange; they do not vanish." },
-        { "prompt": "Best chemical-change reasoning:", "options": ["Look for clues, then ask whether a new substance formed", "Trust one clue without thinking", "Taste it to check", "Ignore particle models"], "answer": 0, "concept": "reasoning", "feedback": "Clues are evidence; the key question is whether a new substance formed." }
+        {
+          "prompt": "A physical change means the material...",
+          "options": [
+            "always becomes a new element",
+            "changes form but is not made into a new substance",
+            "stops being matter",
+            "must give off light"
+          ],
+          "answer": 1,
+          "concept": "physical-change",
+          "feedback": "Physical changes alter form or position without making a new substance."
+        },
+        {
+          "prompt": "A chemical change means...",
+          "options": [
+            "nothing changes",
+            "all atoms vanish",
+            "new substances form",
+            "it must be safe to taste"
+          ],
+          "answer": 2,
+          "concept": "chemical-change",
+          "feedback": "Chemical change forms new substances."
+        },
+        {
+          "prompt": "Fizzing can be a clue for...",
+          "options": [
+            "freezing only",
+            "gas being made",
+            "a periodic table group",
+            "a magnet working"
+          ],
+          "answer": 1,
+          "concept": "gas-clue",
+          "feedback": "Fizzing may show gas forming, but it needs context."
+        },
+        {
+          "prompt": "Why are boiling-water bubbles not automatically a chemical reaction?",
+          "options": [
+            "They are water changing state, not a new gas from a reaction",
+            "Boiling water is not matter",
+            "Bubbles are always fake",
+            "Water has no particles"
+          ],
+          "answer": 0,
+          "concept": "misconceptions",
+          "feedback": "Boiling is a state change; it is not automatically a new substance forming."
+        },
+        {
+          "prompt": "Which could be a chemical-change clue?",
+          "options": [
+            "a page being folded",
+            "a spoon being moved",
+            "colour change during a reaction",
+            "a shadow growing"
+          ],
+          "answer": 2,
+          "concept": "colour-clue",
+          "feedback": "A colour change can be evidence of chemical change."
+        },
+        {
+          "prompt": "A cloudy new solid appearing in a liquid is called a...",
+          "options": [
+            "period",
+            "sieve",
+            "noble gas",
+            "precipitate"
+          ],
+          "answer": 3,
+          "concept": "new-solid",
+          "feedback": "A new solid forming in liquid is called a precipitate."
+        },
+        {
+          "prompt": "Rusting needs iron plus...",
+          "options": [
+            "gold and sugar",
+            "oxygen and water",
+            "helium and light",
+            "salt and cereal"
+          ],
+          "answer": 1,
+          "concept": "rust",
+          "feedback": "Rusting involves iron, oxygen, and water."
+        },
+        {
+          "prompt": "A safe indicator helps chemists...",
+          "options": [
+            "taste unknown liquids",
+            "turn every mixture into gold",
+            "gather colour evidence about acids or alkalis",
+            "remove atoms"
+          ],
+          "answer": 2,
+          "concept": "indicators",
+          "feedback": "Indicators give colour evidence; they are not for tasting unknowns."
+        },
+        {
+          "prompt": "In a chemical reaction, atoms usually...",
+          "options": [
+            "vanish completely",
+            "become tiny photographs",
+            "stop taking up space",
+            "rearrange into new substances"
+          ],
+          "answer": 3,
+          "concept": "rearrangement",
+          "feedback": "Atoms rearrange; they do not vanish."
+        },
+        {
+          "prompt": "Best chemical-change reasoning:",
+          "options": [
+            "Look for clues, then ask whether a new substance formed",
+            "Trust one clue without thinking",
+            "Taste it to check",
+            "Ignore particle models"
+          ],
+          "answer": 0,
+          "concept": "reasoning",
+          "feedback": "Clues are evidence; the key question is whether a new substance formed."
+        }
       ]
     }
   ]

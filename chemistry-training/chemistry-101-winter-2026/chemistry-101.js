@@ -1,14 +1,14 @@
 (() => {
   const COURSE_URL = "./data/chemistry-101-course.json";
-  const RELEASE = "chemistry-101-winter-2026-001";
+  const RELEASE = "chemistry-101-winter-2026-002";
   const progressKey = "brightQuestChemistry101ProgressV1";
   const profilesKey = "brightQuestProfilesV2";
   const runtimeSeconds = {
-    "hidden-code": 194,
-    "periodic-map": 186,
-    "particle-states": 189,
-    "mixtures-separation": 219,
-    "chemical-clues": 194
+    "hidden-code": 270,
+    "periodic-map": 209,
+    "particle-states": 255,
+    "mixtures-separation": 248,
+    "chemical-clues": 244
   };
 
   const els = {
