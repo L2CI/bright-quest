@@ -450,9 +450,10 @@ h3 {
 }
 .control-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 88px 88px;
-  gap: 10px;
-  padding: 12px;
+  grid-template-columns: minmax(0, 1fr) 150px 82px;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
   background: #fff;
 }
 .primary-control {
@@ -460,20 +461,39 @@ h3 {
 }
 .primary-control.button-primary {
   gap: 12px;
-  min-height: 60px;
+  min-height: 64px;
   border-radius: 16px;
   color: #fff;
-  background: linear-gradient(135deg, #087a8b, #1b9c75 58%, #d59b28);
-  box-shadow: 0 14px 28px rgba(11,111,143,0.24);
+  background: var(--navy);
+  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.18);
 }
 .control-button.button-soft {
   gap: 6px;
-  min-width: 88px;
-  min-height: 60px;
-  border-radius: 15px;
+  min-height: 64px;
+  border-radius: 16px;
   color: var(--navy);
-  background: #fff;
-  border: 1px solid rgba(37, 99, 235, 0.16);
+  background: #fffbeb;
+  border: 1px solid rgba(217, 168, 79, 0.46);
+  box-shadow: 0 10px 20px rgba(217, 168, 79, 0.08);
+}
+#rewindButton.control-button.button-soft {
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: center;
+  width: 76px;
+  min-width: 76px;
+  height: 76px;
+  min-height: 76px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fde68a, #facc15);
+  box-shadow: 0 12px 0 rgba(15, 23, 42, 0.12), 0 16px 26px rgba(217, 168, 79, 0.24);
+}
+#stopButton.control-button.button-soft {
+  grid-column: 2;
+  grid-row: 1;
+  color: rgba(15, 23, 42, 0.62);
 }
 .icon-control {
   display: inline-flex;
@@ -512,10 +532,19 @@ h3 {
 .rewind-icon::before {
   content: "\21b6";
   position: absolute;
-  inset: -3px 0 0;
-  font-size: 2rem;
+  inset: -1px 0 0;
+  font-size: 1.9rem;
   line-height: 1;
   text-align: center;
+}
+#rewindButton .control-icon {
+  width: 26px;
+  height: 24px;
+  margin-right: -2px;
+}
+#rewindButton .control-label {
+  margin-left: -4px;
+  font-size: 0.98rem;
 }
 .stop-icon::before {
   content: "";
@@ -763,8 +792,18 @@ video::cue {
     flex-direction: column;
   }
   .chapter-badge { width: fit-content; }
-  .control-card { grid-template-columns: 1fr 1fr; }
-  .primary-control { grid-column: 1 / -1; }
+  .control-card { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .primary-control { grid-column: 1; grid-row: 1; }
   .control-button.button-soft { min-width: 0; }
+  #stopButton.control-button.button-soft { grid-column: 2; grid-row: 1; }
+  #rewindButton.control-button.button-soft {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+    width: 72px;
+    min-width: 72px;
+    height: 72px;
+    min-height: 72px;
+  }
   .video-frame { border-width: 6px; }
 }
