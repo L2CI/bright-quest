@@ -35,6 +35,23 @@ async function loginKid(page) {
   await page.locator("#passwordForm button").click();
   const confirmKid = page.locator("[data-bq-confirm-yes]");
   if (await confirmKid.isVisible({ timeout: 3000 }).catch(() => false)) await confirmKid.click();
+  await page.waitForFunction(() => {
+    const visible = (element) => Boolean(
+      element
+      && element.getClientRects().length
+      && getComputedStyle(element).visibility !== "hidden"
+    );
+    return visible(document.querySelector("[data-bq-action]"))
+      || [...document.querySelectorAll("#profileScreen:not(.hidden) [data-profile]")].some(visible)
+      || visible(document.querySelector("#profileScreen:not(.hidden) #profileName"));
+  }, null, { timeout: 10000 });
+  const savedQaProfile = page.locator('#profileScreen:not(.hidden) [data-profile="qa-student"]');
+  if (await savedQaProfile.isVisible().catch(() => false)) await savedQaProfile.click();
+  const visibleProfileName = page.locator("#profileScreen:not(.hidden) #profileName");
+  if (await visibleProfileName.isVisible().catch(() => false)) {
+    await visibleProfileName.fill("QA Student");
+    await page.locator("#profileScreen:not(.hidden) #profileForm button").click();
+  }
   await page.waitForSelector("[data-bq-action]", { timeout: 10000 });
 }
 
