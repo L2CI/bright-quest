@@ -156,6 +156,9 @@ async function runViewport(browser, name, viewport) {
     record((await page.locator("#chapterTitle").textContent()).includes(title), `${name}: chapter ${index + 1} title mismatch`);
     record((await page.locator("video source").getAttribute("src"))?.endsWith(video), `${name}: chapter ${index + 1} video source mismatch`);
     record((await page.locator("track").getAttribute("src"))?.endsWith(vtt), `${name}: chapter ${index + 1} VTT source mismatch`);
+    const captionState = await page.$eval("#lessonVideo", (videoElement) => Array.from(videoElement.textTracks).map((track) => track.mode));
+    record(captionState.every((mode) => mode === "hidden"), `${name}: chapter ${index + 1} CC should use hidden text-track mode, got ${captionState.join(",")}`);
+    record(await page.locator("#captionReadout").isVisible(), `${name}: chapter ${index + 1} CC side readout is not visible`);
     await page.waitForFunction((expectedVideo) => {
       const videoElement = document.querySelector("#lessonVideo");
       return videoElement?.currentSrc?.endsWith(expectedVideo)
