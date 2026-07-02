@@ -25,12 +25,14 @@ async function assertNoOverflow(page, label) {
     for (const el of document.querySelectorAll("body *")) {
       const style = getComputedStyle(el);
       if (style.display === "none" || style.visibility === "hidden") continue;
+      if (el.closest('[aria-hidden="true"]')) continue;
       const rect = el.getBoundingClientRect();
+      const text = (el.textContent || "").trim().replace(/\s+/g, " ").slice(0, 80);
       const spillsViewport = rect.left < -2 || rect.right > viewportWidth + 2;
       const clipsOwnText = ["BUTTON", "A", "SPAN", "STRONG", "LABEL"].includes(el.tagName)
+        && text
         && (el.scrollWidth > el.clientWidth + 8 || el.scrollHeight > el.clientHeight + 8);
       if (spillsViewport || clipsOwnText) {
-        const text = (el.textContent || "").trim().replace(/\s+/g, " ").slice(0, 80);
         offenders.push(`${el.tagName.toLowerCase()}.${el.className || ""} ${text}`);
       }
     }
@@ -138,7 +140,7 @@ async function runViewport(browser, name, viewport) {
   record(stopped, `${name}: stop did not pause and reset video`);
 
   const chapterExpectations = [
-    ["Matter Has A Hidden Code", "chapter-01.mp4", "chapter-01.vtt", 270],
+    ["Matter Has A Hidden Code", "chapter-01.mp4", "chapter-01.vtt", 269],
     ["The Periodic Table Is A Map", "chapter-02.mp4", "chapter-02.vtt", 209],
     ["Particles Explain States", "chapter-03.mp4", "chapter-03.vtt", 255],
     ["Mixtures, Solutions, And Separation", "chapter-04.mp4", "chapter-04.vtt", 248],

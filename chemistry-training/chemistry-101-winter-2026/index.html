@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Chemistry 101 Winter 2026 | Bright Quest</title>
-    <link rel="stylesheet" href="./chemistry-101.css?v=20260702b" />
+    <link rel="stylesheet" href="./chemistry-101.css?v=20260702c" />
   </head>
   <body>
     <main class="chem-app">
@@ -19,6 +19,36 @@
           <span>chapters done</span>
         </div>
       </header>
+
+      <section class="course-landing" aria-label="Chemistry 101 course overview">
+        <article class="course-feature-card">
+          <div class="course-copy">
+            <p class="eyebrow">Chemistry 101 Winter 2026</p>
+            <h2>Five short lab-board chapters</h2>
+            <p>Video chapters, cockpit checks, and clean model-view moments for atoms, elements, mixtures, states, and reaction clues.</p>
+            <div class="course-actions">
+              <button class="button button-primary" id="courseStartButton" type="button">Start Chapter 1</button>
+              <button class="button button-soft" id="courseMapButton" type="button">Chapter Cards</button>
+            </div>
+          </div>
+          <div class="chemistry-card-art" aria-hidden="true">
+            <span class="art-beaker"></span>
+            <span class="art-wire"></span>
+            <span class="art-crystals"></span>
+            <span class="art-molecule"></span>
+          </div>
+        </article>
+        <article class="mini-course-card">
+          <span>5</span>
+          <strong>Chapters</strong>
+          <small>20 min video course</small>
+        </article>
+        <article class="mini-course-card">
+          <span>50</span>
+          <strong>Questions</strong>
+          <small>Cockpit progress</small>
+        </article>
+      </section>
 
       <nav class="chapter-tabs" id="chapterTabs" aria-label="Chemistry chapters"></nav>
 
@@ -59,9 +89,9 @@
           </section>
 
           <section class="control-card">
-            <button class="primary-control" id="playButton" type="button">Play</button>
-            <button class="control-button" id="rewindButton" type="button">-15s</button>
-            <button class="control-button" id="stopButton" type="button">Stop</button>
+            <button class="button button-primary primary-control" id="playButton" type="button">Play</button>
+            <button class="button button-soft control-button" id="rewindButton" type="button">-15s</button>
+            <button class="button button-soft control-button" id="stopButton" type="button">Stop</button>
           </section>
 
           <section class="side-card test-card" id="testCard">
@@ -77,6 +107,6 @@
       <section class="chapter-map" id="chapterMap" aria-label="Course map"></section>
     </main>
 
-    <script src="./chemistry-101.js?v=20260702b"></script>
+    <script src="./chemistry-101.js?v=20260702c"></script>
   </body>
 </html>

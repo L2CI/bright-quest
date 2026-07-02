@@ -4,7 +4,7 @@
   const progressKey = "brightQuestChemistry101ProgressV1";
   const profilesKey = "brightQuestProfilesV2";
   const runtimeSeconds = {
-    "hidden-code": 270,
+    "hidden-code": 269,
     "periodic-map": 209,
     "particle-states": 255,
     "mixtures-separation": 248,
@@ -24,6 +24,8 @@
     captionTrack: document.querySelector("#captionTrack"),
     cc: document.querySelector("#ccButton"),
     captionReadout: document.querySelector("#captionReadout"),
+    courseStart: document.querySelector("#courseStartButton"),
+    courseMapButton: document.querySelector("#courseMapButton"),
     play: document.querySelector("#playButton"),
     rewind: document.querySelector("#rewindButton"),
     stop: document.querySelector("#stopButton"),
@@ -199,6 +201,12 @@
       state.ccOn = !state.ccOn;
       applyCaptions();
     });
+    els.courseStart?.addEventListener("click", () => {
+      els.video.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+    els.courseMapButton?.addEventListener("click", () => {
+      els.map.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
     els.timeline.addEventListener("input", () => {
       if (Number.isFinite(els.video.duration)) {
         els.video.currentTime = (Number(els.timeline.value) / 100) * els.video.duration;
@@ -226,7 +234,7 @@
     els.cc.setAttribute("aria-pressed", String(state.ccOn));
     els.captionReadout.classList.toggle("hidden", !state.ccOn);
     [...els.video.textTracks].forEach((track) => {
-      track.mode = state.ccOn ? "showing" : "disabled";
+      track.mode = state.ccOn ? "hidden" : "disabled";
     });
     if (!state.ccOn) els.captionReadout.textContent = "Captions are off.";
     updateCaptionReadout();
