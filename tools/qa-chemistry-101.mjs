@@ -116,13 +116,19 @@ async function runViewport(browser, name, viewport) {
   });
 
   await page.goto(route, { waitUntil: "domcontentloaded" });
-  await page.waitForSelector("#lessonVideo");
+  await page.waitForSelector("#lessonVideo", { state: "attached" });
   await page.waitForTimeout(800);
   await page.screenshot({ path: path.join(outDir, `${name}-initial.png`), fullPage: true });
 
   record(await page.locator("text=Chemistry 101").count() > 0, `${name}: title missing`);
-  record(await page.locator(".chapter-tab").count() === 5, `${name}: expected five chapter tabs`);
   record(await page.locator(".chapter-card").count() === 5, `${name}: expected five chapter cards`);
+  record(!(await page.locator(".lesson-stage").isVisible()), `${name}: player should not be visible on the landing view`);
+  record(!(await page.locator(".chapter-tab").first().isVisible()), `${name}: chapter tabs should not be visible on the landing view`);
+
+  await page.locator(".chapter-card").first().click();
+  await page.waitForTimeout(800);
+  record(await page.locator(".lesson-stage").isVisible(), `${name}: player did not open after selecting a chapter card`);
+  record(await page.locator(".chapter-tab").count() === 5, `${name}: expected five chapter tabs`);
   record(await page.locator("video source").getAttribute("src") === "./assets/videos/chapter-01.mp4", `${name}: chapter 1 video source not loaded`);
   record((await page.locator("track").getAttribute("src"))?.endsWith("chapter-01.vtt"), `${name}: VTT not attached`);
 

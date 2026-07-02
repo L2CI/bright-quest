@@ -20,6 +20,7 @@
   };
 
   const els = {
+    app: document.querySelector(".chem-app"),
     tabs: document.querySelector("#chapterTabs"),
     map: document.querySelector("#chapterMap"),
     progress: document.querySelector("#courseProgress"),
@@ -72,6 +73,7 @@
     renderMap();
     wireControls();
     loadChapter(0);
+    showLanding(false);
     console.info(`Chemistry 101 loaded: ${RELEASE}`);
   }
 
@@ -178,7 +180,7 @@
       `;
     }).join("");
     els.tabs.querySelectorAll("[data-chapter-index]").forEach((button) => {
-      button.addEventListener("click", () => loadChapter(Number(button.dataset.chapterIndex)));
+      button.addEventListener("click", () => showPlayer(Number(button.dataset.chapterIndex)));
     });
   }
 
@@ -186,8 +188,8 @@
     els.map.innerHTML = state.course.chapters.map((chapter, index) => {
       const progress = chapterProgress(chapter);
       const tested = Boolean(progress.test);
-      const videoCopy = progress.completed ? "Done" : index === state.activeIndex ? "Start" : "—";
-      const testCopy = tested ? `${progress.test.score}/${progress.test.total || 10}` : progress.completed ? "Ready" : "—";
+      const videoCopy = progress.completed ? "Done" : index === state.activeIndex ? "Start" : "--";
+      const testCopy = tested ? `${progress.test.score}/${progress.test.total || 10}` : progress.completed ? "Ready" : "--";
       return `
         <button class="chapter-card ${index === state.activeIndex ? "active" : ""} ${tested ? "tested" : progress.completed ? "done" : ""}" type="button" data-chapter-index="${index}">
           <span class="chapter-thumb" aria-hidden="true">${cardVisual(index)}</span>
@@ -204,7 +206,9 @@
       `;
     }).join("");
     els.map.querySelectorAll("[data-chapter-index]").forEach((button) => {
-      button.addEventListener("click", () => loadChapter(Number(button.dataset.chapterIndex)));
+      button.addEventListener("click", () => {
+        showPlayer(Number(button.dataset.chapterIndex));
+      });
     });
     const done = state.course.chapters.filter((chapter) => chapterProgress(chapter).completed).length;
     els.progress.textContent = `${done}/${state.course.chapters.length}`;
@@ -226,7 +230,7 @@
     els.elapsed.textContent = "0:00 elapsed";
     els.total.textContent = `${formatTime(fallbackDuration)} total`;
     els.timeline.value = "0";
-    els.play.textContent = "Play";
+    setPlayButton("play");
     renderTabs();
     renderMap();
     renderTest();
@@ -257,16 +261,16 @@
       applyCaptions();
     });
     els.courseStart?.addEventListener("click", () => {
-      els.video.scrollIntoView({ behavior: "smooth", block: "center" });
+      showPlayer(0);
     });
     els.headerStart?.addEventListener("click", () => {
-      els.video.scrollIntoView({ behavior: "smooth", block: "center" });
+      showPlayer(0);
     });
     els.courseMapButton?.addEventListener("click", () => {
-      els.map.scrollIntoView({ behavior: "smooth", block: "start" });
+      showLanding();
     });
     els.headerCards?.addEventListener("click", () => {
-      els.map.scrollIntoView({ behavior: "smooth", block: "start" });
+      showLanding();
     });
     els.timeline.addEventListener("input", () => {
       if (Number.isFinite(els.video.duration)) {
@@ -279,14 +283,15 @@
       maybeCompleteChapter();
     });
     els.video.addEventListener("play", () => {
-      els.play.textContent = "Pause";
+      setPlayButton("pause");
     });
     els.video.addEventListener("pause", () => {
-      els.play.textContent = els.video.currentTime > 0 && els.video.currentTime < (els.video.duration || Infinity) ? "Resume" : "Play";
+      const canResume = els.video.currentTime > 0 && els.video.currentTime < (els.video.duration || Infinity);
+      setPlayButton(canResume ? "resume" : "play");
     });
     els.video.addEventListener("ended", () => {
       markComplete(activeChapter());
-      els.play.textContent = "Play";
+      setPlayButton("play");
     });
     els.video.textTracks?.[0]?.addEventListener?.("cuechange", updateCaptionReadout);
   }
@@ -436,6 +441,28 @@
 
   function chapterRuntime(chapter) {
     return runtimeSeconds[chapter?.id] || Number(chapter?.durationTarget || 0);
+  }
+
+  function showLanding(scroll = true) {
+    els.video.pause();
+    els.app.classList.remove("player-view");
+    els.app.classList.add("landing-view");
+    if (scroll) window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function showPlayer(index = state.activeIndex) {
+    loadChapter(index);
+    els.app.classList.remove("landing-view");
+    els.app.classList.add("player-view");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function setPlayButton(mode) {
+    const icon = mode === "pause" ? "pause-icon" : mode === "resume" ? "resume-icon" : "play-icon";
+    const label = mode === "pause" ? "Pause" : mode === "resume" ? "Resume" : "Play";
+    const aria = mode === "pause" ? "Pause chapter" : mode === "resume" ? "Resume chapter" : "Play chapter";
+    els.play.innerHTML = `<span class="control-icon ${icon}" aria-hidden="true"></span><span class="control-label">${label}</span>`;
+    els.play.setAttribute("aria-label", aria);
   }
 
   function escapeHtml(value) {

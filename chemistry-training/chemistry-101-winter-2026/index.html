@@ -4,10 +4,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Chemistry 101 Winter 2026 | Bright Quest</title>
-    <link rel="stylesheet" href="./chemistry-101.css?v=20260702e" />
+    <link rel="stylesheet" href="./chemistry-101.css?v=20260702g" />
   </head>
   <body>
-    <main class="chem-app">
+    <main class="chem-app landing-view">
       <header class="lesson-header">
         <a class="brand-link" href="../../" aria-label="Back to Bright Quest">
           <span aria-hidden="true">BQ</span>
@@ -67,6 +67,8 @@
         </article>
       </section>
 
+      <section class="chapter-map" id="chapterMap" aria-label="Course map"></section>
+
       <nav class="chapter-tabs" id="chapterTabs" aria-label="Chemistry chapters"></nav>
 
       <section class="lesson-stage" aria-label="Chemistry video lesson">
@@ -106,9 +108,18 @@
           </section>
 
           <section class="control-card">
-            <button class="button button-primary primary-control" id="playButton" type="button">Play</button>
-            <button class="button button-soft control-button" id="rewindButton" type="button">-15s</button>
-            <button class="button button-soft control-button" id="stopButton" type="button">Stop</button>
+            <button class="button button-primary primary-control icon-control" id="playButton" type="button" aria-label="Play chapter">
+              <span class="control-icon play-icon" aria-hidden="true"></span>
+              <span class="control-label">Play</span>
+            </button>
+            <button class="button button-soft control-button icon-control" id="rewindButton" type="button" aria-label="Rewind 15 seconds">
+              <span class="control-icon rewind-icon" aria-hidden="true"></span>
+              <span class="control-label">15s</span>
+            </button>
+            <button class="button button-soft control-button icon-control" id="stopButton" type="button" aria-label="Stop chapter">
+              <span class="control-icon stop-icon" aria-hidden="true"></span>
+              <span class="control-label">Stop</span>
+            </button>
           </section>
 
           <section class="side-card test-card" id="testCard">
@@ -121,9 +132,8 @@
         </aside>
       </section>
 
-      <section class="chapter-map" id="chapterMap" aria-label="Course map"></section>
     </main>
 
-    <script src="./chemistry-101.js?v=20260702e"></script>
+    <script src="./chemistry-101.js?v=20260702g"></script>
   </body>
 </html>
