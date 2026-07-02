@@ -324,7 +324,7 @@
       return;
     }
     if (action === "chemistry-training") {
-      window.location.href = chemistry101Url();
+      window.location.href = chemistry101Url(state.profile);
       return;
     }
     if (action === "games") {
@@ -383,8 +383,11 @@
     return url.toString();
   }
 
-  function chemistry101Url() {
-    return "chemistry-training/chemistry-101-winter-2026/";
+  function chemistry101Url(profile = null) {
+    const profileId = profile?.id || state.profileId || localStorage.getItem("brightQuestActiveProfile") || "";
+    return profileId
+      ? `chemistry-training/chemistry-101-winter-2026/?profileId=${encodeURIComponent(profileId)}`
+      : "chemistry-training/chemistry-101-winter-2026/";
   }
 
   function kidPageShell(title, copy, artName, body) {
@@ -505,7 +508,7 @@
         fetch(`${AGMATHS_API_BASE}/api/progress?studentId=${encodeURIComponent(studentId)}`, { headers: { accept: "application/json" } }).then((res) => res.ok ? res.json() : []),
         fetch(`${AGMATHS_API_BASE}/api/attempts?studentId=${encodeURIComponent(studentId)}`, { headers: { accept: "application/json" } }).then((res) => res.ok ? res.json() : [])
       ]);
-      const progressByTopic = new Map((Array.isArray(progress) ? progress : []).map((item) => [agTopicId(item), item]));
+      const progressByTopic = new Map((Array.isArray(progress) ? progress : []).map((item) => [agTopicId(item), item]).filter(([topicId]) => topicId));
       const attemptsByTopic = new Map();
       (Array.isArray(attempts) ? attempts : []).forEach((item) => {
         const topicId = agTopicId(item);
@@ -527,7 +530,52 @@
   }
 
   function agTopicId(item) {
-    return item?.topicId || item?.topic_id || item?.topic || "";
+    return normalizeAgTopicId(
+      item?.topicId ||
+      item?.topic_id ||
+      item?.topicSlug ||
+      item?.topic_slug ||
+      item?.topic ||
+      item?.moduleId ||
+      item?.module_id ||
+      item?.lessonId ||
+      item?.lesson_id ||
+      item?.slug ||
+      item?.title ||
+      item?.topicTitle ||
+      item?.topic_title ||
+      item?.name ||
+      ""
+    );
+  }
+
+  function normalizeAgTopicId(value) {
+    const slug = String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/&/g, "and")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+    const aliases = {
+      "place-value": "place-value",
+      "place-values": "place-value",
+      "multi-step-arithmetic": "multi-arithmetic",
+      "multi-arithmetic": "multi-arithmetic",
+      "multiplication": "multiplication",
+      "division": "division",
+      "fraction-equivalence": "fraction-equivalence",
+      "equivalent-fractions": "fraction-equivalence",
+      "fraction-operations": "fraction-operations",
+      "fractions-operations": "fraction-operations",
+      "decimals-data": "decimals-data",
+      "decimals-and-data": "decimals-data",
+      "angles-geometry": "angles-geometry",
+      "angles-and-geometry": "angles-geometry",
+      "word-problems": "word-problems",
+      "factors-patterns": "factors-patterns",
+      "mixed-revision": "factors-patterns"
+    };
+    return aliases[slug] || slug;
   }
 
   function updateAgStatus(card, kind, isDone, doneCopy, pendingCopy) {
@@ -963,11 +1011,14 @@
         <div>
           <p class="eyebrow">Bright Quest module</p>
           <h3>Chemistry 101 Winter 2026</h3>
-          <p>${status.completed}/5 chapters watched, ${status.tests}/5 chapter tests submitted. Total video runtime is about 16 minutes.</p>
+          <p>${status.completed}/5 chapters watched, ${status.tests}/5 chapter tests submitted. Total video runtime is about 20 minutes.</p>
         </div>
         <div class="bq-linked-actions">
-          <button class="button button-primary" type="button" data-open-game-url="${chemistry101Url()}">Open Chemistry 101</button>
+          <button class="button button-primary" type="button" data-open-game-url="${chemistry101Url(metrics.profile)}">Open Chemistry 101</button>
         </div>
+      </section>
+      <section class="bq-chemistry-topic-grid" aria-label="Chemistry 101 progress">
+        ${status.chapters.map((chapter, index) => chemistryTopicCard(chapter, index, metrics.profile)).join("")}
       </section>
       <section class="bq-two-column records">
         <article>${recordBlock("Chemistry chapters", rows)}</article>
@@ -996,15 +1047,35 @@
       saved = {};
     }
     const profileId = profile?.id || "demo-student";
+    const profileChapters = profile?.chemistry101Progress?.chapters || {};
+    const localChapters = saved[profileId]?.chapters || {};
+    const legacyChapters = saved["demo-student"]?.chapters || {};
+    const completedMap = profile?.trainingCompleted || {};
     const chapters = ids.map((id, index) => {
-      const chapter = saved[profileId]?.chapters?.[id] || {};
-      return { id, title: titles[index], completed: Boolean(chapter.completed), test: chapter.test || null };
+      const chapter = { ...(legacyChapters[id] || {}), ...(localChapters[id] || {}), ...(profileChapters[id] || {}) };
+      const completed = Boolean(chapter.completed || completedMap[`chemistry-101-winter-2026:${id}`]);
+      return { id, title: titles[index], completed, test: chapter.test || null };
     });
     return {
       chapters,
       completed: chapters.filter((chapter) => chapter.completed).length,
       tests: chapters.filter((chapter) => chapter.test).length
     };
+  }
+
+  function chemistryTopicCard(chapter, index, profile = null) {
+    const tested = Boolean(chapter.test);
+    return `
+      <button class="bq-chemistry-topic ${tested ? "tested" : chapter.completed ? "done" : "pending"}" type="button" data-open-game-url="${chemistry101Url(profile)}">
+        ${art("chemistry")}
+        <span class="bq-winter-number">${String(index + 1).padStart(2, "0")}</span>
+        <strong>${escapeHtml(chapter.title)}</strong>
+        <span class="bq-winter-status-row" aria-label="${escapeAttr(chapter.title)} progress">
+          <span class="bq-status-pill ${chapter.completed ? "done" : "pending"}"><b>Video</b><em>${chapter.completed ? "Done" : "Pending"}</em></span>
+          <span class="bq-status-pill ${tested ? "done" : "pending"}"><b>Test</b><em>${tested ? `${chapter.test.score}/${chapter.test.total || 10}` : "Pending"}</em></span>
+        </span>
+      </button>
+    `;
   }
 
   function renderRecordsPage(metrics) {

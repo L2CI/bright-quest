@@ -3,6 +3,14 @@
   const RELEASE = "chemistry-101-winter-2026-002";
   const progressKey = "brightQuestChemistry101ProgressV1";
   const profilesKey = "brightQuestProfilesV2";
+  const chapterIconNames = ["beaker", "tile", "particles", "filter", "fizz"];
+  const cardSubtitles = [
+    "What everything is made of",
+    "Reading the elements",
+    "Solid, liquid, gas",
+    "Pulling things apart",
+    "Spotting a reaction"
+  ];
   const runtimeSeconds = {
     "hidden-code": 269,
     "periodic-map": 209,
@@ -26,6 +34,8 @@
     captionReadout: document.querySelector("#captionReadout"),
     courseStart: document.querySelector("#courseStartButton"),
     courseMapButton: document.querySelector("#courseMapButton"),
+    headerStart: document.querySelector("#headerStartButton"),
+    headerCards: document.querySelector("#headerCardsButton"),
     play: document.querySelector("#playButton"),
     rewind: document.querySelector("#rewindButton"),
     stop: document.querySelector("#stopButton"),
@@ -66,7 +76,13 @@
   }
 
   function currentProfileId() {
-    return localStorage.getItem("brightQuestActiveProfile") || "demo-student";
+    const urlProfile = new URLSearchParams(location.search).get("profileId");
+    if (urlProfile) return urlProfile;
+    const active = localStorage.getItem("brightQuestActiveProfile");
+    if (active) return active;
+    const profiles = loadProfiles();
+    const ids = Object.keys(profiles);
+    return ids.length === 1 ? ids[0] : "demo-student";
   }
 
   function loadProgress() {
@@ -81,10 +97,30 @@
     localStorage.setItem(progressKey, JSON.stringify(state.progress));
   }
 
+  function loadProfiles() {
+    try {
+      return JSON.parse(localStorage.getItem(profilesKey)) || {};
+    } catch {
+      return {};
+    }
+  }
+
   function profileProgress() {
     const id = currentProfileId();
     if (!state.progress[id]) state.progress[id] = { courseId: "chemistry-101-winter-2026", chapters: {} };
+    preserveLegacyDemoProgress(id);
     return state.progress[id];
+  }
+
+  function preserveLegacyDemoProgress(id) {
+    if (id === "demo-student") return;
+    const active = state.progress[id];
+    const legacy = state.progress["demo-student"];
+    if (!active || !legacy?.chapters) return;
+    if (Object.keys(active.chapters || {}).length) return;
+    active.chapters = { ...legacy.chapters };
+    active.migratedFromDemoStudentAt ||= new Date().toISOString();
+    saveProgress();
   }
 
   function chapterProgress(chapter) {
@@ -101,7 +137,14 @@
       const profile = profiles[id];
       if (!profile) return;
       profile.trainingCompleted ||= {};
+      profile.chemistry101Progress ||= { courseId: "chemistry-101-winter-2026", chapters: {} };
       const done = chapterProgress(chapter);
+      profile.chemistry101Progress.chapters[chapter.id] = {
+        watchedSeconds: done.watchedSeconds || 0,
+        completed: Boolean(done.completed),
+        completedAt: done.completedAt || null,
+        test: done.test || null
+      };
       if (done.completed) {
         profile.trainingCompleted[`chemistry-101-winter-2026:${chapter.id}`] = {
           date: new Date().toISOString(),
@@ -123,12 +166,14 @@
 
   function renderTabs() {
     els.tabs.innerHTML = state.course.chapters.map((chapter, index) => {
-      const done = chapterProgress(chapter).completed;
+      const progress = chapterProgress(chapter);
+      const done = progress.completed;
+      const tested = Boolean(progress.test);
       return `
-        <button class="chapter-tab ${index === state.activeIndex ? "active" : ""} ${done ? "done" : ""}" type="button" data-chapter-index="${index}">
-          <span>${chapter.number}</span>
+        <button class="chapter-tab ${index === state.activeIndex ? "active" : ""} ${tested ? "tested" : done ? "done" : ""}" type="button" data-chapter-index="${index}">
+          <span class="chem-icon-chip" aria-hidden="true">${chemistryIcon(chapterIconNames[index])}</span>
           <strong>${escapeHtml(chapter.shortTitle || chapter.title)}</strong>
-          <small>${done ? "Done" : "Video + 10 questions"}</small>
+          <small>${tested ? `Test ${progress.test.score}/${progress.test.total || 10}` : done ? "Test ready" : formatTime(chapterRuntime(chapter))}</small>
         </button>
       `;
     }).join("");
@@ -140,11 +185,21 @@
   function renderMap() {
     els.map.innerHTML = state.course.chapters.map((chapter, index) => {
       const progress = chapterProgress(chapter);
-      const score = progress.test ? `${progress.test.score}/10` : progress.completed ? "Test ready" : "Watch first";
+      const tested = Boolean(progress.test);
+      const videoCopy = progress.completed ? "Done" : index === state.activeIndex ? "Start" : "—";
+      const testCopy = tested ? `${progress.test.score}/${progress.test.total || 10}` : progress.completed ? "Ready" : "—";
       return `
-        <button class="chapter-card" type="button" data-chapter-index="${index}">
-          <strong>${chapter.number}. ${escapeHtml(chapter.title)}</strong>
-          <span>${escapeHtml(score)} / ${escapeHtml(chapter.learningOutcome)}</span>
+        <button class="chapter-card ${index === state.activeIndex ? "active" : ""} ${tested ? "tested" : progress.completed ? "done" : ""}" type="button" data-chapter-index="${index}">
+          <span class="chapter-thumb" aria-hidden="true">${cardVisual(index)}</span>
+          <span class="chapter-number">${String(chapter.number).padStart(2, "0")}</span>
+          <span class="chapter-card-head">
+            <strong>${escapeHtml(chapter.title)}</strong>
+          </span>
+          <span class="chapter-outcome">${escapeHtml(cardSubtitles[index] || chapter.learningOutcome)}</span>
+          <span class="chapter-status-row" aria-label="${escapeAttr(chapter.title)} progress">
+            <span class="chapter-status-pill ${progress.completed ? "done" : ""}" aria-label="Video ${progress.completed ? "done" : "not started"}"><b>Video</b><em>${videoCopy}</em></span>
+            <span class="chapter-status-pill ${tested ? "score" : progress.completed ? "ready" : ""}" aria-label="Test ${tested ? "submitted" : progress.completed ? "ready" : "not started"}"><b>Test</b><em>${testCopy}</em></span>
+          </span>
         </button>
       `;
     }).join("");
@@ -204,7 +259,13 @@
     els.courseStart?.addEventListener("click", () => {
       els.video.scrollIntoView({ behavior: "smooth", block: "center" });
     });
+    els.headerStart?.addEventListener("click", () => {
+      els.video.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
     els.courseMapButton?.addEventListener("click", () => {
+      els.map.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    els.headerCards?.addEventListener("click", () => {
       els.map.scrollIntoView({ behavior: "smooth", block: "start" });
     });
     els.timeline.addEventListener("input", () => {
@@ -384,5 +445,90 @@
       .replaceAll(">", "&gt;")
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#039;");
+  }
+
+  function escapeAttr(value) {
+    return escapeHtml(value);
+  }
+
+  function chemistryIcon(name) {
+    const icons = {
+      beaker: `<svg viewBox="0 0 48 48" focusable="false"><path d="M17 6h14M20 6v12l-8 14a7 7 0 0 0 6 10h12a7 7 0 0 0 6-10l-8-14V6"/><path d="M14 32c5 3 13-3 20 1"/></svg>`,
+      tile: `<svg viewBox="0 0 48 48" focusable="false"><rect x="10" y="9" width="28" height="30" rx="5"/><path d="M18 17h12M18 31h16"/><path d="M18 25h8"/></svg>`,
+      particles: `<svg viewBox="0 0 48 48" focusable="false"><circle cx="16" cy="18" r="6"/><circle cx="31" cy="17" r="5"/><circle cx="24" cy="31" r="7"/><path d="M21 20l6-2M19 24l3 3M29 22l-3 5"/></svg>`,
+      filter: `<svg viewBox="0 0 48 48" focusable="false"><path d="M10 10h28L27 24v13l-6 3V24z"/><path d="M10 36h28M14 31h8"/></svg>`,
+      fizz: `<svg viewBox="0 0 48 48" focusable="false"><path d="M15 9h18M18 9v10l-7 16a6 6 0 0 0 5 8h14a6 6 0 0 0 5-8l-7-16V9"/><circle cx="21" cy="31" r="2"/><circle cx="28" cy="27" r="2"/><circle cx="25" cy="36" r="2"/></svg>`
+    };
+    return icons[name] || icons.beaker;
+  }
+
+  function cardVisual(index) {
+    const visuals = [
+      `<svg viewBox="0 0 420 180" focusable="false">
+        ${softDefs("matter", "#dbeafe", "#ecfeff")}
+        <rect width="420" height="180" rx="18" fill="url(#matter-bg)"/>
+        <g filter="url(#matter-shadow)">
+          <path d="M152 48h58v58h-58z" fill="#23395d"/><path d="M210 48l28 18v58l-28-18z" fill="#172a46"/><path d="M152 48l28-18h58l-28 18z" fill="#334e7b"/>
+          <path d="M108 82h56v56h-56z" fill="#9bb8ad"/><path d="M164 82l26 16v56l-26-16z" fill="#789a8e"/><path d="M108 82l26-16h56l-26 16z" fill="#b8d0c7"/>
+          <circle cx="260" cy="78" r="11" fill="#54c8de"/><circle cx="289" cy="101" r="9" fill="#cf7b3f"/><circle cx="253" cy="123" r="8" fill="#75c983"/>
+        </g>
+      </svg>`,
+      `<svg viewBox="0 0 420 180" focusable="false">
+        ${softDefs("map", "#eef6ff", "#fff7ed")}
+        <rect width="420" height="180" rx="18" fill="url(#map-bg)"/>
+        <g filter="url(#map-shadow)">
+          <path d="M118 54l74-20 62 20 64-18v92l-64 18-62-20-74 20z" fill="#fffaf0"/>
+          <path d="M192 34v92M254 54v92" stroke="#e8decf" stroke-width="5"/>
+          <rect x="168" y="69" width="38" height="34" rx="7" fill="#54c8de"/><text x="187" y="93" text-anchor="middle" font-size="18" font-weight="900" fill="#fff">C</text>
+          <rect x="220" y="83" width="38" height="34" rx="7" fill="#cf7b3f"/><text x="239" y="107" text-anchor="middle" font-size="18" font-weight="900" fill="#fff">Na</text>
+          <rect x="272" y="65" width="38" height="34" rx="7" fill="#75c983"/><text x="291" y="89" text-anchor="middle" font-size="18" font-weight="900" fill="#fff">O</text>
+        </g>
+      </svg>`,
+      `<svg viewBox="0 0 420 180" focusable="false">
+        ${softDefs("states", "#f7fee7", "#eff6ff")}
+        <rect width="420" height="180" rx="18" fill="url(#states-bg)"/>
+        <g filter="url(#states-shadow)" fill="#7fb6c8">
+          ${sphereGrid(96, 62, 4, 3, 18)}
+          ${sphereGrid(196, 66, 3, 3, 22)}
+          <circle cx="305" cy="58" r="10"/><circle cx="348" cy="80" r="10"/><circle cx="315" cy="122" r="10"/><circle cx="370" cy="126" r="10"/>
+        </g>
+      </svg>`,
+      `<svg viewBox="0 0 420 180" focusable="false">
+        ${softDefs("filter", "#f8fafc", "#ecfeff")}
+        <rect width="420" height="180" rx="18" fill="url(#filter-bg)"/>
+        <g filter="url(#filter-shadow)">
+          <path d="M146 38h126l-48 56v38l-32 18V94z" fill="#f8fafc" stroke="#54c8de" stroke-width="7" stroke-linejoin="round"/>
+          <path d="M165 69h88" stroke="#cf7b3f" stroke-width="8" stroke-linecap="round"/>
+          <circle cx="174" cy="128" r="8" fill="#cf7b3f"/><circle cx="205" cy="140" r="7" fill="#54c8de"/><circle cx="238" cy="126" r="8" fill="#75c983"/>
+        </g>
+      </svg>`,
+      `<svg viewBox="0 0 420 180" focusable="false">
+        ${softDefs("clues", "#fff7ed", "#eef6ff")}
+        <rect width="420" height="180" rx="18" fill="url(#clues-bg)"/>
+        <g filter="url(#clues-shadow)">
+          <path d="M158 36h76M174 36v42l-30 54a18 18 0 0 0 16 27h72a18 18 0 0 0 16-27l-30-54V36" fill="#f8fafc" stroke="#54c8de" stroke-width="7" stroke-linejoin="round"/>
+          <path d="M154 125c25 15 62-11 92 4" stroke="#cf7b3f" stroke-width="8" stroke-linecap="round"/>
+          <circle cx="274" cy="62" r="10" fill="#75c983"/><circle cx="300" cy="89" r="13" fill="#f6c65b"/><circle cx="278" cy="119" r="8" fill="#cf7b3f"/>
+        </g>
+      </svg>`
+    ];
+    return visuals[index] || visuals[0];
+  }
+
+  function softDefs(id, a, b) {
+    return `<defs>
+      <linearGradient id="${id}-bg" x1="0" x2="1"><stop stop-color="${a}"/><stop offset="0.5" stop-color="#fffaf0"/><stop offset="1" stop-color="${b}"/></linearGradient>
+      <filter id="${id}-shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="13" stdDeviation="10" flood-color="#0f172a" flood-opacity="0.16"/></filter>
+    </defs>`;
+  }
+
+  function sphereGrid(x, y, cols, rows, gap) {
+    let out = "";
+    for (let row = 0; row < rows; row += 1) {
+      for (let col = 0; col < cols; col += 1) {
+        out += `<circle cx="${x + col * gap}" cy="${y + row * gap}" r="7"/>`;
+      }
+    }
+    return out;
   }
 })();

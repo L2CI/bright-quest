@@ -467,14 +467,16 @@ body.bq-shell-merge {
 }
 
 .bq-prep-grid,
-.bq-winter-topic-grid {
+.bq-winter-topic-grid,
+.bq-chemistry-topic-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
 }
 
 .bq-prep-card,
-.bq-winter-topic {
+.bq-winter-topic,
+.bq-chemistry-topic {
   display: grid;
   gap: 10px;
   align-content: start;
@@ -654,6 +656,56 @@ body.bq-shell-merge {
   padding: 18px;
   background:
     linear-gradient(180deg, rgba(255,255,255,0.96), rgba(248,250,252,0.93));
+}
+
+.bq-chemistry-topic {
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto auto;
+  align-items: center;
+  min-height: 176px;
+  border-radius: 22px;
+  padding: 14px;
+  background: rgba(255,255,255,0.94);
+}
+
+.bq-chemistry-topic .bq-art {
+  grid-row: span 2;
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+}
+
+.bq-chemistry-topic .bq-art svg {
+  width: 54px;
+  height: 54px;
+}
+
+.bq-chemistry-topic strong {
+  min-width: 0;
+  color: #172554;
+  font-size: 0.98rem;
+  line-height: 1.12;
+}
+
+.bq-chemistry-topic .bq-winter-number {
+  color: #0b6f8f;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.bq-chemistry-topic .bq-winter-status-row {
+  grid-column: 1 / -1;
+  margin-top: 4px;
+}
+
+.bq-chemistry-topic.tested {
+  border-color: rgba(4, 120, 87, 0.22);
+  box-shadow: inset 0 -4px 0 #22c55e, 0 14px 28px rgba(15, 23, 42, 0.08);
+}
+
+.bq-chemistry-topic.done {
+  border-color: rgba(11, 111, 143, 0.28);
+  box-shadow: inset 0 -4px 0 #0ea5e9, 0 14px 28px rgba(15, 23, 42, 0.08);
 }
 
 .bq-winter-topic::after {
@@ -1268,7 +1320,8 @@ body.bq-shell-merge {
   .bq-parent-query-grid,
   .bq-parent-query-grid.compact,
   .bq-prep-grid,
-  .bq-winter-topic-grid {
+  .bq-winter-topic-grid,
+  .bq-chemistry-topic-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -1286,6 +1339,7 @@ body.bq-shell-merge {
   .bq-prep-summary,
   .bq-prep-grid,
   .bq-winter-topic-grid,
+  .bq-chemistry-topic-grid,
   .bq-status-metrics,
   .bq-result-row {
     grid-template-columns: 1fr;

@@ -4,16 +4,23 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Chemistry 101 Winter 2026 | Bright Quest</title>
-    <link rel="stylesheet" href="./chemistry-101.css?v=20260702c" />
+    <link rel="stylesheet" href="./chemistry-101.css?v=20260702e" />
   </head>
   <body>
     <main class="chem-app">
       <header class="lesson-header">
-        <a class="back-link" href="../../" aria-label="Back to Bright Quest">Bright Quest</a>
-        <div>
-          <p class="eyebrow">Winter Training</p>
-          <h1>Chemistry 101</h1>
-        </div>
+        <a class="brand-link" href="../../" aria-label="Back to Bright Quest">
+          <span aria-hidden="true">BQ</span>
+          <strong>Bright Quest</strong>
+          <small>Chemistry 101 Winter 2026</small>
+        </a>
+        <nav class="lesson-nav" aria-label="Chemistry navigation">
+          <a class="nav-button" href="../../">Home</a>
+          <button class="nav-button primary" id="headerStartButton" type="button">Start Learning</button>
+          <button class="nav-button" id="headerCardsButton" type="button">Course Cards</button>
+          <a class="nav-button" href="../../#parent/chemistry">Cockpit</a>
+          <a class="nav-button back" href="../../">Back to Bright Quest</a>
+        </nav>
         <div class="lesson-stat">
           <strong id="courseProgress">0/5</strong>
           <span>chapters done</span>
@@ -22,31 +29,41 @@
 
       <section class="course-landing" aria-label="Chemistry 101 course overview">
         <article class="course-feature-card">
+          <span class="chem-icon-chip" aria-hidden="true">
+            <svg viewBox="0 0 48 48" focusable="false">
+              <path d="M17 6h14M20 6v12l-8 14a7 7 0 0 0 6 10h12a7 7 0 0 0 6-10l-8-14V6" />
+              <path d="M14 32c5 3 13-3 20 1" />
+            </svg>
+          </span>
           <div class="course-copy">
             <p class="eyebrow">Chemistry 101 Winter 2026</p>
-            <h2>Five short lab-board chapters</h2>
-            <p>Video chapters, cockpit checks, and clean model-view moments for atoms, elements, mixtures, states, and reaction clues.</p>
+            <h2>Start the chemistry map</h2>
+            <p>Video chapters with cockpit checks for atoms, elements, mixtures, states, and reaction clues.</p>
             <div class="course-actions">
               <button class="button button-primary" id="courseStartButton" type="button">Start Chapter 1</button>
               <button class="button button-soft" id="courseMapButton" type="button">Chapter Cards</button>
             </div>
           </div>
-          <div class="chemistry-card-art" aria-hidden="true">
-            <span class="art-beaker"></span>
-            <span class="art-wire"></span>
-            <span class="art-crystals"></span>
-            <span class="art-molecule"></span>
-          </div>
         </article>
         <article class="mini-course-card">
-          <span>5</span>
+          <span class="chem-icon-chip" aria-hidden="true">
+            <svg viewBox="0 0 48 48" focusable="false">
+              <rect x="9" y="10" width="30" height="28" rx="5" />
+              <path d="M17 18h14M17 25h14M17 32h9" />
+            </svg>
+          </span>
           <strong>Chapters</strong>
-          <small>20 min video course</small>
+          <small>5 chapters, about 20 minutes</small>
         </article>
         <article class="mini-course-card">
-          <span>50</span>
+          <span class="chem-icon-chip" aria-hidden="true">
+            <svg viewBox="0 0 48 48" focusable="false">
+              <path d="M11 15h26v24H11z" />
+              <path d="M18 9h24v24M17 24l5 5 10-11" />
+            </svg>
+          </span>
           <strong>Questions</strong>
-          <small>Cockpit progress</small>
+          <small>50 questions with cockpit progress</small>
         </article>
       </section>
 
@@ -107,6 +124,6 @@
       <section class="chapter-map" id="chapterMap" aria-label="Course map"></section>
     </main>
 
-    <script src="./chemistry-101.js?v=20260702c"></script>
+    <script src="./chemistry-101.js?v=20260702e"></script>
   </body>
 </html>
