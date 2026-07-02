@@ -122,6 +122,8 @@ async function runViewport(browser, name, viewport) {
 
   record(await page.locator("text=Chemistry 101").count() > 0, `${name}: title missing`);
   record(await page.locator(".chapter-card").count() === 5, `${name}: expected five chapter cards`);
+  const loadedThumbs = await page.$$eval(".chapter-thumb img", (images) => images.filter((image) => image.naturalWidth > 0 && image.naturalHeight > 0).length);
+  record(loadedThumbs === 5, `${name}: expected five loaded chemistry card thumbnails, got ${loadedThumbs}`);
   record(!(await page.locator(".lesson-stage").isVisible()), `${name}: player should not be visible on the landing view`);
   record(!(await page.locator(".chapter-tab").first().isVisible()), `${name}: chapter tabs should not be visible on the landing view`);
 

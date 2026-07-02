@@ -4,13 +4,6 @@
   const progressKey = "brightQuestChemistry101ProgressV1";
   const profilesKey = "brightQuestProfilesV2";
   const chapterIconNames = ["beaker", "tile", "particles", "filter", "fizz"];
-  const cardSubtitles = [
-    "What everything is made of",
-    "Reading the elements",
-    "Solid, liquid, gas",
-    "Pulling things apart",
-    "Spotting a reaction"
-  ];
   const runtimeSeconds = {
     "hidden-code": 269,
     "periodic-map": 209,
@@ -197,7 +190,6 @@
           <span class="chapter-card-head">
             <strong>${escapeHtml(chapter.title)}</strong>
           </span>
-          <span class="chapter-outcome">${escapeHtml(cardSubtitles[index] || chapter.learningOutcome)}</span>
           <span class="chapter-status-row" aria-label="${escapeAttr(chapter.title)} progress">
             <span class="chapter-status-pill ${progress.completed ? "done" : ""}" aria-label="Video ${progress.completed ? "done" : "not started"}"><b>Video</b><em>${videoCopy}</em></span>
             <span class="chapter-status-pill ${tested ? "score" : progress.completed ? "ready" : ""}" aria-label="Test ${tested ? "submitted" : progress.completed ? "ready" : "not started"}"><b>Test</b><em>${testCopy}</em></span>
@@ -490,72 +482,7 @@
   }
 
   function cardVisual(index) {
-    const visuals = [
-      `<svg viewBox="0 0 420 180" focusable="false">
-        ${softDefs("matter", "#dbeafe", "#ecfeff")}
-        <rect width="420" height="180" rx="18" fill="url(#matter-bg)"/>
-        <g filter="url(#matter-shadow)">
-          <path d="M152 48h58v58h-58z" fill="#23395d"/><path d="M210 48l28 18v58l-28-18z" fill="#172a46"/><path d="M152 48l28-18h58l-28 18z" fill="#334e7b"/>
-          <path d="M108 82h56v56h-56z" fill="#9bb8ad"/><path d="M164 82l26 16v56l-26-16z" fill="#789a8e"/><path d="M108 82l26-16h56l-26 16z" fill="#b8d0c7"/>
-          <circle cx="260" cy="78" r="11" fill="#54c8de"/><circle cx="289" cy="101" r="9" fill="#cf7b3f"/><circle cx="253" cy="123" r="8" fill="#75c983"/>
-        </g>
-      </svg>`,
-      `<svg viewBox="0 0 420 180" focusable="false">
-        ${softDefs("map", "#eef6ff", "#fff7ed")}
-        <rect width="420" height="180" rx="18" fill="url(#map-bg)"/>
-        <g filter="url(#map-shadow)">
-          <path d="M118 54l74-20 62 20 64-18v92l-64 18-62-20-74 20z" fill="#fffaf0"/>
-          <path d="M192 34v92M254 54v92" stroke="#e8decf" stroke-width="5"/>
-          <rect x="168" y="69" width="38" height="34" rx="7" fill="#54c8de"/><text x="187" y="93" text-anchor="middle" font-size="18" font-weight="900" fill="#fff">C</text>
-          <rect x="220" y="83" width="38" height="34" rx="7" fill="#cf7b3f"/><text x="239" y="107" text-anchor="middle" font-size="18" font-weight="900" fill="#fff">Na</text>
-          <rect x="272" y="65" width="38" height="34" rx="7" fill="#75c983"/><text x="291" y="89" text-anchor="middle" font-size="18" font-weight="900" fill="#fff">O</text>
-        </g>
-      </svg>`,
-      `<svg viewBox="0 0 420 180" focusable="false">
-        ${softDefs("states", "#f7fee7", "#eff6ff")}
-        <rect width="420" height="180" rx="18" fill="url(#states-bg)"/>
-        <g filter="url(#states-shadow)" fill="#7fb6c8">
-          ${sphereGrid(96, 62, 4, 3, 18)}
-          ${sphereGrid(196, 66, 3, 3, 22)}
-          <circle cx="305" cy="58" r="10"/><circle cx="348" cy="80" r="10"/><circle cx="315" cy="122" r="10"/><circle cx="370" cy="126" r="10"/>
-        </g>
-      </svg>`,
-      `<svg viewBox="0 0 420 180" focusable="false">
-        ${softDefs("filter", "#f8fafc", "#ecfeff")}
-        <rect width="420" height="180" rx="18" fill="url(#filter-bg)"/>
-        <g filter="url(#filter-shadow)">
-          <path d="M146 38h126l-48 56v38l-32 18V94z" fill="#f8fafc" stroke="#54c8de" stroke-width="7" stroke-linejoin="round"/>
-          <path d="M165 69h88" stroke="#cf7b3f" stroke-width="8" stroke-linecap="round"/>
-          <circle cx="174" cy="128" r="8" fill="#cf7b3f"/><circle cx="205" cy="140" r="7" fill="#54c8de"/><circle cx="238" cy="126" r="8" fill="#75c983"/>
-        </g>
-      </svg>`,
-      `<svg viewBox="0 0 420 180" focusable="false">
-        ${softDefs("clues", "#fff7ed", "#eef6ff")}
-        <rect width="420" height="180" rx="18" fill="url(#clues-bg)"/>
-        <g filter="url(#clues-shadow)">
-          <path d="M158 36h76M174 36v42l-30 54a18 18 0 0 0 16 27h72a18 18 0 0 0 16-27l-30-54V36" fill="#f8fafc" stroke="#54c8de" stroke-width="7" stroke-linejoin="round"/>
-          <path d="M154 125c25 15 62-11 92 4" stroke="#cf7b3f" stroke-width="8" stroke-linecap="round"/>
-          <circle cx="274" cy="62" r="10" fill="#75c983"/><circle cx="300" cy="89" r="13" fill="#f6c65b"/><circle cx="278" cy="119" r="8" fill="#cf7b3f"/>
-        </g>
-      </svg>`
-    ];
-    return visuals[index] || visuals[0];
-  }
-
-  function softDefs(id, a, b) {
-    return `<defs>
-      <linearGradient id="${id}-bg" x1="0" x2="1"><stop stop-color="${a}"/><stop offset="0.5" stop-color="#fffaf0"/><stop offset="1" stop-color="${b}"/></linearGradient>
-      <filter id="${id}-shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="13" stdDeviation="10" flood-color="#0f172a" flood-opacity="0.16"/></filter>
-    </defs>`;
-  }
-
-  function sphereGrid(x, y, cols, rows, gap) {
-    let out = "";
-    for (let row = 0; row < rows; row += 1) {
-      for (let col = 0; col < cols; col += 1) {
-        out += `<circle cx="${x + col * gap}" cy="${y + row * gap}" r="7"/>`;
-      }
-    }
-    return out;
+    const chapter = String(index + 1).padStart(2, "0");
+    return `<img src="./assets/ui/chapter-${chapter}-card.png" alt="" decoding="async" />`;
   }
 })();
