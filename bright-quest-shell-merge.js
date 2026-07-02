@@ -978,10 +978,10 @@
     }).join("");
     return parentPageShell("games", `
       <section class="bq-parent-query-grid compact">
-        <button class="bq-query-card" type="button" data-open-game-url="cave-river-quest/">${art("mountain")}<strong>Cave River Quest</strong><span>3D reward quest</span></button>
-        <button class="bq-query-card" type="button" data-open-game-url="street-smart-rescue/">${art("focus")}<strong>Street Smart Rescue</strong><span>Animated puzzle quest</span></button>
-        <button class="bq-query-card" type="button" data-open-game-url="treasure-quest/">${art("treasure")}<strong>Treasure Quest</strong><span>Pirate map reward prototype</span></button>
-        <button class="bq-query-card" type="button" data-open-game-url="${agmathsUrl("game", metrics.profile)}">${art("winter")}<strong>Dragon Forge</strong><span>Winter 2026 Training 1 game</span></button>
+        <button class="bq-query-card area-play" type="button" data-open-game-url="cave-river-quest/">${art("mountain")}<strong>Cave River Quest</strong><span>3D reward quest</span></button>
+        <button class="bq-query-card area-play" type="button" data-open-game-url="street-smart-rescue/">${art("focus")}<strong>Street Smart Rescue</strong><span>Animated puzzle quest</span></button>
+        <button class="bq-query-card area-play" type="button" data-open-game-url="treasure-quest/">${art("treasure")}<strong>Treasure Quest</strong><span>Pirate map reward prototype</span></button>
+        <button class="bq-query-card area-winter" type="button" data-open-game-url="${agmathsUrl("game", metrics.profile)}">${art("winter")}<strong>Dragon Forge</strong><span>Winter 2026 Training 1 game</span></button>
       </section>
       <section class="bq-page-list">${rows}</section>
     `);
@@ -992,7 +992,7 @@
       <section class="bq-cockpit-status winter">
         <div>
           <p class="eyebrow">Linked module</p>
-          <h3>Winter 2026 Training 1</h3>
+          <h3>AGMaths progress bridge</h3>
           <p>AGMaths remains the source of truth for its Grade 4 training, tests, cockpit, and Dragon Forge data.</p>
         </div>
         <div class="bq-linked-actions">
@@ -1010,7 +1010,7 @@
       <section class="bq-cockpit-status winter">
         <div>
           <p class="eyebrow">Bright Quest module</p>
-          <h3>Chemistry 101 Winter 2026</h3>
+          <h3>Course progress</h3>
           <p>${status.completed}/5 chapters watched, ${status.tests}/5 chapter tests submitted. Total video runtime is about 20 minutes.</p>
         </div>
         <div class="bq-linked-actions">
@@ -1096,7 +1096,6 @@
         <header class="bq-parent-page-head">
           <div>
             <p class="eyebrow">${escapeHtml(eyebrow)}</p>
-            <h3>${escapeHtml(title)}</h3>
             <p>${escapeHtml(copy)}</p>
           </div>
           ${isOverview ? "" : `<button class="button button-soft" type="button" data-parent-route="overview">Return to Parent Cockpit</button>`}
@@ -1172,11 +1171,25 @@
   }
 
   function queryCard(route, title, copy, iconName) {
-    return `<button class="bq-query-card" type="button" data-parent-route="${escapeAttr(route)}">${art(iconName)}<strong>${escapeHtml(title)}</strong><span>${escapeHtml(copy)}</span></button>`;
+    return `<button class="bq-query-card ${learningAreaClass(route || iconName || title)}" type="button" data-parent-route="${escapeAttr(route)}">${art(iconName)}<strong>${escapeHtml(title)}</strong><span>${escapeHtml(copy)}</span></button>`;
   }
 
   function queryLinkCard(url, title, copy, iconName) {
-    return `<button class="bq-query-card" type="button" data-open-game-url="${escapeAttr(url)}">${art(iconName)}<strong>${escapeHtml(title)}</strong><span>${escapeHtml(copy)}</span></button>`;
+    return `<button class="bq-query-card ${learningAreaClass(title || iconName || url)}" type="button" data-open-game-url="${escapeAttr(url)}">${art(iconName)}<strong>${escapeHtml(title)}</strong><span>${escapeHtml(copy)}</span></button>`;
+  }
+
+  function learningAreaClass(value) {
+    const key = String(value || "").toLowerCase();
+    if (key.includes("exam") || key.includes("city")) return "area-exam";
+    if (key.includes("chem")) return "area-chemistry";
+    if (key.includes("winter") || key.includes("agmaths")) return "area-winter";
+    if (key.includes("focus")) return "area-focus";
+    if (key.includes("training") || key.includes("coverage") || key.includes("book")) return "area-coverage";
+    if (key.includes("game") || key.includes("reward") || key.includes("play") || key.includes("treasure")) return "area-play";
+    if (key.includes("writing")) return "area-writing";
+    if (key.includes("record")) return "area-records";
+    if (key.includes("progress") || key.includes("mountain")) return "area-progress";
+    return "area-utility";
   }
 
   function questionCard(question) {
