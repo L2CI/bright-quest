@@ -1,6 +1,6 @@
 (() => {
   const COURSE_URL = "./data/chemistry-101-course.json";
-  const RELEASE = "chemistry-101-winter-2026-002";
+  const RELEASE = "chemistry-101-winter-2026-003";
   const progressKey = "brightQuestChemistry101ProgressV1";
   const profilesKey = "brightQuestProfilesV2";
   const chapterIconNames = ["beaker", "tile", "particles", "filter", "fizz"];
@@ -402,6 +402,14 @@
       const correct = selected === question.answer;
       if (correct) score += 1;
       return {
+        number: index + 1,
+        prompt: question.prompt,
+        concept: question.concept || "",
+        selectedIndex: selected,
+        selected: question.options[selected] || "No answer",
+        answerIndex: question.answer,
+        answer: question.options[question.answer] || "",
+        feedback: question.feedback,
         correct,
         copy: `${index + 1}. ${correct ? "Correct" : "Review"}: ${question.feedback}`
       };

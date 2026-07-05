@@ -2,7 +2,9 @@
   const BRIGHT_QUEST_URL = "https://bright-quest.pages.dev/";
   const AGMATHS_BASE_URL = "https://agmaths.dipanjan-gupta.workers.dev/";
   const AGMATHS_API_BASE = "https://agmaths.dipanjan-gupta.workers.dev";
+  const CHEMISTRY_COURSE_DATA_URL = "chemistry-training/chemistry-101-winter-2026/data/chemistry-101-course.json?v=20260705a";
   let pendingKidProfile = null;
+  let chemistryCourseCache = null;
 
   document.body.classList.add("bq-shell-merge");
 
@@ -1020,6 +1022,7 @@
       <section class="bq-chemistry-topic-grid" aria-label="Chemistry 101 progress">
         ${status.chapters.map((chapter, index) => chemistryTopicCard(chapter, index, metrics.profile)).join("")}
       </section>
+      ${chemistryReviewPanel(status)}
       <section class="bq-two-column records">
         <article>${recordBlock("Chemistry chapters", rows)}</article>
         <article>${recordBlock("Course summary", [
@@ -1029,6 +1032,30 @@
         ])}</article>
       </section>
     `);
+  }
+
+  function chemistryReviewPanel(status) {
+    const tested = status.chapters.filter((chapter) => chapter.test);
+    if (!tested.length) {
+      return `<section class="bq-chemistry-review-panel"><p class="eyebrow">Chapter test review</p><h3>No Chemistry tests submitted yet.</h3><p>Once a chapter test is submitted, the parent review popup will show missed answers first.</p></section>`;
+    }
+    return `
+      <section class="bq-chemistry-review-panel" aria-label="Chemistry chapter test review">
+        <div>
+          <p class="eyebrow">Chapter test review</p>
+          <h3>Review missed answers first</h3>
+          <p>Open any submitted chapter test to see the missed questions, selected answers, correct answers, and teaching feedback.</p>
+        </div>
+        <div class="bq-chemistry-review-actions">
+          ${tested.map((chapter) => {
+            const missed = chemistryFeedbackItems(chapter).filter((item) => item.correct === false).length;
+            return `<button class="button ${missed ? "button-primary" : "button-soft"}" type="button" data-chemistry-review="${escapeAttr(chapter.id)}">
+              Chapter ${escapeHtml(String(status.chapters.indexOf(chapter) + 1))}: ${missed ? `${missed} missed` : "All correct"}
+            </button>`;
+          }).join("")}
+        </div>
+      </section>
+    `;
   }
 
   function chemistryProgress(profile) {
@@ -1075,6 +1102,142 @@
           <span class="bq-status-pill ${tested ? "done" : "pending"}"><b>Test</b><em>${tested ? `${chapter.test.score}/${chapter.test.total || 10}` : "Pending"}</em></span>
         </span>
       </button>
+    `;
+  }
+
+  function chemistryFeedbackItems(chapter, courseChapter = null) {
+    const feedback = Array.isArray(chapter?.test?.feedback) ? chapter.test.feedback : [];
+    const bank = Array.isArray(courseChapter?.tests) ? courseChapter.tests : [];
+    return feedback.map((item, index) => chemistryFeedbackItem(item, bank[index], index));
+  }
+
+  function chemistryFeedbackItem(item, bankQuestion, index) {
+    const selectedIndex = Number.isInteger(item?.selectedIndex) ? item.selectedIndex : null;
+    const answerIndex = Number.isInteger(item?.answerIndex) ? item.answerIndex : Number.isInteger(bankQuestion?.answer) ? bankQuestion.answer : null;
+    const selectedFromBank = selectedIndex !== null && Array.isArray(bankQuestion?.options) ? bankQuestion.options[selectedIndex] : "";
+    const answerFromBank = answerIndex !== null && Array.isArray(bankQuestion?.options) ? bankQuestion.options[answerIndex] : "";
+    const cleanFeedback = item?.feedback || String(item?.copy || "").replace(/^\d+\.\s*(Correct|Review):\s*/i, "") || bankQuestion?.feedback || "";
+    return {
+      number: item?.number || index + 1,
+      correct: item?.correct === true,
+      prompt: item?.prompt || bankQuestion?.prompt || `Question ${index + 1}`,
+      concept: item?.concept || bankQuestion?.concept || "Chemistry",
+      selectedText: item?.selected || item?.selectedText || selectedFromBank || "",
+      correctText: item?.answer || item?.correctText || answerFromBank || "",
+      feedback: cleanFeedback,
+      legacySelection: !(item?.selected || item?.selectedText || selectedFromBank)
+    };
+  }
+
+  async function loadChemistryCourse() {
+    if (chemistryCourseCache) return chemistryCourseCache;
+    const response = await fetch(CHEMISTRY_COURSE_DATA_URL, { headers: { accept: "application/json" } });
+    if (!response.ok) throw new Error(`Chemistry course data failed: ${response.status}`);
+    chemistryCourseCache = await response.json();
+    return chemistryCourseCache;
+  }
+
+  function currentParentChemistryChapter(chapterId) {
+    const profile = getParentProfile(Object.values(state.profiles || {}));
+    return chemistryProgress(profile).chapters.find((chapter) => chapter.id === chapterId) || null;
+  }
+
+  function ensureChemistryReviewPopup() {
+    let popup = document.querySelector("#bqChemistryReviewPopup");
+    if (!popup) {
+      popup = document.createElement("div");
+      popup.id = "bqChemistryReviewPopup";
+      popup.className = "bq-chem-review-overlay hidden";
+      popup.setAttribute("role", "dialog");
+      popup.setAttribute("aria-modal", "true");
+      document.body.append(popup);
+    }
+    return popup;
+  }
+
+  function showChemistryReviewPopup(html) {
+    const popup = ensureChemistryReviewPopup();
+    popup.innerHTML = html;
+    popup.classList.remove("hidden");
+    popup.querySelector("[data-chemistry-review-close]")?.focus();
+  }
+
+  function closeChemistryReviewPopup() {
+    const popup = document.querySelector("#bqChemistryReviewPopup");
+    if (!popup) return;
+    popup.classList.add("hidden");
+    popup.innerHTML = "";
+  }
+
+  async function openChemistryReviewPopup(chapterId) {
+    const chapter = currentParentChemistryChapter(chapterId);
+    if (!chapter?.test) return;
+    showChemistryReviewPopup(chemistryReviewPopupShell(chapter, `<div class="empty-state">Loading question detail...</div>`));
+    try {
+      const course = await loadChemistryCourse();
+      const courseChapter = course?.chapters?.find((item) => item.id === chapterId) || null;
+      showChemistryReviewPopup(chemistryReviewPopupShell(chapter, chemistryReviewPopupBody(chapter, courseChapter)));
+    } catch {
+      showChemistryReviewPopup(chemistryReviewPopupShell(chapter, chemistryReviewPopupBody(chapter, null, true)));
+    }
+  }
+
+  function chemistryReviewPopupShell(chapter, body) {
+    const total = Number(chapter.test?.total || chemistryFeedbackItems(chapter).length || 10);
+    const score = Number(chapter.test?.score || 0);
+    return `
+      <div class="bq-chem-review-scrim" data-chemistry-review-close></div>
+      <section class="bq-chem-review-modal" aria-labelledby="bqChemReviewTitle">
+        <header class="bq-chem-review-head">
+          <div>
+            <p class="eyebrow">Chemistry test review</p>
+            <h3 id="bqChemReviewTitle">${escapeHtml(chapter.title || "Chapter test")}</h3>
+            <p>${score}/${total} correct. Missed answers are shown first.</p>
+          </div>
+          <button class="button button-soft" type="button" data-chemistry-review-close>Close</button>
+        </header>
+        ${body}
+      </section>
+    `;
+  }
+
+  function chemistryReviewPopupBody(chapter, courseChapter, usedFallback = false) {
+    const items = chemistryFeedbackItems(chapter, courseChapter);
+    const missed = items.filter((item) => item.correct === false);
+    const correct = items.filter((item) => item.correct === true);
+    const missedBody = missed.length
+      ? missed.map((item) => chemistryAnswerCard(item, true)).join("")
+      : `<div class="empty-state">No missed questions in this chapter test.</div>`;
+    const correctBody = correct.length ? correct.map((item) => chemistryAnswerCard(item, false)).join("") : "";
+    return `
+      ${usedFallback ? `<div class="bq-chem-review-note">Question-bank lookup did not load. Showing the saved attempt details that are available.</div>` : ""}
+      <section class="bq-chem-review-section">
+        <div class="bq-chem-review-section-head">
+          <p class="eyebrow">Wrong answers first</p>
+          <strong>${missed.length} missed</strong>
+        </div>
+        <div class="bq-chem-review-list">${missedBody}</div>
+      </section>
+      ${correctBody ? `
+        <details class="bq-chem-review-correct">
+          <summary>Show correct answers too (${correct.length})</summary>
+          <div class="bq-chem-review-list">${correctBody}</div>
+        </details>
+      ` : ""}
+    `;
+  }
+
+  function chemistryAnswerCard(item, missed) {
+    return `
+      <article class="bq-question-card bq-chem-answer-card ${missed ? "missed" : "correct"}">
+        <p class="eyebrow">${missed ? "Review first" : "Correct"}</p>
+        <h4>Q${escapeHtml(String(item.number))}: ${escapeHtml(shorten(item.prompt, 190))}</h4>
+        <p>${escapeHtml(item.concept || "Chemistry")}</p>
+        <p><strong>Your answer:</strong> ${escapeHtml(item.selectedText || "Not captured for this earlier attempt")}</p>
+        <p><strong>Correct answer:</strong> ${escapeHtml(item.correctText || "See chapter question bank")}</p>
+        ${item.legacySelection ? `<p class="bq-chem-review-note">This older attempt did not save the selected option, so the parent view can show the missed question and correct answer but not the exact choice picked.</p>` : ""}
+        <p>${escapeHtml(item.feedback || "")}</p>
+      </article>
     `;
   }
 
@@ -1127,6 +1290,9 @@
       button.addEventListener("click", () => {
         window.location.href = button.dataset.openGameUrl;
       });
+    });
+    parentRecommendation.querySelectorAll("[data-chemistry-review]").forEach((button) => {
+      button.addEventListener("click", () => openChemistryReviewPopup(button.dataset.chemistryReview));
     });
   }
 
@@ -1258,6 +1424,10 @@
   }
 
   document.addEventListener("click", (event) => {
+    if (event.target.closest("[data-chemistry-review-close]")) {
+      closeChemistryReviewPopup();
+      return;
+    }
     const options = event.target.closest("[data-parent-options]");
     if (options) {
       const menu = document.querySelector(".parent-options-menu");
@@ -1274,5 +1444,9 @@
     }
     if (action.dataset.parentShellAction === "reset") parentResetButton.click();
     if (action.dataset.parentShellAction === "logout") parentExitButton.click();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeChemistryReviewPopup();
   });
 })();
