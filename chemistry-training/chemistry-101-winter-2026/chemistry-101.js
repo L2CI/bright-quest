@@ -1,15 +1,21 @@
 (() => {
   const COURSE_URL = "./data/chemistry-101-course.json";
-  const RELEASE = "chemistry-101-winter-2026-003";
+  const RELEASE = "chemistry-101-winter-2026-004";
   const progressKey = "brightQuestChemistry101ProgressV1";
   const profilesKey = "brightQuestProfilesV2";
-  const chapterIconNames = ["beaker", "tile", "particles", "filter", "fizz"];
+  const chapterIconNames = ["beaker", "tile", "particles", "filter", "fizz", "tile", "beaker", "particles", "fizz", "filter", "beaker"];
   const runtimeSeconds = {
     "hidden-code": 269,
     "periodic-map": 209,
     "particle-states": 255,
     "mixtures-separation": 248,
-    "chemical-clues": 244
+    "chemical-clues": 244,
+    "mystery-of-stuff": 339,
+    "solid-liquid-gas": 324,
+    "tiny-particles-big-clues": 329,
+    "heat-particles-dance": 321,
+    "melting-not-disappearing": 314,
+    "dissolving-not-melting": 344
   };
 
   const els = {

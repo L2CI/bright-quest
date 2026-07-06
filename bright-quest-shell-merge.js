@@ -2,7 +2,7 @@
   const BRIGHT_QUEST_URL = "https://bright-quest.pages.dev/";
   const AGMATHS_BASE_URL = "https://agmaths.dipanjan-gupta.workers.dev/";
   const AGMATHS_API_BASE = "https://agmaths.dipanjan-gupta.workers.dev";
-  const CHEMISTRY_COURSE_DATA_URL = "chemistry-training/chemistry-101-winter-2026/data/chemistry-101-course.json?v=20260705a";
+  const CHEMISTRY_COURSE_DATA_URL = "chemistry-training/chemistry-101-winter-2026/data/chemistry-101-course.json?v=20260706a";
   let pendingKidProfile = null;
   let chemistryCourseCache = null;
 
@@ -1007,13 +1007,15 @@
 
   function renderChemistryPage(metrics) {
     const status = chemistryProgress(metrics.profile);
+    const totalChapters = status.chapters.length;
+    const totalQuestions = totalChapters * 10;
     const rows = status.chapters.map((chapter) => ({ label: chapter.title, value: chapter.test ? `${chapter.test.score}/${chapter.test.total || 10}` : chapter.completed ? "Test ready" : "Pending" }));
     return parentPageShell("chemistry", `
       <section class="bq-cockpit-status winter">
         <div>
           <p class="eyebrow">Bright Quest module</p>
           <h3>Course progress</h3>
-          <p>${status.completed}/5 chapters watched, ${status.tests}/5 chapter tests submitted. Total video runtime is about 20 minutes.</p>
+          <p>${status.completed}/${totalChapters} chapters watched, ${status.tests}/${totalChapters} chapter tests submitted. Total video runtime is about 53 minutes.</p>
         </div>
         <div class="bq-linked-actions">
           <button class="button button-primary" type="button" data-open-game-url="${chemistry101Url(metrics.profile)}">Open Chemistry 101</button>
@@ -1026,9 +1028,9 @@
       <section class="bq-two-column records">
         <article>${recordBlock("Chemistry chapters", rows)}</article>
         <article>${recordBlock("Course summary", [
-          { label: "Video chapters", value: `${status.completed}/5 complete` },
-          { label: "Chapter tests", value: `${status.tests}/5 submitted` },
-          { label: "Question bank", value: "50 questions" }
+          { label: "Video chapters", value: `${status.completed}/${totalChapters} complete` },
+          { label: "Chapter tests", value: `${status.tests}/${totalChapters} submitted` },
+          { label: "Question bank", value: `${totalQuestions} questions` }
         ])}</article>
       </section>
     `);
@@ -1064,9 +1066,15 @@
       "The Periodic Table Is A Map",
       "Particles Explain States",
       "Mixtures, Solutions, And Separation",
-      "Chemical Change Clues"
+      "Chemical Change Clues",
+      "The Mystery of Stuff",
+      "Solid, Liquid or Gas?",
+      "Tiny Particles, Big Clues",
+      "Heat Makes Particles Dance",
+      "Melting Is Not Disappearing",
+      "Dissolving Is Not Melting"
     ];
-    const ids = ["hidden-code", "periodic-map", "particle-states", "mixtures-separation", "chemical-clues"];
+    const ids = ["hidden-code", "periodic-map", "particle-states", "mixtures-separation", "chemical-clues", "mystery-of-stuff", "solid-liquid-gas", "tiny-particles-big-clues", "heat-particles-dance", "melting-not-disappearing", "dissolving-not-melting"];
     let saved = {};
     try {
       saved = JSON.parse(localStorage.getItem("brightQuestChemistry101ProgressV1")) || {};
