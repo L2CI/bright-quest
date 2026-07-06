@@ -18,6 +18,15 @@ function record(condition, message) {
   if (!condition) issues.push(message);
 }
 
+function sourceEndsWith(source, suffix) {
+  if (!source) return false;
+  try {
+    return new URL(source, route).pathname.endsWith(suffix);
+  } catch {
+    return source.split("?")[0].endsWith(suffix);
+  }
+}
+
 async function assertNoOverflow(page, label) {
   const overflow = await page.evaluate(() => {
     const offenders = [];
@@ -120,19 +129,20 @@ async function runViewport(browser, name, viewport) {
   await page.waitForTimeout(800);
   await page.screenshot({ path: path.join(outDir, `${name}-initial.png`), fullPage: true });
 
+  const expectedChapterCount = 11;
   record(await page.locator("text=Chemistry 101").count() > 0, `${name}: title missing`);
-  record(await page.locator(".chapter-card").count() === 5, `${name}: expected five chapter cards`);
+  record(await page.locator(".chapter-card").count() === expectedChapterCount, `${name}: expected ${expectedChapterCount} chapter cards`);
   const loadedThumbs = await page.$$eval(".chapter-thumb img", (images) => images.filter((image) => image.naturalWidth > 0 && image.naturalHeight > 0).length);
-  record(loadedThumbs === 5, `${name}: expected five loaded chemistry card thumbnails, got ${loadedThumbs}`);
+  record(loadedThumbs === expectedChapterCount, `${name}: expected ${expectedChapterCount} loaded chemistry card thumbnails, got ${loadedThumbs}`);
   record(!(await page.locator(".lesson-stage").isVisible()), `${name}: player should not be visible on the landing view`);
   record(!(await page.locator(".chapter-tab").first().isVisible()), `${name}: chapter tabs should not be visible on the landing view`);
 
   await page.locator(".chapter-card").first().click();
   await page.waitForTimeout(800);
   record(await page.locator(".lesson-stage").isVisible(), `${name}: player did not open after selecting a chapter card`);
-  record(await page.locator(".chapter-tab").count() === 5, `${name}: expected five chapter tabs`);
-  record(await page.locator("video source").getAttribute("src") === "./assets/videos/chapter-01.mp4", `${name}: chapter 1 video source not loaded`);
-  record((await page.locator("track").getAttribute("src"))?.endsWith("chapter-01.vtt"), `${name}: VTT not attached`);
+  record(await page.locator(".chapter-tab").count() === expectedChapterCount, `${name}: expected ${expectedChapterCount} chapter tabs`);
+  record(sourceEndsWith(await page.locator("video source").getAttribute("src"), "chapter-01.mp4"), `${name}: chapter 1 video source not loaded`);
+  record(sourceEndsWith(await page.locator("track").getAttribute("src"), "chapter-01.vtt"), `${name}: VTT not attached`);
 
   await assertNoOverflow(page, name);
 
@@ -152,7 +162,13 @@ async function runViewport(browser, name, viewport) {
     ["The Periodic Table Is A Map", "chapter-02.mp4", "chapter-02.vtt", 209],
     ["Particles Explain States", "chapter-03.mp4", "chapter-03.vtt", 255],
     ["Mixtures, Solutions, And Separation", "chapter-04.mp4", "chapter-04.vtt", 248],
-    ["Chemical Change Clues", "chapter-05.mp4", "chapter-05.vtt", 244]
+    ["Chemical Change Clues", "chapter-05.mp4", "chapter-05.vtt", 244],
+    ["The Mystery of Stuff", "chapter-06.mp4", "chapter-06.vtt", 339],
+    ["Solid, Liquid or Gas?", "chapter-07.mp4", "chapter-07.vtt", 324],
+    ["Tiny Particles, Big Clues", "chapter-08.mp4", "chapter-08.vtt", 329],
+    ["Heat Makes Particles Dance", "chapter-09.mp4", "chapter-09.vtt", 321],
+    ["Melting Is Not Disappearing", "chapter-10.mp4", "chapter-10.vtt", 314],
+    ["Dissolving Is Not Melting", "chapter-11.mp4", "chapter-11.vtt", 344]
   ];
   if (name === "desktop") await verifyChapterAssets(page, chapterExpectations);
 
@@ -162,14 +178,14 @@ async function runViewport(browser, name, viewport) {
     await page.locator(".chapter-tab").nth(index).click();
     await page.waitForTimeout(350);
     record((await page.locator("#chapterTitle").textContent()).includes(title), `${name}: chapter ${index + 1} title mismatch`);
-    record((await page.locator("video source").getAttribute("src"))?.endsWith(video), `${name}: chapter ${index + 1} video source mismatch`);
-    record((await page.locator("track").getAttribute("src"))?.endsWith(vtt), `${name}: chapter ${index + 1} VTT source mismatch`);
+    record(sourceEndsWith(await page.locator("video source").getAttribute("src"), video), `${name}: chapter ${index + 1} video source mismatch`);
+    record(sourceEndsWith(await page.locator("track").getAttribute("src"), vtt), `${name}: chapter ${index + 1} VTT source mismatch`);
     const captionState = await page.$eval("#lessonVideo", (videoElement) => Array.from(videoElement.textTracks).map((track) => track.mode));
     record(captionState.every((mode) => mode === "hidden"), `${name}: chapter ${index + 1} CC should use hidden text-track mode, got ${captionState.join(",")}`);
     record(await page.locator("#captionReadout").isVisible(), `${name}: chapter ${index + 1} CC side readout is not visible`);
     await page.waitForFunction((expectedVideo) => {
       const videoElement = document.querySelector("#lessonVideo");
-      return videoElement?.currentSrc?.endsWith(expectedVideo)
+      return new URL(videoElement?.currentSrc || location.href).pathname.endsWith(expectedVideo)
         && Number.isFinite(videoElement.duration)
         && videoElement.duration > 30;
     }, video);
@@ -201,7 +217,7 @@ async function runViewport(browser, name, viewport) {
   }
   const totalRuntime = actualDurations.reduce((sum, duration) => sum + duration, 0);
   runtimeSummaries.push(`${name}: ${actualDurations.map((duration) => `${duration.toFixed(1)}s`).join(" + ")} = ${totalRuntime.toFixed(1)}s`);
-  record(totalRuntime >= 900 && totalRuntime <= 1235, `${name}: total runtime ${totalRuntime.toFixed(1)}s is outside approved rich-content window`);
+  record(totalRuntime >= 3180 && totalRuntime <= 3215, `${name}: total runtime ${totalRuntime.toFixed(1)}s is outside approved rich-content window`);
   await page.screenshot({ path: path.join(outDir, `${name}-after-test.png`), fullPage: true });
 
   record(consoleErrors.length === 0, `${name}: console errors ${consoleErrors.join(" | ")}`);

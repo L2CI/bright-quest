@@ -1,6 +1,8 @@
 (() => {
-  const COURSE_URL = "./data/chemistry-101-course.json";
-  const RELEASE = "chemistry-101-winter-2026-004";
+  const ASSET_VERSION = "20260706b";
+  const COURSE_URL = `./data/chemistry-101-course.json?v=${ASSET_VERSION}`;
+  const RELEASE = "chemistry-101-winter-2026-005";
+  const withAssetVersion = (url) => `${url}?v=${ASSET_VERSION}`;
   const progressKey = "brightQuestChemistry101ProgressV1";
   const profilesKey = "brightQuestProfilesV2";
   const chapterIconNames = ["beaker", "tile", "particles", "filter", "fizz", "tile", "beaker", "particles", "fizz", "filter", "beaker"];
@@ -62,10 +64,10 @@
     state.course.chapters.forEach((chapter, index) => {
       const n = String(index + 1).padStart(2, "0");
       chapter.number = index + 1;
-      chapter.video = `./assets/videos/chapter-${n}.mp4`;
-      chapter.audio = `./assets/audio/chapter-${n}-teacher.mp3`;
-      chapter.captions = `./assets/captions/chapter-${n}.vtt`;
-      chapter.poster = `./assets/posters/chapter-${n}.jpg`;
+      chapter.video = withAssetVersion(`./assets/videos/chapter-${n}.mp4`);
+      chapter.audio = withAssetVersion(`./assets/audio/chapter-${n}-teacher.mp3`);
+      chapter.captions = withAssetVersion(`./assets/captions/chapter-${n}.vtt`);
+      chapter.poster = withAssetVersion(`./assets/posters/chapter-${n}.jpg`);
     });
 
     renderTabs();
@@ -497,6 +499,6 @@
 
   function cardVisual(index) {
     const chapter = String(index + 1).padStart(2, "0");
-    return `<img src="./assets/ui/chapter-${chapter}-card.png" alt="" decoding="async" />`;
+    return `<img src="${withAssetVersion(`./assets/ui/chapter-${chapter}-card.png`)}" alt="" decoding="async" />`;
   }
 })();
