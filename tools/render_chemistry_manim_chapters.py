@@ -1,6 +1,7 @@
 import argparse
 import math
 import os
+import re
 from pathlib import Path
 
 import numpy as np
@@ -79,7 +80,7 @@ CHAPTERS = {
             ("Thermometer", ["temperature = reading", "heat = energy moving"], "careful words"),
             ("Student question", ["heat is not the number"], "reading vs transfer"),
             ("Particle wiggle", ["same dots", "more motion", "not hot dots"], "motion changes"),
-            ("Cooling", ["heat moves away", "motion slows"], "never frozen-dead"),
+            ("Cooling", ["heat moves away", "motion slows"], "careful model"),
             ("Safety", ["warm tap water", "parent check", "no boiling"], "safe setup"),
             ("Predict direction", ["hand to cup", "room to bottle"], "draw the arrow"),
             ("Chapter rule", ["warmer", "cooler", "contact"], "ready for test"),
@@ -96,7 +97,7 @@ CHAPTERS = {
             ("Before and after", ["solid water", "liquid water"], "same stuff"),
             ("Particle model", ["close fixed", "close sliding"], "arrangement changes"),
             ("Freezing reverse", ["liquid to solid", "heat moves away"], "freezer example"),
-            ("Other materials", ["butter", "chocolate", "wax"], "app visuals only"),
+            ("Other materials", ["butter", "chocolate"], "app visuals only"),
             ("Safe option", ["sealed bag of ice", "plate", "timer"], "parent nearby"),
             ("Chapter rule", ["material stayed", "state changed"], "ready for test"),
         ],
@@ -120,6 +121,43 @@ CHAPTERS = {
 }
 
 
+def parse_vtt_time(value):
+    hours, minutes, rest = value.split(":")
+    seconds, millis = rest.split(".")
+    return int(hours) * 3600 + int(minutes) * 60 + int(seconds) + int(millis) / 1000
+
+
+def load_caption_durations(chapter_number):
+    path = Path(__file__).resolve().parents[1] / "chemistry-training" / "chemistry-101-winter-2026" / "assets" / "captions" / f"chapter-{chapter_number:02d}.vtt"
+    if not path.exists():
+        return []
+    durations = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        match = re.match(r"^(\d\d:\d\d:\d\d\.\d\d\d)\s+-->\s+(\d\d:\d\d:\d\d\.\d\d\d)", line.strip())
+        if match:
+            durations.append(max(0.5, parse_vtt_time(match.group(2)) - parse_vtt_time(match.group(1))))
+    return durations
+
+
+def extend_beats_for_captions(beats, target_count):
+    expanded = list(beats)
+    if target_count <= len(expanded):
+        return expanded
+    templates = [
+        ("Practice transfer", ["new example", "same idea", "update answer"], "training, not memorising"),
+        ("Repair answer", ["weak answer", "better answer"], "use evidence language"),
+        ("Connect again", ["main clues", "model words"], "compare carefully"),
+        ("Before the test", ["exact wording", "reject traps"], "ready for quiz"),
+        ("Transfer check", ["new case", "same rule"], "explain why"),
+        ("Final pause", ["say it yourself", "test a new example"], "ready for test"),
+    ]
+    index = 0
+    while len(expanded) < target_count:
+        expanded.append(templates[index % len(templates)])
+        index += 1
+    return expanded
+
+
 class ChemistryManimScene(Scene):
     chapter_number = 6
 
@@ -128,7 +166,8 @@ class ChemistryManimScene(Scene):
         config.background_color = BG
         self.camera.background_color = BG
         duration = float(os.environ.get("BQ_CHAPTER_DURATION", "330"))
-        beats = spec["beats"]
+        cue_durations = load_caption_durations(self.chapter_number)
+        beats = extend_beats_for_captions(spec["beats"], len(cue_durations))
         beat_len = max(22.0, (duration - 15.0) / len(beats))
 
         self.add(board_frame())
@@ -148,15 +187,21 @@ class ChemistryManimScene(Scene):
         bench = lab_bench().to_edge(DOWN, buff=0.75)
         ambient = moving_particles(self, 26, spread_x=13.5, spread_y=6.6, opacity=0.22)
         self.add(ambient)
-        self.play(FadeIn(bench), run_time=0.8)
+        if self.chapter_number >= 7:
+            self.add(bench)
+            self.wait(0.12)
+        else:
+            self.play(FadeIn(bench), run_time=0.8)
         self.add(bench_motion(self))
-        self.add(teaching_motion_layer(self))
+        if self.chapter_number < 7:
+            self.add(teaching_motion_layer(self))
 
-        hero = chapter_hero(self.chapter_number)
-        hero.move_to(DOWN * 1.55)
-        self.play(FadeIn(hero, shift=0.2 * UP), run_time=1.0)
-        self.wait(min(3.0, beat_len * 0.18))
-        self.play(FadeOut(hero, shift=0.1 * DOWN), run_time=0.5)
+        if self.chapter_number < 7:
+            hero = chapter_hero(self.chapter_number)
+            hero.move_to(DOWN * 1.55)
+            self.play(FadeIn(hero, shift=0.2 * UP), run_time=1.0)
+            self.wait(min(3.0, beat_len * 0.18))
+            self.play(FadeOut(hero, shift=0.1 * DOWN), run_time=0.5)
 
         current = None
         for index, (beat_title, labels, note) in enumerate(beats):
@@ -173,8 +218,9 @@ class ChemistryManimScene(Scene):
                 self.play(FadeOut(current, shift=0.15 * DOWN), FadeIn(group, shift=0.2 * UP), run_time=0.9)
             current = group
             self.play(highlight_pulse(panel[1]), run_time=0.6)
-            remaining = max(0.2, beat_len - 2.0)
-            active_teaching_hold(self, visual, panel, remaining)
+            beat_duration = cue_durations[index] if index < len(cue_durations) else beat_len
+            remaining = max(0.2, beat_duration - 2.0)
+            active_teaching_hold(self, visual, panel, remaining, self.chapter_number, index)
 
         gate = RoundedRectangle(width=5.2, height=1.25, corner_radius=0.18, color=TEAL, stroke_width=3)
         gate.set_fill("#081c20", opacity=0.95).to_corner(DR, buff=0.55)
@@ -277,7 +323,10 @@ def teaching_motion_layer(scene):
     return VGroup(sweep, orbit)
 
 
-def active_teaching_hold(scene, visual, panel, duration):
+def active_teaching_hold(scene, visual, panel, duration, chapter=None, index=None):
+    if chapter and chapter >= 7:
+        directed_teaching_hold(scene, visual, panel, duration)
+        return
     remaining = duration
     cycle = 0
     while remaining > 0.05:
@@ -308,6 +357,51 @@ def active_teaching_hold(scene, visual, panel, duration):
             )
         remaining -= run_time
         cycle += 1
+
+
+def directed_teaching_hold(scene, visual, panel, duration):
+    motion = getattr(visual, "bq_motion", "pulse")
+    base = np.array(visual.get_center()) + np.array([0.0, -1.42, 0.0])
+    base[0] = max(-2.9, min(2.0, base[0]))
+    base[1] = max(-2.18, min(-1.2, base[1]))
+    focus = VGroup(
+        Circle(radius=0.16, color=GREEN, stroke_width=3).set_opacity(0.9),
+        Dot(radius=0.055, color=GREEN),
+    ).move_to(base + LEFT * 0.7)
+    focus.set_z_index(20)
+    scene.add(focus)
+    remaining = duration
+    cycle = 0
+    while remaining > 0.05:
+        run_time = min(2.6, remaining)
+        focus_target = base + np.array([-0.85 + (cycle % 5) * 0.42, 0.08 * ((cycle % 2) * 2 - 1), 0.0])
+        focus_move = focus.animate.move_to(focus_target)
+        panel_color = [TEAL, GOLD, GREEN][cycle % 3]
+        panel_move = panel[0].animate.set_stroke(panel_color, width=4.2)
+        horizontal = RIGHT * (0.34 if cycle % 2 == 0 else -0.34)
+        vertical = UP * (0.18 if cycle % 2 == 0 else -0.18)
+        visual_pulse = visual.animate.scale(1.035)
+        if motion == "block":
+            scene.play(visual.animate.shift(horizontal * 1.55).scale(1.035), focus_move, panel_move, rate_func=there_and_back, run_time=run_time)
+        elif motion == "pour":
+            scene.play(visual.animate.shift(vertical * 1.15).scale(1.035), focus_move, panel_move, rate_func=there_and_back, run_time=run_time)
+        elif motion == "gas":
+            scene.play(visual.animate.shift(horizontal * 1.4).scale(1.035), focus_move, panel_move, rate_func=there_and_back, run_time=run_time)
+        elif motion == "sort":
+            scene.play(visual.animate.shift(vertical * 1.15).scale(1.035), focus_move, panel_move, rate_func=there_and_back, run_time=run_time)
+        elif motion == "dots":
+            scene.play(visual.animate.shift(horizontal * 1.15).scale(1.035), focus_move, panel_move, rate_func=there_and_back, run_time=run_time)
+        elif motion == "heat":
+            scene.play(visual.animate.shift(horizontal * 1.35).scale(1.035), focus_move, panel_move, rate_func=there_and_back, run_time=run_time)
+        elif motion == "melt":
+            scene.play(visual.animate.shift(horizontal * 1.35).scale(1.035), focus_move, panel_move, rate_func=there_and_back, run_time=run_time)
+        elif motion == "dissolve":
+            scene.play(visual.animate.shift(horizontal * 1.15).scale(1.035), focus_move, panel_move, rate_func=there_and_back, run_time=run_time)
+        else:
+            scene.play(visual_pulse, panel[1].animate.set_color(GOLD).scale(1.04), focus_move, panel_move, rate_func=there_and_back, run_time=run_time)
+        remaining -= run_time
+        cycle += 1
+    scene.remove(focus)
 
 
 def build_sweep_marker(t):
@@ -376,24 +470,460 @@ def make_visual(chapter, index, labels):
             return VGroup(spoon().shift(LEFT * 1.1), spoon(color="#d4aa62").shift(RIGHT * 0.45), rounded_label(labels[0]).shift(DOWN * 1.0))
         return chapter_hero(6).scale(0.82)
     if chapter == 7:
-        if index in (1, 2, 3, 7):
-            return state_triptych()
+        if index == 0:
+            return mark_motion(state_lab_overview(), "sort")
+        if index == 1:
+            return mark_motion(block_shape_visual(), "block")
+        if index == 2:
+            return mark_motion(liquid_pour_visual(), "pour")
+        if index == 3:
+            return mark_motion(gas_push_visual(), "gas")
         if index == 4:
-            return VGroup(jelly_icon().shift(LEFT * 1.2), sponge_icon().shift(RIGHT * 1.1), rounded_label("tricky").shift(DOWN * 1.0))
-        return chapter_hero(7).scale(0.85)
+            return mark_motion(tricky_lane_visual(), "sort")
+        if index == 5:
+            return mark_motion(state_label_reveal_visual(), "sort")
+        if index == 6:
+            return mark_motion(vapour_mist_visual(), "gas")
+        if index == 7:
+            return mark_motion(state_sort_visual(), "sort")
+        return mark_motion(state_checkpoint_visual(), "sort")
     if chapter == 8:
-        return VGroup(particle_grid("solid").shift(LEFT * 2.4), particle_grid("liquid"), particle_grid("gas").shift(RIGHT * 2.6), rounded_label(labels[0]).shift(DOWN * 1.25))
+        return mark_motion(particle_chapter_visual(index), "dots")
     if chapter == 9:
-        if index in (4, 5):
-            return wiggle_particles()
-        return VGroup(cup_with_spoon(), thermometer().shift(RIGHT * 3.1), heat_arrows().shift(RIGHT * 0.85 + UP * 0.25))
+        return mark_motion(heat_chapter_visual(index), "heat")
     if chapter == 10:
-        if index in (4,):
-            return VGroup(particle_grid("solid").scale(0.8).shift(LEFT * 1.7), melting_arrow().scale(0.8), particle_grid("liquid").scale(0.8).shift(RIGHT * 1.7))
-        return VGroup(ice_cube().shift(LEFT * 1.8), melting_arrow(), puddle().shift(RIGHT * 1.9), rounded_label("water").shift(DOWN * 1.2))
-    if index in (3, 4, 7):
-        return VGroup(sugar_crystal().shift(LEFT * 2.2), Arrow(LEFT * 1.25, RIGHT * 0.45, color=TEAL), dissolving_dots().shift(RIGHT * 1.8), rounded_label("spread out").shift(DOWN * 1.2))
-    return chapter_hero(11).scale(0.9)
+        return mark_motion(melting_chapter_visual(index), "melt")
+    return mark_motion(dissolving_chapter_visual(index), "dissolve")
+
+
+def mark_motion(group, motion):
+    group.bq_motion = motion
+    return group
+
+
+def small_label(text, color=TEAL, font_size=17):
+    label = Text(text, color=CREAM, font_size=font_size, weight=BOLD)
+    box = RoundedRectangle(width=max(1.05, label.width + 0.3), height=0.36, corner_radius=0.07, color=color, stroke_width=1.4)
+    box.set_fill("#061316", opacity=0.94)
+    return VGroup(box, label.move_to(box.get_center()))
+
+
+def evidence_card(title, subtitle="", color=TEAL, width=1.75, height=0.92):
+    box = RoundedRectangle(width=width, height=height, corner_radius=0.12, color=color, stroke_width=2.4)
+    box.set_fill("#07191d", opacity=0.93)
+    main = Text(title, color=CREAM, font_size=16, weight=BOLD)
+    lines = [main]
+    if subtitle:
+        sub = Text(subtitle, color=MUTED, font_size=12)
+        lines.append(sub)
+    content = VGroup(*lines).arrange(DOWN, buff=0.08)
+    content.move_to(box.get_center())
+    return VGroup(box, content)
+
+
+def safety_stamp(text, color=ORANGE):
+    icon = RoundedRectangle(width=2.05, height=0.48, corner_radius=0.1, color=color, stroke_width=2.5)
+    icon.set_fill("#21110d", opacity=0.94)
+    return VGroup(icon, Text(text, color=CREAM, font_size=16, weight=BOLD).move_to(icon.get_center()))
+
+
+def model_box(title, content, width=2.2, height=1.78, color=TEAL):
+    box = RoundedRectangle(width=width, height=height, corner_radius=0.12, color=color, stroke_width=2.4)
+    box.set_fill("#061316", opacity=0.88)
+    head = Text(title, color=color, font_size=17, weight=BOLD).next_to(box, UP, buff=0.08)
+    content.move_to(box.get_center())
+    return VGroup(box, content, head)
+
+
+def state_lab_overview():
+    tray = RoundedRectangle(width=2.0, height=0.34, corner_radius=0.08, color="#7f5535", stroke_width=0).set_fill("#7f5535", opacity=1)
+    block = cube_icon().scale(0.55).next_to(tray, UP, buff=0.02)
+    station1 = VGroup(tray, block).shift(LEFT * 3.0)
+    cup = beaker(fill=True).scale(0.65)
+    station2 = VGroup(cup, small_label("water", TEAL).scale(0.75).next_to(cup, DOWN, buff=0.08))
+    balloon = clearer_balloon().scale(0.72)
+    plunger = plunger_chamber().scale(0.55).next_to(balloon, DOWN, buff=0.15)
+    station3 = VGroup(balloon, plunger).shift(RIGHT * 3.0)
+    no = Text("No labels yet", color=GOLD, font_size=25, weight=BOLD).shift(UP * 1.65)
+    return VGroup(no, station1, station2, station3)
+
+
+def block_shape_visual():
+    tray = RoundedRectangle(width=1.75, height=0.34, corner_radius=0.08, color="#7f5535", stroke_width=0).set_fill("#7f5535", opacity=1)
+    block = cube_icon().scale(0.58).next_to(tray, UP, buff=0.03)
+    start = VGroup(tray, block, small_label("tray", MUTED).scale(0.7).next_to(tray, DOWN, buff=0.08)).shift(LEFT * 2.15)
+    box = RoundedRectangle(width=1.5, height=1.15, corner_radius=0.08, color=TEAL, stroke_width=3).set_fill(TEAL, opacity=0.08).shift(RIGHT * 1.25)
+    ghost = cube_icon().scale(0.58).set_opacity(0.28).move_to(box.get_center())
+    arrow = Arrow(LEFT * 0.85, RIGHT * 0.35, color=GOLD, stroke_width=5, buff=0.05)
+    reject = VGroup(Arrow(LEFT * 0.6 + DOWN * 1.15, RIGHT * 0.35 + DOWN * 1.35, color=ORANGE, stroke_width=4, buff=0.05), small_label("not pouring", ORANGE).scale(0.75).shift(DOWN * 1.65))
+    return VGroup(start, arrow, box, ghost, reject, small_label("shape stays", GREEN).shift(RIGHT * 1.25 + DOWN * 0.92))
+
+
+def liquid_pour_visual():
+    tall = beaker(fill=True).scale(0.62).rotate(-0.18).shift(LEFT * 2.2 + UP * 0.18)
+    bowl = Ellipse(width=2.0, height=0.55, color=TEAL, stroke_width=5).set_fill("#2b8798", opacity=0.35).shift(RIGHT * 1.45 + DOWN * 0.42)
+    stream = VMobject(color=TEAL, stroke_width=7).set_points_smoothly([LEFT * 1.55 + UP * 0.08, LEFT * 0.25 + DOWN * 0.36, RIGHT * 0.75 + DOWN * 0.42])
+    marker = VGroup(
+        small_label("same amount", GREEN).scale(0.76).shift(DOWN * 1.35),
+        Line(LEFT * 2.35 + DOWN * 0.86, RIGHT * 2.15 + DOWN * 0.86, color=GREEN, stroke_width=3),
+    )
+    return VGroup(tall, stream, bowl, marker, small_label("shape changes", GOLD).shift(RIGHT * 1.45 + UP * 0.48))
+
+
+def gas_push_visual():
+    balloon = clearer_balloon().scale(0.75).shift(LEFT * 2.2 + UP * 0.28)
+    grow = Circle(radius=0.88, color=TEAL, stroke_width=2).set_opacity(0.28).move_to(balloon.get_center())
+    plunger = plunger_chamber().scale(0.92).shift(RIGHT * 1.5)
+    push = VGroup(
+        Arrow(RIGHT * 2.8, RIGHT * 1.95, color=GOLD, stroke_width=5, buff=0.05),
+        Arrow(RIGHT * 1.1, RIGHT * 0.55, color=GREEN, stroke_width=5, buff=0.05),
+        small_label("pushes back", GREEN).scale(0.82).shift(RIGHT * 1.55 + DOWN * 1.1),
+    )
+    return VGroup(balloon, grow, plunger, push, small_label("air takes space", TEAL).shift(UP * 1.45))
+
+
+def tricky_lane_visual():
+    lanes = VGroup()
+    for i, name in enumerate(["solid", "liquid", "gas", "tricky"]):
+        lane = RoundedRectangle(width=1.32, height=1.55, corner_radius=0.12, color=[TEAL, BLUE, GOLD, ORANGE][i], stroke_width=2)
+        lane.set_fill("#061316", opacity=0.72)
+        lanes.add(VGroup(lane, Text(name, color=CREAM, font_size=15, weight=BOLD).next_to(lane, DOWN, buff=0.08)))
+    lanes.arrange(RIGHT, buff=0.18).shift(DOWN * 0.42)
+    jelly = VGroup(jelly_icon().scale(0.58), small_label("jelly", ORANGE).scale(0.72)).arrange(DOWN, buff=0.05).shift(LEFT * 2.15 + UP * 1.16)
+    sponge = VGroup(sponge_icon().scale(0.58), small_label("sponge", ORANGE).scale(0.72)).arrange(DOWN, buff=0.05).shift(RIGHT * 2.15 + UP * 1.16)
+    arrows = VGroup(Arrow(jelly.get_bottom(), lanes[3].get_top(), color=ORANGE, buff=0.08), Arrow(sponge.get_bottom(), lanes[3].get_top(), color=ORANGE, buff=0.08))
+    return VGroup(lanes, jelly, sponge, arrows, small_label("one clue is not enough", GOLD).shift(UP * 1.65))
+
+
+def state_label_reveal_visual():
+    states = VGroup()
+    specs = [("solid", cube_icon().scale(0.55), "keeps shape"), ("liquid", beaker(fill=True).scale(0.55), "flows"), ("gas", clearer_balloon().scale(0.55), "spreads")]
+    for title, icon, clue in specs:
+        group = VGroup(icon, small_label(title, GREEN), Text(clue, color=MUTED, font_size=15)).arrange(DOWN, buff=0.08)
+        states.add(group)
+    states.arrange(RIGHT, buff=0.85)
+    return VGroup(states, small_label("labels follow evidence", GOLD).shift(UP * 1.6))
+
+
+def vapour_mist_visual():
+    ribbon = safety_stamp("app/adult only", ORANGE).shift(UP * 1.62 + LEFT * 1.95)
+    cup = beaker(fill=True).scale(0.58).shift(LEFT * 1.65 + DOWN * 0.22)
+    invisible = VGroup(
+        Arrow(LEFT * 1.55 + UP * 0.45, LEFT * 1.55 + UP * 1.15, color=TEAL, stroke_width=4),
+        Arrow(LEFT * 1.2 + UP * 0.5, LEFT * 0.9 + UP * 1.15, color=TEAL, stroke_width=4),
+        small_label("vapour: invisible gas", TEAL).scale(0.72).shift(LEFT * 1.15 + UP * 1.35),
+    )
+    droplets = VGroup(*[Dot(radius=0.055, color="#b8e9ef").shift(RIGHT * 1.1 + UP * (0.35 + 0.18 * (i % 3)) + RIGHT * (0.18 * i)) for i in range(7)])
+    mist = VGroup(droplets, small_label("mist: liquid droplets", BLUE).scale(0.72).shift(RIGHT * 1.75 + UP * 1.08))
+    return VGroup(ribbon, cup, invisible, mist)
+
+
+def state_sort_visual():
+    lanes = VGroup()
+    for i, name in enumerate(["solid", "liquid", "gas", "tricky"]):
+        lane = RoundedRectangle(width=1.35, height=1.34, corner_radius=0.12, color=[TEAL, BLUE, GOLD, ORANGE][i], stroke_width=2)
+        lane.set_fill("#061316", opacity=0.78)
+        lanes.add(VGroup(lane, Text(name, color=CREAM, font_size=15, weight=BOLD).next_to(lane, DOWN, buff=0.08)))
+    lanes.arrange(RIGHT, buff=0.18).shift(DOWN * 0.48)
+    cards = VGroup(
+        evidence_card("ice", "keeps shape", TEAL, 1.1, 0.72),
+        evidence_card("juice", "flows", BLUE, 1.1, 0.72),
+        evidence_card("air tyre", "fills", GOLD, 1.2, 0.72),
+        evidence_card("honey", "slow flow", BLUE, 1.25, 0.72),
+        evidence_card("foam", "what part?", ORANGE, 1.25, 0.72),
+    ).arrange(RIGHT, buff=0.12).shift(UP * 1.12)
+    return VGroup(cards, lanes, small_label("sort by behaviour", GREEN).shift(UP * 1.72))
+
+
+def state_checkpoint_visual():
+    qs = VGroup(
+        evidence_card("own shape?", "", TEAL, 1.55, 0.7),
+        evidence_card("flows?", "", BLUE, 1.28, 0.7),
+        evidence_card("spreads?", "", GOLD, 1.42, 0.7),
+    ).arrange(RIGHT, buff=0.22).shift(UP * 0.75)
+    example = VGroup(clearer_balloon().scale(0.48), small_label("air in ball", GOLD).scale(0.72)).arrange(DOWN, buff=0.06).shift(DOWN * 0.55)
+    pointer = Arrow(LEFT * 1.2 + DOWN * 0.16, example.get_top(), color=GREEN, stroke_width=4, buff=0.1)
+    return VGroup(qs, example, pointer, small_label("guided checkpoint", GREEN).shift(UP * 1.55))
+
+
+def particle_chapter_visual(index):
+    if index == 0:
+        return model_gate_visual()
+    if index == 1:
+        cards = VGroup(evidence_card("keeps shape", "solid", TEAL), evidence_card("pours", "liquid", BLUE), evidence_card("fills space", "gas", GOLD)).arrange(RIGHT, buff=0.22)
+        return VGroup(cards, small_label("evidence first", GREEN).shift(UP * 1.45))
+    if index == 2:
+        return particle_model_visual("solid", "fixed spots", "tiny vibration")
+    if index == 3:
+        return particle_model_visual("liquid", "close together", "slide past")
+    if index == 4:
+        return particle_model_visual("gas", "far apart", "fills space")
+    if index == 5:
+        wrong = VGroup(evidence_card("wet dots", "not this", ORANGE), evidence_card("tiny ice cubes", "not this", ORANGE), evidence_card("tiny balloons", "not this", ORANGE)).arrange(RIGHT, buff=0.18).shift(UP * 0.38)
+        accepted = VGroup(evidence_card("spacing", "", GREEN, 1.25, 0.65), evidence_card("motion", "", GREEN, 1.2, 0.65), evidence_card("arrangement", "", GREEN, 1.55, 0.65)).arrange(RIGHT, buff=0.18).shift(DOWN * 0.95)
+        crosses = VGroup(*[Cross(card[0], stroke_color=ORANGE, stroke_width=5).set_opacity(0.9) for card in wrong])
+        return VGroup(wrong, crosses, accepted, small_label("model, not photograph", TEAL).shift(UP * 1.5))
+    if index == 6:
+        cards = VGroup(evidence_card("keeps shape", "", TEAL, 1.45, 0.65), evidence_card("pours", "", BLUE, 1.1, 0.65), evidence_card("fills space", "", GOLD, 1.35, 0.65)).arrange(DOWN, buff=0.14).shift(LEFT * 2.55)
+        models = VGroup(particle_grid("solid").scale(0.65), particle_grid("liquid").scale(0.7), particle_grid("gas").scale(0.58)).arrange(DOWN, buff=0.25).shift(RIGHT * 1.3)
+        lines = VGroup(*[Arrow(cards[i].get_right(), models[i].get_left(), color=[TEAL, BLUE, GOLD][i], stroke_width=3, buff=0.12) for i in range(3)])
+        return VGroup(cards, models, lines, small_label("match evidence to model", GREEN).shift(UP * 1.55))
+    if index == 7:
+        return VGroup(model_box("model limit", VGroup(Text("colour helps us track", color=CREAM, font_size=20), Text("not real particle colour", color=MUTED, font_size=17)).arrange(DOWN, buff=0.15), 4.3, 1.75, GOLD), small_label("do not overbelieve", ORANGE).shift(DOWN * 1.25))
+    return VGroup(particle_model_visual("solid", "close", "fixed").scale(0.72).shift(LEFT * 2.2), particle_model_visual("liquid", "close", "sliding").scale(0.72), particle_model_visual("gas", "spread", "moving").scale(0.72).shift(RIGHT * 2.2), small_label("model explains evidence", GREEN).shift(DOWN * 1.45))
+
+
+def model_gate_visual():
+    microscope = model_box("not photo", VGroup(Circle(radius=0.35, color=MUTED), Line(LEFT * 0.45, RIGHT * 0.45, color=MUTED).rotate(-0.75)), 1.75, 1.35, ORANGE).shift(LEFT * 1.6)
+    cross = Cross(microscope[0], stroke_color=ORANGE, stroke_width=5)
+    model = model_box("model", particle_grid("liquid").scale(0.78), 1.85, 1.35, TEAL).shift(RIGHT * 1.6)
+    arrow = Arrow(LEFT * 0.35, RIGHT * 0.65, color=GOLD, stroke_width=4, buff=0.08)
+    return VGroup(microscope, cross, arrow, model, small_label("dots are symbols", TEAL).shift(DOWN * 1.35))
+
+
+def particle_model_visual(kind, line1, line2):
+    title = {"solid": "solid model", "liquid": "liquid model", "gas": "gas model"}[kind]
+    outline = {"solid": cube_icon().scale(0.62), "liquid": beaker(fill=False).scale(0.58), "gas": clearer_balloon().scale(0.58)}[kind].set_opacity(0.24)
+    dots = particle_grid(kind).scale(0.92 if kind != "gas" else 0.8)
+    box = model_box(title, VGroup(outline, dots), 3.0, 2.1, {"solid": TEAL, "liquid": BLUE, "gas": GOLD}[kind])
+    note = VGroup(small_label(line1, TEAL).scale(0.78), small_label(line2, GOLD).scale(0.78)).arrange(RIGHT, buff=0.15).next_to(box, DOWN, buff=0.15)
+    return VGroup(box, note)
+
+
+def heat_chapter_visual(index):
+    if index in (0, 1):
+        return heat_contact_visual(correct=True)
+    if index == 2:
+        return thermometer_visual()
+    if index == 3:
+        return wrong_heat_beam_visual()
+    if index == 4:
+        return wiggle_particles_better()
+    if index == 5:
+        return cooling_visual()
+    if index == 6:
+        return heat_safety_visual()
+    if index == 7:
+        return heat_prediction_visual()
+    return heat_checkpoint_visual()
+
+
+def heat_contact_visual(correct=True):
+    cup = beaker(fill=True).scale(0.75).shift(LEFT * 1.15)
+    sp = spoon().scale(0.85).rotate(-0.1).shift(RIGHT * 0.18 + UP * 0.03)
+    contact = Circle(radius=0.23, color=GOLD, stroke_width=5).set_fill(GOLD, opacity=0.25).shift(LEFT * 0.23 + DOWN * 0.1)
+    path_label = small_label("contact path", GOLD).scale(0.78).shift(RIGHT * 0.65 + DOWN * 0.62)
+    arrows = VGroup(
+        Arrow(LEFT * 0.82 + DOWN * 0.18, LEFT * 0.38 + DOWN * 0.12, color=GOLD, stroke_width=5, buff=0.03),
+        Arrow(LEFT * 0.34 + DOWN * 0.11, LEFT * 0.08 + DOWN * 0.08, color=GOLD, stroke_width=5, buff=0.02),
+        Arrow(RIGHT * 0.08 + DOWN * 0.07, RIGHT * 0.62 + UP * 0.0, color=GOLD, stroke_width=5, buff=0.03),
+        Arrow(RIGHT * 0.62 + UP * 0.0, RIGHT * 1.18 + UP * 0.08, color=GOLD, stroke_width=4, buff=0.03),
+        path_label,
+    )
+    safety = safety_stamp("warm tap water only", GREEN).scale(0.72).shift(UP * 1.48 + LEFT * 1.8)
+    return VGroup(safety, cup, sp, contact, arrows)
+
+
+def thermometer_visual():
+    t1 = thermometer().scale(0.72).shift(LEFT * 1.3)
+    t2 = thermometer().scale(0.85).shift(RIGHT * 1.25)
+    read = VGroup(evidence_card("cooler", "reading", BLUE, 1.45, 0.72).shift(LEFT * 1.3 + DOWN * 1.35), evidence_card("warmer", "reading", GOLD, 1.45, 0.72).shift(RIGHT * 1.25 + DOWN * 1.35))
+    arrow = Arrow(LEFT * 0.25, RIGHT * 0.45, color=GOLD, stroke_width=4, buff=0.1)
+    return VGroup(t1, t2, arrow, read, safety_stamp("warm tap water only", GREEN).scale(0.7).shift(UP * 1.5 + LEFT * 1.8))
+
+
+def wrong_heat_beam_visual():
+    base = heat_contact_visual()
+    wrong = VGroup(Arrow(LEFT * 1.2 + UP * 0.95, RIGHT * 1.45 + UP * 0.95, color=ORANGE, stroke_width=6, buff=0.05), small_label("not a laser", ORANGE).shift(UP * 1.38 + RIGHT * 0.5))
+    repair = small_label("arrow is a thinking symbol", GREEN).scale(0.75).shift(RIGHT * 0.75 + UP * 0.72)
+    return VGroup(base, wrong, Cross(wrong[0], stroke_color=ORANGE, stroke_width=5), repair)
+
+
+def wiggle_particles_better():
+    cool = model_box("cooler", particle_grid("solid").scale(0.74), 2.25, 1.55, BLUE).shift(LEFT * 1.6)
+    warm = model_box("warmer", particle_grid("liquid").scale(0.82), 2.25, 1.55, GOLD).shift(RIGHT * 1.6)
+    trails = VGroup(*[Arc(radius=0.18 + i * 0.03, start_angle=0, angle=PI, color=GOLD, stroke_width=2).shift(RIGHT * 1.15 + UP * (-0.2 + i * 0.16)) for i in range(5)])
+    return VGroup(cool, warm, trails, small_label("same dots, bigger wiggle", GREEN).shift(DOWN * 1.45))
+
+
+def cooling_visual():
+    warm = model_box("warm object", particle_grid("liquid").scale(0.74), 2.2, 1.55, GOLD).shift(LEFT * 1.25)
+    cool = RoundedRectangle(width=1.7, height=1.45, corner_radius=0.12, color=BLUE, stroke_width=3).set_fill(BLUE, opacity=0.15).shift(RIGHT * 1.6)
+    arrows = VGroup(Arrow(warm.get_right(), cool.get_left(), color=GOLD, stroke_width=5, buff=0.1), small_label("motion slows", BLUE).shift(DOWN * 1.35))
+    return VGroup(warm, cool, arrows)
+
+
+def heat_safety_visual():
+    stamps = VGroup(safety_stamp("parent check", GREEN), safety_stamp("warm tap water", GREEN), safety_stamp("no boiling", ORANGE), safety_stamp("no flame", ORANGE)).arrange(DOWN, buff=0.15)
+    return VGroup(stamps, small_label("safe setup first", GREEN).shift(UP * 1.65))
+
+
+def heat_prediction_visual():
+    setup = heat_contact_visual()
+    wrong = Arrow(RIGHT * 1.05 + DOWN * 0.9, LEFT * 0.15 + DOWN * 0.9, color=ORANGE, stroke_width=5, buff=0.05)
+    correct = Arrow(LEFT * 0.15 + DOWN * 0.55, RIGHT * 1.35 + DOWN * 0.55, color=GREEN, stroke_width=5, buff=0.05)
+    return VGroup(setup, wrong, Cross(wrong, stroke_color=ORANGE, stroke_width=4), correct, small_label("warmer to cooler", GREEN).shift(DOWN * 1.45))
+
+
+def heat_checkpoint_visual():
+    cards = VGroup(evidence_card("warmer?", "", GOLD, 1.35, 0.72), evidence_card("cooler?", "", BLUE, 1.25, 0.72), evidence_card("pathway?", "", TEAL, 1.45, 0.72)).arrange(RIGHT, buff=0.22).shift(UP * 0.65)
+    arrow = Arrow(LEFT * 1.4 + DOWN * 0.45, RIGHT * 1.45 + DOWN * 0.45, color=GREEN, stroke_width=5, buff=0.1)
+    return VGroup(cards, arrow, small_label("then draw the arrow", GREEN).shift(DOWN * 1.1))
+
+
+def melting_chapter_visual(index):
+    if index == 0:
+        return ice_observe_visual()
+    if index in (1, 2):
+        return melt_timeline_visual()
+    if index == 3:
+        return before_after_water_visual()
+    if index == 4:
+        return VGroup(particle_model_visual("solid", "fixed", "wiggle").scale(0.72).shift(LEFT * 1.8), Arrow(LEFT * 0.25, RIGHT * 0.55, color=GOLD, stroke_width=5), particle_model_visual("liquid", "sliding", "same water").scale(0.72).shift(RIGHT * 1.8))
+    if index == 5:
+        return freezing_reverse_visual()
+    if index == 6:
+        return other_materials_visual()
+    if index == 7:
+        return safe_ice_observation_visual()
+    return melting_checkpoint_visual()
+
+
+def ice_observe_visual():
+    plate = Ellipse(width=2.5, height=0.55, color=CREAM, stroke_width=3).set_fill("#f0f7f8", opacity=0.12)
+    ice = cube_icon().scale(0.72).shift(UP * 0.38)
+    timer = VGroup(Circle(radius=0.34, color=GOLD, stroke_width=4), Text("0:00", color=GOLD, font_size=18, weight=BOLD)).shift(RIGHT * 2.2 + UP * 0.95)
+    return VGroup(plate, ice, timer, small_label("observe first", TEAL).shift(DOWN * 1.25))
+
+
+def melt_timeline_visual():
+    ice = cube_icon().scale(0.62).shift(LEFT * 2.0 + UP * 0.2)
+    soft = RoundedRectangle(width=1.2, height=0.82, corner_radius=0.24, color="#b8e9ef", stroke_width=4).set_fill("#cceef3", opacity=0.5)
+    pudd = Ellipse(width=1.7, height=0.38, color=TEAL, stroke_width=5).set_fill("#2b8798", opacity=0.5).shift(RIGHT * 2.0 + DOWN * 0.15)
+    arrows = VGroup(Arrow(LEFT * 1.15, LEFT * 0.28, color=GOLD, stroke_width=4), Arrow(RIGHT * 0.38, RIGHT * 1.25, color=GOLD, stroke_width=4))
+    tag = small_label("material: water", GREEN).shift(DOWN * 1.2)
+    timer = Text("time passes", color=GOLD, font_size=22, weight=BOLD).shift(UP * 1.35)
+    return VGroup(timer, ice, arrows, soft, pudd, tag)
+
+
+def before_after_water_visual():
+    before = evidence_card("before", "solid water", TEAL, 1.75, 0.9).shift(LEFT * 1.55)
+    after = evidence_card("after", "liquid water", BLUE, 1.75, 0.9).shift(RIGHT * 1.55)
+    token = small_label("same material", GREEN).shift(DOWN * 1.2)
+    return VGroup(before, after, Arrow(before.get_right(), after.get_left(), color=GOLD, stroke_width=4, buff=0.1), token)
+
+
+def freezing_reverse_visual():
+    tray = RoundedRectangle(width=1.7, height=0.72, corner_radius=0.12, color=TEAL, stroke_width=3).set_fill("#2b8798", opacity=0.28).shift(LEFT * 1.4)
+    freezer = RoundedRectangle(width=1.75, height=1.25, corner_radius=0.1, color=BLUE, stroke_width=3).set_fill(BLUE, opacity=0.16).shift(RIGHT * 1.5)
+    arrows = VGroup(Arrow(tray.get_right(), freezer.get_left(), color=GOLD, stroke_width=5, buff=0.1), small_label("heat moves away", GOLD).shift(DOWN * 1.25))
+    return VGroup(tray, freezer, arrows, small_label("freezing reverse", BLUE).shift(UP * 1.38))
+
+
+def other_materials_visual():
+    cards = VGroup(evidence_card("butter", "solid to liquid", GOLD, 1.55, 0.82), evidence_card("chocolate", "solid to liquid", ORANGE, 1.75, 0.82)).arrange(RIGHT, buff=0.35)
+    app = safety_stamp("app visuals only", GREEN).scale(0.82).shift(DOWN * 1.25)
+    return VGroup(cards, app)
+
+
+def safe_ice_observation_visual():
+    items = VGroup(evidence_card("sealed bag", "ice", GREEN, 1.45, 0.78), evidence_card("plate", "", TEAL, 1.1, 0.78), evidence_card("timer", "", GOLD, 1.1, 0.78), evidence_card("notebook", "", BLUE, 1.35, 0.78)).arrange(RIGHT, buff=0.15)
+    return VGroup(items, safety_stamp("parent nearby", GREEN).scale(0.82).shift(DOWN * 1.25))
+
+
+def melting_checkpoint_visual():
+    q = VGroup(evidence_card("material?", "water", TEAL, 1.55, 0.78), evidence_card("state now?", "liquid", BLUE, 1.55, 0.78), evidence_card("changed?", "state", GOLD, 1.55, 0.78)).arrange(RIGHT, buff=0.18)
+    return VGroup(q, small_label("same material, new state", GREEN).shift(DOWN * 1.2))
+
+
+def dissolving_chapter_visual(index):
+    if index == 0:
+        return dissolving_split_visual()
+    if index == 1:
+        return VGroup(melt_timeline_visual().scale(0.72).shift(LEFT * 1.45), small_label("melting = state change", TEAL).shift(RIGHT * 1.75))
+    if index == 2:
+        return sugar_setup_visual()
+    if index == 3:
+        return not_melting_visual()
+    if index == 4:
+        return dissolving_model_visual()
+    if index == 5:
+        return evidence_without_tasting_visual()
+    if index == 6:
+        return no_tasting_safety_visual()
+    if index == 7:
+        return melting_dissolving_table_visual()
+    return dissolving_checkpoint_visual()
+
+
+def dissolving_split_visual():
+    divider = Line(UP * 1.55, DOWN * 1.25, color="#2d4b52", stroke_width=3)
+    left = VGroup(cube_icon().scale(0.48), Ellipse(width=1.3, height=0.28, color=TEAL, stroke_width=3).shift(DOWN * 0.48), small_label("ice on plate", TEAL).scale(0.72).shift(DOWN * 0.92)).shift(LEFT * 1.75)
+    right = VGroup(sugar_crystal().scale(0.58).shift(LEFT * 0.45), beaker(fill=True).scale(0.48).shift(RIGHT * 0.65), small_label("sugar in water", GOLD).scale(0.72).shift(DOWN * 0.92)).shift(RIGHT * 1.6)
+    return VGroup(left, divider, right, small_label("similar look, different cause", GREEN).shift(UP * 1.55))
+
+
+def sugar_setup_visual():
+    ribbon = safety_stamp("known sugar only - no tasting", ORANGE).scale(0.72).shift(UP * 1.55 + LEFT * 1.5)
+    sugar = sugar_crystal().scale(0.62).shift(LEFT * 1.8 + UP * 0.25)
+    cup = beaker(fill=True).scale(0.72).shift(RIGHT * 0.95)
+    stir = Arc(radius=0.62, start_angle=0.1, angle=1.5 * PI, color=GOLD, stroke_width=5).shift(RIGHT * 0.95 + UP * 0.05)
+    arrow = Arrow(sugar.get_right(), cup.get_left(), color=TEAL, stroke_width=5, buff=0.08)
+    return VGroup(ribbon, sugar, arrow, cup, stir)
+
+
+def not_melting_visual():
+    wrong = evidence_card("melted sugar?", "wrong label", ORANGE, 2.05, 0.82).shift(UP * 0.55)
+    cross = Cross(wrong[0], stroke_color=ORANGE, stroke_width=5)
+    correct = evidence_card("spread through water", "dissolving", GREEN, 2.35, 0.82).shift(DOWN * 0.65)
+    return VGroup(wrong, cross, correct, Arrow(wrong.get_bottom(), correct.get_top(), color=GREEN, stroke_width=4, buff=0.1))
+
+
+def dissolving_model_visual():
+    water = VGroup(*[Dot(radius=0.07, color=TEAL).shift(RIGHT * (-0.75 + (i % 5) * 0.38) + UP * (-0.42 + (i // 5) * 0.32)) for i in range(15)])
+    sugar = VGroup(*[Dot(radius=0.055, color=GOLD).shift(RIGHT * (-0.6 + (i % 4) * 0.42) + UP * (-0.25 + (i // 4) * 0.36)) for i in range(12)])
+    frame = model_box("dissolving model", VGroup(water, sugar), 3.2, 2.25, TEAL)
+    return VGroup(frame, small_label("sugar dots interleaved", GOLD).shift(DOWN * 1.45))
+
+
+def evidence_without_tasting_visual():
+    ok = VGroup(evidence_card("labelled model", "ok", GREEN, 1.65, 0.8), evidence_card("app scale", "ok", GREEN, 1.35, 0.8), evidence_card("app recovery", "ok", GREEN, 1.55, 0.8)).arrange(RIGHT, buff=0.16).shift(UP * 0.52)
+    no = VGroup(evidence_card("tasting", "no", ORANGE, 1.25, 0.72), evidence_card("unknown jar", "no", ORANGE, 1.5, 0.72)).arrange(RIGHT, buff=0.18).shift(DOWN * 0.85)
+    crosses = VGroup(*[Cross(card[0], stroke_color=ORANGE, stroke_width=4) for card in no])
+    return VGroup(ok, no, crosses)
+
+
+def no_tasting_safety_visual():
+    stamps = VGroup(safety_stamp("no tasting", ORANGE), safety_stamp("no boiling", ORANGE), safety_stamp("parent supervised", GREEN), safety_stamp("known materials", GREEN)).arrange(DOWN, buff=0.14)
+    return VGroup(stamps)
+
+
+def melting_dissolving_table_visual():
+    melt = evidence_card("melting", "state change", TEAL, 2.0, 0.9).shift(UP * 0.62)
+    dissolv = evidence_card("dissolving", "spreading mixture", GOLD, 2.25, 0.9).shift(DOWN * 0.62)
+    examples = VGroup(small_label("ice -> water", TEAL).scale(0.75).next_to(melt, RIGHT, buff=0.35), small_label("sugar + water", GOLD).scale(0.75).next_to(dissolv, RIGHT, buff=0.35))
+    return VGroup(melt, dissolv, examples)
+
+
+def dissolving_checkpoint_visual():
+    cards = VGroup(evidence_card("not gone", "", GREEN, 1.35, 0.72), evidence_card("not melted", "", GREEN, 1.55, 0.72), evidence_card("spread out", "", GOLD, 1.45, 0.72)).arrange(RIGHT, buff=0.18)
+    return VGroup(cards, small_label("dissolving is spreading through water", GOLD).shift(DOWN * 1.22))
+
+
+def clearer_balloon():
+    b = Circle(radius=0.65, color=TEAL, stroke_width=5).set_fill("#48bfd2", opacity=0.28)
+    highlight = Arc(radius=0.38, start_angle=2.2, angle=0.9, color=CREAM, stroke_width=3).shift(UP * 0.16 + LEFT * 0.05)
+    knot = Triangle(color=TEAL, stroke_width=2).set_fill(TEAL, opacity=0.7).scale(0.16).next_to(b, DOWN, buff=-0.03)
+    string = Line(knot.get_bottom(), knot.get_bottom() + DOWN * 0.55, color=TEAL, stroke_width=2)
+    return VGroup(b, highlight, knot, string)
+
+
+def plunger_chamber():
+    tube = RoundedRectangle(width=1.85, height=0.62, corner_radius=0.12, color=CREAM, stroke_width=4).set_fill("#173034", opacity=0.78)
+    air = RoundedRectangle(width=0.82, height=0.46, corner_radius=0.08, color=TEAL, stroke_width=0).set_fill(TEAL, opacity=0.28).move_to(tube.get_center() + LEFT * 0.32)
+    rod = Line(tube.get_right(), tube.get_right() + RIGHT * 0.65, color=CREAM, stroke_width=6)
+    knob = Circle(radius=0.16, color=CREAM, stroke_width=2).set_fill(CREAM, opacity=0.95).next_to(rod, RIGHT, buff=-0.02)
+    return VGroup(tube, air, rod, knob)
 
 
 def highlight_pulse(mobj):

@@ -2,7 +2,7 @@
   const BRIGHT_QUEST_URL = "https://bright-quest.pages.dev/";
   const AGMATHS_BASE_URL = "https://agmaths.dipanjan-gupta.workers.dev/";
   const AGMATHS_API_BASE = "https://agmaths.dipanjan-gupta.workers.dev";
-  const CHEMISTRY_COURSE_DATA_URL = "chemistry-training/chemistry-101-winter-2026/data/chemistry-101-course.json?v=20260706b";
+  const CHEMISTRY_COURSE_DATA_URL = "chemistry-training/chemistry-101-winter-2026/data/chemistry-101-course.json?v=20260709a";
   let pendingKidProfile = null;
   let chemistryCourseCache = null;
 
