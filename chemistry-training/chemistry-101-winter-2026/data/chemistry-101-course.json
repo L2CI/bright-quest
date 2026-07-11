@@ -1,7 +1,7 @@
 {
   "id": "chemistry-101-winter-2026",
   "title": "Chemistry 101 Winter 2026",
-  "release": "chemistry-101-winter-2026-006",
+  "release": "chemistry-101-winter-2026-007",
   "voiceProfile": "ash-brisk-chemistry-teacher-v2",
   "chapters": [
     {
@@ -1070,146 +1070,145 @@
       "number": 8,
       "title": "Tiny Particles, Big Clues",
       "shortTitle": "Particles",
-      "durationTarget": 405,
-      "visualType": "particle-models",
-      "learningOutcome": "Use simple particle models to explain why solids, liquids and gases behave differently.",
+      "durationTarget": 660,
+      "learningOutcome": "Use particle models to explain evidence about solids, liquids and gases, including diffusion and compression, while stating what the models cannot show.",
       "segments": [
-        "Now we are ready for the tiny-particle model. Watch this carefully. These dots are not a photograph. No microscope took this picture. The dots are a model. A model is a thinking tool that leaves out many details so one pattern becomes easier to see. We use it because Chapter 7 gave us evidence that needs explaining.",
-        "The evidence cards come back first. A solid keeps shape. A liquid pours. A gas fills a balloon. Those facts are visible. The model is our attempt to explain them. That order matters. Evidence first, model second. If the model helps explain several pieces of evidence at once, it earns its place on the board.",
-        "Start with a solid model. The dots draw close together in mostly fixed places. They wiggle a little, because particles are not frozen statues, but they do not wander away from their neighbours. That helps explain why a block keeps its shape. The label appears late: close, fixed places, tiny vibration.",
-        "Now the liquid model. The dots are still close together, but the arrangement is not a neat fixed grid. They can slide past each other. That helps explain pouring. A liquid changes shape because the pieces can move around one another, but it does not become nothing. The amount of stuff is still there.",
-        "Now gas. The dots are spread far apart in a larger space. They move through the available space, which helps explain the balloon and the plunger from Chapter 7. This is the first chapter where particle dots are allowed, because now the safety rail is in place: model, not photograph.",
-        "A student might say, so are the dots exactly what particles look like? No. That is the trap. A dot model shows arrangement and movement. It does not show exact size, exact colour, wetness, smell, or every force. The model is useful because it explains evidence, not because it is a tiny portrait.",
-        "Let us match evidence to model. Keeps shape connects to close particles in fixed places. Pours connects to close particles that slide. Fills the available space connects to spread-out moving particles. If a line connects to the wrong model, the board gently corrects it and asks which behaviour the evidence actually showed.",
-        "Now the model limits. Do not imagine water particles as tiny wet drops. Do not imagine ice particles as tiny ice cubes. Do not imagine gas particles as coloured balloons. The dot is a symbol. It means a tiny piece of matter in a model. The job is to compare spacing and motion.",
-        "The chapter test will check whether you can use the model without overbelieving it. You will match behaviour to solid, liquid, and gas models. You will also spot the careful sentence: these dots help us think, but they are not exact photographs of particles.",
-        "Now practise using the model without overbelieving it. If I draw a red dot and a blue dot, that does not mean particles are really painted red and blue. The colours help us track parts of a model. If I draw a big dot, that does not mean the real particle is big enough to see. A model chooses what to show.",
-        "Repair a weak answer. A learner says, a liquid pours because the dots are wet. No. The better answer is: in the model, liquid particles are close together but can slide past each other, and that helps explain pouring. Notice how the answer uses arrangement and motion, not a made-up property of a single dot.",
-        "Let us connect the three models again. Solid: close and mostly fixed. Liquid: close and sliding. Gas: spread out and moving through the available space. The words are short, but the contrast is powerful. Close versus spread out. Fixed versus sliding. Small wiggle versus moving around the space.",
-        "Before the test, listen for exact wording. If an option says the dots are exact photographs, reject it. If it says single particles are wet, reject it. If it says the model helps us explain evidence, that is the careful science answer.",
-        "One last transfer check before the test. A drawing can show particles close together, spread out, or sliding, but it cannot show every real detail. If the board changes from dots in a neat grid to dots sliding past each other, name the state clue first, then the limit of the model second. Solid particles are close and mostly fixed in place. Liquid particles are close but can slide. Gas particles are spread out and move through the space. The model helps because it explains the evidence, not because the dots are magic.",
-        "Final training pause before the test. Do not rush this last board. For Tiny Particles, Big Clues, say the main idea in your own words, then test it against one new example. If the example changes the job, the material, the state, the heat direction, or the evidence, update the answer instead of memorising the last picture. That is why this is training, not just a video. The test checks whether the idea transfers."
+        "Place three observations on our evidence bench. A wooden block keeps its shape. Water takes the shape of its cup. Air fills a balloon. We can observe each behaviour. Now we need an explanation that connects them. Scientists use a particle model. It treats matter as tiny moving pieces. Notice the order: evidence first, model second. The colourful dots are not the evidence. A useful model should explain several observations and help us predict a new result. It should also have a clear limit. Our simple model cannot show every detail of real particles.",
+        "Start with the block. In our solid model, particles are close together and remain in mostly fixed positions relative to their neighbours. They are not perfectly still; we show a small vibration. This arrangement helps explain why the block keeps its own shape and is difficult to squash. The particles are already close, so there is little empty space to remove. The model does not say every solid is hard: rubber can bend, and a sponge is solid material with air spaces. The picture explains a broad pattern, not every property.",
+        "Pour water from a short cup into a wide bowl. Its shape changes, but the water still takes up space. In the liquid model, particles stay close together and slide past one another. This helps explain flow and changing shape. It also explains why a sealed syringe full of water is very hard to push. The particles are already close together. Do not picture each particle as a tiny wet drop. Wetness is a property we notice when many water particles act together. Our dots show spacing and movement. They do not show the real shapes of water molecules.",
+        "Now consider air trapped in a capped syringe with no needle. When the plunger is pressed gently, the trapped air occupies less space. Release it, and the plunger can move back. In our gas model, particles are much farther apart than in solids and liquids, moving in many directions through the available space. Pressing the plunger does not shrink each particle. It reduces the spaces between them. That distinction matters. Use only a classroom syringe designed for demonstrations, keep it pointed away from faces, and press gently with the outlet securely capped. Never use a needle, never trap reactive materials, and never force a stuck plunger.",
+        "Compare two identical capped syringes. One holds air. An adult fills the other with water. A gentle push moves the air plunger much farther. The particle model explains the difference. Gas particles have large gaps between them. Liquid particles are already close together. At this level, we say liquids are very hard to compress. This does not mean there is no space at all between liquid particles. Never force either syringe. The fair comparison changes one thing: air or water. The clear difference gives our spacing model useful evidence to explain.",
+        "Imagine an adult opens a small container with a scented cotton pad in a ventilated room. After a while, someone farther away may notice the scent. Nobody stirred the whole room. Scent particles moved and mixed with air particles. This gradual spreading is diffusion. More scent particles begin near the container. Over time, they spread into places with fewer scent particles. The particle model helps explain the pattern. Use an animation unless a teacher has checked for allergies and approved a mild scent. Never sniff any chemical directly. Our noses detect the scent, but they do not let us see the particles.",
+        "Diffusion also happens in liquids. Place one drop of food colouring into still water. Watch from the side without stirring. The colour slowly spreads beyond its starting point. Our model says moving water and colouring particles become more mixed over time. However, visible swirls may also come from currents in the water. Those currents can be caused by small temperature differences. This is the scene's one important limit: the cup does not show diffusion alone. Scientists improve the check by keeping temperature steady, repeating the trial and recording what they see. One attractive pattern is useful evidence, but it is not complete proof.",
+        "Focus on the pattern. At first, many colouring particles are crowded into one small region. They move and collide with water particles. Over time, the colouring becomes more evenly spread. Scientists call the crowded region a region of higher concentration. Places with fewer colouring particles have lower concentration. The overall spread goes from higher to lower concentration. Individual particles do not follow straight orders towards empty spaces. Their paths are irregular. The even spread is the large result of all that motion. Particles still move after the colour looks even. The main limit is that our neat animation makes real collisions look much simpler.",
+        "A model becomes stronger when it makes a useful prediction. Suppose one drop of colouring enters two identical cups, one shallow and one tall, at the same temperature with no stirring. Which will look evenly coloured first? Consider distance, currents and container shape, then test. The shallow cup offers a shorter vertical distance, but real water movement can complicate the result. A careful prediction names the pattern and conditions: if temperature and disturbance are controlled, colouring should gradually spread in both cups, although mixing times may differ.",
+        "Collect the explanatory wins. Close, mostly fixed particles help explain why a solid keeps shape. Close, sliding particles help explain why a liquid flows but resists compression. Widely spaced moving particles help explain why a gas fills available space and can be compressed. Constant motion and mixing help explain diffusion. The model connects several observations, but the animation itself is not evidence. Evidence came from the investigations; the animation is our representation. If future evidence does not fit, scientists adjust or replace the model rather than ignoring the observation.",
+        "Now reveal three drawing conventions. First, the dots are far too large. Real particles are much smaller compared with the container. Second, the bright colours are labels chosen by the artist. They are not real particle colours. Third, the arrows simplify motion. Real particles collide and change direction many times. Stop after those three reveals. The model has one clear job: compare spacing, arrangement and motion. It does not show exact particle appearance or scale. The word particle is also a broad label. It may mean an atom or a molecule, depending on the substance we are modelling.",
+        "Listen to four claims and repair each one. 'Gas has no matter' becomes 'gas is matter whose particles are widely spaced in this model.' 'A compressed gas has crushed particles' becomes 'compression mainly reduces the gaps.' 'Liquid particles are wet drops' becomes 'wetness describes many particles interacting at a surface, not one drawn dot.' 'Diffusion happens because particles want to spread out' becomes 'irregular particle motion and collisions produce an overall spread.' Good explanations do more than mark a statement wrong. They replace it with a mechanism connected to evidence. Notice also that we say the model suggests or helps explain. We do not pretend a Grade 4 drawing contains the whole microscopic story.",
+        "A sealed flexible bag looks almost empty, but when squeezed, another part bulges. Is there matter inside? Yes. The shape change suggests trapped gas moving through available space. Our model shows widely spaced moving particles, but not the exact gas mixture, molecular shapes or forces in the plastic. Compare a sealed bag of water. It changes outer shape, but its volume changes very little under gentle pressure. The contrast connects flow, space and compression without seeing individual particles.",
+        "Design a low-risk investigation for one model prediction. Choose the question: does one drop of colouring spread differently in still water at two safe temperatures? An adult prepares cool and comfortably warm tap water, never hot water. Use identical clear cups, equal water amounts, the same colouring, one drop placed in the same position, and no stirring. Record photographs at equal time intervals. Temperature is the planned difference; cup shape, volume and drop size are controlled. Even then, convection currents can affect the result, so repeat and report variation. The goal is not to force a tidy answer. It is to gather evidence that can challenge or refine our explanation.",
+        "Finish every particle explanation with three parts. First, name the evidence: trapped air becomes smaller under gentle pressure. Second, use the model: gas particles are widely spaced, so compression reduces the gaps between them. Third, name a limit: the dots are not to scale and do not show exact particle shapes or forces. Try the same frame for diffusion. Evidence: colouring spreads through still water. Model: moving particles become more mixed over time. Limit: visible currents may also move the water, and the animation simplifies collisions. This evidence-model-limit pattern keeps our science useful and honest. You are ready to explain observations without mistaking the drawing for reality."
       ],
       "tests": [
         {
-          "prompt": "Particle dots in this lesson are...",
+          "prompt": "A capped syringe of air is pressed gently. What does the simple particle model say changes most?",
           "options": [
-            "a model",
-            "exact photographs",
-            "always wet",
-            "visible particles on the page"
+            "Each air particle becomes smaller",
+            "The gaps between air particles become smaller",
+            "The air stops being matter",
+            "The particles turn into liquid"
           ],
-          "answer": 0,
-          "concept": "models",
-          "feedback": "The dots are a model, not a photograph."
+          "answer": 1,
+          "concept": "gas-compression",
+          "feedback": "Gas compression is modelled mainly as reducing the large gaps between particles, not shrinking the particles."
         },
         {
-          "prompt": "Why does the model come after Chapter 7 evidence?",
+          "prompt": "Which observation is best explained by liquid particles being close but able to slide?",
           "options": [
-            "Models should explain evidence",
-            "Evidence is useless",
-            "Words come before observations",
-            "The model replaces all tests"
+            "A wooden block keeps its shape",
+            "Air can be compressed easily",
+            "Water takes the shape of a bowl",
+            "A shadow changes length"
           ],
-          "answer": 0,
-          "concept": "model-use",
-          "feedback": "The model is useful because it explains observed behaviour."
-        },
-        {
-          "prompt": "Solid particles are shown as...",
-          "options": [
-            "close and mostly fixed",
-            "far apart only",
-            "gone",
-            "giant wet drops"
-          ],
-          "answer": 0,
-          "concept": "solid-model",
-          "feedback": "The solid model shows close particles in mostly fixed places."
-        },
-        {
-          "prompt": "Liquid particles are shown as...",
-          "options": [
-            "close but able to slide",
-            "locked forever",
-            "not matter",
-            "always square"
-          ],
-          "answer": 0,
+          "answer": 2,
           "concept": "liquid-model",
-          "feedback": "The liquid model shows close particles that can slide."
+          "feedback": "Close particles that can slide help explain why a liquid flows and changes shape while keeping its volume."
         },
         {
-          "prompt": "Gas particles are shown as...",
+          "prompt": "What is diffusion?",
           "options": [
-            "spread out in available space",
-            "a fixed grid",
-            "not moving at all",
-            "wet drops"
+            "Particles being instructed to move in straight lines",
+            "Matter disappearing when it spreads",
+            "Only the stirring of a liquid",
+            "An overall spreading caused by particle motion and mixing"
           ],
-          "answer": 0,
-          "concept": "gas-model",
-          "feedback": "The gas model shows spread-out particles."
+          "answer": 3,
+          "concept": "diffusion",
+          "feedback": "Diffusion is the overall spreading and mixing produced by irregular particle motion."
         },
         {
-          "prompt": "Which evidence matches a liquid model?",
+          "prompt": "Food colouring forms swirls in still water. Why should a scientist avoid claiming the swirls show diffusion alone?",
           "options": [
-            "It pours",
-            "It keeps a fixed block shape",
-            "It is a shadow",
-            "It cannot move"
+            "Water is not made of particles",
+            "Currents in the water may also move the colour",
+            "Colouring cannot diffuse",
+            "Only gases can move"
           ],
-          "answer": 0,
-          "concept": "evidence-match",
-          "feedback": "Pouring matches close particles that can slide."
+          "answer": 1,
+          "concept": "evidence-quality",
+          "feedback": "Visible swirls may combine diffusion with bulk water movement such as convection currents."
         },
         {
-          "prompt": "What does the dot model mainly show?",
+          "prompt": "Which statement respects the limits of the dot model?",
           "options": [
-            "spacing and motion",
-            "exact colour and smell",
-            "wetness",
-            "the real photograph"
+            "The dots are exact photographs of particles",
+            "Every real particle is brightly coloured",
+            "The model compares spacing and motion but leaves out exact scale and forces",
+            "Empty paper proves nothing exists between particles"
           ],
-          "answer": 0,
+          "answer": 2,
           "concept": "model-limits",
-          "feedback": "This model focuses on spacing and motion."
+          "feedback": "The model is useful for selected features, but it does not show exact scale, appearance, structures or forces."
         },
         {
-          "prompt": "Which statement is careful?",
+          "prompt": "Why is a sealed water-filled syringe much harder to compress than an air-filled syringe?",
           "options": [
-            "The dots help us think",
-            "The dots are exact photos",
-            "Single water particles are wet",
-            "Gas particles are tiny balloons"
+            "Water particles are already close together",
+            "Water particles are larger than the syringe",
+            "Air has no particles",
+            "The water particles become solid"
           ],
           "answer": 0,
-          "concept": "misconception",
-          "feedback": "The dots help us think; they are not exact pictures."
+          "concept": "compression-comparison",
+          "feedback": "The simple model shows liquid particles already close together, with much less space to reduce."
         },
         {
-          "prompt": "Why does a gas fill a balloon?",
+          "prompt": "Which is the safest classroom compression investigation?",
           "options": [
-            "The model shows particles spread through space",
-            "It has no matter",
-            "It becomes a solid",
-            "The label pushes it"
+            "Forcing a glass container until it changes",
+            "Heating a sealed bottle",
+            "Using a needle attached to a syringe",
+            "Gently pressing a capped, needle-free demonstration syringe away from faces"
           ],
-          "answer": 0,
-          "concept": "gas-model",
-          "feedback": "Spread-out particles explain gas filling space."
+          "answer": 3,
+          "concept": "safety",
+          "feedback": "A purpose-made needle-free syringe, used gently and pointed away from faces, keeps the investigation low risk."
         },
         {
-          "prompt": "A good model earns its place by...",
+          "prompt": "A learner says, 'Gas is not matter because I cannot see it.' Which evidence best challenges that claim?",
           "options": [
-            "explaining evidence",
-            "looking fancy",
-            "showing everything",
-            "removing questions"
+            "A shadow looks dark",
+            "Trapped air resists a plunger and occupies space",
+            "A label says gas",
+            "An empty drawing has dots"
+          ],
+          "answer": 1,
+          "concept": "gas-is-matter",
+          "feedback": "Trapped air occupies space and pushes back, providing observable evidence that it is matter."
+        },
+        {
+          "prompt": "After colouring looks evenly spread through water, what does the model suggest?",
+          "options": [
+            "The particles continue moving, with no obvious overall concentration change",
+            "All particles have stopped",
+            "The colouring has vanished",
+            "The water has become a solid"
           ],
           "answer": 0,
-          "concept": "reasoning",
-          "feedback": "A useful model explains evidence."
+          "concept": "dynamic-mixing",
+          "feedback": "An even appearance does not mean particles stop; motion continues while the large-scale distribution stays balanced."
+        },
+        {
+          "prompt": "Which answer follows the evidence-model-limit pattern?",
+          "options": [
+            "The syringe moved, so the dots must be exact",
+            "Air compressed because it wanted to escape",
+            "The plunger moved; reduced particle gaps explain it; the dots are not to scale",
+            "The animation proves every detail of gas behaviour"
+          ],
+          "answer": 2,
+          "concept": "scientific-explanation",
+          "feedback": "A strong explanation names evidence, uses the model for a mechanism, and states a limitation."
         }
       ]
     },
@@ -1218,146 +1217,145 @@
       "number": 9,
       "title": "Heat Makes Particles Dance",
       "shortTitle": "Heat",
-      "durationTarget": 405,
-      "visualType": "heat-transfer",
-      "learningOutcome": "Describe warming, cooling and temperature change using safe observations and particle motion models.",
+      "durationTarget": 660,
+      "learningOutcome": "Distinguish temperature from heat transfer and explain conduction through contact and movement towards thermal equilibrium using safe primary-level examples.",
       "segments": [
-        "Watch the setup carefully. The spoon is touching the warm cup. That contact matters. Heat is not a magic beam leaping across an empty board. In this example, the warmer cup can transfer heat into the cooler spoon through the place where they touch. The yellow arrows travel through the contact point, not through random air.",
-        "Now the spoon warms. The board shows the cup first, then the spoon, then the contact point, then the heat arrows. The evidence question is: which object was warmer, which was cooler, and which way did the heat move? For this chapter, keep the rule concrete: heat can move from warmer things to cooler things.",
-        "A thermometer now enters the story. The same thermometer is dipped into warm water, then cool water, and the number changes. The thermometer measures how warm the spoon is. Heat is the thing that travels into the spoon and makes that number go up. Temperature is the reading. Heat is what moves.",
-        "A student might ask, so heat is the number? Good interruption. No. The number tells us how warm something is. Heat is the energy moving from the warmer object to the cooler object. We are keeping the language careful because this idea is hard even for older learners. Number: temperature. Moving warmth: heat transfer.",
-        "Now we use the particle model. Both sides use the same dot colour, because we are not teaching hot dots and cold dots. We vary only the wiggle. On the cooler side, the dots wiggle gently. On the warmer side, the same kind of dots jiggle more. The movement changes; the dots do not become different substances.",
-        "Cooling is the reverse evidence story. Put a warm object in a cooler place, and heat can move away. The particle motion in the model becomes less energetic, but the dots never stop completely. Never draw frozen-dead particles. The careful sentence is: cooling can make particle motion slow down.",
-        "Safety now. Use warm tap water only, and a parent checks first. No boiling water, no flame, no hot glass, no closed container heating. This is a training chapter, not a kitchen hazard challenge. The board draws a parent icon, a warm tap-water icon, and a no-boiling symbol before any optional observation is mentioned.",
-        "Let us predict direction. Warm hand touches cool cup: which way does heat move at first? Warm room around a cold bottle: what warms what? If a learner predicts cool to warm, the wrong arrow gently shakes, then redraws from warmer to cooler. Wrong answers are useful when the correction is visible.",
-        "The chapter test will ask you to separate the thermometer reading from heat transfer, choose the direction of heat movement, and spot the safe setup. Remember the contact point, the thermometer sentence, and the same-colour particle dots with different wiggle sizes.",
-        "Let us practise the hard distinction. I touch the thermometer to the spoon and read a number. That number is temperature. I watch the spoon warm because it is touching the warmer cup. That movement of energy is heat transfer. Temperature is the reading. Heat transfer is the process that can change the reading.",
-        "Repair a weak answer. A learner says, the yellow arrow is heat flying like a laser. No. In this example the spoon touches the cup, and the arrow shows heat moving through the contact point from warmer material toward cooler material. The arrow is a thinking symbol. It is not a beam you can see.",
-        "Now try a wrong prediction. If the cool spoon touches the warm cup, and you draw an arrow from the spoon into the cup, the board shakes the arrow and asks: which object was warmer first? The warm cup was warmer, so the first heat arrow should go from cup toward spoon. Wrong arrows are not failures. They are repair moments.",
-        "Before the test, keep four clues ready: warmer object, cooler object, contact or pathway, and thermometer reading. Also remember the particle model rule: same dot colour, different wiggle size. We are not inventing hot particles. We are showing particles moving more when warmed.",
-        "One last transfer check before the test. Imagine a cool metal spoon touching warm soup, then imagine the same spoon sitting alone on the table. In the first case there is a contact pathway from warmer soup to cooler spoon. In the second case the spoon is not being warmed by the soup. The arrow belongs only when there is a heat-transfer story to tell. Say the warmer object, say the cooler object, say the contact point, then say what the thermometer would show changing over time.",
-        "Final training pause before the test. Do not rush this last board. For Heat Makes Particles Dance, say the main idea in your own words, then test it against one new example. If the example changes the job, the material, the state, the heat direction, or the evidence, update the answer instead of memorising the last picture. That is why this is training, not just a video. The test checks whether the idea transfers."
+        "Place a metal spoon and a wooden spoon in the same room overnight. The metal may feel cooler when you touch it. A thermometer can show that both spoons have almost the same temperature. Touch is not a thermometer. Your skin also notices how quickly energy moves. Metal moves energy away from your hand faster than wood. Today we will separate three ideas. Temperature is a measurement of how hot or cold something is. Heat transfer is energy moving because temperatures differ. Conduction is energy transfer through a material when its parts are in contact.",
+        "A thermometer gives a temperature reading in degrees Celsius. The number does not tell us how an object feels. It is also not an amount of heat stored inside the object. Use one digital thermometer to measure two cups prepared by an adult. One holds cool water. The other holds comfortably warm tap water. Wait for each reading to settle. Rinse and dry the probe as directed. Record the number and unit. Never use boiling water. Temperature helps us compare the cups more reliably than words such as a bit warm. Our hands can adapt, so their judgement changes.",
+        "Put the cool metal spoon into comfortably warm water. The spoon's temperature rises. Energy transfers from the warmer water towards the cooler spoon. We call this process heat transfer. The direction rule is simple: warmer to cooler. Cold does not pour out of the spoon like a substance. The spoon warms, while the water cools a little. We draw an arrow from water to spoon to show the direction. The arrow is only a model symbol. Before drawing it, name the warmer object and the cooler object. Then point the arrow towards the cooler one.",
+        "Why does the spoon handle warm? The lower part touches the warmer water. Energy transfers through the metal towards cooler parts. This is conduction. In our particle model, particles jiggle more in the warmer region. They interact with nearby particles and pass energy along. The particles do not race up the spoon carrying tiny parcels of heat. The solid stays in place overall while energy moves through it. Use only comfortably warm tap water. Never use a flame or boiling liquid. This safe example still shows the contact pathway from the water through the spoon.",
+        "An adult places equal-sized metal and wooden spoons in the same comfortably warm water. After a fixed time, measure the upper handles with a thermometer. The metal handle usually warms faster. Metal is a better thermal conductor than wood. Wood slows the transfer, so it acts as an insulator here. An insulator does not stop all heat transfer. It slows the transfer under the same conditions. Make the comparison fair. Use similar spoon sizes, equal depth, the same water, the same starting temperature and the same time. The one planned difference is the spoon material.",
+        "Zoom into a simple solid model. Particles in the warmer region jiggle more than particles in the cooler region. Neighbouring particles interact, so energy spreads through the material. The difference slowly becomes smaller. Keep every dot the same colour and size. There are no special hot particles or cold particles. The model shows changing motion and transfer between nearby regions. It has one main limit: it leaves out the detailed role of electrons in metal. For Grade 4 and 5, nearby particle interactions give us a useful first model of conduction.",
+        "Take a cup of comfortably warm water and leave it safely on a bench. Its temperature moves towards room temperature. We say the water cools, but the mechanism is energy transfer from the warmer water and cup towards cooler surroundings. Several pathways contribute, including conduction through the cup and bench, air movement and surface evaporation. This chapter focuses on conduction and contact, so contact with the bench is not the whole story. Our contact model explains part of the cooling; a complete account includes other transfer processes.",
+        "Place a sealed bottle of cool water in a bowl of comfortably warm water. The bottle water warms and the bowl water cools. Their temperatures move closer together. When they reach the same temperature, there is no overall heat transfer in one direction between them. This state is called thermal equilibrium. For now, think of it as settling at the same temperature. The particles do not stop moving. Small energy transfers can still occur in both directions, but they balance overall. Use a sealed plastic bottle and adult-prepared warm tap water. Do not use hot glass.",
+        "The temperatures do not become equal the moment the bottle touches the water. Transfer takes time. Early on, the temperature difference is larger and readings may change more noticeably. Later, as the difference shrinks, changes often slow. The final shared temperature depends on water amounts, starting temperatures, the container and energy exchanged with the room. We will not calculate it here. Our claim is simpler: energy transfers from warmer regions towards cooler regions, reducing temperature differences. The exact result needs measurements and a more detailed model.",
+        "Return to the room-temperature metal and wood. Their thermometer readings match, but the metal feels cooler. Your warmer hand transfers energy to both objects. Metal carries that energy away from the contact point faster. Your skin cools faster and reports a cooler feeling. The metal did not start at a lower temperature. Touch mixes up two ideas: temperature and transfer rate. Scientists use thermometers and fair comparisons to separate them. Never test unknown hot or cold objects with bare skin. With safe room-temperature materials, a brief touch can raise the question. The thermometer checks the starting temperatures.",
+        "Wrap one cup of room-temperature water in a clean woollen sleeve and leave an identical cup unwrapped. Place both in the same cool location and measure over time. The sleeve can slow energy transfer between water and surroundings. It does not create heat or make cold disappear. Insulation slows transfer in either direction, so an insulated bag can help warm food stay warm and cool food stay cool. Use unbreakable containers, wipe spills and do not drink experimental water. Compare equal volumes, matching cups and equal starting temperatures.",
+        "Repair four common claims. 'Metal is naturally colder than wood' becomes 'metal may feel colder because it transfers energy from skin faster.' 'Cold flows into my hand' becomes 'energy transfers from the warmer hand towards the cooler object.' 'An insulator stops all heat' becomes 'an insulator slows heat transfer.' 'At equilibrium, particles stop' becomes 'temperatures are equal overall, but particle motion continues.' Each repair names a measurable condition or mechanism. Avoid saying heat rises as a universal rule. Warm fluids can rise because of density changes and movement, but conduction itself can transfer energy in any direction through contact, including downwards along a solid object.",
+        "A lunch container must slow warming of chilled fruit until break time. Choose between a thin metal box and an insulated container with a fitted lid. The insulated container is the better choice because it slows energy transfer from warmer surroundings towards cooler food. The lid also reduces air exchange, although our focus is the insulating material. This does not guarantee the food remains at one exact temperature all day. Performance depends on time, starting temperature, thickness, gaps and the environment. Food-safety decisions require adult guidance and proper cold packs. Our science claim is limited: compared under similar conditions, an effective insulator reduces the rate of temperature change.",
+        "Plan a fair, low-risk conduction test. An adult places equal metal and wooden spoons to the same depth in comfortably warm tap water. Record each handle's starting temperature, wait the same time, then measure the same point on each handle with a suitable thermometer. Keep spoon dimensions as similar as possible and repeat. Do not judge by grabbing the handles, and do not use boiling water, flames, hotplates or glass that may break. The planned difference is material; other conditions should match. If results vary, report them. Surface coatings, spoon thickness and measurement delay could matter. Fair tests reduce confusion, but they do not remove every limitation.",
+        "Use a four-part heat-transfer explanation. First, compare temperatures: the water begins warmer than the spoon. Second, name the pathway: they touch, allowing conduction through the spoon. Third, state the direction: energy transfers from warmer water towards cooler metal. Fourth, predict the trend: the spoon warms and the temperature difference becomes smaller as the system moves towards equilibrium. Then add a model limit: our vibrating dots do not show exact scale or every mechanism in a metal. This pattern also explains a cold bottle warming in a room, with the room as the warmer surroundings. Temperature is the measurement; heat transfer is the process that changes it."
       ],
       "tests": [
         {
-          "prompt": "In the cup and spoon example, the spoon should be...",
+          "prompt": "A thermometer shows a metal spoon and wooden spoon are both 21 degrees Celsius. Why might the metal feel cooler?",
           "options": [
-            "touching the cup",
-            "floating far away",
-            "inside a flame",
-            "inside a closed hot bottle"
+            "The thermometer must be wrong",
+            "Metal transfers energy away from your hand faster",
+            "Wood creates heat",
+            "Cold particles leave the metal"
           ],
-          "answer": 0,
-          "concept": "heat-contact",
-          "feedback": "The animation shows heat transfer through contact."
+          "answer": 1,
+          "concept": "temperature-vs-sensation",
+          "feedback": "Equal-temperature materials can feel different because they conduct energy from your skin at different rates."
         },
         {
-          "prompt": "Heat can move from...",
+          "prompt": "What is temperature in this chapter?",
           "options": [
-            "warmer to cooler",
-            "cooler to warmer only",
-            "a shadow to a label",
-            "nothing to nothing"
-          ],
-          "answer": 0,
-          "concept": "heat-transfer",
-          "feedback": "Heat can move from warmer things to cooler things."
-        },
-        {
-          "prompt": "Temperature is...",
-          "options": [
-            "the thermometer reading",
-            "a material name",
-            "a particle photograph",
-            "a quiz score"
+            "A measurement of how hot or cold something is",
+            "Energy travelling between objects",
+            "A substance stored in a cup",
+            "The speed of every single particle"
           ],
           "answer": 0,
           "concept": "temperature",
-          "feedback": "Temperature tells how warm something is."
+          "feedback": "Temperature is a measured quantity; heat transfer is the energy-transfer process that can change it."
         },
         {
-          "prompt": "What does a thermometer reading tell us?",
+          "prompt": "A cool spoon is placed in comfortably warm water. What is the initial direction of heat transfer?",
           "options": [
-            "how warm something is",
-            "how much heat is stored as a number",
-            "that particles turned into heat dots",
-            "that boiling water is child-led"
+            "From spoon to water",
+            "There is no transfer because both contain particles",
+            "From warmer water towards cooler spoon",
+            "Cold flows from spoon into water"
           ],
-          "answer": 0,
-          "concept": "temperature",
-          "feedback": "The thermometer gives a temperature reading."
+          "answer": 2,
+          "concept": "transfer-direction",
+          "feedback": "Energy transfers from the warmer water towards the cooler spoon."
         },
         {
-          "prompt": "In the particle model, warmer particles should...",
+          "prompt": "Which statement best describes conduction through a solid spoon?",
           "options": [
-            "move more",
-            "change colour into hot dots",
-            "stop completely",
-            "vanish"
+            "The spoon's particles race into the handle",
+            "Energy transfers through interactions between neighbouring regions",
+            "Heat appears only at the top",
+            "Cold is carried downwards"
           ],
-          "answer": 0,
-          "concept": "particle-motion",
-          "feedback": "Use the same dot colour and vary motion."
+          "answer": 1,
+          "concept": "conduction",
+          "feedback": "In the simple model, neighbouring interactions transfer energy while the solid's particles remain in overall positions."
         },
         {
-          "prompt": "Cooling can make particle motion...",
+          "prompt": "What does a thermal insulator do?",
           "options": [
-            "slow down",
-            "stop forever",
-            "become exact photos",
-            "turn into labels"
+            "Stops all energy transfer forever",
+            "Creates heat when wrapped around a cup",
+            "Makes every object room temperature instantly",
+            "Slows energy transfer under the same conditions"
           ],
-          "answer": 0,
-          "concept": "cooling",
-          "feedback": "Cooling can slow particle motion."
+          "answer": 3,
+          "concept": "insulation",
+          "feedback": "An insulator slows transfer; it does not stop transfer completely or create heat."
         },
         {
-          "prompt": "Which setup is safe for a child-led observation?",
+          "prompt": "A cool sealed bottle sits in warmer water until both readings are the same. What has been reached?",
           "options": [
-            "Warm tap water with a parent",
-            "Boiling water alone",
-            "Hot oil",
-            "Heating a closed container"
+            "Thermal equilibrium",
+            "Absolute zero",
+            "A chemical reaction",
+            "A state with no particle motion"
           ],
           "answer": 0,
-          "concept": "safety",
-          "feedback": "Warm tap water with a parent is the safe option."
+          "concept": "thermal-equilibrium",
+          "feedback": "At thermal equilibrium there is no overall one-way heat transfer caused by a temperature difference, but particle motion continues."
         },
         {
-          "prompt": "A warm hand rests on a cool cup. Which way does heat move?",
+          "prompt": "Which is a limitation of the chapter's vibrating-dot conduction model?",
           "options": [
-            "from the warmer hand to the cooler cup",
-            "from the cup to the warmer hand",
-            "nowhere",
-            "from the label to the hand"
+            "It cannot compare warmer and cooler regions",
+            "It shows every particle and force exactly",
+            "It leaves out exact scale and detailed electron behaviour in metals",
+            "It proves touch is always accurate"
           ],
-          "answer": 0,
-          "concept": "prediction",
-          "feedback": "Heat moves from the warmer object toward the cooler object."
-        },
-        {
-          "prompt": "Why keep particle dots the same colour?",
-          "options": [
-            "To avoid teaching hot particles as different particles",
-            "Because colour is forbidden",
-            "Because particles are exact photos",
-            "Because cold dots vanish"
-          ],
-          "answer": 0,
+          "answer": 2,
           "concept": "model-limits",
-          "feedback": "The model varies motion, not dot identity."
+          "feedback": "The simple model shows an energy-motion pattern but omits exact scale and important microscopic details."
         },
         {
-          "prompt": "Best heat reasoning question:",
+          "prompt": "Which investigation is low risk and fair?",
           "options": [
-            "What was warmer, what was cooler, and what touched?",
-            "Which arrow looked brightest?",
-            "Can I use boiling water?",
-            "Did the thermometer become heat?"
+            "Heating sealed glass over a flame",
+            "Comparing matched spoons in adult-prepared warm tap water for equal times",
+            "Grabbing unknown hot handles",
+            "Using boiling water without an adult"
           ],
-          "answer": 0,
-          "concept": "reasoning",
-          "feedback": "Warm/cool evidence and contact explain heat transfer."
+          "answer": 1,
+          "concept": "safety-and-fair-testing",
+          "feedback": "Matched conditions, warm tap water, thermometer readings and adult preparation support a fair low-risk comparison."
+        },
+        {
+          "prompt": "Why does a cup of warm water eventually cool in a room?",
+          "options": [
+            "Its heat is used up and disappears",
+            "Coldness enters as a material",
+            "Energy transfers from the warmer cup and water towards cooler surroundings",
+            "All water particles stop moving"
+          ],
+          "answer": 2,
+          "concept": "cooling",
+          "feedback": "Cooling occurs as energy transfers from warmer water and cup towards cooler surroundings through several pathways."
+        },
+        {
+          "prompt": "Which explanation correctly links temperature and heat transfer?",
+          "options": [
+            "Temperature travels while heat is the thermometer number",
+            "A temperature difference can drive energy transfer from warmer to cooler",
+            "Equal temperatures mean particles stop",
+            "Conduction only moves energy upwards"
+          ],
+          "answer": 1,
+          "concept": "integrated-transfer-model",
+          "feedback": "A temperature difference drives net energy transfer towards cooler regions; equal temperatures remove that overall direction."
         }
       ]
     },
@@ -1366,146 +1364,145 @@
       "number": 10,
       "title": "Melting Is Not Disappearing",
       "shortTitle": "Melting",
-      "durationTarget": 390,
-      "visualType": "melting-model",
-      "learningOutcome": "Explain melting and freezing as state changes where the material remains present.",
+      "durationTarget": 660,
+      "learningOutcome": "Explain melting and freezing as reversible state changes, use evidence to show that material is conserved, and read a simple heating curve without advanced mathematics.",
       "segments": [
-        "Start with an ice cube on a plate. Do not rush to the word melting yet. Watch the evidence. The cube has edges. It has a shape. It is solid water. The timer starts, and the board slowly changes the cube outline into a puddle. Something clearly changed, but the question is what changed.",
-        "The shape changed. The state changed. The material did not disappear. This is the key correction. The label water stays attached to both pictures: solid water on the left, liquid water on the right. The cube shape is gone, but the water is still there. That is why the board refuses to use the word vanished.",
-        "A student might say, but the cube is gone. That is a good everyday sentence, but it is not precise enough for science. The cube shape is gone. The water is not gone. Chemistry often asks us to repair normal speech so the idea becomes more exact.",
-        "Now compare before and after. Before: solid water, fixed shape. After: liquid water, new shape. Same stuff, new state. The board draws a balance-style picture, not to measure mass perfectly, but to remind us that a change in appearance is not the same as deletion.",
-        "Now the particle model can help. In the solid model, the dots sit close in fixed places and wiggle. Add heat, and the model redraws as close dots that can slide. The dots are the same colour and size. The arrangement and motion change. That is the story of melting at this level.",
-        "Let me test the idea backwards with a freezer. Put liquid water in a freezer, and heat moves away from the water into the colder surroundings. Over time, the liquid can become solid ice again. Freezing is liquid to solid. The home freezer is the concrete heat-removal example; no hot equipment is needed.",
-        "Other materials can melt too. Butter softens. Chocolate melts. Wax can melt. The lesson does not ask you to heat wax or use flames. The examples are app visuals. The important idea is that melting is not a special trick only water can do. Melting means solid to liquid when conditions are right.",
-        "Safe home option: sealed bag of ice, a plate, a timer, and a notebook, with a parent nearby. No hot water is needed. The observation is slow, but slow is useful. You can sketch the cube at the start, middle, and end, then write the evidence: same material, new state.",
-        "The chapter test will ask whether melting means disappearing, what freezing does, and why the same water label follows the ice and puddle. Keep this sentence ready: the material stayed, the state changed.",
-        "Let us practise with other materials. Butter can soften and melt. Chocolate can melt. Wax can melt in an app animation. None of those examples mean the material vanished. They mean a solid became liquid when conditions allowed it. Do not attach melting only to ice, and do not attach melting to disappearing.",
-        "Repair a weak answer. A learner says, the ice cube disappeared because I cannot see the cube anymore. Better: the cube shape disappeared, but the water is still present as liquid water. The word cube named the shape. The word water named the material. The material is the part we track.",
-        "Now use the freezer example. Liquid water in an ice tray goes into a freezer. Heat moves away from the water into colder surroundings, and the water can become solid again. That is freezing. The freezer makes the reverse direction concrete. No flames, no boiling, no hot glass, just a familiar safe device.",
-        "Before the test, keep one sentence ready: same material, new state. If the question shows ice and puddle, say water in two states. If it shows freezing, say liquid to solid. If it asks what vanished, be precise: the shape changed, not the material.",
-        "One last transfer check before the test. If wax, butter, chocolate, or ice changes from a solid shape into a liquid puddle, do not say the material disappeared. Ask two questions. What material am I tracking? What state is it in now? The shape can vanish while the material remains. Freezing reverses the idea: liquid water can become solid ice when heat leaves it. The safe home version is observation, not hot equipment. The app can show the risky parts clearly.",
-        "Final training pause before the test. Do not rush this last board. For Melting Is Not Disappearing, say the main idea in your own words, then test it against one new example. If the example changes the job, the material, the state, the heat direction, or the evidence, update the answer instead of memorising the last picture. That is why this is training, not just a video. The test checks whether the idea transfers."
+        "Place one ice cube in a sealed, clear bag, set the bag on a plate, and start a timer. We can watch without touching very cold water or making a slippery puddle. At first the cube has straight edges and keeps its own shape. Later, liquid gathers inside the bag and takes the shape of the bottom. Something has changed, but let us be precise about what. The cube shape is disappearing from view. The water is not disappearing. Our investigation will track the material called water before, during, and after this change.",
+        "Three words help us untangle the evidence: material, state, and shape. Water is the material. Solid and liquid are states. Cube and puddle describe shapes. Before melting, we have solid water in a cube shape. After melting, we have liquid water in the shape of the bag and plate beneath it. A learner might say, 'The ice is gone.' In everyday talk that can mean the solid shape is gone. In chemistry, we repair the sentence: the solid state changed, but the water material remained. Precise words stop an ordinary change from sounding like matter was destroyed.",
+        "Let us plan a safe time-lapse rather than simply wait. Keep the camera still, keep the sealed bag on the same plate, and take one image every two minutes. Add a card showing the time in each frame. Do not hold the ice against skin, taste the water, or leave melted water where someone could slip. An adult can help position the device so it will not fall. The changing outline becomes our evidence. A time-lapse speeds up playback, not the melting itself. It is a record made from separate observations, so gaps between frames are not events we directly saw.",
+        "Now compare the first, middle, and final frames. In frame one, nearly all the water is solid. In the middle, solid ice and liquid water are both present. In the final frame, the visible cube may be gone, yet liquid remains inside the same sealed bag. Some water may cling to a fold where the camera cannot show it clearly. Still, the labelled, closed setup gives strong evidence against the claim that the water vanished. We can describe the change without asking one photograph to tell the whole story.",
+        "Suppose a sensitive balance measures the sealed bag before and after melting. If nothing enters, leaves, or spills, the measured mass should stay about the same. The material has been conserved: it is still present even though its state and shape changed. A balance has limited precision, so the last digit may differ slightly. That tiny difference does not mean water was created or destroyed. We look for readings that are about the same. This balance comparison belongs in an adult-led or app demonstration, not a required home experiment.",
+        "Why does the ice melt on the plate? The surroundings are warmer than the ice, so energy is transferred to the colder water. We often say the ice gains heat. Heat is energy being transferred because of a temperature difference; it is not a substance poured into the cube. As energy arrives, melting can occur. The room cools by an amount far too small for us to notice here. We do not need boiling water, a heater, or a flame. Room-temperature surroundings provide a slow, low-risk change that is ideal for observation and gives the camera time to collect useful evidence.",
+        "This graph tells a story without advanced maths. Time runs from left to right. Temperature runs from lower to higher. First, the line rises as cold ice warms. For pure water, melting happens at about 0 degrees Celsius. The line becomes flatter while melting takes place. After all the ice is liquid, the line can rise again as the water warms. Read the shape: rise, flatter section, rise. Our graph is simplified, so real classroom points may wobble instead of making a smooth line. We care about the pattern, not calculating a slope.",
+        "A common question is, 'If energy keeps arriving, why does the temperature stop rising for a while?' During the flatter part, incoming energy helps change solid water into liquid water. It is not mainly making the temperature climb. That is why temperature can stay nearly steady while both states are present. Once melting is complete, more energy can raise the liquid's temperature again. This simple graph shows the main pattern, not every small change that a real thermometer may record.",
+        "We can use a particle model to explain the state change. In the solid picture, dots are close together in an organised arrangement and vibrate around positions. In the liquid picture, dots remain close but can move past neighbours. We keep the same number, colour, and size of dots to represent the same material. The model helps us think about arrangement and movement. It is not a microscope photograph. Real water particles are not coloured circles, the spaces are not drawn to scale, and the model does not show every attraction or collision. Its value is explaining evidence, not copying reality exactly.",
+        "Now run the state-change story in reverse. Place liquid water in an ice tray and put it in a freezer. Energy transfers from the warmer water to the colder surroundings inside the freezer. Over time, the liquid becomes solid. That is freezing. The freezer does not add 'cold stuff'; it helps energy leave the water. The material remains water throughout. A safe investigation can mark the tray level before freezing and photograph it before and after, with an adult handling the freezer space. Never taste investigation samples, and never seal water in a rigid, completely full container because expanding water can damage it.",
+        "A cooling curve tells the reverse story. As liquid water cools, the graph slopes downward. Pure water freezes at about 0 degrees Celsius. During freezing, the line becomes flatter while liquid and solid are both present. After freezing is complete, the solid can cool further and the line slopes down again. Read it as fall, flatter section, fall. We are not asking for negative numbers or rate calculations. We are matching graph regions to events we can observe. The graph is simplified, so real freezer readings may wobble instead of following straight lines.",
+        "Ice is not the only solid that can melt. Chocolate, butter, and candle wax can also become liquids under suitable conditions, but they do not all melt at the same temperature or in exactly the same way. Some mixtures soften across a range before they flow. For our child-led observation, we stay with sealed ice at room temperature. Hot wax can burn skin and must never be heated for this activity. Chocolate and butter can be shown in recorded adult demonstrations. The transferable question is always: which material are we tracking, what state was it in, and what state is it in now?",
+        "When water melts or freezes, it remains water. No new material is needed to explain the evidence. We call this a physical change: state and appearance change while the substance stays the same. Not every change caused by heating is melting. Toast browning, paper burning, and an egg cooking make different materials. We will not investigate flames or hot cooking here. The words 'it got warm' do not name a process. Look for evidence that a solid became its own liquid, then ask whether freezing can reverse the state change.",
+        "Let us test three claims. Claim one: 'The cube disappeared, so the material was destroyed.' Reject it; liquid water remains. Claim two: 'The flat graph means no energy enters.' Reject it; energy supports the state change while temperature stays nearly steady. Claim three: 'Particle dots show exactly what water looks like.' Reject that too; dots are model symbols. A strong explanation joins evidence and reasoning: the sealed bag still contains water, the state changes from solid to liquid, and the simple graph becomes flatter during melting. Several clues support one careful conclusion.",
+        "Here is the complete story. In a safe time-lapse, solid water loses its cube shape and becomes liquid water. In a sealed system, the material is conserved. Energy transfers from warmer surroundings to colder ice. A simple heating curve rises, flattens during melting, then rises again. A cooling curve reverses the pattern during freezing. The particle model shows close particles changing from mostly fixed positions to movement past neighbours, but it is not a photograph. Whenever an object seems to vanish, ask: what material am I tracking, what evidence remains, and did its state change?"
       ],
       "tests": [
         {
-          "prompt": "Melting changes...",
+          "prompt": "Which description is most precise after an ice cube melts in a sealed bag?",
           "options": [
-            "solid to liquid",
-            "liquid to solid",
-            "gas to nothing",
-            "sound to shadow"
+            "The water was destroyed",
+            "The cube shape changed, but the water remained",
+            "The ice turned into heat",
+            "The bag created new water"
           ],
-          "answer": 0,
-          "concept": "melting",
-          "feedback": "Melting is solid to liquid."
-        },
-        {
-          "prompt": "When ice melts, what is gone?",
-          "options": [
-            "the cube shape",
-            "all the water",
-            "all matter",
-            "all evidence"
-          ],
-          "answer": 0,
-          "concept": "misconception",
-          "feedback": "The cube shape is gone; the water remains."
-        },
-        {
-          "prompt": "Which label belongs on both ice and puddle?",
-          "options": [
-            "water",
-            "new metal",
-            "not matter",
-            "steam only"
-          ],
-          "answer": 0,
+          "answer": 1,
           "concept": "conservation",
-          "feedback": "Both are water in different states."
+          "feedback": "Melting changes the state and shape; the water material remains present."
         },
         {
-          "prompt": "Freezing changes...",
+          "prompt": "What makes a time-lapse comparison fairer?",
           "options": [
-            "liquid to solid",
+            "Moving the camera closer each time",
+            "Changing both the plate and room",
+            "Keeping the setup fixed and taking images at equal intervals",
+            "Opening the bag between every frame"
+          ],
+          "answer": 2,
+          "concept": "investigation-design",
+          "feedback": "A fixed setup and regular timing make changes between frames easier to compare."
+        },
+        {
+          "prompt": "What pattern belongs to a simple heating curve for melting?",
+          "options": [
+            "Rise, flatter section, rise",
+            "Flat, fall, disappear",
+            "Fall, steeper fall, fall",
+            "Rise only, with no state-change region"
+          ],
+          "answer": 0,
+          "concept": "heating-curve",
+          "feedback": "The solid warms, melting gives a flatter region, and the liquid then warms."
+        },
+        {
+          "prompt": "Why can the temperature stay nearly steady while melting continues?",
+          "options": [
+            "The thermometer stops working during every melt",
+            "No energy reaches the material",
+            "The material has vanished",
+            "Incoming energy is mainly supporting the state change"
+          ],
+          "answer": 3,
+          "concept": "energy-and-state",
+          "feedback": "During melting, transferred energy supports the change from solid to liquid rather than mainly raising temperature."
+        },
+        {
+          "prompt": "Which statement about the particle drawing is correct?",
+          "options": [
+            "It is a microscope photograph",
+            "It models arrangement and movement but leaves out many details",
+            "It proves particles are coloured circles",
+            "It shows spaces and sizes exactly to scale"
+          ],
+          "answer": 1,
+          "concept": "model-limitations",
+          "feedback": "The dots are a simplified thinking model, not an exact picture of particles."
+        },
+        {
+          "prompt": "Freezing changes water from...",
+          "options": [
+            "gas to liquid",
             "solid to liquid",
-            "gas to element",
-            "light to sound"
+            "liquid to solid",
+            "water to a new substance"
           ],
-          "answer": 0,
+          "answer": 2,
           "concept": "freezing",
-          "feedback": "Freezing is liquid to solid."
+          "feedback": "Freezing changes liquid water to solid water."
         },
         {
-          "prompt": "What concrete example removes heat safely?",
+          "prompt": "In a sealed-bag balance demonstration, a tiny last-digit difference most reasonably suggests...",
           "options": [
-            "a home freezer",
-            "a flame",
-            "hot oil",
-            "a closed heated bottle"
+            "water was destroyed",
+            "the state change failed",
+            "ice is not matter",
+            "measurement limits should be considered"
           ],
-          "answer": 0,
-          "concept": "cooling",
-          "feedback": "A freezer is a familiar heat-removal example."
+          "answer": 3,
+          "concept": "measurement",
+          "feedback": "Balances have limited precision, so a tiny difference does not overturn conservation."
         },
         {
-          "prompt": "In the melting particle model, what changes?",
+          "prompt": "Which is the safest child-led melting observation?",
           "options": [
-            "arrangement and motion",
-            "the dots become a different substance",
-            "all particles vanish",
-            "the label becomes water"
+            "Heating wax over a flame",
+            "Watching sealed ice melt on a plate",
+            "Holding ice on bare skin for ten minutes",
+            "Pouring boiling water over chocolate"
           ],
-          "answer": 0,
-          "concept": "particle-model",
-          "feedback": "The arrangement and motion change."
-        },
-        {
-          "prompt": "Which other material can melt in app visuals?",
-          "options": [
-            "chocolate",
-            "a shadow",
-            "a reflection",
-            "a question"
-          ],
-          "answer": 0,
-          "concept": "state-change",
-          "feedback": "Chocolate can melt, but heating is not a child-led task."
-        },
-        {
-          "prompt": "The safe home observation uses...",
-          "options": [
-            "sealed bag of ice",
-            "boiling water",
-            "hot glass",
-            "flame"
-          ],
-          "answer": 0,
+          "answer": 1,
           "concept": "safety",
-          "feedback": "A sealed bag of ice is low-risk with a parent."
+          "feedback": "Sealed ice melting at room temperature avoids flames, boiling water and spills."
         },
         {
-          "prompt": "Best explanation of melting:",
+          "prompt": "Which change is NOT simply melting?",
           "options": [
-            "same material, new state",
-            "material vanished",
-            "atoms stopped existing",
-            "a gas was created"
+            "An ice cube becoming liquid water",
+            "Solid wax becoming liquid wax in an adult demonstration",
+            "Butter becoming liquid when warmed",
+            "Bread turning brown in a toaster"
           ],
-          "answer": 0,
-          "concept": "reasoning",
-          "feedback": "Melting keeps the material but changes its state."
+          "answer": 3,
+          "concept": "physical-change",
+          "feedback": "Browning forms different materials; it is not a solid simply becoming its own liquid."
         },
         {
-          "prompt": "Why repair the phrase 'the cube is gone'?",
+          "prompt": "What does the flatter region of a simple cooling curve represent?",
           "options": [
-            "It hides the material still being there",
-            "It is always perfect science",
-            "It means water is not matter",
-            "It proves freezing cannot happen"
+            "Freezing while liquid and solid are both present",
+            "Water disappearing",
+            "A camera speeding up time",
+            "The solid warming rapidly"
           ],
           "answer": 0,
-          "concept": "precision",
-          "feedback": "Science needs the more precise idea: the shape is gone, not the water."
+          "concept": "cooling-curve",
+          "feedback": "The flatter region represents freezing, when liquid and solid can coexist."
         }
       ]
     },
@@ -1514,147 +1511,145 @@
       "number": 11,
       "title": "Dissolving Is Not Melting",
       "shortTitle": "Dissolving",
-      "durationTarget": 420,
-      "visualType": "dissolving-model",
-      "learningOutcome": "Compare melting with dissolving and explain that dissolved material is spread out, not gone.",
+      "durationTarget": 660,
+      "learningOutcome": "Distinguish dissolving from melting, identify solute, solvent and solution, separate dissolving rate from amount dissolved, and use saturation and recovery as evidence that dissolved material remains.",
       "segments": [
-        "Two mysteries start side by side. Ice on a plate seems to disappear as it melts. Sugar crystals in water seem to disappear as they dissolve. They can look similar to our eyes, but the causes are not the same. The board holds both examples apart so we do not accidentally use one word for two different stories.",
-        "First, the melting recap. Melting is a state change: solid to liquid. Heat can help the solid material become liquid material. In the ice example, solid water becomes liquid water. The material is still water. The state changed. That is the left side of the comparison table.",
-        "Now the dissolving setup. Sugar or salt crystals go into water. We use a labelled known material in the app model, not mystery powder. A stirring arrow appears, but the board does not label it melting. The question is not, did it get hot enough to melt? The question is, what happened to the tiny bits in the water?",
-        "A student says, so the sugar melted? Here is the locked correction: Dissolving is not melting. The sugar does not change from solid to liquid stuff on its own. It spreads through the water. Warm water can make it spread faster, but spreading is the story, not melting.",
-        "Now the dissolving model appears. Sugar dots start together as a crystal, then redraw spread among the water dots. This is a model, not a photograph. The key idea is spread out. If the grains are too small and spread out for our eyes, the cup can look clear even though the sugar is still part of the mixture.",
-        "Invisible to our eyes does not mean gone. We avoid tasting as evidence in Bright Quest. Instead, the app can show a labelled known material, a particle model, an app-only mass comparison with a proper scale, or app-only salt recovery by evaporation. Kitchen scales may not be precise enough, so mass comparison is not a home task.",
-        "Safety boundary. Do not taste unknown substances. Do not heat salt water as a child-led task. Do not boil water for this chapter. If a parent uses known sugar and water at home, the app still frames it as optional and supervised. The main Bright Quest evidence is visual, labelled, and app-safe.",
-        "Now compare the two rows. Melting: a state changes, such as solid water to liquid water. Dissolving: a material spreads through a liquid, such as sugar spreading through water. Melting asks about state. Dissolving asks about mixing at a tiny scale. Both can make something harder to see. That does not make them the same.",
-        "Sort the statements. Ice becomes liquid water: melting. Sugar spreads through water: dissolving. Sand sitting at the bottom: neither, because it did not dissolve. If a card goes into the wrong lane, it shakes gently and returns. The correction should be visible, not just spoken.",
-        "The chapter test will ask you to compare cause, model, and evidence. Keep this rule ready: cannot see it does not mean gone. Also keep the second rule: dissolving is not melting, even when warm water makes dissolving happen faster.",
-        "Let us lock the correction exactly. Dissolving is not melting. The sugar does not change from solid to liquid stuff on its own. It spreads through the water. Warm water can make it spread faster, but spreading is the story, not melting. That sentence is the heart of the chapter.",
-        "Repair a weak answer. A learner says, the sugar is gone because I cannot see it. Better: the sugar is spread through the water in pieces too small and spread out for my eyes to see as grains. The app model shows that idea. We do not need tasting, and we do not use unknown substances.",
-        "Now compare evidence choices. A labelled app model is safe. App-only salt recovery is safe because the app can show evaporation without asking a child to boil water. App-only mass comparison is safe because the app can use a precise scale. Kitchen scales may not be sensitive enough, so that is not a home proof.",
-        "Before the test, separate the two stories. Melting: state change, solid to liquid. Dissolving: spreading through a liquid. Warmth may affect speed, but warmth does not turn dissolving into melting. If an answer says cannot see means gone, reject it.",
-        "One last transfer check before the test. If sugar grains vanish from sight in water, do not jump to gone, melted, or destroyed. Ask what evidence the app gives. The model can show sugar pieces spreading through the water. The liquid may look clear because the pieces are too small and spread out for your eyes to see as grains. Warm water can change the speed, but the main story stays the same. Dissolving is spreading through a liquid, not turning into liquid sugar.",
-        "Final training pause before the test. Do not rush this last board. For Dissolving Is Not Melting, say the main idea in your own words, then test it against one new example. If the example changes the job, the material, the state, the heat direction, or the evidence, update the answer instead of memorising the last picture. That is why this is training, not just a video. The test checks whether the idea transfers."
+        "Watch two clear containers. In the first, an ice cube sits on a plate and becomes liquid water. In the second, a measured spoonful of salt is stirred into room-temperature water until the grains cannot be seen. Both solids seem to vanish, but the stories differ. The ice changed state: solid water became liquid water. The salt spread through another material, water, to make a mixture. That is dissolving. Looking similar is not enough to name a process. We need to track which materials are present, whether a new liquid state formed, and what evidence could help us recover the hidden material.",
+        "Chemists use three role words. The solute is the material that dissolves; in our example, salt is the solute. The solvent is the liquid doing the dissolving; water is the solvent. The solution is the even-looking mixture produced when the solute spreads through the solvent. These are roles in a particular mixture, not permanent surnames. Water is often a solvent, but not every liquid is water, and not every substance dissolves in water. The word solution does not mean 'the answer to a question' here. It names the whole mixture, including both the dissolved solute and the solvent.",
+        "For a low-risk investigation, use drinking water, table salt, identical clear cups, clean spoons, labels, and adult supervision. Wear eye protection if your class rules require it, wipe spills promptly, and wash hands afterwards. The materials are known, but the cups are investigation samples, so do not taste them. Never taste an unknown powder to identify it. Do not mix household cleaners, medicines, garden chemicals, or mystery substances. We can answer strong questions using tiny measured amounts of familiar salt and cool or lukewarm water. No flame, kettle, hotplate, or boiling is needed, and the solution should be poured away as an adult directs.",
+        "Let us repair the common claim, 'The salt melted in the water.' Melting means a solid becomes its own liquid because of a state change. Dissolving means a solute spreads through a solvent to form a solution. The salt has not become a little puddle of liquid salt. At ordinary classroom temperatures, it remains salt distributed through water. Warm water may help salt dissolve faster, but faster dissolving is still dissolving, not melting. Temperature alone does not name the process. Ask whether one material changed state or whether one material spread through another. That question separates the two stories cleanly.",
+        "The cup may look clear after stirring, but clear does not mean pure water and invisible does not mean gone. Our particle model shows salt spread among water particles. This helps explain why separate grains are no longer visible. The dots are symbols, not a photograph, and their size and spacing are not to scale. The model gives us an idea to test. Evidence from measured mass, saturation, or later recovery supports the claim that salt remains in the solution.",
+        "Now investigate rate: how quickly dissolving happens. Put equal amounts of salt into equal volumes of water at the same temperature. Stir one cup gently at a steady pace and leave the other still. The stirred sample usually loses visible grains sooner because moving water repeatedly brings fresh solvent near the solute. Stirring changes the rate, not necessarily the final maximum amount that can dissolve under those conditions. To make this a fair comparison, change only stirring. Equal salt, equal water, equal cups, and equal temperature let us connect the different time to the factor we tested.",
+        "Particle size can also affect rate. Compare one coarse salt sample with the same mass of fine salt in matching cups. Fine grains expose more surface to the water, so they often dissolve faster when all other conditions match. Use shop-bought food salt, pour it gently, and keep it away from faces. Do not grind any material for this activity. Again, faster does not mean more can dissolve. The fine sample may finish first, while both cups end with the same amount dissolved if each began below the saturation limit.",
+        "Temperature can change dissolving rate too. An adult prepares equal cups of cool and lukewarm water, never hot enough to burn. Add equal amounts of the same salt and stir each in the same way. In this salt investigation, the grains may dissolve faster in warmer water. Keep rate separate from amount: grains disappearing sooner tell us about time. They do not tell us the greatest amount of salt that the water can hold. Our result is about this salt and this test, not every solute.",
+        "Amount asks a different question: how much solute can dissolve in a fixed volume of solvent under stated conditions? Imagine adding salt in small measured portions, stirring for the same generous time after each addition. Early portions disappear from sight. Eventually, extra salt may remain on the bottom even after patient stirring. Stirring harder might help grains dissolve sooner, but it cannot guarantee unlimited dissolving. A stopwatch answers rate. A count or mass of added portions helps answer amount. Mixing those questions leads to weak conclusions, such as claiming that the fastest cup must always hold the most solute.",
+        "A solution is saturated when, under those conditions, it holds as much dissolved solute as it can and added solute remains undissolved. We approach this point carefully with small portions rather than dumping in a large pile. Salt resting at the bottom after enough stirring is evidence that the current water cannot dissolve all the added salt. It is not proof that no salt dissolved; the solution above contains dissolved salt while excess solid remains. Saturation depends on the solute, solvent, temperature, and amount of solvent. Change those conditions and the maximum dissolved amount may change too.",
+        "Suppose a saturated salt solution has crystals on the bottom. Add a measured amount of fresh water and stir again. Some remaining crystals may dissolve because there is now more solvent available. This is evidence that the earlier limit belonged to that particular amount of water under those conditions; the salt had not lost the ability to dissolve. Notice what we changed: solvent amount. If we also changed temperature, stirring, and salt type, we could not tell which factor mattered. Careful investigations isolate one question at a time and record exact amounts instead of relying on cup height or a quick glance.",
+        "How can we show that dissolved salt is still present? Recover it. In an adult-led demonstration, place a small amount of salt solution in a wide labelled dish and let water evaporate naturally in a secure place over several days. No heating is required. As water leaves into the air, salt crystals remain in the dish. The recovered crystals are strong evidence that the salt was part of the solution, not destroyed. Keep the dish away from children, pets, food areas, and open windows, and do not taste the crystals. Recovery may be incomplete because some solution can spill or cling to equipment.",
+        "A sensitive balance offers another line of evidence. Measure a closed container holding water and a separate salt packet. Then combine them without losing material and measure the closed system again. The total mass should stay about the same. Dissolving changes how salt is spread, not the amount of matter. This belongs in an app or adult-led setup because an ordinary kitchen balance may not show small changes clearly. A slightly different last digit does not prove matter vanished. Good science reports the tool's limit instead of forcing the reading to look perfect.",
+        "Water does not dissolve every material. Clean sand settles, cooking oil forms a separate layer, and too much salt leaves crystals when saturation is reached. These outcomes are different. Sand in water is a mixture with undissolved solid. Oil and water form separate liquid regions. Extra salt can sit beneath a saturated salt solution even though some salt has dissolved. Do not call every mixture a solution or decide from colour alone. Observe whether the mixture becomes even-looking, whether material settles, and whether it can be recovered. These observations tell us what happened, but not every reason why.",
+        "Here is the complete story. A solute spreads through a solvent to form a solution; that process is dissolving, not melting. Stirring, smaller grains, and temperature can change the rate, which means how fast. The maximum amount dissolved is a separate question. When added solute remains after thorough stirring, the solution may be saturated under those conditions. Adding more solvent can change the limit, and natural evaporation can recover the solute as evidence that it never vanished. Particle diagrams help us imagine spreading but are simplified, not-to-scale models. Use known safe materials, tiny quantities, no tasting, no household chemicals, and no child-led heating."
       ],
       "tests": [
         {
-          "prompt": "Melting is mainly...",
+          "prompt": "In salt water, which material is the solvent?",
           "options": [
-            "a state change",
-            "spreading through water",
-            "a taste test",
-            "a shadow"
+            "The salt",
+            "The spoon",
+            "The water",
+            "The final crystals"
           ],
-          "answer": 0,
-          "concept": "melting",
-          "feedback": "Melting changes state, such as solid to liquid."
+          "answer": 2,
+          "concept": "solution-vocabulary",
+          "feedback": "Water is the solvent because it does the dissolving in this example."
         },
         {
-          "prompt": "Dissolving is mainly...",
+          "prompt": "Which statement correctly distinguishes dissolving from melting?",
           "options": [
-            "spreading through a liquid",
-            "solid changing to liquid stuff on its own",
-            "turning into light",
-            "freezing"
+            "Dissolving always needs boiling",
+            "Dissolving spreads a solute through a solvent; melting changes a solid into its own liquid",
+            "Melting forms every solution",
+            "Both words mean a material vanished"
           ],
-          "answer": 0,
-          "concept": "dissolving",
-          "feedback": "Dissolving spreads material through a liquid."
+          "answer": 1,
+          "concept": "dissolving-vs-melting",
+          "feedback": "Dissolving forms a mixture; melting is a state change of one material."
         },
         {
-          "prompt": "Locked correction from the lesson:",
+          "prompt": "What does stirring usually change in a fair salt-water investigation?",
           "options": [
-            "Dissolving is not melting",
-            "Dissolving means gone",
-            "Always taste to check",
-            "Warm water proves melting"
+            "The dissolving rate",
+            "The identity of salt",
+            "The amount of water",
+            "Salt into liquid salt"
           ],
           "answer": 0,
-          "concept": "misconception",
-          "feedback": "Dissolving is not melting."
+          "concept": "rate",
+          "feedback": "Stirring usually changes how quickly dissolving happens."
         },
         {
-          "prompt": "Warm water can make sugar...",
+          "prompt": "Two cups eventually dissolve the same mass, but cup B finishes sooner. What differs?",
           "options": [
-            "spread faster",
-            "stop being matter",
-            "become a metal",
-            "turn into steam"
+            "The final amount only",
+            "Whether matter is conserved",
+            "The solvent identity",
+            "The dissolving rate"
           ],
-          "answer": 0,
-          "concept": "temperature-effect",
-          "feedback": "Warm water can affect rate, but spreading is the dissolving story."
+          "answer": 3,
+          "concept": "rate-vs-amount",
+          "feedback": "Finishing sooner means a faster rate, even when the final amount is the same."
         },
         {
-          "prompt": "Why can clear sugar water still contain sugar?",
+          "prompt": "After repeated additions and thorough stirring, salt remains on the bottom. What is the best conclusion?",
           "options": [
-            "Sugar bits are spread out",
-            "Sugar vanished",
-            "Water is not matter",
-            "The label is wrong"
+            "No salt dissolved",
+            "The visible salt has melted",
+            "The solution may be saturated under those conditions",
+            "Water has stopped being a solvent forever"
+          ],
+          "answer": 2,
+          "concept": "saturation",
+          "feedback": "Persistent excess solute suggests the solution has reached its dissolving limit under those conditions."
+        },
+        {
+          "prompt": "Why might adding more water dissolve some crystals in a saturated cup?",
+          "options": [
+            "There is more solvent available",
+            "Water turns crystals into heat",
+            "Stirring creates new salt",
+            "Saturation means every future condition is fixed"
           ],
           "answer": 0,
+          "concept": "solvent-amount",
+          "feedback": "More solvent can allow more solute to dissolve."
+        },
+        {
+          "prompt": "Which is strongest evidence that dissolved salt remained present?",
+          "options": [
+            "The solution looked clear",
+            "Salt crystals were recovered after water evaporated",
+            "The cup was stirred quickly",
+            "The salt grains became too small to see"
+          ],
+          "answer": 1,
+          "concept": "recovery-evidence",
+          "feedback": "Recovering crystals shows that salt remained part of the solution."
+        },
+        {
+          "prompt": "Which statement about a dissolving particle model is accurate?",
+          "options": [
+            "It shows exact particle size and spacing",
+            "It proves the solution is safe to taste",
+            "It is a photograph of the liquid",
+            "It represents spreading but leaves out important details"
+          ],
+          "answer": 3,
+          "concept": "model-limitations",
+          "feedback": "The diagram is a simplified model of spreading, not an exact photograph."
+        },
+        {
+          "prompt": "Which setup is low risk and scientifically useful?",
+          "options": [
+            "Tasting an unknown powder",
+            "Mixing household cleaners",
+            "Using small amounts of table salt and room-temperature water with supervision",
+            "Boiling a salt solution alone"
+          ],
+          "answer": 2,
+          "concept": "safety",
+          "feedback": "Known food-grade salt and room-temperature water avoid tasting, unknowns, cleaners and heating."
+        },
+        {
+          "prompt": "A clear mixture has no visible grains. What can we conclude from appearance alone?",
+          "options": [
+            "The solute was destroyed",
+            "It must be pure water",
+            "It definitely contains the maximum possible solute",
+            "Only that visible grains are absent; more evidence is needed"
+          ],
+          "answer": 3,
           "concept": "evidence",
-          "feedback": "Dissolved sugar can be too spread out to see as grains."
-        },
-        {
-          "prompt": "Which evidence is NOT a child task?",
-          "options": [
-            "mass comparison with a precise scale",
-            "watching an app model",
-            "reading a label",
-            "answering the quiz"
-          ],
-          "answer": 0,
-          "concept": "safety",
-          "feedback": "Mass comparison is app-only here because normal kitchen scales may not show it clearly."
-        },
-        {
-          "prompt": "What should Bright Quest avoid?",
-          "options": [
-            "tasting unknown substances",
-            "using labels",
-            "showing a model",
-            "comparing examples"
-          ],
-          "answer": 0,
-          "concept": "safety",
-          "feedback": "Do not taste unknown substances."
-        },
-        {
-          "prompt": "Which statement belongs in the dissolving lane?",
-          "options": [
-            "Sugar spreads through water",
-            "Ice becomes liquid water",
-            "Water freezes in a freezer",
-            "A block keeps its shape"
-          ],
-          "answer": 0,
-          "concept": "comparison",
-          "feedback": "Sugar spreading through water is dissolving."
-        },
-        {
-          "prompt": "Which statement belongs in the melting lane?",
-          "options": [
-            "Ice becomes liquid water",
-            "Sugar spreads out",
-            "Sand sits at the bottom",
-            "Air fills a balloon"
-          ],
-          "answer": 0,
-          "concept": "comparison",
-          "feedback": "Ice becoming liquid water is melting."
-        },
-        {
-          "prompt": "Best final rule:",
-          "options": [
-            "Cannot see it does not mean gone",
-            "Clear liquids are always pure water",
-            "Dissolving is always melting",
-            "Taste unknowns to prove it"
-          ],
-          "answer": 0,
-          "concept": "reasoning",
-          "feedback": "Invisible to our eyes does not mean gone."
+          "feedback": "Clear appearance alone cannot show whether a solute is absent, dissolved, or at saturation."
         }
       ]
     }

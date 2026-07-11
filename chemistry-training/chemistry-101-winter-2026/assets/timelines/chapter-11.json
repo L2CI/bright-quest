@@ -1,0 +1,174 @@
+{
+  "chapterId": "dissolving-not-melting",
+  "number": 11,
+  "title": "Dissolving Is Not Melting",
+  "release": "chemistry-101-winter-2026-007",
+  "duration": 621.796,
+  "scenes": [
+    {
+      "index": 0,
+      "id": "ch11-scene-01",
+      "title": "Two Vanishing Acts",
+      "visualIntent": "Split-screen investigation contrasts an ice-to-water state change with labelled salt grains dispersing through water.",
+      "checkpoint": "What evidence would distinguish melting from dissolving?",
+      "start": 0,
+      "audioEnd": 40.92,
+      "end": 46.42,
+      "duration": 40.92
+    },
+    {
+      "index": 1,
+      "id": "ch11-scene-02",
+      "title": "Meet the Three Roles",
+      "visualIntent": "Three labelled cards attach to salt, water and the final cup; arrows combine SOLUTE plus SOLVENT into SOLUTION.",
+      "checkpoint": null,
+      "start": 46.42,
+      "audioEnd": 82.876,
+      "end": 84.276,
+      "duration": 36.456
+    },
+    {
+      "index": 2,
+      "id": "ch11-scene-03",
+      "title": "A Safe Dissolving Investigation",
+      "visualIntent": "Bench checklist shows labelled food-grade materials and spill cloth; hazard panel excludes tasting, cleaners, medicines, mystery powders and heat.",
+      "checkpoint": null,
+      "start": 84.276,
+      "audioEnd": 126.396,
+      "end": 127.796,
+      "duration": 42.12
+    },
+    {
+      "index": 3,
+      "id": "ch11-scene-04",
+      "title": "Dissolving Is Not Melting",
+      "visualIntent": "A comparison table highlights ONE MATERIAL, STATE CHANGE for melting and TWO MATERIALS, MIXTURE for dissolving.",
+      "checkpoint": null,
+      "start": 127.796,
+      "audioEnd": 169.316,
+      "end": 170.716,
+      "duration": 41.52
+    },
+    {
+      "index": 4,
+      "id": "ch11-scene-05",
+      "title": "Where Did the Salt Go?",
+      "visualIntent": "Salt symbols separate among water symbols while a model-limit panel lists not a photo, not to scale, simplified particles and needs evidence.",
+      "checkpoint": null,
+      "start": 170.716,
+      "audioEnd": 203.716,
+      "end": 205.116,
+      "duration": 33
+    },
+    {
+      "index": 5,
+      "id": "ch11-scene-06",
+      "title": "Rate Means How Fast",
+      "visualIntent": "Two matched cups differ only by a stirring arrow; a stopwatch measures time until visible grains are gone.",
+      "checkpoint": "Which variable changes, and which variables must stay the same?",
+      "start": 205.116,
+      "audioEnd": 245.172,
+      "end": 250.672,
+      "duration": 40.056
+    },
+    {
+      "index": 6,
+      "id": "ch11-scene-07",
+      "title": "Smaller Pieces, Faster Mixing",
+      "visualIntent": "Equal-mass coarse and fine salt samples enter identical cups; highlighted outer surfaces connect to separate timers, not different final totals.",
+      "checkpoint": null,
+      "start": 250.672,
+      "audioEnd": 287.032,
+      "end": 288.432,
+      "duration": 36.36
+    },
+    {
+      "index": 7,
+      "id": "ch11-scene-08",
+      "title": "Temperature and Rate",
+      "visualIntent": "Cool and adult-checked lukewarm cups use equal measures and matched stirring; two clocks emphasise rate while a maximum-amount gauge remains unanswered.",
+      "checkpoint": null,
+      "start": 288.432,
+      "audioEnd": 320.184,
+      "end": 321.584,
+      "duration": 31.752
+    },
+    {
+      "index": 8,
+      "id": "ch11-scene-09",
+      "title": "Amount Is How Much",
+      "visualIntent": "A split board contrasts stopwatch RATE evidence with measured-spoon AMOUNT evidence; a crossed arrow blocks the inference faster equals more.",
+      "checkpoint": null,
+      "start": 321.584,
+      "audioEnd": 363.032,
+      "end": 364.432,
+      "duration": 41.448
+    },
+    {
+      "index": 9,
+      "id": "ch11-scene-10",
+      "title": "Reaching Saturation",
+      "visualIntent": "Measured portions enter one by one until a persistent crystal layer remains; labels distinguish saturated solution from excess undissolved solute.",
+      "checkpoint": "What does solid at the bottom tell us, and what does it not tell us?",
+      "start": 364.432,
+      "audioEnd": 404.848,
+      "end": 410.348,
+      "duration": 40.416
+    },
+    {
+      "index": 10,
+      "id": "ch11-scene-11",
+      "title": "More Solvent Changes the Limit",
+      "visualIntent": "A measured cylinder adds water to a saturated cup; crystals shrink while a variable-control panel highlights solvent amount only.",
+      "checkpoint": null,
+      "start": 410.348,
+      "audioEnd": 448.148,
+      "end": 449.548,
+      "duration": 37.8
+    },
+    {
+      "index": 11,
+      "id": "ch11-scene-12",
+      "title": "Recovery Is Strong Evidence",
+      "visualIntent": "A multi-day covered observation sequence shows water level falling and labelled salt crystals appearing; safety boundary surrounds the adult-managed dish.",
+      "checkpoint": null,
+      "start": 449.548,
+      "audioEnd": 492.316,
+      "end": 493.716,
+      "duration": 42.768
+    },
+    {
+      "index": 12,
+      "id": "ch11-scene-13",
+      "title": "Mass Before and After",
+      "visualIntent": "Before-and-after closed-system balance readings sit within an uncertainty band; icons flag spills, clinging drops and evaporation as error sources.",
+      "checkpoint": null,
+      "start": 493.716,
+      "audioEnd": 529.38,
+      "end": 530.78,
+      "duration": 35.664
+    },
+    {
+      "index": 13,
+      "id": "ch11-scene-14",
+      "title": "Not Everything Dissolves",
+      "visualIntent": "Three labelled columns compare settling sand, layered oil and saturated salt, with solution status and observation evidence beneath each.",
+      "checkpoint": null,
+      "start": 530.78,
+      "audioEnd": 573.836,
+      "end": 575.236,
+      "duration": 43.056
+    },
+    {
+      "index": 14,
+      "id": "ch11-scene-15",
+      "title": "The Complete Dissolving Story",
+      "visualIntent": "Final concept map connects vocabulary, rate factors, amount, saturation, added solvent, recovery evidence, model limits and safety rules.",
+      "checkpoint": "Use rate, amount and saturation correctly in a three-sentence explanation.",
+      "start": 575.236,
+      "audioEnd": 621.796,
+      "end": 621.796,
+      "duration": 46.56
+    }
+  ]
+}

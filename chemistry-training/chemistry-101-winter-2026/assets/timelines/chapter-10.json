@@ -1,0 +1,174 @@
+{
+  "chapterId": "melting-not-disappearing",
+  "number": 10,
+  "title": "Melting Is Not Disappearing",
+  "release": "chemistry-101-winter-2026-007",
+  "duration": 616.32,
+  "scenes": [
+    {
+      "index": 0,
+      "id": "ch10-scene-01",
+      "title": "The Ice Cube Mystery",
+      "visualIntent": "Close view of a labelled sealed bag on a plate; timer begins beside a sharp-edged ice cube, with a persistent WATER label.",
+      "checkpoint": "What should we track: the cube shape, the water material, or both?",
+      "start": 0,
+      "audioEnd": 36.816,
+      "end": 42.316,
+      "duration": 36.816
+    },
+    {
+      "index": 1,
+      "id": "ch10-scene-02",
+      "title": "State, Shape and Material",
+      "visualIntent": "A three-column board keeps WATER fixed while STATE changes from solid to liquid and SHAPE changes from cube to shallow pool.",
+      "checkpoint": null,
+      "start": 42.316,
+      "audioEnd": 82.972,
+      "end": 84.372,
+      "duration": 40.656
+    },
+    {
+      "index": 2,
+      "id": "ch10-scene-03",
+      "title": "A Fair Time-Lapse",
+      "visualIntent": "Overhead setup diagram followed by a strip of evenly timed frames; safety icons show sealed bag, stable device and dry floor.",
+      "checkpoint": "Why must the camera, plate and timing stay consistent?",
+      "start": 84.372,
+      "audioEnd": 121.284,
+      "end": 126.784,
+      "duration": 36.912
+    },
+    {
+      "index": 3,
+      "id": "ch10-scene-04",
+      "title": "Reading the Evidence",
+      "visualIntent": "Three evidence frames with observation callouts separated from an inference panel; hidden droplets behind creases are acknowledged.",
+      "checkpoint": null,
+      "start": 126.784,
+      "audioEnd": 163.504,
+      "end": 164.904,
+      "duration": 36.72
+    },
+    {
+      "index": 4,
+      "id": "ch10-scene-05",
+      "title": "Conservation in a Closed Bag",
+      "visualIntent": "A digital balance shows matching readings within a shaded precision band; a callout distinguishes conservation from perfect instruments.",
+      "checkpoint": null,
+      "start": 164.904,
+      "audioEnd": 200.016,
+      "end": 201.416,
+      "duration": 35.112
+    },
+    {
+      "index": 5,
+      "id": "ch10-scene-06",
+      "title": "Energy Enters the Story",
+      "visualIntent": "Warm-room arrows point towards the colder sealed ice, while a crossed-out icon rejects flames, kettles and direct heaters.",
+      "checkpoint": null,
+      "start": 201.416,
+      "audioEnd": 238.832,
+      "end": 240.232,
+      "duration": 37.416
+    },
+    {
+      "index": 6,
+      "id": "ch10-scene-07",
+      "title": "A Simple Heating Curve",
+      "visualIntent": "Large axes labelled time and temperature; three colour-coded regions read SOLID WARMS, MELTING, and LIQUID WARMS.",
+      "checkpoint": "During which part are solid and liquid present together?",
+      "start": 240.232,
+      "audioEnd": 281.08,
+      "end": 286.58,
+      "duration": 40.848
+    },
+    {
+      "index": 7,
+      "id": "ch10-scene-08",
+      "title": "Why the Line Flattens",
+      "visualIntent": "Energy tokens enter continuously; during the middle region they move a solid-to-liquid progress bar instead of lifting the thermometer.",
+      "checkpoint": null,
+      "start": 286.58,
+      "audioEnd": 318.188,
+      "end": 319.588,
+      "duration": 31.608
+    },
+    {
+      "index": 8,
+      "id": "ch10-scene-09",
+      "title": "The Particle Model",
+      "visualIntent": "Side-by-side solid and liquid dot models retain identical dots; a MODEL, NOT PHOTOGRAPH banner lists what the drawing omits.",
+      "checkpoint": null,
+      "start": 319.588,
+      "audioEnd": 363.94,
+      "end": 365.34,
+      "duration": 44.352
+    },
+    {
+      "index": 9,
+      "id": "ch10-scene-10",
+      "title": "Freezing Reverses the Change",
+      "visualIntent": "Reversible arrows connect liquid water and ice; energy arrows leave the tray towards the freezer coils, with a no-full-rigid-container warning.",
+      "checkpoint": null,
+      "start": 365.34,
+      "audioEnd": 410.94,
+      "end": 412.34,
+      "duration": 45.6
+    },
+    {
+      "index": 10,
+      "id": "ch10-scene-11",
+      "title": "The Cooling Curve",
+      "visualIntent": "Cooling graph mirrors the heating graph, with animated state icons travelling across LIQUID COOLS, FREEZING, and SOLID COOLS.",
+      "checkpoint": null,
+      "start": 412.34,
+      "audioEnd": 450.404,
+      "end": 451.804,
+      "duration": 38.064
+    },
+    {
+      "index": 11,
+      "id": "ch10-scene-12",
+      "title": "Different Materials, Same Question",
+      "visualIntent": "A comparison shelf shows ice, chocolate, butter and wax with different melting ranges; only sealed ice receives a CHILD OBSERVATION badge.",
+      "checkpoint": "Does every material melt at the same temperature? Explain from the examples.",
+      "start": 451.804,
+      "audioEnd": 489.964,
+      "end": 495.464,
+      "duration": 38.16
+    },
+    {
+      "index": 12,
+      "id": "ch10-scene-13",
+      "title": "Melting Is a Physical Change",
+      "visualIntent": "Sorting board contrasts reversible water state changes with app-only images of browning, burning and cooking; no hazardous action is demonstrated.",
+      "checkpoint": null,
+      "start": 495.464,
+      "audioEnd": 530.72,
+      "end": 532.12,
+      "duration": 35.256
+    },
+    {
+      "index": 13,
+      "id": "ch10-scene-14",
+      "title": "Challenge the Claims",
+      "visualIntent": "Three misconception cards are stamped REVISE, then rebuilt into evidence-reasoning statements with matching visuals.",
+      "checkpoint": null,
+      "start": 532.12,
+      "audioEnd": 574.72,
+      "end": 576.12,
+      "duration": 42.6
+    },
+    {
+      "index": 14,
+      "id": "ch10-scene-15",
+      "title": "The Complete Melting Story",
+      "visualIntent": "Final concept map links time-lapse evidence, conservation, energy transfer, curves, freezing and the model-limitation badge.",
+      "checkpoint": "Explain melting in one sentence using material, state and energy.",
+      "start": 576.12,
+      "audioEnd": 616.32,
+      "end": 616.32,
+      "duration": 40.2
+    }
+  ]
+}

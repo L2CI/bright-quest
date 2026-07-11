@@ -1,0 +1,189 @@
+{
+  "chapterId": "tiny-particles-big-clues",
+  "number": 8,
+  "title": "Tiny Particles, Big Clues",
+  "release": "chemistry-101-winter-2026-007",
+  "duration": 675.384,
+  "scenes": [
+    {
+      "index": 0,
+      "id": "ch08-scene-01",
+      "title": "Evidence Before Dots",
+      "visualIntent": "Open on three real-scale evidence panels, then reveal a covered particle-model workspace beneath them; label evidence before model.",
+      "checkpoint": {
+        "prompt": "Which should come first when building our explanation?",
+        "answer": "Careful observations of behaviour."
+      },
+      "start": 0,
+      "audioEnd": 40.752,
+      "end": 46.252,
+      "duration": 40.752
+    },
+    {
+      "index": 1,
+      "id": "ch08-scene-02",
+      "title": "A Solid Model",
+      "visualIntent": "Show block evidence above a close-packed vibrating dot model; compare wood, rubber and a labelled porous sponge without changing state labels.",
+      "checkpoint": null,
+      "start": 46.252,
+      "audioEnd": 82.372,
+      "end": 83.772,
+      "duration": 36.12
+    },
+    {
+      "index": 2,
+      "id": "ch08-scene-03",
+      "title": "A Liquid Model",
+      "visualIntent": "Animate water changing container shape, then align it with close sliding particles and a capped water-filled syringe; include a clear model-limit callout.",
+      "checkpoint": null,
+      "start": 83.772,
+      "audioEnd": 122.124,
+      "end": 123.524,
+      "duration": 38.352
+    },
+    {
+      "index": 3,
+      "id": "ch08-scene-04",
+      "title": "A Gas Model",
+      "visualIntent": "Show a needle-free capped syringe beside a gas-particle box; decrease gaps as the plunger moves while particle size remains constant.",
+      "checkpoint": {
+        "prompt": "What changes when trapped air is compressed in this model?",
+        "answer": "The gaps between particles become smaller."
+      },
+      "start": 123.524,
+      "audioEnd": 165.38,
+      "end": 170.88,
+      "duration": 41.856
+    },
+    {
+      "index": 4,
+      "id": "ch08-scene-05",
+      "title": "Compression Comparison",
+      "visualIntent": "Use side-by-side matched syringes with equal gentle-force indicators; quantify plunger movement visually without presenting invented measurements.",
+      "checkpoint": null,
+      "start": 170.88,
+      "audioEnd": 207.48,
+      "end": 208.88,
+      "duration": 36.6
+    },
+    {
+      "index": 5,
+      "id": "ch08-scene-06",
+      "title": "A Scent Spreads",
+      "visualIntent": "Use a simple 2D room cross-section showing scent spreading from one side, plus one small particle inset.",
+      "checkpoint": null,
+      "start": 208.88,
+      "audioEnd": 255.08,
+      "end": 256.48,
+      "duration": 46.2
+    },
+    {
+      "index": 6,
+      "id": "ch08-scene-07",
+      "title": "Diffusion In Water",
+      "visualIntent": "Show a room-temperature clear cup receiving one food-colouring drop; separate a particle-scale diffusion inset from visible current arrows labelled as another possible effect.",
+      "checkpoint": {
+        "prompt": "Why should we be cautious about coloured swirls in water?",
+        "answer": "They may show both diffusion and moving currents."
+      },
+      "start": 256.48,
+      "audioEnd": 301.144,
+      "end": 306.644,
+      "duration": 44.664
+    },
+    {
+      "index": 7,
+      "id": "ch08-scene-08",
+      "title": "From Crowded To Spread",
+      "visualIntent": "Animate irregular individual paths while a concentration bar graph flattens; keep particles moving after the colour appears evenly distributed.",
+      "checkpoint": null,
+      "start": 306.644,
+      "audioEnd": 352.508,
+      "end": 353.908,
+      "duration": 45.864
+    },
+    {
+      "index": 8,
+      "id": "ch08-scene-09",
+      "title": "Predict A New Result",
+      "visualIntent": "Present matched shallow and tall clear cups, let a prediction arrow appear, then run a schematic trial with a visible conditions checklist.",
+      "checkpoint": null,
+      "start": 353.908,
+      "audioEnd": 393.124,
+      "end": 394.524,
+      "duration": 39.216
+    },
+    {
+      "index": 9,
+      "id": "ch08-scene-10",
+      "title": "What Models Explain",
+      "visualIntent": "Build an evidence-to-explanation map linking four investigations to three particle arrangements and diffusion motion; arrows run from evidence towards model claims.",
+      "checkpoint": null,
+      "start": 394.524,
+      "audioEnd": 439.428,
+      "end": 440.828,
+      "duration": 44.904
+    },
+    {
+      "index": 10,
+      "id": "ch08-scene-11",
+      "title": "Dots Are Not Portraits",
+      "visualIntent": "Reveal only three model conventions: oversized dots, false colour and simplified motion arrows. End with spacing, arrangement and motion as the model's job.",
+      "checkpoint": {
+        "prompt": "What three features is this simple model designed to compare?",
+        "answer": "Spacing, arrangement and motion."
+      },
+      "start": 440.828,
+      "audioEnd": 480.044,
+      "end": 485.544,
+      "duration": 39.216
+    },
+    {
+      "index": 11,
+      "id": "ch08-scene-12",
+      "title": "Repair The Misconceptions",
+      "visualIntent": "Display each misconception on an evidence card, strike only the faulty phrase, then rebuild it using reusable spacing, motion and evidence tiles.",
+      "checkpoint": null,
+      "start": 485.544,
+      "audioEnd": 535.944,
+      "end": 537.344,
+      "duration": 50.4
+    },
+    {
+      "index": 12,
+      "id": "ch08-scene-13",
+      "title": "Mystery Container",
+      "visualIntent": "Use two transparent sealed flexible bags, one with air and one with water; highlight bulging, flow and nearly unchanged liquid volume under gentle pressure.",
+      "checkpoint": null,
+      "start": 537.344,
+      "audioEnd": 575.408,
+      "end": 576.808,
+      "duration": 38.064
+    },
+    {
+      "index": 13,
+      "id": "ch08-scene-14",
+      "title": "Design A Fair Check",
+      "visualIntent": "Lay out a fair-test bench with adult supervision icon, cool and warm tap-water cups, one-drop dispensers, timer and repeat-trial grid; cross out hot water.",
+      "checkpoint": null,
+      "start": 576.808,
+      "audioEnd": 625.12,
+      "end": 626.52,
+      "duration": 48.312
+    },
+    {
+      "index": 14,
+      "id": "ch08-scene-15",
+      "title": "Evidence, Model, Limit",
+      "visualIntent": "Complete two three-column response frames for compression and diffusion, then leave a third blank frame ready for the learner's own explanation.",
+      "checkpoint": {
+        "prompt": "What are the three parts of a careful particle explanation?",
+        "answer": "Evidence, model-based explanation, and a model limitation."
+      },
+      "start": 626.52,
+      "audioEnd": 675.384,
+      "end": 675.384,
+      "duration": 48.864
+    }
+  ]
+}

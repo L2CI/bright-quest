@@ -1,7 +1,7 @@
 (() => {
-  const ASSET_VERSION = "20260709a";
+  const ASSET_VERSION = "20260711a";
   const COURSE_URL = `./data/chemistry-101-course.json?v=${ASSET_VERSION}`;
-  const RELEASE = "chemistry-101-winter-2026-006";
+  const RELEASE = "chemistry-101-winter-2026-007";
   const withAssetVersion = (url) => `${url}?v=${ASSET_VERSION}`;
   const progressKey = "brightQuestChemistry101ProgressV1";
   const profilesKey = "brightQuestProfilesV2";

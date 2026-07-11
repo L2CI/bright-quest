@@ -2,7 +2,7 @@
   const BRIGHT_QUEST_URL = "https://bright-quest.pages.dev/";
   const AGMATHS_BASE_URL = "https://agmaths.dipanjan-gupta.workers.dev/";
   const AGMATHS_API_BASE = "https://agmaths.dipanjan-gupta.workers.dev";
-  const CHEMISTRY_COURSE_DATA_URL = "chemistry-training/chemistry-101-winter-2026/data/chemistry-101-course.json?v=20260709a";
+  const CHEMISTRY_COURSE_DATA_URL = "chemistry-training/chemistry-101-winter-2026/data/chemistry-101-course.json?v=20260711a";
   let pendingKidProfile = null;
   let chemistryCourseCache = null;
 
@@ -1015,7 +1015,7 @@
         <div>
           <p class="eyebrow">Bright Quest module</p>
           <h3>Course progress</h3>
-          <p>${status.completed}/${totalChapters} chapters watched, ${status.tests}/${totalChapters} chapter tests submitted. Total video runtime is about 53 minutes.</p>
+          <p>${status.completed}/${totalChapters} chapters watched, ${status.tests}/${totalChapters} chapter tests submitted. Total video runtime is about 74 minutes.</p>
         </div>
         <div class="bq-linked-actions">
           <button class="button button-primary" type="button" data-open-game-url="${chemistry101Url(metrics.profile)}">Open Chemistry 101</button>

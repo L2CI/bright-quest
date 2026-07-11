@@ -1,0 +1,189 @@
+{
+  "chapterId": "heat-particles-dance",
+  "number": 9,
+  "title": "Heat Makes Particles Dance",
+  "release": "chemistry-101-winter-2026-007",
+  "duration": 661.584,
+  "scenes": [
+    {
+      "index": 0,
+      "id": "ch09-scene-01",
+      "title": "Two Objects, Two Temperatures",
+      "visualIntent": "Open with matched metal and wooden spoons, equal thermometer readings and different hand-sensation indicators; separate temperature, transfer and conduction labels.",
+      "checkpoint": null,
+      "start": 0,
+      "audioEnd": 36.912,
+      "end": 38.312,
+      "duration": 36.912
+    },
+    {
+      "index": 1,
+      "id": "ch09-scene-02",
+      "title": "Temperature Is A Measurement",
+      "visualIntent": "Demonstrate a digital thermometer settling in cool and warm tap water; show Celsius units and a safe-temperature boundary without displaying boiling vessels.",
+      "checkpoint": {
+        "prompt": "What does the thermometer provide?",
+        "answer": "A temperature reading, usually recorded in degrees Celsius."
+      },
+      "start": 38.312,
+      "audioEnd": 78.32,
+      "end": 83.82,
+      "duration": 40.008
+    },
+    {
+      "index": 2,
+      "id": "ch09-scene-03",
+      "title": "Heat Transfer Has A Direction",
+      "visualIntent": "Place a cool metal spoon into warm tap water, chart both temperature trends and draw a labelled energy-transfer arrow from water to spoon.",
+      "checkpoint": {
+        "prompt": "Which way does energy transfer when a cool spoon enters warm water?",
+        "answer": "From the warmer water towards the cooler spoon."
+      },
+      "start": 83.82,
+      "audioEnd": 123.732,
+      "end": 129.232,
+      "duration": 39.912
+    },
+    {
+      "index": 3,
+      "id": "ch09-scene-04",
+      "title": "Contact Makes A Path",
+      "visualIntent": "Trace a conduction pathway along a metal spoon using adjacent vibrating regions rather than travelling particles; include a stop-if-hot safety cue.",
+      "checkpoint": null,
+      "start": 129.232,
+      "audioEnd": 171.136,
+      "end": 172.536,
+      "duration": 41.904
+    },
+    {
+      "index": 4,
+      "id": "ch09-scene-05",
+      "title": "Metal And Wood",
+      "visualIntent": "Show a controlled spoon comparison with matched dimensions, immersion depth and timer; animate a faster temperature rise along metal than wood.",
+      "checkpoint": {
+        "prompt": "Why does the metal handle usually warm faster than the wooden handle?",
+        "answer": "Metal is a better thermal conductor, so energy transfers through it faster."
+      },
+      "start": 172.536,
+      "audioEnd": 210.336,
+      "end": 215.836,
+      "duration": 37.8
+    },
+    {
+      "index": 5,
+      "id": "ch09-scene-06",
+      "title": "The Particle Story",
+      "visualIntent": "Use a same-colour lattice with a motion gradient that evens out; overlay a model-limit note about scale, count and omitted metal-electron detail.",
+      "checkpoint": {
+        "prompt": "Do particles travel from the warm end to the cool end during conduction in a solid?",
+        "answer": "No. Energy transfers through interactions while particles stay in their overall positions."
+      },
+      "start": 215.836,
+      "audioEnd": 255.844,
+      "end": 261.344,
+      "duration": 40.008
+    },
+    {
+      "index": 6,
+      "id": "ch09-scene-07",
+      "title": "Cooling Is Transfer Too",
+      "visualIntent": "Chart warm water cooling towards room temperature and separate contact conduction arrows from muted air-movement and evaporation pathways labelled beyond today's focus.",
+      "checkpoint": null,
+      "start": 261.344,
+      "audioEnd": 298.664,
+      "end": 300.064,
+      "duration": 37.32
+    },
+    {
+      "index": 7,
+      "id": "ch09-scene-08",
+      "title": "Meeting In The Middle",
+      "visualIntent": "Animate two thermometer traces converging for a sealed cool-water bottle in warm tap water; keep particles moving after the traces meet.",
+      "checkpoint": null,
+      "start": 300.064,
+      "audioEnd": 338.584,
+      "end": 339.984,
+      "duration": 38.52
+    },
+    {
+      "index": 8,
+      "id": "ch09-scene-09",
+      "title": "Equilibrium Is Not Instant",
+      "visualIntent": "Run a time-lapse graph with steep early changes and flatter later changes; reveal factors affecting the final reading without introducing equations.",
+      "checkpoint": null,
+      "start": 339.984,
+      "audioEnd": 379.248,
+      "end": 380.648,
+      "duration": 39.264
+    },
+    {
+      "index": 9,
+      "id": "ch09-scene-10",
+      "title": "Feeling Can Mislead",
+      "visualIntent": "Compare hand-to-metal and hand-to-wood transfer rates at equal measured temperature; highlight faster skin cooling beside metal, with a no-touch-unknowns symbol.",
+      "checkpoint": null,
+      "start": 380.648,
+      "audioEnd": 425.048,
+      "end": 426.448,
+      "duration": 44.4
+    },
+    {
+      "index": 10,
+      "id": "ch09-scene-11",
+      "title": "Everyday Insulation",
+      "visualIntent": "Show wrapped and unwrapped matched cups with slow and fast transfer arrows; connect the same insulation principle to warm and cool food storage.",
+      "checkpoint": null,
+      "start": 426.448,
+      "audioEnd": 467.104,
+      "end": 468.504,
+      "duration": 40.656
+    },
+    {
+      "index": 11,
+      "id": "ch09-scene-12",
+      "title": "Repair The Heat Claims",
+      "visualIntent": "Correct four misconception cards using measured-temperature, direction, rate and equilibrium tiles; finish with conduction arrows pointing up, down and sideways.",
+      "checkpoint": null,
+      "start": 468.504,
+      "audioEnd": 516.96,
+      "end": 518.36,
+      "duration": 48.456
+    },
+    {
+      "index": 12,
+      "id": "ch09-scene-13",
+      "title": "Choose The Best Material",
+      "visualIntent": "Present a practical lunch-container choice with temperature-over-time curves; include an adult food-safety boundary and no absolute-temperature promise.",
+      "checkpoint": null,
+      "start": 518.36,
+      "audioEnd": 566.48,
+      "end": 567.88,
+      "duration": 48.12
+    },
+    {
+      "index": 13,
+      "id": "ch09-scene-14",
+      "title": "Plan A Contact Investigation",
+      "visualIntent": "Build a stepwise fair-test plan around two spoons, adult-prepared warm water, fixed depth, timer and thermometer; show excluded hazardous equipment.",
+      "checkpoint": null,
+      "start": 567.88,
+      "audioEnd": 613.432,
+      "end": 614.832,
+      "duration": 45.552
+    },
+    {
+      "index": 14,
+      "id": "ch09-scene-15",
+      "title": "Tell The Whole Transfer Story",
+      "visualIntent": "Complete a four-step transfer storyboard for spoon and cold-bottle examples, then append a model-limit footer and a final temperature-versus-process contrast.",
+      "checkpoint": {
+        "prompt": "What four ideas belong in a complete contact heat-transfer explanation?",
+        "answer": "Temperature comparison, contact pathway, transfer direction, and the temperature trend towards equilibrium."
+      },
+      "start": 614.832,
+      "audioEnd": 661.584,
+      "end": 661.584,
+      "duration": 46.752
+    }
+  ]
+}

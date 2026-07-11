@@ -165,10 +165,10 @@ async function runViewport(browser, name, viewport) {
     ["Chemical Change Clues", "chapter-05.mp4", "chapter-05.vtt", 244],
     ["The Mystery of Stuff", "chapter-06.mp4", "chapter-06.vtt", 339],
     ["Solid, Liquid or Gas?", "chapter-07.mp4", "chapter-07.vtt", 324],
-    ["Tiny Particles, Big Clues", "chapter-08.mp4", "chapter-08.vtt", 329],
-    ["Heat Makes Particles Dance", "chapter-09.mp4", "chapter-09.vtt", 321],
-    ["Melting Is Not Disappearing", "chapter-10.mp4", "chapter-10.vtt", 314],
-    ["Dissolving Is Not Melting", "chapter-11.mp4", "chapter-11.vtt", 344]
+    ["Tiny Particles, Big Clues", "chapter-08.mp4", "chapter-08.vtt", 675.4],
+    ["Heat Makes Particles Dance", "chapter-09.mp4", "chapter-09.vtt", 661.6],
+    ["Melting Is Not Disappearing", "chapter-10.mp4", "chapter-10.vtt", 616.3],
+    ["Dissolving Is Not Melting", "chapter-11.mp4", "chapter-11.vtt", 621.8]
   ];
   if (name === "desktop") await verifyChapterAssets(page, chapterExpectations);
 
@@ -217,7 +217,7 @@ async function runViewport(browser, name, viewport) {
   }
   const totalRuntime = actualDurations.reduce((sum, duration) => sum + duration, 0);
   runtimeSummaries.push(`${name}: ${actualDurations.map((duration) => `${duration.toFixed(1)}s`).join(" + ")} = ${totalRuntime.toFixed(1)}s`);
-  record(totalRuntime >= 3180 && totalRuntime <= 3215, `${name}: total runtime ${totalRuntime.toFixed(1)}s is outside approved rich-content window`);
+  record(totalRuntime >= 4450 && totalRuntime <= 4480, `${name}: total runtime ${totalRuntime.toFixed(1)}s is outside approved rich-content window`);
   await page.screenshot({ path: path.join(outDir, `${name}-after-test.png`), fullPage: true });
 
   record(consoleErrors.length === 0, `${name}: console errors ${consoleErrors.join(" | ")}`);
@@ -234,7 +234,40 @@ async function runShellIntegration(browser) {
       createdAt: new Date().toISOString(),
       stars: 0,
       attempts: [],
-      trainingCompleted: {},
+      trainingCompleted: {
+        "chemistry-101-winter-2026:tiny-particles-big-clues": {
+          date: new Date().toISOString(),
+          count: 1,
+          title: "Tiny Particles, Big Clues",
+          source: "Chemistry 101 Winter 2026"
+        }
+      },
+      chemistry101Progress: {
+        courseId: "chemistry-101-winter-2026",
+        chapters: {
+          "tiny-particles-big-clues": {
+            watchedSeconds: 675,
+            completed: true,
+            completedAt: new Date().toISOString(),
+            test: {
+              score: 9,
+              total: 10,
+              submittedAt: new Date().toISOString(),
+              feedback: [{
+                number: 1,
+                prompt: "Which observation should come before a particle-model explanation?",
+                concept: "Evidence before models",
+                selectedIndex: 0,
+                selected: "The colour chosen for the dots",
+                answerIndex: 1,
+                answer: "A material's observed behaviour",
+                feedback: "Start with observable evidence before using a model to explain it.",
+                correct: false
+              }]
+            }
+          }
+        }
+      },
       writingSamples: []
     };
     localStorage.setItem("brightQuestProfilesV2", JSON.stringify({ "qa-student": profile }));
@@ -306,6 +339,21 @@ async function runShellIntegration(browser) {
   record(await parent.locator(".bq-parent-page").isVisible(), "parent shell: parent page is not visible");
   const parentBox = await parent.locator(".bq-parent-page").boundingBox();
   record(Boolean(parentBox && parentBox.width > 400 && parentBox.height > 200), "parent shell: cockpit content did not render to a visible area");
+  await parent.locator('[data-parent-route="chemistry"]').click();
+  await parent.waitForSelector('[data-chemistry-review="tiny-particles-big-clues"]');
+  const reviewButton = parent.locator('[data-chemistry-review="tiny-particles-big-clues"]');
+  record(await reviewButton.count() === 1, "parent shell: Chapter 8 review button missing");
+  if (await reviewButton.count()) {
+    await reviewButton.click();
+    await parent.waitForSelector("#bqChemistryReviewPopup:not(.hidden)");
+    const reviewText = await parent.locator("#bqChemistryReviewPopup").innerText();
+    record(reviewText.toLowerCase().includes("wrong answers first"), "parent shell: wrong-answers-first heading missing");
+    record(reviewText.includes("The colour chosen for the dots"), "parent shell: selected wrong answer missing");
+    record(reviewText.includes("A material's observed behaviour"), "parent shell: correct answer missing");
+    record(reviewText.includes("Start with observable evidence"), "parent shell: saved feedback missing");
+    await parent.screenshot({ path: path.join(outDir, "shell-parent-chapter-08-review.png"), fullPage: true });
+    await parent.locator("[data-chemistry-review-close]").last().click();
+  }
   await parent.screenshot({ path: path.join(outDir, "shell-parent-cockpit.png"), fullPage: true });
   record(shellErrors.length === 0, `shell integration console errors ${shellErrors.join(" | ")}`);
   record(shellFailures.length === 0, `shell integration failed responses ${shellFailures.join(" | ")}`);
