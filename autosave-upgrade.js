@@ -202,13 +202,13 @@
   function sendProfileKeepalive() {
     try {
       const payload = JSON.stringify({ profile: state.profile });
-      if (navigator.sendBeacon) {
+      if (!window.BrightQuestFamilyAuth?.enabled && navigator.sendBeacon) {
         const blob = new Blob([payload], { type: "application/json" });
         if (navigator.sendBeacon(`${apiBase}/profiles`, blob)) return;
       }
       fetch(`${apiBase}/profiles`, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", ...(window.BrightQuestFamilyAuth?.requestHeaders?.() || {}) },
         body: payload,
         keepalive: true
       });

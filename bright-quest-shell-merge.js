@@ -219,7 +219,10 @@
 
   async function deleteCloudProfile(profileId) {
     try {
-      await fetch(`/api/profiles?profileId=${encodeURIComponent(profileId)}`, { method: "DELETE" });
+      await fetch(`/api/profiles?profileId=${encodeURIComponent(profileId)}`, {
+        method: "DELETE",
+        headers: window.BrightQuestFamilyAuth?.requestHeaders?.() || {}
+      });
     } catch (error) {
       console.warn("Cloud profile delete skipped", error);
     }
@@ -253,6 +256,7 @@
           <span><strong>${attempts.length}</strong><small>tests</small></span>
           <span><strong>${best}%</strong><small>best</small></span>
           <span><strong>${state.profile.stars || 0}</strong><small>stars</small></span>
+          ${window.BrightQuestFamilyAuth?.enabled ? `<button type="button" class="bq-logout-chip" data-bq-action="parent-cockpit">Parent Cockpit</button>` : ""}
           <button type="button" class="bq-logout-chip" data-bq-action="logout">Log out</button>
         </div>
       </section>
@@ -337,6 +341,10 @@
       renderKidProgressPage();
       return;
     }
+    if (action === "parent-cockpit") {
+      window.BrightQuestFamilyAuth?.openParent();
+      return;
+    }
     if (action === "kid-home") {
       renderKidShell();
       return;
@@ -354,7 +362,8 @@
       return;
     }
     if (action === "logout") {
-      switchProfileButton.click();
+      if (window.BrightQuestFamilyAuth?.enabled) window.BrightQuestFamilyAuth.logout();
+      else switchProfileButton.click();
     }
   }
 
@@ -674,6 +683,7 @@
         <div class="parent-options-wrap">
           <button class="button button-soft" type="button" data-parent-options>Options</button>
           <div class="parent-options-menu hidden">
+            ${window.BrightQuestFamilyAuth?.enabled ? `<button type="button" data-parent-shell-action="manage-children">Manage children</button>` : ""}
             <button type="button" data-parent-shell-action="refresh">Refresh data</button>
             <button type="button" data-parent-shell-action="reset">Reset all data</button>
             <button type="button" data-parent-shell-action="logout">Log out</button>
@@ -1450,6 +1460,7 @@
       renderParentDashboard();
       showToast("Parent view refreshed.");
     }
+    if (action.dataset.parentShellAction === "manage-children") window.BrightQuestFamilyAuth?.openFamilySettings();
     if (action.dataset.parentShellAction === "reset") parentResetButton.click();
     if (action.dataset.parentShellAction === "logout") parentExitButton.click();
   });

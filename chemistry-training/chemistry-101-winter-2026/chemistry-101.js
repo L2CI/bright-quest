@@ -159,12 +159,25 @@
       localStorage.setItem(profilesKey, JSON.stringify(profiles));
       fetch("/api/profiles", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: familyCapabilityHeaders({ "content-type": "application/json" }),
         body: JSON.stringify({ profile })
       }).catch(() => {});
     } catch {
       // Local progress remains the source if profile sync is unavailable.
     }
+  }
+
+  function familyCapabilityHeaders(base = {}) {
+    const headers = { ...base };
+    try {
+      const parentCapability = sessionStorage.getItem("brightQuestParentCapability");
+      const childCapability = sessionStorage.getItem("brightQuestChildCapability");
+      if (parentCapability) headers["x-bq-parent-capability"] = parentCapability;
+      if (childCapability) headers["x-bq-child-capability"] = childCapability;
+    } catch {
+      // Local progress remains available when session storage is unavailable.
+    }
+    return headers;
   }
 
   function renderTabs() {

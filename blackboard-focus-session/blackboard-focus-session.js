@@ -122,7 +122,7 @@
     const canUseCloudProfiles = !["127.0.0.1", "localhost", ""].includes(window.location.hostname);
     try {
       if (!canUseCloudProfiles) return normalizeProfile(profile);
-      const response = await fetch("/api/profiles", { headers: { accept: "application/json" } });
+      const response = await fetch("/api/profiles", { headers: familyCapabilityHeaders({ accept: "application/json" }) });
       if (response.ok) {
         const body = await response.json();
         const remoteProfiles = (body.profiles || []).map((item) => item.payload).filter(Boolean);
@@ -134,6 +134,19 @@
     }
 
     return normalizeProfile(profile);
+  }
+
+  function familyCapabilityHeaders(base = {}) {
+    const headers = { ...base };
+    try {
+      const parentCapability = sessionStorage.getItem("brightQuestParentCapability");
+      const childCapability = sessionStorage.getItem("brightQuestChildCapability");
+      if (parentCapability) headers["x-bq-parent-capability"] = parentCapability;
+      if (childCapability) headers["x-bq-child-capability"] = childCapability;
+    } catch {
+      // Local profile data remains available when session storage is unavailable.
+    }
+    return headers;
   }
 
   function normalizeProfile(profile) {

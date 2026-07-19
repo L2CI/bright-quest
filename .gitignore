@@ -1,4 +1,6 @@
 node_modules/
+.wrangler/
+outputs/
 qa-screens/
 street-smart-rescue/qa-*
 street-smart-rescue/assets/generated/*-source.png

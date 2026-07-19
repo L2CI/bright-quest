@@ -560,7 +560,10 @@
 
   async function deleteCloudProfile(profileId) {
     try {
-      await fetch(`${apiBase}/profiles?profileId=${encodeURIComponent(profileId)}`, { method: "DELETE" });
+      await fetch(`${apiBase}/profiles?profileId=${encodeURIComponent(profileId)}`, {
+        method: "DELETE",
+        headers: window.BrightQuestFamilyAuth?.requestHeaders?.() || {}
+      });
     } catch {
       // Local-only use can ignore remote cleanup.
     }

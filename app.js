@@ -262,13 +262,16 @@ function saveProfiles() {
 
 async function pullCloudProfiles() {
   try {
-    const response = await fetch(`${apiBase}/profiles`, { headers: { accept: "application/json" } });
+    const response = await fetch(`${apiBase}/profiles`, {
+      headers: { accept: "application/json", ...(window.BrightQuestFamilyAuth?.requestHeaders?.() || {}) }
+    });
     if (!response.ok) return;
     const body = await response.json();
     if (!Array.isArray(body.profiles)) return;
 
     body.profiles.forEach((remote) => {
       if (!remote.payload?.id) return;
+      if (remote.version) remote.payload.cloudVersion = remote.version;
       const local = state.profiles[remote.payload.id];
       if (!local || new Date(remote.updatedAt) > new Date(local.cloudSyncedAt || local.createdAt || 0)) {
         state.profiles[remote.payload.id] = { ...remote.payload, cloudSyncedAt: remote.updatedAt };
@@ -289,12 +292,18 @@ async function syncProfileToCloud(profile = state.profile) {
   try {
     const response = await fetch(`${apiBase}/profiles`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", ...(window.BrightQuestFamilyAuth?.requestHeaders?.() || {}) },
       body: JSON.stringify({ profile })
     });
+    if (response.status === 409) {
+      await pullCloudProfiles();
+      showToast("Progress changed on another device. Bright Quest refreshed the latest copy.");
+      return;
+    }
     if (!response.ok) return;
     const body = await response.json();
     profile.cloudSyncedAt = body.syncedAt || new Date().toISOString();
+    if (body.version) profile.cloudVersion = body.version;
     saveProfiles();
   } catch {
     // Cloud sync is best-effort; local progress is still saved.
@@ -306,8 +315,8 @@ async function logCloudEvent(eventType, payload = {}, profile = state.profile) {
   try {
     await fetch(`${apiBase}/events`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ profileId: profile.id, eventType, payload })
+      headers: { "content-type": "application/json", ...(window.BrightQuestFamilyAuth?.requestHeaders?.() || {}) },
+      body: JSON.stringify({ eventId: crypto.randomUUID(), profileId: profile.id, eventType, payload })
     });
   } catch {
     // Event logging is best-effort.
@@ -316,9 +325,14 @@ async function logCloudEvent(eventType, payload = {}, profile = state.profile) {
 
 async function purgeCloudData() {
   try {
-    await fetch(`${apiBase}/profiles`, { method: "DELETE" });
+    const response = await fetch(`${apiBase}/profiles`, {
+      method: "DELETE",
+      headers: window.BrightQuestFamilyAuth?.requestHeaders?.() || {}
+    });
+    return response.ok;
   } catch {
     // Local reset can still succeed without the cloud API.
+    return false;
   }
 }
 
@@ -487,7 +501,7 @@ function renderParentDashboard() {
   parentTrainingTable.innerHTML = renderParentTrainingRows(training);
 }
 
-function handleParentReset() {
+async function handleParentReset() {
   const first = window.confirm("This will delete every child profile, test attempt, training record, and writing sample stored in this browser. Continue?");
   if (!first) return;
 
@@ -497,9 +511,13 @@ function handleParentReset() {
     return;
   }
 
+  const cloudPurged = await purgeCloudData();
+  if (window.BrightQuestFamilyAuth?.enabled && !cloudPurged) {
+    showToast("Reset could not be completed. No family data was removed.");
+    return;
+  }
   localStorage.removeItem(storageKey);
   localStorage.removeItem("brightQuestActiveProfile");
-  purgeCloudData();
   state.profiles = {};
   state.profileId = "";
   state.profile = null;
