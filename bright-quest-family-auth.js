@@ -12,6 +12,7 @@
 
   const controller = {
     enabled: false,
+    experienceUpliftEnabled: false,
     openFamilySettings,
     openParent,
     logout,
@@ -30,7 +31,14 @@
 
   async function initialise() {
     const config = await api("/api/auth/config", { silent: true });
-    if (!config?.enabled) return;
+    controller.experienceUpliftEnabled = Boolean(config?.experienceUpliftEnabled);
+    document.body.classList.toggle("bq-experience-uplift", controller.experienceUpliftEnabled);
+    if (!config?.enabled) {
+      if (!document.querySelector("#dashboardScreen")?.classList.contains("hidden")) {
+        requestAnimationFrame(() => renderDashboard());
+      }
+      return;
+    }
     controller.enabled = true;
     const signupTab = document.querySelector('[data-auth-tab="signup"]');
     signupTab?.classList.toggle("hidden", !config.signupEnabled);

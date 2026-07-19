@@ -231,6 +231,10 @@
   function renderKidShell() {
     const ref = document.querySelector("#brightReferenceDashboard");
     if (!ref || !state.profile) return;
+    if (document.body.classList.contains("bq-experience-uplift")) {
+      renderKidMissionControl(ref);
+      return;
+    }
     const attempts = state.profile.attempts || [];
     const best = attempts.reduce((max, item) => Math.max(max, item.percent || 0), 0);
     const weak = Object.entries(weakSkillCounts()).sort((a, b) => b[1] - a[1])[0];
@@ -320,7 +324,125 @@
     });
   }
 
+  function renderKidMissionControl(ref) {
+    const profile = state.profile;
+    const attempts = profile.attempts || [];
+    const chemistryChapters = profile.chemistry101Progress?.chapters || {};
+    const chemistryCompleted = Object.values(chemistryChapters).filter((chapter) => chapter?.completed).length;
+    const nextChemistryChapter = nextChemistryChapterNumber(profile);
+    const trainingCompleted = profile.trainingCompleted || {};
+    const winterCompleted = Object.keys(trainingCompleted).filter((key) => /winter|agmaths/i.test(key) && !/chemistry/i.test(key)).length;
+    const best = attempts.reduce((max, attempt) => Math.max(max, Number(attempt.percent || 0)), 0);
+    const journeyCount = attempts.length + chemistryCompleted + winterCompleted;
+    const mission = chemistryCompleted > 0 && chemistryCompleted < 11
+      ? {
+        action: "chemistry-training",
+        eyebrow: "Next mission",
+        title: `Chemistry Lab: Chapter ${nextChemistryChapter}`,
+        copy: "Continue the particle investigation, then complete the chapter test.",
+        meta: `Chapter ${nextChemistryChapter} of 11 · about 10 minutes`,
+        progress: Math.round((chemistryCompleted / 11) * 100),
+        image: `chemistry-training/chemistry-101-winter-2026/assets/ui/chapter-${String(nextChemistryChapter).padStart(2, "0")}-card.png`,
+        imageAlt: `Chemistry Chapter ${nextChemistryChapter} lesson artwork`
+      }
+      : {
+        action: "city-exam",
+        eyebrow: attempts.length ? "Keep going" : "First mission",
+        title: attempts.length && best < 75 ? "Repair the latest exam set" : "City Exam Expedition",
+        copy: attempts.length ? "Use the next short set to build calm speed and accuracy." : "Start with a short mixed set and unlock your first reward.",
+        meta: `${attempts.length} sets complete · about 12 minutes`,
+        progress: Math.min(100, attempts.length * 12),
+        image: "assets/ui/test-workbench-scene.svg",
+        imageAlt: "Bright Quest exam workbench"
+      };
+
+    document.querySelector("#dashboardScreen")?.classList.remove("bq-kid-subpage");
+    ref.className = "reference-dashboard bq-mission-control";
+    ref.innerHTML = `
+      <header class="bq-mc-topbar">
+        <div class="bq-mc-identity">
+          <span class="bq-mc-mark" aria-hidden="true">BQ</span>
+          <div><small>Welcome back</small><strong>${escapeHtml(profile.name)}</strong></div>
+        </div>
+        <div class="bq-mc-status" aria-label="Journey status">
+          <span><strong>${profile.stars || 0}</strong><small>stars</small></span>
+          <span><strong>${journeyCount}</strong><small>missions</small></span>
+        </div>
+        <div class="bq-mc-account-actions">
+          ${window.BrightQuestFamilyAuth?.enabled ? `<button type="button" class="button button-soft" data-bq-action="parent-cockpit">Parent</button>` : ""}
+          <button type="button" class="button button-soft" data-bq-action="logout">Log out</button>
+        </div>
+      </header>
+
+      <section class="bq-mc-main">
+        <section class="bq-next-mission" aria-labelledby="bqNextMissionTitle">
+          <div class="bq-next-mission-copy">
+            <p class="eyebrow">${mission.eyebrow}</p>
+            <h1 id="bqNextMissionTitle">${escapeHtml(mission.title)}</h1>
+            <p>${escapeHtml(mission.copy)}</p>
+            <div class="bq-mission-progress" role="progressbar" aria-label="Mission progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${mission.progress}">
+              <span style="width:${mission.progress}%"></span>
+            </div>
+            <small>${escapeHtml(mission.meta)}</small>
+            <button type="button" class="button button-primary" data-bq-action="${mission.action}">Continue mission</button>
+          </div>
+          <figure class="bq-next-mission-art">
+            <img src="${mission.image}" alt="${escapeAttr(mission.imageAlt)}" />
+          </figure>
+        </section>
+
+        <section class="bq-worlds-section" aria-labelledby="bqWorldsTitle">
+          <div class="bq-section-heading">
+            <div><p class="eyebrow">Learn</p><h2 id="bqWorldsTitle">Choose a world</h2></div>
+            <p>Continue a course or switch subjects.</p>
+          </div>
+          <div class="bq-world-grid">
+            <button type="button" class="bq-world-tile exam ${mission.action === "city-exam" ? "current" : ""}" data-bq-action="city-exam">
+              <img src="assets/ui/core-test-path.svg" alt="" />
+              <span class="bq-world-status">${mission.action === "city-exam" ? "Current" : `${attempts.length} sets`}</span>
+              <strong>Exam Expedition</strong>
+              <small>Maths, English and reasoning</small>
+            </button>
+            <button type="button" class="bq-world-tile winter" data-bq-action="winter-training">
+              <img src="assets/ui/winter-2026/place-value.png" alt="" />
+              <span class="bq-world-status">${winterCompleted ? `${winterCompleted} complete` : "Ready"}</span>
+              <strong>Winter Maths Workshop</strong>
+              <small>Ten focused maths topics</small>
+            </button>
+            <button type="button" class="bq-world-tile chemistry ${mission.action === "chemistry-training" ? "current" : ""}" data-bq-action="chemistry-training">
+              <img src="chemistry-training/chemistry-101-winter-2026/assets/ui/chapter-${String(nextChemistryChapter).padStart(2, "0")}-card.png" alt="" />
+              <span class="bq-world-status">${mission.action === "chemistry-training" ? "Current" : `${chemistryCompleted} of 11`}</span>
+              <strong>Chemistry Lab</strong>
+              <small>Animated lessons and tests</small>
+            </button>
+          </div>
+        </section>
+
+        <section class="bq-reward-strip" aria-label="Reward game">
+          <img src="assets/ui/reward-cave-river.svg" alt="" />
+          <div><p class="eyebrow">Play</p><h2>${attempts.length ? "A reward quest is ready" : "Your first reward is close"}</h2><p>${attempts.length ? "Choose an unlocked game for a short break." : "Complete one exam set to open the reward trail."}</p></div>
+          <button type="button" class="button button-soft" data-bq-action="games">Open Play</button>
+        </section>
+      </section>
+
+      <nav class="bq-child-nav" aria-label="Child navigation">
+        <button type="button" class="active" data-bq-action="kid-home" aria-current="page">Today</button>
+        <button type="button" data-bq-action="learn">Learn</button>
+        <button type="button" data-bq-action="games">Play</button>
+        <button type="button" data-bq-action="progress">My Journey</button>
+      </nav>
+    `;
+
+    ref.querySelectorAll("[data-bq-action]").forEach((button) => {
+      button.addEventListener("click", () => handleKidAction(button.dataset.bqAction));
+    });
+  }
+
   function handleKidAction(action) {
+    if (action === "learn") {
+      document.querySelector(".bq-worlds-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
     if (action === "city-exam") {
       renderCityExamPrepPage();
       return;
@@ -330,7 +452,7 @@
       return;
     }
     if (action === "chemistry-training") {
-      window.location.href = chemistry101Url(state.profile);
+      window.location.href = chemistry101Url(state.profile, nextChemistryChapterNumber(state.profile));
       return;
     }
     if (action === "games") {
@@ -394,11 +516,19 @@
     return url.toString();
   }
 
-  function chemistry101Url(profile = null) {
+  function nextChemistryChapterNumber(profile = null) {
+    const chapters = profile?.chemistry101Progress?.chapters || {};
+    const ids = ["hidden-code", "periodic-map", "particle-states", "mixtures-separation", "chemical-clues", "mystery-of-stuff", "solid-liquid-gas", "tiny-particles-big-clues", "heat-particles-dance", "melting-not-disappearing", "dissolving-not-melting"];
+    const index = ids.findIndex((id) => !chapters[id]?.completed);
+    return index < 0 ? ids.length : index + 1;
+  }
+
+  function chemistry101Url(profile = null, chapterNumber = null) {
     const profileId = profile?.id || state.profileId || localStorage.getItem("brightQuestActiveProfile") || "";
-    return profileId
-      ? `chemistry-training/chemistry-101-winter-2026/?profileId=${encodeURIComponent(profileId)}`
-      : "chemistry-training/chemistry-101-winter-2026/";
+    const url = new URL("chemistry-training/chemistry-101-winter-2026/", window.location.href);
+    if (profileId) url.searchParams.set("profileId", profileId);
+    if (chapterNumber) url.searchParams.set("chapter", String(chapterNumber));
+    return `${url.pathname.replace(/^\//, "")}${url.search}`;
   }
 
   function kidPageShell(title, copy, artName, body) {

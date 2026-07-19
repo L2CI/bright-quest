@@ -1,0 +1,661 @@
+body.bq-experience-uplift {
+  min-width: 320px;
+  overflow-x: hidden;
+  color: #14213d;
+  background: #f4f7fb !important;
+}
+
+body.bq-experience-uplift::before {
+  display: none;
+}
+
+body.bq-experience-uplift .app {
+  width: min(1180px, 100%) !important;
+  padding: 20px;
+}
+
+body.bq-experience-uplift .ambient {
+  display: none;
+}
+
+body.bq-experience-uplift .bq-mission-control,
+body.bq-experience-uplift .bq-mission-control * {
+  min-width: 0;
+}
+
+body.bq-experience-uplift .bq-mission-control {
+  display: grid;
+  gap: 18px;
+  width: 100%;
+  margin: 0;
+  color: #14213d;
+}
+
+body.bq-experience-uplift .bq-mission-control button {
+  font: inherit;
+  cursor: pointer;
+}
+
+body.bq-experience-uplift .bq-mission-control .button {
+  min-height: 44px;
+  border-radius: 8px !important;
+  padding: 0 16px;
+  font-size: 0.92rem;
+  font-weight: 850;
+  letter-spacing: 0;
+  transition: transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+}
+
+body.bq-experience-uplift .bq-mission-control .button-primary {
+  border: 1px solid #165dc7 !important;
+  color: #ffffff;
+  background: #1769d2 !important;
+  box-shadow: 0 6px 14px rgba(23, 105, 210, 0.2) !important;
+}
+
+body.bq-experience-uplift .bq-mission-control .button-soft {
+  border: 1px solid #d4dce8 !important;
+  color: #18345f;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+body.bq-experience-uplift .bq-mission-control .button:hover,
+body.bq-experience-uplift .bq-child-nav button:hover,
+body.bq-experience-uplift .bq-world-tile:hover {
+  transform: translateY(-1px);
+}
+
+body.bq-experience-uplift .bq-mission-control .button-primary:hover {
+  background: #1159bc;
+  box-shadow: 0 8px 18px rgba(23, 105, 210, 0.24);
+}
+
+body.bq-experience-uplift .bq-mission-control .button-soft:hover {
+  border-color: #9eb2cc;
+  background: #f8fafc;
+}
+
+body.bq-experience-uplift .bq-mission-control button:focus-visible {
+  outline: 3px solid #ffbf3f;
+  outline-offset: 3px;
+}
+
+body.bq-experience-uplift .bq-mc-topbar {
+  display: grid;
+  grid-template-columns: minmax(210px, 1fr) auto minmax(210px, 1fr);
+  gap: 16px;
+  align-items: center;
+  min-height: 64px;
+  border-bottom: 1px solid #dce3ec;
+  padding: 0 0 14px;
+}
+
+body.bq-experience-uplift .bq-mc-identity {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+body.bq-experience-uplift .bq-mc-mark {
+  display: grid;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 8px;
+  color: #ffffff;
+  background: #1769d2;
+  font-size: 0.86rem;
+  font-weight: 950;
+  letter-spacing: 0;
+}
+
+body.bq-experience-uplift .bq-mc-identity div {
+  display: grid;
+  gap: 2px;
+}
+
+body.bq-experience-uplift .bq-mc-identity small,
+body.bq-experience-uplift .bq-mc-status small {
+  color: #607089;
+  font-size: 0.75rem;
+  font-weight: 750;
+  letter-spacing: 0;
+}
+
+body.bq-experience-uplift .bq-mc-identity strong {
+  overflow-wrap: anywhere;
+  font-size: 1.05rem;
+  line-height: 1.15;
+}
+
+body.bq-experience-uplift .bq-mc-status {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(72px, 1fr));
+  gap: 8px;
+}
+
+body.bq-experience-uplift .bq-mc-status span {
+  display: grid;
+  min-height: 44px;
+  align-content: center;
+  justify-items: center;
+  border: 1px solid #dce3ec;
+  border-radius: 8px;
+  padding: 4px 10px;
+  background: #ffffff;
+}
+
+body.bq-experience-uplift .bq-mc-status span:first-child {
+  border-bottom: 3px solid #f4bc2e;
+}
+
+body.bq-experience-uplift .bq-mc-status span:last-child {
+  border-bottom: 3px solid #20a79b;
+}
+
+body.bq-experience-uplift .bq-mc-status strong {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+body.bq-experience-uplift .bq-mc-account-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+body.bq-experience-uplift .bq-mc-account-actions .button {
+  min-width: 92px;
+}
+
+body.bq-experience-uplift .bq-mc-main {
+  display: grid;
+  gap: 18px;
+}
+
+body.bq-experience-uplift .bq-next-mission {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  min-height: 252px;
+  overflow: hidden;
+  border: 1px solid #d7e0eb;
+  border-left: 6px solid #1769d2;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgba(20, 33, 61, 0.08);
+}
+
+body.bq-experience-uplift .bq-next-mission-copy {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 9px;
+  padding: 24px 28px;
+}
+
+body.bq-experience-uplift .bq-mission-control .eyebrow {
+  margin: 0;
+  color: #1769d2;
+  font-size: 0.73rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+body.bq-experience-uplift .bq-next-mission-copy h1 {
+  max-width: 19ch;
+  margin: 0;
+  color: #14213d;
+  font-size: 2rem;
+  line-height: 1.08;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+body.bq-experience-uplift .bq-next-mission-copy > p:not(.eyebrow) {
+  max-width: 54ch;
+  margin: 0;
+  color: #4f6078;
+  font-size: 0.98rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+body.bq-experience-uplift .bq-next-mission-copy > small {
+  color: #607089;
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+body.bq-experience-uplift .bq-next-mission-copy .button {
+  min-width: 168px;
+  margin-top: 2px;
+}
+
+body.bq-experience-uplift .bq-mission-progress {
+  width: min(330px, 100%);
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e7edf5;
+}
+
+body.bq-experience-uplift .bq-mission-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #20a79b;
+}
+
+body.bq-experience-uplift .bq-next-mission-art {
+  min-height: 252px;
+  margin: 0;
+  overflow: hidden;
+  border-left: 1px solid #d7e0eb;
+  background: #eaf3fb;
+}
+
+body.bq-experience-uplift .bq-next-mission-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 252px;
+  object-fit: cover;
+  object-position: center;
+}
+
+body.bq-experience-uplift .bq-worlds-section {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+}
+
+body.bq-experience-uplift .bq-section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+body.bq-experience-uplift .bq-section-heading h2,
+body.bq-experience-uplift .bq-reward-strip h2 {
+  margin: 2px 0 0;
+  color: #14213d;
+  font-size: 1.35rem;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+body.bq-experience-uplift .bq-section-heading > p,
+body.bq-experience-uplift .bq-reward-strip p:not(.eyebrow) {
+  margin: 0;
+  color: #607089;
+  font-size: 0.88rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+body.bq-experience-uplift .bq-world-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+body.bq-experience-uplift .bq-world-tile {
+  position: relative;
+  display: grid;
+  grid-template-rows: 132px auto auto;
+  gap: 5px;
+  min-height: 224px;
+  overflow: hidden;
+  border: 1px solid #d7e0eb;
+  border-radius: 8px;
+  padding: 0 14px 14px;
+  color: #14213d;
+  text-align: left;
+  background: #ffffff;
+  box-shadow: 0 5px 14px rgba(20, 33, 61, 0.06);
+  transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+}
+
+body.bq-experience-uplift .bq-world-tile.current {
+  border-color: #1769d2;
+  box-shadow: 0 0 0 2px rgba(23, 105, 210, 0.12), 0 7px 18px rgba(20, 33, 61, 0.08);
+}
+
+body.bq-experience-uplift .bq-world-tile.exam {
+  border-top: 4px solid #1769d2;
+}
+
+body.bq-experience-uplift .bq-world-tile.winter {
+  border-top: 4px solid #f4bc2e;
+}
+
+body.bq-experience-uplift .bq-world-tile.chemistry {
+  border-top: 4px solid #ef735f;
+}
+
+body.bq-experience-uplift .bq-world-tile img {
+  width: calc(100% + 28px);
+  height: 132px;
+  margin-left: -14px;
+  object-fit: cover;
+  border-bottom: 1px solid #e2e8f0;
+  background: #eef3f8;
+}
+
+body.bq-experience-uplift .bq-world-status {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  max-width: calc(100% - 20px);
+  overflow: hidden;
+  border: 1px solid rgba(20, 33, 61, 0.12);
+  border-radius: 999px;
+  padding: 5px 9px;
+  color: #18345f;
+  background: rgba(255, 255, 255, 0.94);
+  font-size: 0.7rem;
+  font-weight: 900;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.bq-experience-uplift .bq-world-tile strong {
+  align-self: end;
+  overflow-wrap: anywhere;
+  font-size: 1rem;
+  line-height: 1.22;
+}
+
+body.bq-experience-uplift .bq-world-tile small {
+  color: #607089;
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+body.bq-experience-uplift .bq-reward-strip {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  min-height: 96px;
+  border-top: 1px solid #dce3ec;
+  border-bottom: 1px solid #dce3ec;
+  padding: 12px 4px;
+}
+
+body.bq-experience-uplift .bq-reward-strip img {
+  display: block;
+  width: 96px;
+  height: 72px;
+  object-fit: contain;
+}
+
+body.bq-experience-uplift .bq-reward-strip > div {
+  display: grid;
+  gap: 3px;
+}
+
+body.bq-experience-uplift .bq-reward-strip .eyebrow {
+  color: #cf5a48;
+}
+
+body.bq-experience-uplift .bq-reward-strip .button {
+  min-width: 118px;
+}
+
+body.bq-experience-uplift .bq-child-nav {
+  position: static;
+  z-index: auto;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  min-height: 58px;
+  border: 1px solid #d7e0eb;
+  border-radius: 8px;
+  padding: 6px;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(20, 33, 61, 0.07);
+}
+
+body.bq-experience-uplift .bq-child-nav button {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: #52627a;
+  background: transparent;
+  font-size: 0.82rem;
+  font-weight: 850;
+  letter-spacing: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: transform 140ms ease, color 140ms ease, background-color 140ms ease;
+}
+
+body.bq-experience-uplift .bq-child-nav button span {
+  color: #20a79b;
+  font-size: 0.88rem;
+}
+
+body.bq-experience-uplift .bq-child-nav button.active {
+  color: #174f9c;
+  background: #eaf2fd;
+}
+
+@media (max-width: 900px) {
+  body.bq-experience-uplift .app {
+    padding: 16px !important;
+  }
+
+  body.bq-experience-uplift .bq-mc-topbar {
+    grid-template-columns: minmax(180px, 1fr) auto;
+  }
+
+  body.bq-experience-uplift .bq-mc-status {
+    order: 3;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 132px));
+    justify-content: center;
+  }
+
+  body.bq-experience-uplift .bq-mc-account-actions {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  body.bq-experience-uplift .bq-next-mission {
+    grid-template-columns: minmax(0, 1.08fr) minmax(250px, 0.92fr);
+  }
+
+  body.bq-experience-uplift .bq-next-mission-copy {
+    padding: 22px;
+  }
+
+  body.bq-experience-uplift .bq-next-mission-copy h1 {
+    font-size: 1.72rem;
+  }
+
+  body.bq-experience-uplift .bq-world-tile {
+    grid-template-rows: 112px auto auto;
+    min-height: 210px;
+  }
+
+  body.bq-experience-uplift .bq-world-tile img {
+    height: 112px;
+  }
+}
+
+@media (max-width: 640px) {
+  body.bq-experience-uplift .app {
+    padding: 12px !important;
+  }
+
+  body.bq-experience-uplift .bq-mission-control,
+  body.bq-experience-uplift .bq-mc-main {
+    gap: 14px;
+  }
+
+  body.bq-experience-uplift .bq-mc-topbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    padding-bottom: 12px;
+  }
+
+  body.bq-experience-uplift .bq-mc-identity small {
+    display: none;
+  }
+
+  body.bq-experience-uplift .bq-mc-account-actions {
+    gap: 6px;
+  }
+
+  body.bq-experience-uplift .bq-mc-account-actions .button {
+    width: auto;
+    min-width: 72px;
+    padding: 0 10px;
+    font-size: 0.8rem;
+  }
+
+  body.bq-experience-uplift .bq-mc-status {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.bq-experience-uplift .bq-next-mission {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  body.bq-experience-uplift .bq-next-mission-copy {
+    order: 2;
+    padding: 20px;
+  }
+
+  body.bq-experience-uplift .bq-next-mission-copy h1 {
+    max-width: none;
+    font-size: 1.65rem;
+  }
+
+  body.bq-experience-uplift .bq-next-mission-copy .button {
+    width: 100%;
+  }
+
+  body.bq-experience-uplift .bq-next-mission-art {
+    order: 1;
+    min-height: 168px;
+    max-height: 190px;
+    border-bottom: 1px solid #d7e0eb;
+    border-left: 0;
+  }
+
+  body.bq-experience-uplift .bq-next-mission-art img {
+    min-height: 168px;
+    max-height: 190px;
+  }
+
+  body.bq-experience-uplift .bq-section-heading {
+    display: grid;
+    gap: 5px;
+  }
+
+  body.bq-experience-uplift .bq-world-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  body.bq-experience-uplift .bq-world-tile {
+    grid-template-columns: 108px minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    column-gap: 13px;
+    min-height: 112px;
+    padding: 10px 12px 10px 0;
+  }
+
+  body.bq-experience-uplift .bq-world-tile img {
+    grid-row: 1 / 4;
+    width: 108px;
+    height: 88px;
+    margin: 0;
+    align-self: center;
+    border-right: 1px solid #e2e8f0;
+    border-bottom: 0;
+  }
+
+  body.bq-experience-uplift .bq-world-status {
+    position: static;
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  body.bq-experience-uplift .bq-world-tile strong {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: end;
+  }
+
+  body.bq-experience-uplift .bq-world-tile small {
+    grid-column: 2;
+    grid-row: 3;
+    align-self: start;
+  }
+
+  body.bq-experience-uplift .bq-reward-strip {
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  body.bq-experience-uplift .bq-reward-strip img {
+    width: 64px;
+    height: 64px;
+  }
+
+  body.bq-experience-uplift .bq-reward-strip .button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  body.bq-experience-uplift .bq-child-nav {
+    gap: 3px;
+    padding: 5px;
+  }
+
+  body.bq-experience-uplift .bq-child-nav button {
+    display: grid;
+    gap: 2px;
+    padding: 5px 2px;
+    font-size: 0.68rem;
+    line-height: 1.1;
+    white-space: normal;
+  }
+}
+
+@media (max-width: 370px) {
+  body.bq-experience-uplift .bq-mc-account-actions .button {
+    min-width: 62px;
+    padding: 0 7px;
+    font-size: 0.75rem;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.bq-experience-uplift .bq-mission-control *,
+  body.bq-experience-uplift .bq-mission-control *::before,
+  body.bq-experience-uplift .bq-mission-control *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

@@ -73,8 +73,12 @@
     renderTabs();
     renderMap();
     wireControls();
-    loadChapter(0);
-    showLanding(false);
+    const requestedChapter = Math.max(1, Number(new URLSearchParams(location.search).get("chapter")) || 1);
+    if (new URLSearchParams(location.search).has("chapter")) showPlayer(requestedChapter - 1);
+    else {
+      loadChapter(0);
+      showLanding(false);
+    }
     console.info(`Chemistry 101 loaded: ${RELEASE}`);
   }
 
