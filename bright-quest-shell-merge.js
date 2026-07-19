@@ -25,7 +25,10 @@
   const previousOpenGamesList = openGamesList;
   openGamesList = function shellMergeOpenGamesList(...args) {
     const result = previousOpenGamesList.apply(this, args);
-    requestAnimationFrame(addDragonForgeKidCard);
+    requestAnimationFrame(() => {
+      addDragonForgeKidCard();
+      upliftGamesList();
+    });
     return result;
   };
 
@@ -554,6 +557,14 @@
     ref.querySelectorAll("[data-start-level]").forEach((button) => {
       button.addEventListener("click", () => startLevel(Number(button.dataset.startLevel)));
     });
+    ref.querySelectorAll("[data-course-path-toggle]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const path = button.previousElementSibling;
+        const expanded = path?.classList.toggle("show-full-path") || false;
+        button.textContent = expanded ? "Show current path" : path?.classList.contains("winter-path") ? "View full workshop map" : "View full expedition";
+        button.setAttribute("aria-expanded", String(expanded));
+      });
+    });
     return ref;
   }
 
@@ -562,28 +573,28 @@
     const recommended = nextSuggestedLevel();
     const levels = getAllLevels();
     const completed = levels.filter((level) => latest[level.level]).length;
+    const currentIndex = Math.max(0, levels.findIndex((level) => level.level === recommended));
     const body = `
       <section class="bq-prep-summary">
         <div><strong>${completed}/${levels.length}</strong><span>sets attempted</span></div>
         <div><strong>${bestAttemptScore()}%</strong><span>best score</span></div>
         <div><strong>${recommended}</strong><span>suggested set</span></div>
       </section>
-      <section class="bq-prep-grid" aria-label="City School Exam Prep sets">
-        ${levels.map((level) => {
+      <section class="bq-course-path exam-path" aria-label="City School Exam Prep expedition">
+        ${levels.map((level, index) => {
           const attempt = latest[level.level];
           const status = attempt ? `${attempt.percent}% ${scoreLabel(attempt.percent)}` : "Pending";
           const isRecommended = level.level === recommended;
           return `
-            <button type="button" class="bq-prep-card ${attempt ? "done" : "pending"} ${isRecommended ? "recommended" : ""}" data-start-level="${escapeAttr(level.level)}">
-              ${art(attempt ? "mountain" : "school")}
-              <span class="bq-prep-state">${isRecommended ? "Suggested next" : attempt ? "Done" : "Pending"}</span>
-              <strong>${escapeHtml(level.name)}</strong>
-              <small>${escapeHtml(level.challengeLabel || level.difficulty || "City School Prep")}</small>
-              <em>${escapeHtml(status)}</em>
+            <button type="button" class="bq-path-node ${attempt ? "done" : "pending"} ${isRecommended ? "current" : ""} ${index >= currentIndex && index <= currentIndex + 2 ? "nearby" : ""}" data-start-level="${escapeAttr(level.level)}">
+              <span class="bq-path-marker">${attempt ? "Done" : String(level.level).padStart(2, "0")}</span>
+              <span class="bq-path-copy"><strong>${escapeHtml(level.name)}</strong><small>${escapeHtml(level.challengeLabel || level.difficulty || "City School Prep")}</small></span>
+              <span class="bq-path-status">${isRecommended ? "Start next" : escapeHtml(status)}</span>
             </button>
           `;
         }).join("")}
       </section>
+      <button class="button button-soft bq-course-path-toggle" type="button" data-course-path-toggle aria-expanded="false">View full expedition</button>
     `;
     kidPageShell("City School Exam Prep", "Choose a set, see what is done, and start the real test only when ready.", "school", body);
   }
@@ -603,9 +614,10 @@
           <button type="button" class="bq-command-button" data-bq-action="open-dragon-forge"><span>Play Dragon Forge</span></button>
         </div>
       </section>
-      <section class="bq-winter-topic-grid" aria-label="Winter 2026 topics">
+      <section class="bq-course-path winter-path" aria-label="Winter 2026 workshop path">
         ${topics.map(winterTopicCard).join("")}
       </section>
+      <button class="button button-soft bq-course-path-toggle" type="button" data-course-path-toggle aria-expanded="false">View full workshop map</button>
     `;
     kidPageShell("Winter 2026 Training 1", "Training done and test taken are shown on every topic.", "book", body);
     requestAnimationFrame(loadWinterTrainingStatus);
@@ -628,11 +640,10 @@
 
   function winterTopicCard(topic, index) {
     return `
-      <button class="bq-winter-topic ${escapeAttr(topic.visual)}" type="button" data-bq-action="open-agmaths" data-ag-topic-id="${escapeAttr(topic.id)}">
-        <span class="bq-winter-thumb" aria-hidden="true"></span>
-        <span class="bq-winter-number">${String(index + 1).padStart(2, "0")}</span>
-        <strong>${escapeHtml(topic.title)}</strong>
-        <span class="bq-winter-status-row" aria-label="${escapeAttr(topic.title)} progress">
+      <button class="bq-path-node bq-winter-topic ${escapeAttr(topic.visual)}" type="button" data-bq-action="open-agmaths" data-ag-topic-id="${escapeAttr(topic.id)}">
+        <span class="bq-path-marker">${String(index + 1).padStart(2, "0")}</span>
+        <span class="bq-path-copy"><strong>${escapeHtml(topic.title)}</strong><small>Training and test</small></span>
+        <span class="bq-winter-status-row bq-path-status" aria-label="${escapeAttr(topic.title)} progress">
           <span class="bq-status-pill checking" data-ag-status="training"><b>Training</b><em>Checking...</em></span>
           <span class="bq-status-pill checking" data-ag-status="test"><b>Test</b><em>Checking...</em></span>
         </span>
@@ -662,12 +673,22 @@
         const testCopy = attempt ? `${Number(attempt.score ?? 0)}/${Number(attempt.total ?? 10)}` : "Pending";
         updateAgStatus(card, "test", Boolean(attempt), testCopy, "Pending");
       });
+      updateWinterPathWindow(cards);
     } catch {
       cards.forEach((card) => {
         updateAgStatus(card, "training", false, "Done", "Open AGMaths");
         updateAgStatus(card, "test", false, "Taken", "Open AGMaths");
       });
+      updateWinterPathWindow(cards);
     }
+  }
+
+  function updateWinterPathWindow(cards) {
+    const currentIndex = Math.max(0, cards.findIndex((card) => ![...card.querySelectorAll(".bq-status-pill")].every((pill) => pill.classList.contains("done"))));
+    cards.forEach((card, index) => {
+      card.classList.toggle("current", index === currentIndex);
+      card.classList.toggle("nearby", index >= currentIndex && index <= currentIndex + 2);
+    });
   }
 
   function agTopicId(item) {
@@ -734,28 +755,56 @@
     const weak = Object.entries(weakSkillCounts()).sort((a, b) => b[1] - a[1]);
     const latest = latestAttemptsByLevel();
     const levels = getAllLevels();
+    const chemistryDone = Object.values(state.profile.chemistry101Progress?.chapters || {}).filter((chapter) => chapter?.completed).length;
+    const latestAttempt = attempts.at(-1);
+    const completedLevels = levels.filter((level) => latest[level.level]).length;
+    const focusCopy = weak.length ? `Build confidence in ${weak[0][0]} next.` : "Complete a mission to reveal your next focus.";
     const body = `
-      <section class="bq-prep-summary progress">
-        <div><strong>${attempts.length}</strong><span>tests taken</span></div>
-        <div><strong>${bestAttemptScore()}%</strong><span>best score</span></div>
-        <div><strong>${state.profile.stars || 0}</strong><span>stars</span></div>
+      <section class="bq-journey-hero">
+        <div><p class="eyebrow">Current level</p><h3>${completedLevels ? `Explorer level ${completedLevels}` : "New explorer"}</h3><p>${focusCopy}</p></div>
+        <div class="bq-journey-stars"><strong>${state.profile.stars || 0}</strong><span>stars earned</span></div>
       </section>
-      <section class="bq-progress-board">
-        <article>
-          <h3>Done and pending</h3>
-          <div class="bq-mini-status-list">
-            ${levels.map((level) => `<div><span>${escapeHtml(level.name)}</span><strong>${latest[level.level] ? `${latest[level.level].percent}%` : "Pending"}</strong></div>`).join("")}
-          </div>
-        </article>
-        <article>
-          <h3>Focus areas</h3>
-          <div class="bq-chip-cloud">
-            ${weak.length ? weak.slice(0, 8).map(([skill, count]) => `<span>${escapeHtml(skill)} / ${count}</span>`).join("") : "<span>No weak spots yet</span>"}
-          </div>
-        </article>
+      <section class="bq-journey-subjects" aria-label="Subject progress">
+        ${journeySubject("Exam Expedition", completedLevels, levels.length, latestAttempt ? `${latestAttempt.percent}% latest` : "First set ready", "exam")}
+        ${journeySubject("Chemistry Lab", chemistryDone, 11, `${chemistryDone} chapters complete`, "chemistry")}
+        ${journeySubject("Winter Workshop", Object.keys(state.profile.trainingCompleted || {}).filter((key) => /winter|agmaths/i.test(key) && !/chemistry/i.test(key)).length, 10, "Maths practice path", "winter")}
+      </section>
+      <section class="bq-journey-wins">
+        <div><p class="eyebrow">Recent win</p><h3>${latestAttempt ? `${latestAttempt.levelName}: ${latestAttempt.percent}%` : "Your first result is waiting"}</h3><p>${latestAttempt ? "That result is now part of your journey." : "Finish one short exam set to start your trophy trail."}</p></div>
+        <div class="bq-trophy-shelf" aria-label="Trophies"><span class="earned">First steps</span><span class="${completedLevels >= 3 ? "earned" : ""}">Three sets</span><span class="${chemistryDone >= 5 ? "earned" : ""}">Lab learner</span></div>
       </section>
     `;
-    kidPageShell("Progress", "See what is done, what is pending, and where to focus next.", "mountain", body);
+    kidPageShell("My Journey", "Milestones, recent wins, and the next skill to strengthen.", "mountain", body);
+  }
+
+  function journeySubject(title, done, total, detail, tone) {
+    const percent = Math.min(100, Math.round((done / Math.max(1, total)) * 100));
+    return `<article class="bq-journey-subject ${tone}"><div><strong>${escapeHtml(title)}</strong><span>${escapeHtml(detail)}</span></div><div class="bq-journey-bar" role="progressbar" aria-label="${escapeAttr(title)} progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${percent}"><span style="width:${percent}%"></span></div><small>${done} of ${total}</small></article>`;
+  }
+
+  function upliftGamesList() {
+    const screen = document.querySelector("#gamesListScreen");
+    if (!screen || !document.body.classList.contains("bq-experience-uplift")) return;
+    screen.classList.add("bq-play-uplift");
+    screen.querySelector("h2").textContent = "Play";
+    const eyebrow = screen.querySelector(".app-header .eyebrow");
+    if (eyebrow) eyebrow.textContent = "Reward quests";
+    if (closeGamesListButton) closeGamesListButton.textContent = "Back to Today";
+    const hero = gamesList.querySelector(".game-gallery-hero");
+    hero?.classList.add("bq-play-summary");
+    const tiles = [...gamesList.querySelectorAll(".game-tile")];
+    const featured = tiles.find((tile) => tile.classList.contains("bq-reward-game-tile") && tile.classList.contains("unlocked")) || tiles.find((tile) => tile.classList.contains("unlocked")) || tiles[0];
+    featured?.classList.add("bq-featured-game");
+    const secondary = tiles.find((tile) => tile !== featured && tile.classList.contains("unlocked"));
+    secondary?.classList.add("bq-play-secondary");
+    const nextLocked = tiles.find((tile) => tile.classList.contains("locked"));
+    nextLocked?.classList.add("bq-next-unlock");
+    tiles.forEach((tile) => {
+      if (tile !== featured && tile !== secondary && tile !== nextLocked) tile.classList.add("bq-game-compact");
+    });
+    if (hero && featured) hero.after(featured);
+    if (featured && secondary) featured.after(secondary);
+    if ((secondary || featured) && nextLocked) (secondary || featured).after(nextLocked);
   }
 
   function addDragonForgeKidCard() {
@@ -798,11 +847,20 @@
   function renderParentHeader(profile, profiles) {
     const header = document.querySelector("#parentScreen .app-header");
     if (!header) return;
+    const uplift = document.body.classList.contains("bq-experience-uplift");
+    document.querySelector("#parentScreen")?.classList.toggle("bq-parent-uplift", uplift);
+    const route = parentRoute().split("/")[0] || "overview";
     header.innerHTML = `
       <div class="cockpit-title-block">
         <p class="eyebrow">Parent Cockpit</p>
         <h2>${parentRouteTitle()}</h2>
       </div>
+      ${uplift ? `<nav class="bq-parent-nav" aria-label="Parent navigation">
+        ${parentNavButton("overview", "Overview", route)}
+        ${parentNavButton("learning", "Learning", route)}
+        ${parentNavButton("evidence", "Evidence", route)}
+        ${parentNavButton("settings", "Settings", route)}
+      </nav>` : ""}
       <div class="cockpit-header-controls">
         <label class="parent-child-picker">
           <span>Child</span>
@@ -831,6 +889,14 @@
       event.stopPropagation();
       header.querySelector(".parent-options-menu")?.classList.toggle("hidden");
     });
+    header.querySelectorAll("[data-parent-route]").forEach((button) => {
+      button.addEventListener("click", () => parentNavigate(button.dataset.parentRoute));
+    });
+  }
+
+  function parentNavButton(route, label, activeRoute) {
+    const active = route === activeRoute || (route === "learning" && ["exam-results", "focus", "training", "chemistry", "winter-2026"].includes(activeRoute)) || (route === "evidence" && ["writing", "records"].includes(activeRoute));
+    return `<button type="button" class="${active ? "active" : ""}" data-parent-route="${route}" ${active ? 'aria-current="page"' : ""}>${label}</button>`;
   }
 
   function renderParentRoute(profile) {
@@ -862,8 +928,12 @@
     const page = parts[0] || "overview";
     const attemptId = parts[1] || "";
 
+    const uplift = document.body.classList.contains("bq-experience-uplift");
     const renderers = {
-      overview: () => renderParentOverviewPage(metrics),
+      overview: () => uplift ? renderParentOverviewUplift(metrics) : renderParentOverviewPage(metrics),
+      learning: () => renderParentLearningHub(metrics),
+      evidence: () => renderParentEvidenceHub(metrics),
+      settings: () => renderParentSettingsHub(metrics),
       "exam-results": () => attemptId ? renderAttemptDetailPage(metrics, attemptId) : renderExamResultsPage(metrics),
       focus: () => renderFocusPage(metrics),
       training: () => renderTrainingPage(metrics),
@@ -875,6 +945,82 @@
     };
     parentRecommendation.innerHTML = (renderers[page] || renderers.overview)();
     wireParentPage();
+  }
+
+  function renderParentOverviewUplift(metrics) {
+    const latest = metrics.latest;
+    const previous = metrics.previous;
+    const trend = latest && previous ? latest.percent - previous.percent : null;
+    const focus = metrics.focus[0];
+    const attentionRoute = focus ? "focus" : latest ? "exam-results" : "learning";
+    const attentionTitle = focus ? `${focus.skill} needs a closer look` : latest ? "Review the latest result" : "Start the first learning record";
+    const attentionCopy = focus ? `${focus.missed} missed answer${focus.missed === 1 ? "" : "s"} in the saved evidence.` : latest ? `${latest.levelName} was ${latest.percent}%.` : "No saved exam result exists yet.";
+    const recentCopy = latest ? `${latest.levelName}: ${latest.percent}% on ${latest.displayDate}.` : "No recent saved activity.";
+    const changeCopy = trend === null ? "A second result will reveal a trend." : trend > 0 ? `Improved by ${trend} points.` : trend < 0 ? `Down ${Math.abs(trend)} points from the previous result.` : "Score is unchanged from the previous result.";
+    return parentPageShell("overview", `
+      <section class="bq-parent-attention ${focus ? "needs-attention" : "steady"}">
+        <div><p class="eyebrow">Attention</p><h3>${escapeHtml(attentionTitle)}</h3><p>${escapeHtml(attentionCopy)}</p></div>
+        <button class="button button-primary" type="button" data-parent-route="${attentionRoute}">Review evidence</button>
+      </section>
+      <section class="bq-parent-decision-grid">
+        <article><p class="eyebrow">Recent change</p><h3>${escapeHtml(changeCopy)}</h3><p>${escapeHtml(recentCopy)}</p></article>
+        <article><p class="eyebrow">Next action</p><h3>${focus ? `Practise ${escapeHtml(focus.skill)}` : "Keep the routine moving"}</h3><p>${focus ? "Open the evidence first, then choose one short practice activity." : "Choose a learning area and complete one focused activity."}</p></article>
+      </section>
+      <section class="bq-parent-subject-rows" aria-label="Learning summary">
+        ${parentHubRow("learning", "Learning", `${metrics.attempts.length} exam attempts`, metrics.attempts.length ? `${metrics.average}% average` : "No baseline", "chart")}
+        ${parentHubRow("chemistry", "Chemistry", `${chemistryProgress(metrics.profile).completed} of 11 chapters`, "Chapter tests and wrong answers", "chemistry")}
+        ${parentHubRow("evidence", "Evidence", `${metrics.questionStats.length} saved question records`, `${metrics.writing.length} writing samples`, "database")}
+      </section>
+    `, true);
+  }
+
+  function renderParentLearningHub(metrics) {
+    const chemistry = chemistryProgress(metrics.profile);
+    return parentPageShell("learning", `
+      <section class="bq-parent-hub-list" aria-label="Learning areas">
+        ${parentHubRow("exam-results", "Exam Expedition", `${metrics.attempts.length} attempts`, metrics.latest ? `${metrics.latest.percent}% latest` : "No result yet", "school")}
+        ${parentHubRow("focus", "Focus Areas", `${metrics.focus.length} signals`, metrics.focus[0]?.skill || "No focus flagged", "focus")}
+        ${parentHubRow("training", "Bright Quest Training", `${metrics.training.completed.length} complete`, `${metrics.training.untouched.length} available`, "book")}
+        ${parentHubRow("chemistry", "Chemistry 101", `${chemistry.completed} of ${chemistry.total} chapters`, `${chemistry.tested} tests submitted`, "chemistry")}
+        ${parentHubLink(agmathsUrl("cockpit", metrics.profile, "parent/learning"), "Winter Maths", "Open linked AGMaths progress", "External course", "snow")}
+      </section>
+    `);
+  }
+
+  function renderParentEvidenceHub(metrics) {
+    const missed = metrics.choices.filter((question) => question.correct === false).length;
+    return parentPageShell("evidence", `
+      <section class="bq-parent-evidence-summary">
+        ${metric("Saved attempts", metrics.attempts.length)}
+        ${metric("Missed answers", missed)}
+        ${metric("Writing samples", metrics.writing.length)}
+      </section>
+      <section class="bq-parent-hub-list" aria-label="Evidence areas">
+        ${parentHubRow("exam-results", "Attempts and answers", "Wrong answers first in each review", `${metrics.questionStats.length} question records`, "clipboard")}
+        ${parentHubRow("writing", "Writing evidence", "Saved responses and writing signals", `${metrics.writing.length} samples`, "writing")}
+        ${parentHubRow("records", "All records", "Complete audit view", "Profiles, attempts, questions and training", "database")}
+      </section>
+    `);
+  }
+
+  function renderParentSettingsHub(metrics) {
+    return parentPageShell("settings", `
+      <section class="bq-parent-settings-list">
+        <div><strong>Current child</strong><span>${escapeHtml(metrics.profile.name)}</span></div>
+        ${window.BrightQuestFamilyAuth?.enabled ? '<button class="button button-soft" type="button" data-parent-shell-action="manage-children">Manage children and PINs</button>' : ""}
+        <button class="button button-soft" type="button" data-parent-shell-action="refresh">Refresh saved data</button>
+        <button class="button button-soft danger" type="button" data-parent-shell-action="reset">Reset all data</button>
+        <button class="button button-soft" type="button" data-parent-shell-action="logout">Log out</button>
+      </section>
+    `);
+  }
+
+  function parentHubRow(route, title, primary, secondary, iconName) {
+    return `<button class="bq-parent-hub-row" type="button" data-parent-route="${escapeAttr(route)}"><span class="bq-parent-row-icon">${icon(iconName)}</span><span><strong>${escapeHtml(title)}</strong><small>${escapeHtml(primary)}</small></span><em>${escapeHtml(secondary)}</em><b aria-hidden="true">›</b></button>`;
+  }
+
+  function parentHubLink(url, title, primary, secondary, iconName) {
+    return `<button class="bq-parent-hub-row" type="button" data-open-game-url="${escapeAttr(url)}"><span class="bq-parent-row-icon">${icon(iconName)}</span><span><strong>${escapeHtml(title)}</strong><small>${escapeHtml(primary)}</small></span><em>${escapeHtml(secondary)}</em><b aria-hidden="true">›</b></button>`;
   }
 
   function validDate(value) {
@@ -1419,6 +1565,9 @@
   function parentPageMeta(route) {
     return ({
       overview: ["Parent overview", "Parent Cockpit Overview", "The fast answer page: status, trend, focus, and where to go next."],
+      learning: ["Learning", "Learning", "Exam, Winter Maths, Chemistry and focus areas in one place."],
+      evidence: ["Evidence", "Evidence", "Attempts, wrong answers, writing and complete saved records."],
+      settings: ["Settings", "Settings", "Manage this family, refresh data or sign out."],
       "exam-results": ["City School Exam Prep", "Exam Prep Results", "Saved Bright Quest attempts and answer review pages."],
       focus: ["Weak spots", "Focus Areas", "Recurring missed or slow skills with evidence."],
       training: ["Training", "Training Coverage", "Completed, untouched, and recommended Bright Quest training."],

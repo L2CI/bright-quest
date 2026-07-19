@@ -1,7 +1,7 @@
 (() => {
   const ASSET_VERSION = "20260711a";
   const COURSE_URL = `./data/chemistry-101-course.json?v=${ASSET_VERSION}`;
-  const RELEASE = "chemistry-101-winter-2026-007";
+  const RELEASE = "chemistry-101-winter-2026-008";
   const withAssetVersion = (url) => `${url}?v=${ASSET_VERSION}`;
   const progressKey = "brightQuestChemistry101ProgressV1";
   const profilesKey = "brightQuestProfilesV2";
@@ -35,8 +35,7 @@
     cc: document.querySelector("#ccButton"),
     captionReadout: document.querySelector("#captionReadout"),
     courseStart: document.querySelector("#courseStartButton"),
-    courseMapButton: document.querySelector("#courseMapButton"),
-    headerStart: document.querySelector("#headerStartButton"),
+    mapToggle: document.querySelector("#mapToggleButton"),
     headerCards: document.querySelector("#headerCardsButton"),
     play: document.querySelector("#playButton"),
     rewind: document.querySelector("#rewindButton"),
@@ -53,6 +52,7 @@
     activeIndex: 0,
     ccOn: false,
     seeking: false,
+    fullMap: false,
     progress: loadProgress()
   };
 
@@ -70,13 +70,16 @@
       chapter.poster = withAssetVersion(`./assets/posters/chapter-${n}.jpg`);
     });
 
+    const params = new URLSearchParams(location.search);
+    const requestedChapter = Math.max(1, Number(params.get("chapter")) || 1);
+    const firstIncomplete = state.course.chapters.findIndex((chapter) => !chapterProgress(chapter).completed);
+    state.activeIndex = params.has("chapter") ? requestedChapter - 1 : firstIncomplete < 0 ? state.course.chapters.length - 1 : firstIncomplete;
     renderTabs();
     renderMap();
     wireControls();
-    const requestedChapter = Math.max(1, Number(new URLSearchParams(location.search).get("chapter")) || 1);
-    if (new URLSearchParams(location.search).has("chapter")) showPlayer(requestedChapter - 1);
+    if (params.has("chapter")) showPlayer(state.activeIndex);
     else {
-      loadChapter(0);
+      loadChapter(state.activeIndex);
       showLanding(false);
     }
     console.info(`Chemistry 101 loaded: ${RELEASE}`);
@@ -115,8 +118,73 @@
   function profileProgress() {
     const id = currentProfileId();
     if (!state.progress[id]) state.progress[id] = { courseId: "chemistry-101-winter-2026", chapters: {} };
+    const profileCourse = loadProfiles()[id]?.chemistry101Progress;
+    if (profileCourse?.chapters) {
+      const before = JSON.stringify(state.progress[id]);
+      state.progress[id] = mergeCourseProgress(state.progress[id], profileCourse);
+      if (JSON.stringify(state.progress[id]) !== before) {
+        syncMergedProfileProgress(id, state.progress[id]);
+      }
+      saveProgress();
+    }
     preserveLegacyDemoProgress(id);
     return state.progress[id];
+  }
+
+  function mergeCourseProgress(deviceCourse, profileCourse) {
+    const deviceChapters = deviceCourse?.chapters || {};
+    const profileChapters = profileCourse?.chapters || {};
+    const chapters = {};
+    new Set([...Object.keys(profileChapters), ...Object.keys(deviceChapters)]).forEach((chapterId) => {
+      const device = deviceChapters[chapterId] || {};
+      const profile = profileChapters[chapterId] || {};
+      chapters[chapterId] = {
+        ...profile,
+        ...device,
+        watchedSeconds: Math.max(Number(device.watchedSeconds) || 0, Number(profile.watchedSeconds) || 0),
+        completed: Boolean(device.completed || profile.completed),
+        completedAt: latestIso(device.completedAt, profile.completedAt),
+        test: latestTest(device.test, profile.test)
+      };
+    });
+    return {
+      ...profileCourse,
+      ...deviceCourse,
+      courseId: "chemistry-101-winter-2026",
+      chapters
+    };
+  }
+
+  function latestIso(first, second) {
+    if (!first) return second || null;
+    if (!second) return first;
+    return Date.parse(first) >= Date.parse(second) ? first : second;
+  }
+
+  function latestTest(first, second) {
+    if (!first) return second || null;
+    if (!second) return first;
+    const firstAt = Date.parse(first.submittedAt || "") || 0;
+    const secondAt = Date.parse(second.submittedAt || "") || 0;
+    if (firstAt !== secondAt) return firstAt > secondAt ? first : second;
+    return (Number(first.score) || 0) >= (Number(second.score) || 0) ? first : second;
+  }
+
+  function syncMergedProfileProgress(id, progress) {
+    try {
+      const profiles = loadProfiles();
+      const profile = profiles[id];
+      if (!profile) return;
+      profile.chemistry101Progress = JSON.parse(JSON.stringify(progress));
+      localStorage.setItem(profilesKey, JSON.stringify(profiles));
+      fetch("/api/profiles", {
+        method: "POST",
+        headers: familyCapabilityHeaders({ "content-type": "application/json" }),
+        body: JSON.stringify({ profile })
+      }).catch(() => {});
+    } catch {
+      // The merged device record remains available if profile sync is unavailable.
+    }
   }
 
   function preserveLegacyDemoProgress(id) {
@@ -208,12 +276,14 @@
       const tested = Boolean(progress.test);
       const videoCopy = progress.completed ? "Done" : index === state.activeIndex ? "Start" : "--";
       const testCopy = tested ? `${progress.test.score}/${progress.test.total || 10}` : progress.completed ? "Ready" : "--";
+      const nearby = index >= state.activeIndex && index <= state.activeIndex + 2;
       return `
-        <button class="chapter-card ${index === state.activeIndex ? "active" : ""} ${tested ? "tested" : progress.completed ? "done" : ""}" type="button" data-chapter-index="${index}">
+        <button class="chapter-card ${index === state.activeIndex ? "active" : ""} ${tested ? "tested" : progress.completed ? "done" : "pending"} ${nearby ? "nearby" : ""}" type="button" data-chapter-index="${index}">
           <span class="chapter-thumb" aria-hidden="true">${cardVisual(index)}</span>
           <span class="chapter-number">${String(chapter.number).padStart(2, "0")}</span>
           <span class="chapter-card-head">
             <strong>${escapeHtml(chapter.title)}</strong>
+            <small>${formatTime(chapterRuntime(chapter))}</small>
           </span>
           <span class="chapter-status-row" aria-label="${escapeAttr(chapter.title)} progress">
             <span class="chapter-status-pill ${progress.completed ? "done" : ""}" aria-label="Video ${progress.completed ? "done" : "not started"}"><b>Video</b><em>${videoCopy}</em></span>
@@ -229,6 +299,11 @@
     });
     const done = state.course.chapters.filter((chapter) => chapterProgress(chapter).completed).length;
     els.progress.textContent = `${done}/${state.course.chapters.length}`;
+    els.map.classList.toggle("show-full-map", state.fullMap);
+    if (els.mapToggle) {
+      els.mapToggle.textContent = state.fullMap ? "Show current path" : "View full lab map";
+      els.mapToggle.setAttribute("aria-expanded", String(state.fullMap));
+    }
   }
 
   function loadChapter(index) {
@@ -278,16 +353,14 @@
       applyCaptions();
     });
     els.courseStart?.addEventListener("click", () => {
-      showPlayer(0);
-    });
-    els.headerStart?.addEventListener("click", () => {
-      showPlayer(0);
-    });
-    els.courseMapButton?.addEventListener("click", () => {
-      showLanding();
+      showPlayer(state.activeIndex);
     });
     els.headerCards?.addEventListener("click", () => {
       showLanding();
+    });
+    els.mapToggle?.addEventListener("click", () => {
+      state.fullMap = !state.fullMap;
+      renderMap();
     });
     els.timeline.addEventListener("input", () => {
       if (Number.isFinite(els.video.duration)) {

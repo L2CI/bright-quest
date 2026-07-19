@@ -51,6 +51,46 @@ body {
   user-select: none;
 }
 
+.game-actions {
+  position: absolute;
+  z-index: 30;
+  top: 18px;
+  left: 24px;
+  right: 24px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.session-control,
+.panel-actions a,
+.panel-actions button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(20, 22, 111, 0.16);
+  border-radius: 8px;
+  padding: 10px 16px;
+  color: var(--navy);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 10px 22px rgba(13, 42, 88, 0.18);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 1000;
+  line-height: 1.15;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.session-control:disabled {
+  cursor: default;
+  opacity: 0.68;
+}
+
 .scene {
   position: absolute;
   inset: 0;
@@ -89,7 +129,7 @@ body {
   z-index: 5;
   left: 24px;
   right: 24px;
-  top: 22px;
+  top: 82px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
   gap: 12px;
@@ -246,7 +286,7 @@ body {
   min-width: clamp(180px, 22vw, 250px);
   min-height: 88px;
   border: 5px solid #fff;
-  border-radius: 24px;
+  border-radius: 8px;
   padding: 12px 16px;
   color: var(--navy);
   font: inherit;
@@ -276,7 +316,7 @@ body {
   place-items: center;
   width: 58px;
   height: 58px;
-  border-radius: 18px;
+  border-radius: 8px;
   background: linear-gradient(135deg, var(--sun), #ff7a3d);
   color: #fff;
   font-size: 1.65rem;
@@ -349,7 +389,7 @@ body {
   position: absolute;
   z-index: 10;
   left: 50%;
-  top: 145px;
+  top: 205px;
   min-width: 260px;
   max-width: min(560px, 72%);
   padding: 14px 18px;
@@ -391,7 +431,7 @@ body {
   align-items: center;
   padding: 12px;
   border: 3px solid rgba(255, 255, 255, 0.68);
-  border-radius: 999px;
+  border-radius: 8px;
   background: rgba(10, 24, 71, 0.28);
   box-shadow: 0 18px 34px rgba(13, 42, 88, 0.18);
   backdrop-filter: blur(12px);
@@ -400,7 +440,7 @@ body {
 .controls button {
   min-height: 74px;
   border: 0;
-  border-radius: 999px;
+  border-radius: 8px;
   background: rgba(255,255,255,0.92);
   color: var(--navy);
   font: inherit;
@@ -459,6 +499,106 @@ body {
   opacity: 0;
   transform: scale(0.88);
   transition: opacity 140ms ease, transform 140ms ease;
+}
+
+.session-overlay {
+  position: absolute;
+  z-index: 40;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(8, 24, 61, 0.58);
+  backdrop-filter: blur(6px);
+}
+
+.session-overlay[hidden] {
+  display: none;
+}
+
+.session-panel {
+  width: min(520px, 100%);
+  max-height: 100%;
+  overflow-y: auto;
+  padding: clamp(24px, 5vw, 42px);
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 28px 70px rgba(8, 24, 61, 0.34);
+  text-align: center;
+}
+
+.panel-kicker {
+  margin: 0 0 6px;
+  color: #1d4ed8;
+  font-size: 0.82rem;
+  font-weight: 1000;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.session-panel h2 {
+  margin: 0;
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  line-height: 1.05;
+}
+
+.session-panel > p:not(.panel-kicker) {
+  margin: 12px 0 0;
+  color: #526178;
+  font-weight: 800;
+}
+
+.completion-score {
+  width: 142px;
+  min-height: 112px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  margin: 20px auto 0;
+  border: 3px solid #ffe08a;
+  border-radius: 8px;
+  background: #fff8d8;
+}
+
+.completion-score span {
+  font-size: 2.5rem;
+  font-weight: 1000;
+  line-height: 1;
+}
+
+.completion-score small {
+  color: #526178;
+  font-weight: 900;
+}
+
+.panel-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.panel-actions .primary-action {
+  border-color: #1667d9;
+  color: #ffffff;
+  background: #1667d9;
+}
+
+.panel-actions .secondary-action {
+  background: #f4f7fb;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 4px solid #ffcb3d;
+  outline-offset: 3px;
+}
+
+.controls button:disabled,
+.choice:disabled {
+  cursor: default;
 }
 
 .arrow-button:hover::after,
@@ -567,7 +707,7 @@ body {
   .hud {
     left: 14px;
     right: 14px;
-    top: 12px;
+    top: 70px;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 8px;
   }
@@ -669,7 +809,7 @@ body {
   }
 
   .toast {
-    top: 104px;
+    top: 166px;
     min-width: 220px;
     max-width: calc(100% - 32px);
     padding: 10px 12px;
@@ -701,6 +841,27 @@ body {
   .design-notes {
     display: none;
   }
+
+  .game-actions {
+    top: max(10px, env(safe-area-inset-top));
+    left: 10px;
+    right: 10px;
+    gap: 8px;
+  }
+
+  .session-control {
+    min-height: 46px;
+    padding: 9px 12px;
+    font-size: 0.82rem;
+  }
+
+  .session-overlay {
+    padding: 16px;
+  }
+
+  .session-panel {
+    padding: 28px 18px;
+  }
 }
 
 @media (max-width: 430px) {
@@ -723,5 +884,20 @@ body {
 
   .speech {
     max-width: 52vw;
+  }
+
+  .panel-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

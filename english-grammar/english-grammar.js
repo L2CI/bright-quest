@@ -9,6 +9,11 @@ const ccButton = document.querySelector("#ccButton");
 const playButton = document.querySelector("#playButton");
 const rewindButton = document.querySelector("#rewindButton");
 const sceneList = document.querySelector("#sceneList");
+const lessonListButton = document.querySelector("#lessonListButton");
+const lessonDrawer = document.querySelector("#lessonDrawer");
+const drawerBackdrop = document.querySelector("#drawerBackdrop");
+const drawerCloseButton = document.querySelector("#drawerCloseButton");
+const drawerSummary = document.querySelector("#drawerSummary");
 const ladderTabs = document.querySelector("#ladderTabs");
 const timeline = document.querySelector("#timeline");
 const elapsedTime = document.querySelector("#elapsedTime");
@@ -390,6 +395,7 @@ let sceneStartedAt = 0;
 let sceneElapsedOffset = 0;
 let captionsVisible = false;
 let activeBeatKey = "";
+let lessonDrawerOpen = false;
 let ladderProgress = loadLadderProgress();
 
 init();
@@ -422,7 +428,7 @@ function renderLadderTabs() {
   ladderTabs.innerHTML = stepMeta.map((item) => {
     const passed = ladderProgress.passedSteps.includes(item.step);
     return `
-      <button class="ladder-tab ${activeStep === item.step ? "active" : ""} ${passed ? "passed" : ""}" type="button" data-step="${item.step}">
+      <button class="ladder-tab ${activeStep === item.step ? "active" : ""} ${passed ? "passed" : ""}" type="button" data-step="${item.step}" ${activeStep === item.step ? 'aria-current="step"' : ""}>
         <span>${item.step}</span>
         <strong>${item.title}</strong>
         <small>${item.subtitle} - ${item.durationLabel}</small>
@@ -436,9 +442,10 @@ function isStepUnlocked(step) {
 }
 
 function renderSceneList() {
+  drawerSummary.textContent = `Step ${activeStep} - ${scenes.length} lesson modules`;
   sceneList.innerHTML = scenes
     .map((scene, index) => `
-      <button class="scene-button ${index === activeSceneIndex ? "active" : ""}" type="button" data-scene="${index}">
+      <button class="scene-button ${index === activeSceneIndex ? "active" : ""}" type="button" data-scene="${index}" ${index === activeSceneIndex ? 'aria-current="true"' : ""}>
         <span>${index + 1}</span>
         <span><strong>${escapeHtml(scene.title)}</strong><small>${escapeHtml(scene.point)}</small></span>
         <small>${formatTime(scene.duration)}</small>
@@ -833,6 +840,59 @@ sceneList.addEventListener("click", (event) => {
   const button = event.target.closest("[data-scene]");
   if (!button) return;
   loadScene(Number(button.dataset.scene), 0, true);
+  closeLessonDrawer();
+});
+
+function openLessonDrawer() {
+  if (lessonDrawerOpen) return;
+  lessonDrawerOpen = true;
+  lessonDrawer.classList.add("open");
+  lessonDrawer.setAttribute("aria-hidden", "false");
+  lessonDrawer.inert = false;
+  lessonListButton.setAttribute("aria-expanded", "true");
+  drawerBackdrop.hidden = false;
+  requestAnimationFrame(() => drawerBackdrop.classList.add("visible"));
+  document.body.classList.add("drawer-open");
+  const activeLesson = sceneList.querySelector(".scene-button.active");
+  (activeLesson || drawerCloseButton).focus();
+}
+
+function closeLessonDrawer({ restoreFocus = true } = {}) {
+  if (!lessonDrawerOpen) return;
+  lessonDrawerOpen = false;
+  lessonDrawer.classList.remove("open");
+  lessonDrawer.setAttribute("aria-hidden", "true");
+  lessonDrawer.inert = true;
+  lessonListButton.setAttribute("aria-expanded", "false");
+  drawerBackdrop.classList.remove("visible");
+  document.body.classList.remove("drawer-open");
+  window.setTimeout(() => {
+    if (!lessonDrawerOpen) drawerBackdrop.hidden = true;
+  }, 180);
+  if (restoreFocus) lessonListButton.focus();
+}
+
+lessonListButton.addEventListener("click", openLessonDrawer);
+drawerCloseButton.addEventListener("click", () => closeLessonDrawer());
+drawerBackdrop.addEventListener("click", () => closeLessonDrawer());
+document.addEventListener("keydown", (event) => {
+  if (!lessonDrawerOpen) return;
+  if (event.key === "Escape") {
+    closeLessonDrawer();
+    return;
+  }
+  if (event.key !== "Tab") return;
+  const focusable = [...lessonDrawer.querySelectorAll("button:not([disabled]), a[href], input:not([disabled])")];
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
 });
 
 timeline.addEventListener("input", () => {

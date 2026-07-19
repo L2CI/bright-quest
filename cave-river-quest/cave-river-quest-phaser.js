@@ -112,10 +112,16 @@
     feedback: document.querySelector("#feedbackText"),
     finalePanel: document.querySelector("#finalePanel"),
     claimButton: document.querySelector("#claimButton"),
+    completionActions: document.querySelector("#completionActions"),
+    replayButton: document.querySelector("#replayButton"),
+    pauseButton: document.querySelector("#pauseButton"),
+    pausePanel: document.querySelector("#pausePanel"),
+    resumeButton: document.querySelector("#resumeButton"),
     guardianPanel: document.querySelector("#guardianPanel"),
     guardianLine: document.querySelector("#guardianLine"),
     soundButton: document.querySelector("#soundButton"),
     forward: document.querySelector("#forwardButton"),
+    touchControls: document.querySelector(".touch-controls"),
     fallback: document.querySelector("#fallbackNotice")
   };
 
@@ -139,6 +145,7 @@
     lastSplashAt: 0,
     lane: 0,
     soundEnabled: true,
+    paused: false,
     introVoicePlayed: false,
     finalStarted: false,
     finaleClaimed: false,
@@ -149,6 +156,8 @@
   let sceneRef = null;
   let audio = null;
   let activeVoice = null;
+  let activeVoiceWasPlaying = false;
+  let riverWasPlaying = false;
   const voiceCache = new Map();
 
   const voiceLines = {
@@ -249,6 +258,8 @@
       updateGateCount();
       setupInput();
       setupAudio();
+      setupSessionControls();
+      el.pauseButton.disabled = false;
       applyQaUrlState();
       updateDebugHook();
       window.__caveQuestBoot = { ok: true, stage: "ready", build: BUILD_ID, renderer: "phaser", engine: Phaser.VERSION };
@@ -278,6 +289,7 @@
 
   function setupInput() {
     const setRowing = (active) => {
+      if (state.paused || state.finaleClaimed) return;
       if (state.mode !== "rowing") return;
       if (active) startRiverAmbience();
       if (active && !state.introVoicePlayed) {
@@ -312,6 +324,68 @@
       if (state.soundEnabled) startRiverAmbience();
       else stopAllLoops();
     });
+  }
+
+  function setupSessionControls() {
+    el.pauseButton.addEventListener("click", () => setPaused(true));
+    el.resumeButton.addEventListener("click", () => setPaused(false));
+    el.replayButton.addEventListener("click", () => window.location.reload());
+    document.addEventListener("keydown", (event) => {
+      if (!state.paused) return;
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setPaused(false);
+        return;
+      }
+      trapDialogFocus(event, el.pausePanel);
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden && !state.paused && !state.finaleClaimed) setPaused(true);
+    });
+  }
+
+  function setPaused(paused) {
+    if (!sceneRef || state.finaleClaimed || paused === state.paused || el.pauseButton.disabled) return;
+    state.paused = paused;
+    el.pausePanel.classList.toggle("hidden", !paused);
+    el.pauseButton.textContent = paused ? "Paused" : "Pause";
+    el.pauseButton.setAttribute("aria-expanded", String(paused));
+    el.forward.disabled = paused;
+    el.soundButton.disabled = paused;
+    if (paused) {
+      state.forwardInput = 0;
+      stopWaterLoop();
+      activeVoiceWasPlaying = Boolean(activeVoice && !activeVoice.paused && !activeVoice.ended);
+      riverWasPlaying = Boolean(sceneRef.riverLoop?.isPlaying);
+      activeVoice?.pause();
+      if (riverWasPlaying) sceneRef.riverLoop.pause();
+      audio?.ctx?.suspend?.();
+      sceneRef.scene.pause();
+      el.resumeButton.focus();
+      return;
+    }
+    sceneRef.scene.resume();
+    audio?.ctx?.resume?.();
+    if (riverWasPlaying && state.soundEnabled) sceneRef.riverLoop?.resume();
+    if (activeVoiceWasPlaying && activeVoice && state.soundEnabled) activeVoice.play().catch(() => {});
+    activeVoiceWasPlaying = false;
+    riverWasPlaying = false;
+    el.pauseButton.focus();
+  }
+
+  function trapDialogFocus(event, panel) {
+    if (event.key !== "Tab") return;
+    const controls = [...panel.querySelectorAll("button:not([disabled]), a[href]")];
+    if (!controls.length) return;
+    const first = controls[0];
+    const last = controls[controls.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
   }
 
   function setupAudio() {
@@ -641,6 +715,8 @@
     state.forwardInput = 0;
     el.questionPanel.classList.add("hidden");
     el.finalePanel.classList.remove("hidden");
+    el.claimButton.hidden = false;
+    el.completionActions.classList.add("hidden");
     el.guardianPanel.classList.add("hidden");
     el.hint.textContent = "The treasure waits ahead. Tap the glowing chest or press Open the chest.";
     playSuccessSparkle();
@@ -1067,7 +1143,7 @@
     });
     el.questionPanel.classList.remove("hidden");
     el.questionPanel.classList.add("voice-lit");
-    window.setTimeout(() => el.questionPanel.classList.remove("voice-lit"), 700);
+    after(700, () => el.questionPanel.classList.remove("voice-lit"));
     el.hint.textContent = question.hint || "Answer the gate challenge to open the way.";
   }
 
@@ -1084,7 +1160,7 @@
     playGateOpenSound();
     playVoice("cave-correct");
     sceneRef?.cameras.main.shake(180, 0.004);
-    setTimeout(() => {
+    after(450, () => {
       const currentGate = gateProgress[state.questionIndex] || state.progress;
       const nextGate = gateProgress[state.questionIndex + 1];
       const gap = nextGate ? nextGate - currentGate : 0.08;
@@ -1101,18 +1177,34 @@
       state.boatPass = 0;
       startRiverAmbience();
       startWaterLoop();
-    }, 450);
+    });
   }
 
   function claimFinale() {
     if (!state.finalStarted || state.finaleClaimed) return;
     state.finaleClaimed = true;
-    el.finalePanel.classList.add("hidden");
+    state.mode = "complete";
+    state.forwardInput = 0;
+    stopAllLoops();
+    activeVoice?.pause();
+    el.pauseButton.disabled = true;
+    el.pauseButton.setAttribute("aria-expanded", "false");
+    el.touchControls.classList.add("hidden");
+    el.claimButton.hidden = true;
+    el.completionActions.classList.remove("hidden");
+    document.querySelector("#finaleTitle").textContent = "Leadership Matrix claimed";
+    document.querySelector("#finaleCopy").textContent = "All ten gates are open. Choose where your quest goes next.";
     el.guardianLine.textContent = "Autobot, you now have the Matrix of Leadership.";
     el.guardianPanel.classList.remove("hidden");
     el.hint.textContent = "Quest complete. You earned the Leadership Matrix.";
     playVoice("cave-finale");
     playSuccessSparkle();
+    el.completionActions.querySelector("a").focus();
+  }
+
+  function after(delayMs, callback) {
+    if (sceneRef?.time) return sceneRef.time.delayedCall(delayMs, callback);
+    return window.setTimeout(callback, delayMs);
   }
 
   function playVoice(id) {
@@ -1173,6 +1265,8 @@
         shotVelocity: Number(state.shotVelocity.toFixed(5)),
         plateKey: sceneRef?.plateKeys?.[state.sceneStep] || null,
         qaFrozen: state.qaFrozen,
+        paused: state.paused,
+        finaleClaimed: state.finaleClaimed,
         renderer: "phaser",
         engine: Phaser.VERSION
       }),
@@ -1232,6 +1326,9 @@
         state.shotVelocity = 0;
         state.qaFrozen = false;
         el.finalePanel.classList.remove("hidden");
+        el.claimButton.hidden = false;
+        el.completionActions.classList.add("hidden");
+        el.pauseButton.disabled = false;
         updateGateCount();
         return true;
       }

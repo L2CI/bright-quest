@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const BUILD_ID = "grammar-cinematic-012";
+  const BUILD_ID = "grammar-cinematic-013";
   const voiceBase = "assets/audio/game-voice/";
   const questions = [
     {
@@ -69,6 +69,9 @@
     questionText: document.querySelector("#questionText"),
     answerGrid: document.querySelector("#answerGrid"),
     feedback: document.querySelector("#feedbackText"),
+    pauseButton: document.querySelector("#pauseButton"),
+    pausePanel: document.querySelector("#pausePanel"),
+    resumeButton: document.querySelector("#resumeButton"),
     finalePanel: document.querySelector("#finalePanel"),
     replayButton: document.querySelector("#replayButton")
   };
@@ -77,6 +80,7 @@
     scene: "ready",
     questionIndex: 0,
     solved: 0,
+    paused: false,
     audioReady: false,
     width: window.innerWidth,
     height: window.innerHeight,
@@ -88,7 +92,9 @@
   let activeVoice = null;
   let activeVoiceCleanup = null;
   let activeVoiceToken = 0;
+  let activeVoiceWasPlaying = false;
   const voiceCache = new Map();
+  const scheduledTimers = new Set();
 
   const voiceLines = {
     "street-kid-intro": "The keys are right there. I know I should not touch them.",
@@ -162,6 +168,12 @@
         engine: Phaser.VERSION,
         stage: "ready"
       };
+      if (isQa) {
+        window.__streetSmartRescueDebug = {
+          getState: () => ({ scene: state.scene, paused: state.paused, solved: state.solved }),
+          setPaused
+        };
+      }
 
       if (isQa) {
         el.startPanel.classList.add("hidden");
@@ -173,6 +185,7 @@
     }
 
     update(time, delta) {
+      if (state.paused) return;
       const dt = Math.min(delta / 16.67, 2);
       animateAmbient(this, time, dt);
       if (state.scene === "rollout" || state.scene === "stop") {
@@ -205,9 +218,40 @@
       unlockAudio();
       startIntro();
     });
+    el.pauseButton.addEventListener("click", () => setPaused(true));
+    el.resumeButton.addEventListener("click", () => setPaused(false));
     el.replayButton.addEventListener("click", () => {
       window.location.href = window.location.pathname;
     });
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && state.paused) setPaused(false);
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden && !el.pauseButton.disabled && !state.paused) setPaused(true);
+    });
+  }
+
+  function setPaused(paused) {
+    if (paused === state.paused || el.pauseButton.disabled) return;
+    state.paused = paused;
+    el.pausePanel.classList.toggle("hidden", !paused);
+    el.pauseButton.textContent = paused ? "Paused" : "Pause";
+    el.pauseButton.setAttribute("aria-pressed", String(paused));
+    if (paused) {
+      activeVoiceWasPlaying = Boolean(activeVoice && !activeVoice.paused && !activeVoice.ended);
+      activeVoice?.pause();
+      audioContext?.suspend?.();
+      pauseScheduledTimers();
+      sceneRef?.scene.pause();
+      el.resumeButton.focus();
+      return;
+    }
+    sceneRef?.scene.resume();
+    resumeScheduledTimers();
+    audioContext?.resume?.();
+    if (activeVoiceWasPlaying && activeVoice) activeVoice.play().catch(() => {});
+    activeVoiceWasPlaying = false;
+    el.pauseButton.focus();
   }
 
   function makeTextures(scene) {
@@ -442,6 +486,7 @@
 
   function startIntro() {
     if (!sceneRef) return;
+    el.pauseButton.disabled = false;
     state.questionIndex = 0;
     state.solved = 0;
     state.scene = "intro";
@@ -613,7 +658,7 @@
       sweepPoliceLights(1);
       cameraShake();
       impactRings(state.width * 0.5, state.height * 0.48, 0xff2d5f);
-      setTimeout(() => button.classList.remove("wrong"), motion(520));
+      schedule(() => button.classList.remove("wrong"), motion(520));
     }
   }
 
@@ -629,13 +674,14 @@
       duration: motion(720),
       ease: "Sine.easeInOut",
       onStart: () => neonTrail(scene.kidCar.x + scene.kidCar.displayWidth * 0.32, scene.kidCar.y - scene.kidCar.displayHeight * 0.06, 0xffd15c),
-      onComplete: () => setTimeout(showQuestion, motion(280))
+      onComplete: () => schedule(showQuestion, motion(280))
     });
   }
 
   function startFinale() {
     const scene = sceneRef;
     state.scene = "finale";
+    el.pauseButton.disabled = true;
     el.questionPanel.classList.add("hidden");
     el.startPanel.classList.add("hidden");
     scene.kidCar.setTexture("kidCar");
@@ -650,7 +696,7 @@
       el.finalePanel.classList.remove("hidden");
       renderBadges();
     };
-    const fallback = setTimeout(revealFinale, motion(2400));
+    const fallback = schedule(revealFinale, motion(2400));
     scene.tweens.add({
       targets: scene.kidCar,
       x: state.width * 0.58,
@@ -669,7 +715,7 @@
           duration: motion(360),
           ease: "Back.easeOut",
           onComplete: () => {
-            clearTimeout(fallback);
+            cancelScheduled(fallback);
             correctBurst(state.width * 0.5, state.height * 0.34);
             playTone("correct");
             revealFinale();
@@ -709,6 +755,7 @@
     sceneRef.kidCar.setTexture("kidCar");
     fitSpriteWidth(sceneRef.kidCar, Math.min(230, state.width * 0.2));
     state.questionIndex = 0;
+    el.pauseButton.disabled = false;
     showQuestion();
   }
 
@@ -719,6 +766,7 @@
     el.questionPanel.classList.add("hidden");
     state.solved = questions.length;
     state.scene = "finale";
+    el.pauseButton.disabled = true;
     renderBadges();
     scene.tweens.killTweensOf([scene.kid, scene.kidCar, scene.policeCar, scene.officer]);
     scene.kidCar.setTexture("kidCar").setAlpha(1).setPosition(state.width * 0.55, state.height * 0.67).setAngle(90);
@@ -819,7 +867,7 @@
   function cameraPunch() {
     if (state.reduceMotion) return;
     sceneRef.cameras.main.zoomTo(1.035, 140);
-    setTimeout(() => sceneRef.cameras.main.zoomTo(1, 260), 160);
+    schedule(() => sceneRef.cameras.main.zoomTo(1, 260), 160);
   }
 
   function cameraShake() {
@@ -940,7 +988,7 @@
           settled = true;
           clip.removeEventListener("ended", onEnded);
           clip.removeEventListener("error", onError);
-          if (fallbackId) clearTimeout(fallbackId);
+          if (fallbackId) cancelScheduled(fallbackId);
           if (activeVoice === clip && token === activeVoiceToken) activeVoice = null;
           if (activeVoiceCleanup === cleanup) activeVoiceCleanup = null;
           resolve(played);
@@ -953,7 +1001,7 @@
         clip.addEventListener("ended", onEnded, { once: true });
         clip.addEventListener("error", onError, { once: true });
         clip.currentTime = 0;
-        fallbackId = setTimeout(() => finish(true), fallbackMs);
+        fallbackId = schedule(() => finish(true), fallbackMs);
         const attempt = clip.play();
         if (attempt?.catch) attempt.catch(() => finish(false));
       } catch {
@@ -1029,7 +1077,45 @@
   }
 
   function delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, motion(ms)));
+    return new Promise((resolve) => schedule(resolve, motion(ms)));
+  }
+
+  function schedule(callback, delayMs) {
+    const timer = { callback, remaining: Math.max(0, delayMs), startedAt: 0, id: null };
+    scheduledTimers.add(timer);
+    if (!state.paused) armScheduled(timer);
+    return timer;
+  }
+
+  function armScheduled(timer) {
+    timer.startedAt = performance.now();
+    timer.id = window.setTimeout(() => {
+      scheduledTimers.delete(timer);
+      timer.id = null;
+      timer.callback();
+    }, timer.remaining);
+  }
+
+  function cancelScheduled(timer) {
+    if (!timer) return;
+    if (timer.id !== null) window.clearTimeout(timer.id);
+    scheduledTimers.delete(timer);
+  }
+
+  function pauseScheduledTimers() {
+    const now = performance.now();
+    scheduledTimers.forEach((timer) => {
+      if (timer.id === null) return;
+      window.clearTimeout(timer.id);
+      timer.id = null;
+      timer.remaining = Math.max(0, timer.remaining - (now - timer.startedAt));
+    });
+  }
+
+  function resumeScheduledTimers() {
+    scheduledTimers.forEach((timer) => {
+      if (timer.id === null) armScheduled(timer);
+    });
   }
 
   function escapeHtml(value) {

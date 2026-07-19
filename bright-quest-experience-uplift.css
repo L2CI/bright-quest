@@ -453,6 +453,602 @@ body.bq-experience-uplift .bq-child-nav button.active {
   background: #eaf2fd;
 }
 
+body.bq-experience-uplift .bq-kid-page {
+  display: grid;
+  gap: 16px;
+  color: #14213d;
+}
+
+body.bq-experience-uplift .bq-kid-page-head {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  border-bottom: 1px solid #dce3ec;
+  border-radius: 0 !important;
+  padding: 0 0 14px;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body.bq-experience-uplift .bq-kid-page-head .bq-art {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+body.bq-experience-uplift .bq-kid-page-head .bq-art svg {
+  width: 56px;
+  height: 56px;
+}
+
+body.bq-experience-uplift .bq-kid-page-head h3,
+body.bq-experience-uplift .bq-kid-page-head p {
+  margin: 0;
+}
+
+body.bq-experience-uplift .bq-kid-page-head h3 {
+  font-size: 1.4rem;
+  letter-spacing: 0;
+}
+
+body.bq-experience-uplift .bq-prep-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 0;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body.bq-experience-uplift .bq-prep-summary > div {
+  min-height: 62px;
+  border: 1px solid #dce3ec;
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: #ffffff;
+}
+
+body.bq-experience-uplift .bq-course-path {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  width: min(880px, 100%);
+  margin: 0 auto;
+  padding: 4px 0;
+}
+
+body.bq-experience-uplift .bq-course-path-toggle {
+  display: none;
+  width: min(880px, 100%);
+  margin: 0 auto;
+}
+
+body.bq-experience-uplift .bq-course-path::before {
+  content: "";
+  position: absolute;
+  top: 20px;
+  bottom: 20px;
+  left: 31px;
+  width: 2px;
+  background: #d9e3ef;
+}
+
+body.bq-experience-uplift .bq-path-node {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr) auto;
+  gap: 14px;
+  min-height: 72px;
+  align-items: center;
+  overflow: visible;
+  border: 1px solid #d7e0eb;
+  border-radius: 8px;
+  padding: 10px 14px 10px 0;
+  color: #14213d;
+  text-align: left;
+  background: #ffffff;
+  box-shadow: 0 3px 10px rgba(20, 33, 61, 0.05);
+}
+
+body.bq-experience-uplift .bq-path-node:hover {
+  border-color: #91acd0;
+  transform: translateY(-1px);
+}
+
+body.bq-experience-uplift .bq-path-node.current {
+  min-height: 86px;
+  border: 2px solid #1769d2;
+  background: #f7fbff;
+  box-shadow: 0 8px 20px rgba(23, 105, 210, 0.12);
+}
+
+body.bq-experience-uplift .bq-path-node.done .bq-path-marker {
+  color: #ffffff;
+  background: #20a79b;
+}
+
+body.bq-experience-uplift .bq-path-marker {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  justify-self: center;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  color: #174f9c;
+  background: #dfeafb;
+  box-shadow: 0 0 0 1px #c9d5e5;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+body.bq-experience-uplift .bq-path-node.current .bq-path-marker {
+  color: #ffffff;
+  background: #1769d2;
+}
+
+body.bq-experience-uplift .bq-path-copy {
+  display: grid;
+  gap: 3px;
+}
+
+body.bq-experience-uplift .bq-path-copy strong {
+  font-size: 0.98rem;
+}
+
+body.bq-experience-uplift .bq-path-copy small,
+body.bq-experience-uplift .bq-path-status {
+  color: #607089;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+body.bq-experience-uplift .bq-path-status {
+  justify-self: end;
+}
+
+body.bq-experience-uplift .bq-winter-status-row {
+  display: flex;
+  gap: 5px;
+}
+
+body.bq-experience-uplift .bq-winter-status-row .bq-status-pill {
+  min-width: 84px;
+  border-radius: 6px;
+  padding: 5px 7px;
+}
+
+body.bq-experience-uplift .bq-journey-hero,
+body.bq-experience-uplift .bq-journey-wins {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 20px;
+  align-items: center;
+  border: 1px solid #d7e0eb;
+  border-radius: 8px;
+  padding: 20px;
+  background: #ffffff;
+}
+
+body.bq-experience-uplift .bq-journey-hero h3,
+body.bq-experience-uplift .bq-journey-hero p,
+body.bq-experience-uplift .bq-journey-wins h3,
+body.bq-experience-uplift .bq-journey-wins p {
+  margin: 3px 0;
+}
+
+body.bq-experience-uplift .bq-journey-stars {
+  display: grid;
+  min-width: 110px;
+  min-height: 72px;
+  place-items: center;
+  border-bottom: 3px solid #f4bc2e;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+body.bq-experience-uplift .bq-journey-stars strong {
+  font-size: 1.5rem;
+}
+
+body.bq-experience-uplift .bq-journey-stars span {
+  color: #607089;
+  font-size: 0.74rem;
+  font-weight: 750;
+}
+
+body.bq-experience-uplift .bq-journey-subjects {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+body.bq-experience-uplift .bq-journey-subject {
+  display: grid;
+  gap: 9px;
+  border: 1px solid #d7e0eb;
+  border-top: 4px solid #1769d2;
+  border-radius: 8px;
+  padding: 16px;
+  background: #ffffff;
+}
+
+body.bq-experience-uplift .bq-journey-subject.chemistry { border-top-color: #ef735f; }
+body.bq-experience-uplift .bq-journey-subject.winter { border-top-color: #f4bc2e; }
+
+body.bq-experience-uplift .bq-journey-subject > div:first-child {
+  display: grid;
+  gap: 3px;
+}
+
+body.bq-experience-uplift .bq-journey-subject span,
+body.bq-experience-uplift .bq-journey-subject small {
+  color: #607089;
+  font-size: 0.76rem;
+}
+
+body.bq-experience-uplift .bq-journey-bar {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e7edf5;
+}
+
+body.bq-experience-uplift .bq-journey-bar span {
+  display: block;
+  height: 100%;
+  background: #20a79b;
+}
+
+body.bq-experience-uplift .bq-trophy-shelf {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+body.bq-experience-uplift .bq-trophy-shelf span {
+  border: 1px solid #d7e0eb;
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: #7b8798;
+  background: #f4f6f9;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+body.bq-experience-uplift .bq-trophy-shelf span.earned {
+  border-color: #e8b52e;
+  color: #6e5210;
+  background: #fff8de;
+}
+
+body.bq-experience-uplift .bq-play-uplift .app-header {
+  border: 0 !important;
+  border-bottom: 1px solid #dce3ec !important;
+  border-radius: 0 !important;
+  padding: 0 0 14px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body.bq-experience-uplift .bq-play-uplift .games-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+body.bq-experience-uplift .bq-play-uplift .game-gallery-hero {
+  grid-column: 1 / -1;
+  min-height: 0;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 4px 0 10px;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body.bq-experience-uplift .bq-play-uplift .game-tile {
+  min-height: 0;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(20, 33, 61, 0.06) !important;
+}
+
+body.bq-experience-uplift .bq-play-uplift .bq-featured-game {
+  grid-column: span 2;
+  border: 2px solid #1769d2 !important;
+}
+
+body.bq-experience-uplift .bq-play-uplift .bq-next-unlock {
+  border-style: dashed !important;
+  opacity: 0.82;
+}
+
+body.bq-experience-uplift .bq-play-uplift .bq-game-compact {
+  order: 10 !important;
+  min-height: 118px !important;
+  padding: 12px !important;
+}
+
+body.bq-experience-uplift .bq-play-uplift .game-gallery-hero { order: 0 !important; }
+body.bq-experience-uplift .bq-play-uplift .bq-featured-game { order: 1 !important; }
+body.bq-experience-uplift .bq-play-uplift .bq-play-secondary { order: 2 !important; }
+body.bq-experience-uplift .bq-play-uplift .bq-next-unlock { order: 3 !important; }
+
+body.bq-experience-uplift .bq-play-uplift .button {
+  min-height: 44px;
+  border-radius: 8px !important;
+}
+
+body.bq-experience-uplift .bq-play-uplift .button-primary {
+  border: 1px solid #165dc7 !important;
+  background: #1769d2 !important;
+  box-shadow: 0 6px 14px rgba(23, 105, 210, 0.18) !important;
+}
+
+body.bq-experience-uplift .bq-play-uplift .button-soft {
+  border: 1px solid #d4dce8 !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+body.bq-experience-uplift .bq-play-uplift .bq-game-compact .game-preview,
+body.bq-experience-uplift .bq-play-uplift .bq-game-compact > p,
+body.bq-experience-uplift .bq-play-uplift .bq-game-compact > span,
+body.bq-experience-uplift .bq-play-uplift .bq-game-compact > small,
+body.bq-experience-uplift .bq-play-uplift .bq-game-compact > .bq-art {
+  display: none !important;
+}
+
+body.bq-experience-uplift #parentScreen.bq-parent-uplift {
+  color: #14213d;
+  background: #f4f7fb !important;
+  background-image: none !important;
+}
+
+body.bq-experience-uplift #parentScreen.bq-parent-uplift .parent-recommendation {
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body.bq-experience-uplift #parentScreen.bq-parent-uplift .bq-parent-page {
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body.bq-experience-uplift #parentScreen.bq-parent-uplift .cockpit-title-block h2 {
+  margin: 2px 0 0;
+  font-size: 1.45rem !important;
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+body.bq-experience-uplift #parentScreen.bq-parent-uplift .button {
+  min-height: 44px;
+  border-radius: 8px !important;
+}
+
+body.bq-experience-uplift #parentScreen.bq-parent-uplift .button-primary {
+  border: 1px solid #165dc7 !important;
+  background: #1769d2 !important;
+  box-shadow: 0 6px 14px rgba(23, 105, 210, 0.18) !important;
+}
+
+body.bq-experience-uplift #parentScreen.bq-parent-uplift .button-soft,
+body.bq-experience-uplift #parentScreen.bq-parent-uplift select {
+  border: 1px solid #d4dce8 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+body.bq-experience-uplift #parentScreen.bq-parent-uplift > .app-header {
+  display: grid !important;
+  grid-template-columns: minmax(160px, auto) minmax(360px, 1fr) auto !important;
+  gap: 16px !important;
+  align-items: center !important;
+  border: 0 !important;
+  border-bottom: 1px solid #dce3ec !important;
+  border-radius: 0 !important;
+  padding: 0 0 14px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body.bq-experience-uplift .bq-parent-nav {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  border: 1px solid #d7e0eb;
+  border-radius: 8px;
+  padding: 4px;
+  background: #ffffff;
+}
+
+body.bq-experience-uplift .bq-parent-nav button {
+  min-height: 40px;
+  border: 0;
+  border-radius: 6px;
+  color: #52627a;
+  background: transparent;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+body.bq-experience-uplift .bq-parent-nav button.active {
+  color: #174f9c;
+  background: #eaf2fd;
+}
+
+body.bq-experience-uplift .bq-parent-page {
+  display: grid;
+  gap: 14px;
+}
+
+body.bq-experience-uplift .bq-parent-page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 0;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body.bq-experience-uplift .bq-parent-page-head p {
+  margin: 2px 0;
+}
+
+body.bq-experience-uplift .bq-parent-attention {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 20px;
+  align-items: center;
+  border: 1px solid #d7e0eb;
+  border-left: 5px solid #f4bc2e;
+  border-radius: 8px;
+  padding: 20px;
+  background: #ffffff;
+}
+
+body.bq-experience-uplift .bq-parent-attention.steady {
+  border-left-color: #20a79b;
+}
+
+body.bq-experience-uplift .bq-parent-attention h3,
+body.bq-experience-uplift .bq-parent-attention p,
+body.bq-experience-uplift .bq-parent-decision-grid h3,
+body.bq-experience-uplift .bq-parent-decision-grid p {
+  margin: 3px 0;
+}
+
+body.bq-experience-uplift .bq-parent-decision-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+body.bq-experience-uplift .bq-parent-decision-grid article {
+  border: 1px solid #d7e0eb;
+  border-radius: 8px;
+  padding: 16px;
+  background: #ffffff;
+}
+
+body.bq-experience-uplift .bq-parent-subject-rows,
+body.bq-experience-uplift .bq-parent-hub-list,
+body.bq-experience-uplift .bq-parent-settings-list {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid #d7e0eb;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+body.bq-experience-uplift .bq-parent-hub-row {
+  display: grid;
+  grid-template-columns: 42px minmax(180px, 1fr) minmax(140px, auto) 20px;
+  gap: 12px;
+  min-height: 68px;
+  align-items: center;
+  border: 0;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 10px 14px;
+  color: #14213d;
+  text-align: left;
+  background: #ffffff;
+}
+
+body.bq-experience-uplift .bq-parent-hub-row:last-child {
+  border-bottom: 0;
+}
+
+body.bq-experience-uplift .bq-parent-hub-row:hover {
+  background: #f7f9fc;
+}
+
+body.bq-experience-uplift .bq-parent-row-icon {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 8px;
+  color: #1769d2;
+  background: #eaf2fd;
+}
+
+body.bq-experience-uplift .bq-parent-row-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+body.bq-experience-uplift .bq-parent-hub-row > span:nth-child(2) {
+  display: grid;
+  gap: 3px;
+}
+
+body.bq-experience-uplift .bq-parent-hub-row small,
+body.bq-experience-uplift .bq-parent-hub-row em {
+  color: #607089;
+  font-size: 0.76rem;
+  font-style: normal;
+}
+
+body.bq-experience-uplift .bq-parent-hub-row em {
+  text-align: right;
+}
+
+body.bq-experience-uplift .bq-parent-evidence-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+body.bq-experience-uplift .bq-parent-evidence-summary > span {
+  display: grid;
+  min-height: 64px;
+  place-items: center;
+  border: 1px solid #d7e0eb;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+body.bq-experience-uplift .bq-parent-settings-list {
+  padding: 14px;
+  gap: 8px;
+}
+
+body.bq-experience-uplift .bq-parent-settings-list > div {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+body.bq-experience-uplift .bq-parent-settings-list .button {
+  justify-self: start;
+}
+
+body.bq-experience-uplift .bq-parent-settings-list .danger {
+  color: #a12f25;
+  border-color: #e8b7b0 !important;
+}
+
 @media (max-width: 900px) {
   body.bq-experience-uplift .app {
     padding: 16px !important;
@@ -493,6 +1089,24 @@ body.bq-experience-uplift .bq-child-nav button.active {
 
   body.bq-experience-uplift .bq-world-tile img {
     height: 112px;
+  }
+
+  body.bq-experience-uplift .bq-journey-subjects,
+  body.bq-experience-uplift .bq-play-uplift .games-list {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  body.bq-experience-uplift .bq-play-uplift .bq-featured-game {
+    grid-column: 1 / -1;
+  }
+
+  body.bq-experience-uplift #parentScreen.bq-parent-uplift > .app-header {
+    grid-template-columns: minmax(160px, 1fr) auto !important;
+  }
+
+  body.bq-experience-uplift .bq-parent-nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
   }
 }
 
@@ -637,6 +1251,123 @@ body.bq-experience-uplift .bq-child-nav button.active {
     font-size: 0.68rem;
     line-height: 1.1;
     white-space: normal;
+  }
+
+  body.bq-experience-uplift .bq-kid-page-head {
+    grid-template-columns: 48px minmax(0, 1fr);
+  }
+
+  body.bq-experience-uplift .bq-kid-page-head .bq-art {
+    width: 48px;
+    height: 48px;
+  }
+
+  body.bq-experience-uplift .bq-kid-page-head .bq-art svg {
+    width: 42px;
+    height: 42px;
+  }
+
+  body.bq-experience-uplift .bq-kid-page-head .button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  body.bq-experience-uplift .bq-prep-summary {
+    grid-template-columns: 1fr;
+  }
+
+  body.bq-experience-uplift .bq-path-node {
+    grid-template-columns: 56px minmax(0, 1fr);
+    padding-right: 10px;
+  }
+
+  body.bq-experience-uplift .bq-path-status {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  body.bq-experience-uplift .bq-course-path:not(.show-full-path) .bq-path-node:not(.nearby) {
+    display: none;
+  }
+
+  body.bq-experience-uplift .bq-course-path-toggle {
+    display: grid;
+  }
+
+  body.bq-experience-uplift .bq-course-path::before {
+    left: 28px;
+  }
+
+  body.bq-experience-uplift .bq-journey-hero,
+  body.bq-experience-uplift .bq-journey-wins {
+    grid-template-columns: 1fr;
+  }
+
+  body.bq-experience-uplift .bq-journey-stars {
+    min-width: 0;
+  }
+
+  body.bq-experience-uplift .bq-journey-subjects,
+  body.bq-experience-uplift .bq-play-uplift .games-list {
+    grid-template-columns: 1fr;
+  }
+
+  body.bq-experience-uplift .bq-play-uplift .bq-game-compact.locked {
+    display: none !important;
+  }
+
+  body.bq-experience-uplift .bq-play-uplift .bq-game-compact {
+    min-height: 74px !important;
+  }
+
+  body.bq-experience-uplift .bq-trophy-shelf {
+    justify-content: flex-start;
+  }
+
+  body.bq-experience-uplift #parentScreen.bq-parent-uplift > .app-header {
+    grid-template-columns: 1fr !important;
+  }
+
+  body.bq-experience-uplift .cockpit-header-controls {
+    justify-content: stretch;
+  }
+
+  body.bq-experience-uplift .bq-parent-nav {
+    grid-row: auto;
+  }
+
+  body.bq-experience-uplift .bq-parent-nav button {
+    min-width: 0;
+    padding: 6px 2px;
+    font-size: 0.68rem;
+  }
+
+  body.bq-experience-uplift .bq-parent-attention,
+  body.bq-experience-uplift .bq-parent-decision-grid {
+    grid-template-columns: 1fr;
+  }
+
+  body.bq-experience-uplift .bq-parent-attention .button {
+    width: 100%;
+  }
+
+  body.bq-experience-uplift .bq-parent-hub-row {
+    grid-template-columns: 38px minmax(0, 1fr) 16px;
+    gap: 9px;
+  }
+
+  body.bq-experience-uplift .bq-parent-hub-row em {
+    grid-column: 2;
+    text-align: left;
+  }
+
+  body.bq-experience-uplift .bq-parent-hub-row b {
+    grid-column: 3;
+    grid-row: 1 / 3;
+  }
+
+  body.bq-experience-uplift .bq-parent-evidence-summary {
+    grid-template-columns: 1fr;
   }
 }
 

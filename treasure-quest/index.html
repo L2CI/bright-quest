@@ -4,12 +4,16 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Bright Quest - Treasure Map Prototype</title>
-    <link rel="stylesheet" href="treasure-quest.css" />
+    <link rel="stylesheet" href="treasure-quest.css?v=20260719a" />
   </head>
   <body>
     <main class="game-shell">
       <section class="stage" aria-label="Pirate treasure game prototype">
         <img class="scene" src="assets/treasure-islands.png" alt="" />
+        <nav class="game-actions" aria-label="Game session controls">
+          <a class="session-control back-control" href="../">Back to Bright Quest</a>
+          <button class="session-control" id="pauseButton" type="button" aria-haspopup="dialog" aria-expanded="false">Pause</button>
+        </nav>
         <div class="hud">
           <div>
             <p>Reward Game</p>
@@ -56,6 +60,34 @@
         <div class="whirlpool" aria-hidden="true"></div>
         <div class="toast" id="gameToast" role="status" aria-live="polite"></div>
 
+        <div class="session-overlay" id="pauseOverlay" hidden>
+          <section class="session-panel" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
+            <p class="panel-kicker">Quest paused</p>
+            <h2 id="pauseTitle">Ready when you are, captain</h2>
+            <p>Your time and choices are paused.</p>
+            <div class="panel-actions">
+              <button class="primary-action" id="resumeButton" type="button">Resume quest</button>
+              <a class="secondary-action" href="../">Return to Bright Quest</a>
+            </div>
+          </section>
+        </div>
+
+        <div class="session-overlay" id="completionOverlay" hidden>
+          <section class="session-panel completion-panel" role="dialog" aria-modal="true" aria-labelledby="completionTitle">
+            <p class="panel-kicker">Quest complete</p>
+            <h2 id="completionTitle">Treasure secured!</h2>
+            <p id="completionSummary">You found 0 chests.</p>
+            <div class="completion-score" aria-hidden="true">
+              <span id="completionChestText">0</span>
+              <small>chests found</small>
+            </div>
+            <div class="panel-actions">
+              <a class="primary-action" href="../">Return to Bright Quest</a>
+              <button class="secondary-action" id="replayButton" type="button">Replay</button>
+            </div>
+          </section>
+        </div>
+
         <footer class="controls" aria-label="Game controls">
           <button class="arrow-button left-arrow active" id="leftControl" type="button" data-move="left" aria-label="Sail left"></button>
           <button class="primary" type="button" id="pickButton">Pick 24</button>
@@ -71,6 +103,6 @@
         </p>
       </aside>
     </main>
-    <script src="treasure-quest.js"></script>
+    <script src="treasure-quest.js?v=20260719a"></script>
   </body>
 </html>

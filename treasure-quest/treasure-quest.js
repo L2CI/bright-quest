@@ -11,7 +11,9 @@ const state = {
   selected: "left",
   chests: 0,
   seconds: 120,
-  locked: false
+  locked: false,
+  paused: false,
+  completed: false
 };
 
 const el = {
@@ -30,8 +32,18 @@ const el = {
   chests: document.querySelector("#chestText"),
   stage: document.querySelector(".stage"),
   leftControl: document.querySelector("#leftControl"),
-  rightControl: document.querySelector("#rightControl")
+  rightControl: document.querySelector("#rightControl"),
+  pauseButton: document.querySelector("#pauseButton"),
+  pauseOverlay: document.querySelector("#pauseOverlay"),
+  resumeButton: document.querySelector("#resumeButton"),
+  completionOverlay: document.querySelector("#completionOverlay"),
+  completionSummary: document.querySelector("#completionSummary"),
+  completionChestText: document.querySelector("#completionChestText"),
+  replayButton: document.querySelector("#replayButton"),
+  controls: document.querySelector(".controls")
 };
+
+let focusBeforeDialog = null;
 
 function renderQuestion() {
   const q = questions[state.index % questions.length];
@@ -48,6 +60,7 @@ function renderQuestion() {
 }
 
 function selectSide(side) {
+  if (state.paused || state.completed || state.locked) return;
   state.selected = side;
   el.left.classList.toggle("selected", side === "left");
   el.right.classList.toggle("selected", side === "right");
@@ -60,7 +73,7 @@ function selectSide(side) {
 }
 
 function choose() {
-  if (state.locked) return;
+  if (state.locked || state.paused || state.completed) return;
   state.locked = true;
   const q = questions[state.index % questions.length];
   const chosen = Number(state.selected === "left" ? el.leftAnswer.textContent : el.rightAnswer.textContent);
@@ -135,12 +148,93 @@ function randomGood() {
 }
 
 function tick() {
+  if (state.paused || state.completed) return;
   state.seconds = Math.max(0, state.seconds - 1);
+  renderTime();
+  if (state.seconds === 0) completeQuest();
+}
+
+function renderTime() {
   const mins = String(Math.floor(state.seconds / 60)).padStart(2, "0");
   const secs = String(state.seconds % 60).padStart(2, "0");
   el.time.textContent = `${mins}:${secs}`;
-  if (state.seconds === 0) {
-    showToast(`Quest complete. ${state.chests} chests found.`, "good");
+}
+
+function setGameplayDisabled(disabled) {
+  el.left.disabled = disabled;
+  el.right.disabled = disabled;
+  el.leftControl.disabled = disabled;
+  el.rightControl.disabled = disabled;
+  el.pick.disabled = disabled;
+  el.controls.setAttribute("aria-hidden", String(disabled));
+}
+
+function openPause() {
+  if (state.completed || state.paused) return;
+  state.paused = true;
+  focusBeforeDialog = document.activeElement;
+  setGameplayDisabled(true);
+  el.pauseButton.textContent = "Paused";
+  el.pauseButton.setAttribute("aria-expanded", "true");
+  el.pauseOverlay.hidden = false;
+  el.resumeButton.focus();
+}
+
+function resumeQuest() {
+  if (!state.paused || state.completed) return;
+  state.paused = false;
+  setGameplayDisabled(false);
+  el.pauseButton.textContent = "Pause";
+  el.pauseButton.setAttribute("aria-expanded", "false");
+  el.pauseOverlay.hidden = true;
+  (focusBeforeDialog instanceof HTMLElement ? focusBeforeDialog : el.pauseButton).focus();
+}
+
+function completeQuest() {
+  if (state.completed) return;
+  state.completed = true;
+  state.paused = false;
+  state.locked = true;
+  setGameplayDisabled(true);
+  el.pauseButton.disabled = true;
+  el.pauseButton.setAttribute("aria-expanded", "false");
+  el.toast.className = "toast";
+  el.completionSummary.textContent = `You found ${state.chests} ${state.chests === 1 ? "chest" : "chests"}.`;
+  el.completionChestText.textContent = state.chests;
+  el.completionOverlay.hidden = false;
+  el.completionOverlay.querySelector("a").focus();
+}
+
+function replayQuest() {
+  state.index = 0;
+  state.selected = "left";
+  state.chests = 0;
+  state.seconds = 120;
+  state.locked = false;
+  state.paused = false;
+  state.completed = false;
+  el.chests.textContent = "0";
+  el.pauseButton.disabled = false;
+  el.pauseButton.textContent = "Pause";
+  el.completionOverlay.hidden = true;
+  setGameplayDisabled(false);
+  renderTime();
+  renderQuestion();
+  el.pick.focus();
+}
+
+function trapDialogFocus(event, overlay) {
+  if (event.key !== "Tab" || overlay.hidden) return;
+  const focusable = [...overlay.querySelectorAll("button, a[href]")].filter((node) => !node.disabled);
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
   }
 }
 
@@ -153,11 +247,24 @@ document.querySelectorAll("[data-move]").forEach((button) => {
 });
 
 el.pick.addEventListener("click", choose);
+el.pauseButton.addEventListener("click", openPause);
+el.resumeButton.addEventListener("click", resumeQuest);
+el.replayButton.addEventListener("click", replayQuest);
 window.addEventListener("keydown", (event) => {
+  if (state.paused) {
+    if (event.key === "Escape") resumeQuest();
+    trapDialogFocus(event, el.pauseOverlay);
+    return;
+  }
+  if (state.completed) {
+    trapDialogFocus(event, el.completionOverlay);
+    return;
+  }
   if (event.key === "ArrowLeft") selectSide("left");
   if (event.key === "ArrowRight") selectSide("right");
   if (event.key === "Enter" || event.key === " ") choose();
 });
 
 renderQuestion();
+renderTime();
 setInterval(tick, 1000);

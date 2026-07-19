@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Chemistry 101 Winter 2026 | Bright Quest</title>
-    <link rel="stylesheet" href="./chemistry-101.css?v=20260702i" />
+    <link rel="stylesheet" href="./chemistry-101.css?v=20260719a" />
   </head>
   <body>
     <main class="chem-app landing-view">
@@ -15,10 +15,7 @@
           <small>Chemistry 101 Winter 2026</small>
         </a>
         <nav class="lesson-nav" aria-label="Chemistry navigation">
-          <a class="nav-button" href="../../">Home</a>
-          <button class="nav-button primary" id="headerStartButton" type="button">Start Learning</button>
-          <button class="nav-button" id="headerCardsButton" type="button">Course Cards</button>
-          <a class="nav-button" href="../../#parent/chemistry">Cockpit</a>
+          <button class="nav-button" id="headerCardsButton" type="button">Course map</button>
           <a class="nav-button back" href="../../">Back to Bright Quest</a>
         </nav>
         <div class="lesson-stat">
@@ -37,11 +34,10 @@
           </span>
           <div class="course-copy">
             <p class="eyebrow">Chemistry 101 Winter 2026</p>
-            <h2>Start the chemistry map</h2>
+            <h2>Continue the chemistry lab</h2>
             <p>Video chapters with cockpit checks for materials, states, particles, heat, melting, dissolving, and reaction clues.</p>
             <div class="course-actions">
-              <button class="button button-primary" id="courseStartButton" type="button">Start Chapter 1</button>
-              <button class="button button-soft" id="courseMapButton" type="button">Chapter Cards</button>
+              <button class="button button-primary" id="courseStartButton" type="button">Continue next chapter</button>
             </div>
           </div>
         </article>
@@ -67,7 +63,8 @@
         </article>
       </section>
 
-      <section class="chapter-map" id="chapterMap" aria-label="Course map"></section>
+      <section class="chapter-map" id="chapterMap" aria-label="Chemistry lab path"></section>
+      <button class="button button-soft map-toggle" id="mapToggleButton" type="button" aria-expanded="false">View full lab map</button>
 
       <nav class="chapter-tabs" id="chapterTabs" aria-label="Chemistry chapters"></nav>
 
@@ -134,6 +131,6 @@
 
     </main>
 
-    <script src="./chemistry-101.js?v=20260711a"></script>
+    <script src="./chemistry-101.js?v=20260719b"></script>
   </body>
 </html>

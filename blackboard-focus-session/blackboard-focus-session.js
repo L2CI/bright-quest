@@ -1525,7 +1525,7 @@
       ? "One missed question is on the board."
       : "Pick a lesson or press Start.";
     el.moduleList.innerHTML = plan.modules.map((module, index) => `
-      <button class="module-button ${index === lessonState.moduleIndex ? "active" : ""}" type="button" data-module="${index}">
+      <button class="module-button ${index === lessonState.moduleIndex ? "active" : ""}" type="button" data-module="${index}" ${index === lessonState.moduleIndex ? 'aria-current="step"' : ""}>
         <strong>${escapeHtml(module.title)}</strong>
         <span>${escapeHtml(module.section || "Mixed")} ${module.example?.correct === false ? "missed" : "slow"}</span>
       </button>

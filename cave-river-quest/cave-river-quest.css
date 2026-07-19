@@ -67,7 +67,7 @@ a {
 
 .hud-top {
   position: absolute;
-  z-index: 10;
+  z-index: 30;
   top: max(14px, env(safe-area-inset-top));
   left: max(14px, env(safe-area-inset-left));
   right: max(14px, env(safe-area-inset-right));
@@ -80,7 +80,8 @@ a {
 
 .back-link,
 .status-pill,
-.quest-title {
+.quest-title,
+.pause-button {
   pointer-events: auto;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background:
@@ -90,16 +91,41 @@ a {
   backdrop-filter: blur(18px) saturate(1.2);
 }
 
+.hud-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  pointer-events: auto;
+}
+
 .back-link {
   display: inline-grid;
   place-items: center;
   min-width: 68px;
   min-height: 48px;
   padding: 0 16px;
-  border-radius: 999px;
+  border-radius: 8px;
   color: var(--ink);
   text-decoration: none;
   font-weight: 900;
+}
+
+.pause-button {
+  min-width: 78px;
+  min-height: 48px;
+  padding: 0 14px;
+  border-radius: 8px;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.pause-button:disabled,
+.touch-controls button:disabled {
+  cursor: default;
+  opacity: 0.58;
 }
 
 .quest-title {
@@ -169,7 +195,8 @@ a {
 }
 
 .question-panel,
-.finale-panel {
+.finale-panel,
+.pause-panel {
   position: absolute;
   z-index: 20;
   inset: 0;
@@ -179,8 +206,13 @@ a {
   background: radial-gradient(circle at 50% 44%, rgba(53, 215, 255, 0.14), rgba(3, 10, 20, 0.62));
 }
 
+.pause-panel {
+  z-index: 40;
+}
+
 .question-card,
-.finale-card {
+.finale-card,
+.pause-card {
   width: min(640px, 100%);
   padding: clamp(18px, 4vw, 30px);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -190,6 +222,21 @@ a {
     radial-gradient(circle at 80% 0, rgba(91, 231, 255, 0.2), transparent 32%),
     linear-gradient(180deg, rgba(15, 48, 76, 0.97), rgba(5, 17, 31, 0.97));
   box-shadow: 0 34px 90px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
+.pause-card {
+  width: min(520px, 100%);
+  text-align: center;
+}
+
+.pause-card h2 {
+  margin: 0;
+  font-size: clamp(1.65rem, 4vw, 2.6rem);
+}
+
+.pause-card > p:not(.eyebrow) {
+  color: #e5f6ff;
+  font-weight: 800;
 }
 
 .question-card {
@@ -241,10 +288,11 @@ a {
 
 .answer-grid button,
 .claim-button,
-.sound-button {
+.sound-button,
+.secondary-action {
   min-height: 64px;
   border: 0;
-  border-radius: 18px;
+  border-radius: 8px;
   color: #061322;
   background:
     radial-gradient(circle at 24% 20%, rgba(255, 255, 255, 0.7), transparent 16%),
@@ -253,6 +301,45 @@ a {
   font-size: clamp(0.96rem, 2vw, 1.14rem);
   font-weight: 1000;
   cursor: pointer;
+}
+
+.completion-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.completion-actions > * {
+  min-height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  font: inherit;
+  font-weight: 1000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.completion-actions .claim-button,
+.completion-actions .secondary-action {
+  width: auto;
+  margin: 0;
+  animation: none;
+}
+
+.secondary-action {
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  color: var(--ink);
+  background: rgba(13, 39, 62, 0.96);
+  box-shadow: none;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 4px solid var(--gold);
+  outline-offset: 3px;
 }
 
 .answer-grid button:active,
@@ -476,9 +563,20 @@ a {
 
   .back-link {
     min-width: 54px;
-    min-height: 42px;
+    min-height: 44px;
     padding: 0 11px;
     font-size: 0.85rem;
+  }
+
+  .hud-actions {
+    gap: 5px;
+  }
+
+  .pause-button {
+    min-width: 58px;
+    min-height: 44px;
+    padding: 0 8px;
+    font-size: 0.78rem;
   }
 
   .quest-title {
@@ -518,8 +616,13 @@ a {
   }
 
   .question-panel,
-  .finale-panel {
+  .finale-panel,
+  .pause-panel {
     padding: 14px;
+  }
+
+  .completion-actions {
+    grid-template-columns: 1fr;
   }
 
   .touch-controls {

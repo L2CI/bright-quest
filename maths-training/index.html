@@ -4,19 +4,24 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Maths Training | Bright Quest</title>
-    <link rel="stylesheet" href="./maths-training.css?v=20260618h" />
+    <link rel="stylesheet" href="./maths-training.css?v=maths-shell-004" />
   </head>
   <body>
     <main class="maths-app">
       <header class="lesson-header">
-        <a class="back-link" href="../" aria-label="Back to Bright Quest">Bright Quest</a>
-        <div>
-          <p class="eyebrow">Maths Training</p>
-          <h1>Scholarship Maths Lab</h1>
+        <div class="lesson-brand">
+          <span class="brand-mark" aria-hidden="true">BQ</span>
+          <div>
+            <p class="eyebrow">Bright Quest</p>
+            <h1>Maths Training</h1>
+          </div>
         </div>
-        <div class="lesson-stat">
-          <strong id="remainingTime">30:00</strong>
-          <span>remaining</span>
+        <div class="header-actions">
+          <div class="lesson-stat" aria-label="Lesson time remaining">
+            <strong id="remainingTime">30:00</strong>
+            <span>remaining</span>
+          </div>
+          <a class="back-link" href="../">Back to Bright Quest</a>
         </div>
       </header>
 
@@ -47,7 +52,7 @@
             <p class="transcript hidden" id="captionText">Press start and the board will draw while the teacher explains.</p>
           </div>
 
-          <div class="control-card">
+          <div class="control-card" role="group" aria-label="Playback controls">
             <button class="primary-control icon-control" id="playButton" type="button" aria-label="Start lesson"></button>
             <button class="rewind-control icon-control" id="rewindButton" type="button" aria-label="Rewind 15 seconds"><span class="control-icon rewind-icon" aria-hidden="true"></span><span class="control-label">15s</span></button>
           </div>
@@ -65,6 +70,6 @@
       </footer>
     </main>
 
-    <script src="./maths-training.js?v=20260618i"></script>
+    <script src="./maths-training.js?v=maths-shell-004"></script>
   </body>
 </html>

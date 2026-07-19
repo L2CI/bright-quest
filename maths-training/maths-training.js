@@ -477,7 +477,7 @@ function escapeHtml(value) {
 
 function renderEpisodeTabs() {
   episodeTabs.innerHTML = episodes.map((episode) => `
-    <button class="ladder-tab ${episode.episode === activeEpisode ? "active" : ""}" type="button" data-episode="${episode.episode}">
+    <button class="ladder-tab ${episode.episode === activeEpisode ? "active" : ""}" type="button" data-episode="${episode.episode}" ${episode.episode === activeEpisode ? 'aria-current="step"' : ""}>
       <span>${episode.episode}</span>
       <strong>${episode.title}</strong>
       <small>${episode.subtitle} - ${episodeSummary(episode.episode)}</small>
@@ -520,7 +520,7 @@ function initQuizOverlay() {
 
 function renderSceneList() {
   sceneList.innerHTML = scenes.map((scene, index) => `
-    <button class="scene-button ${index === activeSceneIndex ? "active" : ""}" type="button" data-scene="${index}">
+    <button class="scene-button ${index === activeSceneIndex ? "active" : ""}" type="button" data-scene="${index}" ${index === activeSceneIndex ? 'aria-current="step"' : ""}>
       <span>${index + 1}</span>
       <span><strong>${escapeHtml(scene.title)}</strong><small>${escapeHtml(scene.point)}</small></span>
       <small>${formatTime(scene.duration)}</small>
@@ -563,12 +563,10 @@ function loadScene(index, offsetSeconds = 0, autoPlay = playing) {
 function keepActiveSceneVisible() {
   const active = sceneList.querySelector(".scene-button.active");
   if (!active) return;
-  const containerTop = sceneList.scrollTop;
-  const containerBottom = containerTop + sceneList.clientHeight;
-  const itemTop = active.offsetTop;
-  const itemBottom = itemTop + active.offsetHeight;
-  if (itemTop < containerTop) sceneList.scrollTop = itemTop - 8;
-  else if (itemBottom > containerBottom) sceneList.scrollTop = itemBottom - sceneList.clientHeight + 8;
+  const containerRect = sceneList.getBoundingClientRect();
+  const itemRect = active.getBoundingClientRect();
+  if (itemRect.top < containerRect.top) sceneList.scrollTop += itemRect.top - containerRect.top - 8;
+  else if (itemRect.bottom > containerRect.bottom) sceneList.scrollTop += itemRect.bottom - containerRect.bottom + 8;
 }
 
 function startPlayback() {

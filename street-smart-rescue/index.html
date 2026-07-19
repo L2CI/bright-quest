@@ -5,14 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#102a56" />
     <title>Bright Quest - Street Smart Rescue</title>
-    <link rel="stylesheet" href="street-smart-rescue.css" />
+    <link rel="stylesheet" href="street-smart-rescue.css?v=grammar-cinematic-013" />
   </head>
   <body>
     <main class="street-shell" aria-label="Street Smart Rescue game">
       <div id="streetGame" aria-label="Animated grammar reward game"></div>
 
       <section class="hud-top" aria-label="Game status">
-        <a class="back-link" href="../" aria-label="Back to Bright Quest">Back</a>
+        <div class="hud-actions">
+          <a class="back-link" href="../" aria-label="Back to Bright Quest">Back</a>
+          <button class="pause-button" id="pauseButton" type="button" aria-haspopup="dialog" disabled>Pause</button>
+        </div>
         <div class="quest-title">
           <p>Grammar Reward Game</p>
           <h1>Street Smart Rescue</h1>
@@ -37,6 +40,18 @@
         </div>
       </section>
 
+      <section class="pause-panel hidden" id="pausePanel" aria-modal="true" role="dialog" aria-labelledby="pauseTitle">
+        <div class="pause-card">
+          <p class="eyebrow">Game paused</p>
+          <h2 id="pauseTitle">Take a breather</h2>
+          <p>Your place is saved while the game is paused.</p>
+          <div class="panel-actions">
+            <button class="primary-action" id="resumeButton" type="button">Resume</button>
+            <a class="secondary-action" href="../">Return to Bright Quest</a>
+          </div>
+        </div>
+      </section>
+
       <section class="start-panel" id="startPanel">
         <div>
           <p class="eyebrow">Grammar Reward Game</p>
@@ -51,7 +66,10 @@
           <p class="eyebrow">Street smart choice</p>
           <h2 id="finaleTitle">Unlocked</h2>
           <p>Smart kids ask an adult. The car is parked, the warning is clear, and the grammar checkpoints are solved.</p>
-          <button class="primary-action" id="replayButton" type="button">Replay</button>
+          <div class="panel-actions">
+            <button class="primary-action" id="replayButton" type="button">Replay</button>
+            <a class="secondary-action" href="../">Return to Bright Quest</a>
+          </div>
         </div>
       </section>
 
@@ -73,6 +91,6 @@
       });
     </script>
     <script src="../cave-river-quest/vendor/phaser.min.js"></script>
-    <script src="street-smart-rescue.js?v=grammar-cinematic-012"></script>
+    <script src="street-smart-rescue.js?v=grammar-cinematic-013"></script>
   </body>
 </html>

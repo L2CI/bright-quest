@@ -9,17 +9,22 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Patrick+Hand&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="blackboard-focus-session.css?v=blackboard-022" />
+    <link rel="stylesheet" href="blackboard-focus-session.css?v=blackboard-shell-023" />
   </head>
   <body>
     <main class="classroom-shell">
       <header class="classroom-topbar">
-        <button class="back-button" id="backButton" type="button">Back</button>
-        <div>
-          <p>Bright Quest</p>
-          <h1>Blackboard Focus Session</h1>
+        <div class="lesson-brand">
+          <span class="brand-mark" aria-hidden="true">BQ</span>
+          <div>
+            <p>Bright Quest</p>
+            <h1>Blackboard Focus</h1>
+          </div>
         </div>
-        <div class="student-pill" id="studentPill">Loading profile</div>
+        <div class="header-actions">
+          <div class="student-pill" id="studentPill" aria-live="polite">Loading profile</div>
+          <button class="back-button" id="backButton" type="button">Back to Bright Quest</button>
+        </div>
       </header>
 
       <section class="lesson-layout">
@@ -34,10 +39,10 @@
             <div class="chalk-dust" aria-hidden="true"></div>
             <div class="teacher-caption" id="teacherCaption" hidden>The teacher is preparing the board...</div>
           </div>
-          <div class="teacher-console">
+          <div class="teacher-console" role="group" aria-label="Lesson controls">
             <button class="primary-control" id="startLessonButton" type="button">Start lesson</button>
-            <button class="cc-control" id="captionToggleButton" type="button" aria-pressed="false">CC</button>
-            <span class="api-status" id="apiStatus">Local teaching ready</span>
+            <button class="cc-control" id="captionToggleButton" type="button" aria-label="Toggle captions" aria-pressed="false">CC</button>
+            <span class="api-status" id="apiStatus" aria-live="polite">Local teaching ready</span>
           </div>
           <form class="practice-panel" id="practicePanel" hidden>
             <strong id="practicePrompt"></strong>
@@ -69,13 +74,13 @@
           </div>
         </aside>
 
-        <aside class="lesson-rail">
-          <div class="rail-card plan-card toc-card">
+        <aside class="lesson-rail" aria-label="Lesson navigation">
+          <nav class="rail-card plan-card toc-card" aria-label="Focus lesson sections">
             <p class="rail-label">Contents</p>
             <h2 id="planTitle" hidden>Today's path</h2>
             <p id="planSummary" hidden>Pick a lesson or press Start.</p>
             <div class="module-list" id="moduleList"></div>
-          </div>
+          </nav>
 
           <div class="rail-card evidence-card" hidden>
             <p class="rail-label">Why this lesson</p>
@@ -93,6 +98,6 @@
     <script src="../app-data.js"></script>
     <script src="../final-test-data.js"></script>
     <script src="../international-tests-data.js"></script>
-    <script src="blackboard-focus-session.js?v=blackboard-022"></script>
+    <script src="blackboard-focus-session.js?v=blackboard-shell-023"></script>
   </body>
 </html>

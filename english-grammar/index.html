@@ -4,19 +4,28 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>English Grammar | Bright Quest</title>
-    <link rel="stylesheet" href="./english-grammar.css?v=20260618h" />
+    <link rel="stylesheet" href="./english-grammar.css?v=20260719a" />
   </head>
   <body>
     <main class="grammar-app">
       <header class="lesson-header">
-        <a class="back-link" href="../" aria-label="Back to Bright Quest">Bright Quest</a>
-        <div>
-          <p class="eyebrow">English Grammar</p>
-          <h1>Grammar Ladder</h1>
+        <a class="back-link" href="../" aria-label="Back to Bright Quest">
+          <span class="back-arrow" aria-hidden="true"></span>
+          <span>Back to Bright Quest</span>
+        </a>
+        <div class="course-title">
+          <p class="eyebrow">Grammar Ladder</p>
+          <h1>English Grammar</h1>
         </div>
-        <div class="lesson-stat">
-          <strong id="remainingTime">15:00</strong>
-          <span>remaining</span>
+        <div class="header-actions">
+          <div class="lesson-stat" aria-label="Time remaining">
+            <strong id="remainingTime">15:00</strong>
+            <span>left</span>
+          </div>
+          <button class="lesson-list-button" id="lessonListButton" type="button" aria-expanded="false" aria-controls="lessonDrawer">
+            <span class="list-icon" aria-hidden="true"></span>
+            <span>Lessons</span>
+          </button>
         </div>
       </header>
 
@@ -37,7 +46,7 @@
           </div>
         </div>
 
-        <aside class="lesson-side" aria-label="Lesson controls">
+        <div class="lesson-side" aria-label="Lesson controls">
           <div class="side-card current-card">
             <div class="lesson-card-top">
               <p class="eyebrow">Now Teaching</p>
@@ -51,9 +60,7 @@
             <button class="primary-control icon-control" id="playButton" type="button" aria-label="Start lesson"></button>
             <button class="rewind-control icon-control" id="rewindButton" type="button" aria-label="Rewind 15 seconds"><span class="control-icon rewind-icon" aria-hidden="true"></span><span class="control-label">15s</span></button>
           </div>
-
-          <div class="scene-list" id="sceneList" aria-label="Course scenes"></div>
-        </aside>
+        </div>
       </section>
 
       <footer class="timeline-wrap" aria-label="Lesson timeline">
@@ -63,6 +70,19 @@
         </div>
         <input id="timeline" class="timeline" type="range" min="0" max="900" value="0" step="1" aria-label="Course timeline" />
       </footer>
+
+      <div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
+      <aside class="lesson-drawer" id="lessonDrawer" role="dialog" aria-modal="true" aria-label="Lesson list" aria-hidden="true" inert>
+        <div class="drawer-header">
+          <div>
+            <p class="eyebrow">Grammar Ladder</p>
+            <h2>Choose a lesson</h2>
+          </div>
+          <button class="drawer-close" id="drawerCloseButton" type="button">Close</button>
+        </div>
+        <p class="drawer-summary" id="drawerSummary">Step 1 lesson modules</p>
+        <div class="scene-list" id="sceneList" aria-label="Course scenes"></div>
+      </aside>
 
       <section class="quiz-modal hidden" id="quizModal" aria-label="Optional grammar practice">
         <div class="quiz-card">
@@ -78,6 +98,6 @@
       </section>
     </main>
 
-    <script src="./english-grammar.js?v=20260618f"></script>
+    <script src="./english-grammar.js?v=20260719a"></script>
   </body>
 </html>

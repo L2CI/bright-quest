@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#071523" />
     <title>Bright Quest - Cave River Quest</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23071523'/%3E%3Cpath d='M14 40c8-15 28-15 36 0-11 8-25 8-36 0Z' fill='%2335d7ff'/%3E%3Cpath d='M24 26h16l4 12H20l4-12Z' fill='%23ffd15c'/%3E%3C/svg%3E" />
-    <link rel="stylesheet" href="cave-river-quest.css" />
+    <link rel="stylesheet" href="cave-river-quest.css?v=maths-cinematic-014" />
   </head>
   <body>
     <main class="quest-shell" aria-label="Cave River Quest cinematic reward game">
@@ -18,9 +18,12 @@
           <p>Cinematic Reward Game</p>
           <h1>Cave River Quest</h1>
         </div>
-        <div class="status-pill">
-          <strong id="gateCount">0/10</strong>
-          <span>gates</span>
+        <div class="hud-actions">
+          <button class="pause-button" id="pauseButton" type="button" aria-haspopup="dialog" aria-expanded="false" disabled>Pause</button>
+          <div class="status-pill">
+            <strong id="gateCount">0/10</strong>
+            <span>gates</span>
+          </div>
         </div>
       </section>
 
@@ -44,6 +47,22 @@
           <h2 id="finaleTitle">The relic is waking.</h2>
           <p id="finaleCopy">Tap the chest to claim the Leadership Matrix.</p>
           <button class="claim-button" id="claimButton" type="button">Open the chest</button>
+          <div class="completion-actions hidden" id="completionActions">
+            <button class="secondary-action" id="replayButton" type="button">Replay</button>
+            <a class="claim-button" href="../">Return to Bright Quest</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="pause-panel hidden" id="pausePanel" aria-modal="true" role="dialog" aria-labelledby="pauseTitle">
+        <div class="pause-card">
+          <p class="eyebrow">Quest paused</p>
+          <h2 id="pauseTitle">The river is waiting</h2>
+          <p>Your gate progress is safe while the quest is paused.</p>
+          <div class="completion-actions">
+            <button class="claim-button" id="resumeButton" type="button">Resume</button>
+            <a class="secondary-action" href="../">Return to Bright Quest</a>
+          </div>
         </div>
       </section>
 
@@ -71,6 +90,6 @@
 
     <script src="vendor/phaser.min.js"></script>
     <script src="vendor/howler.min.js"></script>
-    <script src="cave-river-quest-phaser.js?v=maths-cinematic-013"></script>
+    <script src="cave-river-quest-phaser.js?v=maths-cinematic-014"></script>
   </body>
 </html>
