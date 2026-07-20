@@ -130,6 +130,19 @@ try {
   await screenshot(tablet, "08-roadway-tablet.png");
   check("tablet roadway renders", await tablet.locator("canvas").isVisible());
 
+  const shortPhone = await browser.newPage({ viewport: { width: 740, height: 320 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
+  watch(shortPhone, "game-short-landscape");
+  await shortPhone.goto(`${BASE}/mechshift-rescue/`, { waitUntil: "networkidle" });
+  await shortPhone.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-rescue-001");
+  const launchBox = await shortPhone.getByRole("button", { name: "Launch rescue" }).boundingBox();
+  check("short landscape launch is fully visible", launchBox && launchBox.y >= 0 && launchBox.y + launchBox.height <= 320, JSON.stringify(launchBox));
+  await screenshot(shortPhone, "09-short-landscape-launch.png");
+  await shortPhone.getByRole("button", { name: "Launch rescue" }).click();
+  const controlBox = await shortPhone.getByRole("button", { name: "Take control" }).boundingBox();
+  check("short landscape mission brief action is fully visible", controlBox && controlBox.y >= 0 && controlBox.y + controlBox.height <= 320, JSON.stringify(controlBox));
+  await shortPhone.getByRole("button", { name: "Take control" }).click();
+  check("short landscape game canvas renders", await shortPhone.locator("canvas").isVisible());
+
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
   watch(mobile, "game-mobile");
   await mobile.goto(`${BASE}/mechshift-rescue/`, { waitUntil: "networkidle" });
@@ -175,6 +188,9 @@ try {
   check("catalog features Mechshift Rescue", catalogText.includes("Mechshift Rescue"), catalogText);
   check("legacy games absent from catalog", !/Cave River|Street Smart|Treasure Quest|Dragon Forge|Star Skimmer/.test(catalogText), catalogText);
   await screenshot(catalog, "12-mechshift-only-catalog.png");
+  await catalog.getByRole("button", { name: "Launch rescue" }).click();
+  await catalog.waitForURL("**/mechshift-rescue/");
+  check("catalog launch opens Mechshift Rescue", new URL(catalog.url()).pathname === "/mechshift-rescue/", catalog.url());
 
   report.consoleErrors = report.consoleErrors.filter((item) => !/favicon\.ico/i.test(item.text));
   report.failedResponses = report.failedResponses.filter((item) => !/favicon\.ico/i.test(item.url));

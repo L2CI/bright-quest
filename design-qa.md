@@ -5,7 +5,7 @@
 - Reference: `docs/design/assets/bright-quest-mechshift-rescue-keyframe.png`
 - Build: `/mechshift-rescue/` plus the Bright Quest landing, signup, child nomination, and one-game catalogue flow
 - Evidence: `qa-screens/mechshift-rescue/`
-- Viewports: desktop 1440 x 900, landscape tablet 1180 x 820, portrait guidance 390 x 844
+- Viewports: desktop 1440 x 900, landscape tablet 1180 x 820, short landscape phone 740 x 320, portrait guidance 390 x 844
 
 ## Reference comparison
 
@@ -29,7 +29,7 @@ The build keeps the approved painted cinematic direction: the same cobalt-and-or
 
 ## Functional and performance checks
 
-- 26 automated browser checks passed with no page exceptions, console errors, or failed required responses.
+- 30 automated browser checks passed with no page exceptions, console errors, or failed required responses.
 - All three multi-step Grade 4 systems and the completion save were exercised end to end.
 - Production game art uses compressed WebP assets; the Phaser runtime is stored locally and requires no third-party CDN.
 - Local Pages Functions/D1 verification passed: parent confirmation required, honeypot rejected, signup created, child nominated, and active child selected. Only synthetic local QA data was used.
@@ -39,5 +39,6 @@ The build keeps the approved painted cinematic direction: the same cobalt-and-or
 - Delayed the catalogue evidence capture until the shared entrance animation settles.
 - Restored strong contrast to the catalogue mission banner after a later uplift stylesheet overrode its painted background.
 - Corrected the capacity QA seating plan and removed redundant unreferenced PNG production copies.
+- Removed the fixed 540 px mobile-height floor, compacted the start and mission-brief layouts for browser-bar-constrained landscape screens, and added regression checks for both launch buttons and the catalogue link.
 
 final result: passed
