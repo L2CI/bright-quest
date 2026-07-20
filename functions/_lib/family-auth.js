@@ -265,6 +265,7 @@ export async function sha256(value) {
 
 export function errorResponse(error) {
   if (error instanceof HttpError) return json({ error: error.message, ...error.details }, error.status);
+  console.error("Bright Quest API error", error);
   return json({ error: "Unexpected server error" }, 500);
 }
 
