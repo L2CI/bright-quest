@@ -3,7 +3,9 @@ import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 
+const PASSWORD_ITERATIONS = 100000;
 const remote = process.argv.includes("--remote");
+const rehashExisting = process.argv.includes("--rehash-existing");
 const persistTo = (process.env.BQ_D1_PERSIST_TO || "").trim();
 const locationArgs = remote ? ["--remote"] : ["--local", ...(persistTo ? ["--persist-to", persistTo] : [])];
 if (remote && process.env.BQ_ALLOW_REMOTE_BOOTSTRAP !== "yes") {
@@ -21,8 +23,12 @@ const legacyProfileIdOverride = (process.env.BQ_BOOTSTRAP_LEGACY_PROFILE_ID || "
 if (password.length < 8 || password.length > 128) fail("Bootstrap password must be 8 to 128 characters.");
 if (!/^\d{4,8}$/.test(parentPin)) fail("Bootstrap parent PIN must contain 4 to 8 digits.");
 
-const existingUser = query(`SELECT id FROM family_users WHERE email = ${sql(email)} LIMIT 1`);
-if (existingUser.length) fail("A family user already exists for the bootstrap email.");
+const existingUser = query(`SELECT id, family_id FROM family_users WHERE email = ${sql(email)} LIMIT 1`);
+if (existingUser.length) {
+  if (!rehashExisting) fail("A family user already exists for the bootstrap email.");
+  rehashExistingAccount(existingUser[0]);
+  process.exit(0);
+}
 
 const legacyProfiles = query(
   `SELECT profile_id, profile_name, stars, payload_json, updated_at, created_at
@@ -80,12 +86,12 @@ const statements = [
   "PRAGMA foreign_keys = ON",
   `INSERT INTO families
     (id, name, parent_pin_hash, parent_pin_salt, parent_pin_iterations, created_at, updated_at)
-   VALUES (${sql(familyId)}, ${sql(familyName)}, ${sql(parentPinHash)}, ${sql(parentPinSalt)}, 600000, ${sql(now)}, ${sql(now)})`,
+   VALUES (${sql(familyId)}, ${sql(familyName)}, ${sql(parentPinHash)}, ${sql(parentPinSalt)}, ${PASSWORD_ITERATIONS}, ${sql(now)}, ${sql(now)})`,
   `INSERT INTO family_users
     (id, family_id, email, display_name, password_hash, password_salt, password_iterations,
      failed_attempts, locked_until, created_at, updated_at)
    VALUES (${sql(userId)}, ${sql(familyId)}, ${sql(email)}, ${sql(displayName)}, ${sql(passwordHash)}, ${sql(passwordSalt)},
-     600000, 0, NULL, ${sql(now)}, ${sql(now)})`,
+     ${PASSWORD_ITERATIONS}, 0, NULL, ${sql(now)}, ${sql(now)})`,
   legacy
     ? `INSERT INTO child_profiles
         (id, family_id, legacy_profile_id, profile_name, stars, payload_json, version,
@@ -157,8 +163,48 @@ function runWrangler(args) {
   return result;
 }
 
+function rehashExistingAccount(user) {
+  const now = new Date().toISOString();
+  const passwordSalt = randomBytes(16).toString("hex");
+  const parentPinSalt = randomBytes(16).toString("hex");
+  const passwordHash = hashSecret(password, passwordSalt);
+  const parentPinHash = hashSecret(parentPin, parentPinSalt);
+  const statements = [
+    `UPDATE family_users
+        SET password_hash = ${sql(passwordHash)}, password_salt = ${sql(passwordSalt)},
+            password_iterations = ${PASSWORD_ITERATIONS}, failed_attempts = 0, locked_until = NULL,
+            updated_at = ${sql(now)}
+      WHERE id = ${sql(user.id)} AND family_id = ${sql(user.family_id)}`,
+    `UPDATE families
+        SET parent_pin_hash = ${sql(parentPinHash)}, parent_pin_salt = ${sql(parentPinSalt)},
+            parent_pin_iterations = ${PASSWORD_ITERATIONS}, updated_at = ${sql(now)}
+      WHERE id = ${sql(user.family_id)}`
+  ];
+  const tempPath = resolve(".wrangler", "tmp", `bright-quest-family-rehash-${Date.now()}.sql`);
+  mkdirSync(dirname(tempPath), { recursive: true });
+  writeFileSync(tempPath, `${statements.join(";\n")};\n`, { encoding: "utf8", mode: 0o600 });
+  try {
+    runWrangler(["d1", "execute", "bright-quest-db", ...locationArgs, "--file", tempPath]);
+  } finally {
+    rmSync(tempPath, { force: true });
+  }
+
+  const reportDir = resolve("outputs", "family-auth-bootstrap");
+  mkdirSync(reportDir, { recursive: true });
+  const reportPath = join(reportDir, `rehash-${remote ? "remote" : "local"}-${Date.now()}.json`);
+  writeFileSync(reportPath, `${JSON.stringify({
+    mode: remote ? "remote" : "local",
+    email,
+    userId: user.id,
+    familyId: user.family_id,
+    iterations: PASSWORD_ITERATIONS,
+    updatedAt: now
+  }, null, 2)}\n`, "utf8");
+  console.log(`Family credentials rehashed. Report: ${reportPath}`);
+}
+
 function hashSecret(secret, saltHex) {
-  return pbkdf2Sync(secret, Buffer.from(saltHex, "hex"), 600000, 32, "sha256").toString("hex");
+  return pbkdf2Sync(secret, Buffer.from(saltHex, "hex"), PASSWORD_ITERATIONS, 32, "sha256").toString("hex");
 }
 
 function profileKey(name) {

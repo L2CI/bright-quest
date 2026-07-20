@@ -8,7 +8,7 @@ import {
   readJson
 } from "../../_lib/family-auth.js";
 
-const ITERATIONS = 600000;
+const ITERATIONS = 100000;
 
 export async function onRequestGet(context) {
   try {
