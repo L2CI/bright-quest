@@ -30,7 +30,7 @@ The build keeps the approved painted cinematic direction: the same cobalt-and-or
 
 ## Functional and performance checks
 
-- 41 automated browser checks passed with no page exceptions, console errors, or failed required responses.
+- 56 automated browser checks passed with no page exceptions, console errors, or failed required responses.
 - All three multi-step Grade 4 systems and the completion save were exercised end to end.
 - Production game art uses compressed WebP assets; the Phaser runtime is stored locally and requires no third-party CDN.
 - Local Pages Functions/D1 verification passed: parent confirmation required, honeypot rejected, signup created, child nominated, and active child selected. Only synthetic local QA data was used.
@@ -44,5 +44,8 @@ The build keeps the approved painted cinematic direction: the same cobalt-and-or
 - Replaced the small adjacent Left/Right buttons with picture-first split-thumb controls, added resilient pointer release handling, and moved the short-phone transform forms into a compact visual dock.
 - Removed CSS canvas overrides and non-uniform transformation squashing; added uniform-scale and viewport-fit assertions for tablet and short-phone artwork.
 - Switched short-landscape key art to aspect-safe right-side framing and sized the playable vehicle from both viewport width and height.
+- Reduced drive speed, added automatic stopping at every rescue beacon, and locked Relay-7 in place until the child chooses the visible rescue action.
+- Added a no-penalty wrong-form recovery button that switches to the required form, then reveals the actual mission action.
+- Contained direction and objective labels at short-phone, tablet, standard desktop, and the reported 2048 x 1076 wide-screen viewport.
 
 final result: passed

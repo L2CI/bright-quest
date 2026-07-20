@@ -1,11 +1,11 @@
 (() => {
   "use strict";
 
-  const BUILD = "mechshift-controls-003";
+  const BUILD = "mechshift-beacon-dock-004";
   const FORMS = {
-    rover: { label: "Rover form", texture: "rover", charge: 2, speed: 0.00034 },
-    lift: { label: "Lift mech", texture: "lift", charge: 4, speed: 0.00019 },
-    bridge: { label: "Bridge crawler", texture: "bridge", charge: 4, speed: 0.00024 }
+    rover: { name: "Rover", label: "Rover form", texture: "rover", charge: 2, speed: 0.0001 },
+    lift: { name: "Lift", label: "Lift mech", texture: "lift", charge: 4, speed: 0.000075 },
+    bridge: { name: "Bridge", label: "Bridge crawler", texture: "bridge", charge: 4, speed: 0.000085 }
   };
   const MISSIONS = [
     {
@@ -62,6 +62,7 @@
     form: "rover",
     charge: 100,
     playerX: 0.11,
+    docked: false,
     keys: { left: false, right: false },
     elapsed: 0,
     startedAt: 0,
@@ -129,11 +130,21 @@
 
     update(_time, delta) {
       if (!state.started || !state.control || state.paused || state.challengeOpen || state.completed >= 3) return;
+      if (state.docked) {
+        this.sprite.rotation = Phaser.Math.Linear(this.sprite.rotation, 0, .14);
+        this.placeVehicle();
+        return;
+      }
       const direction = (state.keys.right ? 1 : 0) - (state.keys.left ? 1 : 0);
       if (direction) {
-        state.playerX = Math.max(0.09, Math.min(0.91, state.playerX + direction * FORMS[state.form].speed * delta));
+        const previousX = state.playerX;
+        const nextX = Math.max(0.09, Math.min(0.91, previousX + direction * FORMS[state.form].speed * delta));
+        const targetX = MISSIONS[state.mission]?.x;
+        const crossedBeacon = Number.isFinite(targetX) && ((direction > 0 && previousX < targetX && nextX >= targetX) || (direction < 0 && previousX > targetX && nextX <= targetX));
+        state.playerX = crossedBeacon ? targetX : nextX;
         this.sprite.setFlipX(direction < 0);
         if (!state.reducedMotion) this.sprite.rotation = Phaser.Math.Linear(this.sprite.rotation, direction * 0.018, .12);
+        if (crossedBeacon) dockAtBeacon();
       } else {
         this.sprite.rotation = Phaser.Math.Linear(this.sprite.rotation, 0, .14);
       }
@@ -225,7 +236,10 @@
       document.querySelector(`[data-drive="${direction}"]`)?.classList.remove("pressed");
       return;
     }
-    if (!state.control || state.paused || state.challengeOpen) return;
+    if (!state.control || state.paused || state.challengeOpen || state.docked) {
+      if (state.docked) updateProximity();
+      return;
+    }
     state.keys[direction] = true;
     audio.sfx("move");
     document.body.classList.add("drive-learned");
@@ -235,6 +249,22 @@
   function releaseDrive() {
     setDrive("left", false);
     setDrive("right", false);
+  }
+
+  function dockAtBeacon(announce = true) {
+    const mission = MISSIONS[state.mission];
+    if (!mission) return;
+    state.docked = true;
+    state.playerX = mission.x;
+    releaseDrive();
+    state.scene?.placeVehicle();
+    updateProximity();
+    audio.sfx("select");
+    if (!announce) return;
+    const message = state.form === mission.form
+      ? `Rescue point reached. Tap ${mission.operate}.`
+      : `Rescue point reached. Tap Switch to ${FORMS[mission.form].name}.`;
+    speak(message, 3600);
   }
 
   function selectForm(nextForm, announce = true) {
@@ -277,22 +307,29 @@
   function updateProximity() {
     const mission = MISSIONS[state.mission];
     if (!mission) { dom.operate.classList.add("hidden"); return; }
-    const near = Math.abs(state.playerX - mission.x) < .062;
-    dom.operate.classList.toggle("hidden", !near);
-    document.body.classList.toggle("near-beacon", near);
-    dom.operate.querySelector("span").textContent = state.form === mission.form ? mission.operate : `Need ${FORMS[mission.form].label}`;
-    if (near) dom.missionInstruction.textContent = state.form === mission.form ? "Beacon locked. Operate when ready." : `Transform to ${FORMS[mission.form].label} before operating.`;
-    else dom.missionInstruction.textContent = mission.instruction;
+    const atBeacon = state.docked;
+    dom.operate.classList.toggle("hidden", !atBeacon);
+    document.body.classList.toggle("near-beacon", atBeacon);
+    if (atBeacon) {
+      const ready = state.form === mission.form;
+      const action = ready ? mission.operate : `Switch to ${FORMS[mission.form].name}`;
+      dom.operateIcon.src = `assets/relay7-${mission.form}.webp`;
+      dom.operate.querySelector(":scope > span").textContent = action;
+      dom.operate.setAttribute("aria-label", action);
+      dom.missionInstruction.textContent = ready ? `Ready — tap ${mission.operate}.` : `Tap Switch to ${FORMS[mission.form].name}, then load.`;
+      return;
+    }
+    const direction = state.playerX < mission.x ? "RIGHT" : "LEFT";
+    dom.missionInstruction.textContent = `Hold ${direction} — Relay-7 stops at the rescue beacon.`;
   }
 
   function operate() {
     const mission = MISSIONS[state.mission];
-    if (!mission || Math.abs(state.playerX - mission.x) >= .065) return;
+    if (!mission || !state.docked) return;
     if (state.form !== mission.form) {
-      state.mistakes += 1;
-      audio.sfx("wrong");
-      shakeVehicle();
-      speak(`That form can’t connect here. Try ${FORMS[mission.form].label}.`, 3000);
+      selectForm(mission.form, false);
+      speak(`${FORMS[mission.form].name} ready. Now tap ${mission.operate}.`, 3000);
+      updateProximity();
       return;
     }
     openChallenge(state.mission);
@@ -305,7 +342,7 @@
 
   function openChallenge(index) {
     state.challengeOpen = true;
-    state.keys.left = state.keys.right = false;
+    releaseDrive();
     state.hintLevel = 0;
     dom.hintText.textContent = "";
     dom.hintButton.disabled = false;
@@ -499,6 +536,9 @@
       state.challengeOpen = false;
       if (state.completed >= 3) { beginFinale(); return; }
       state.mission += 1;
+      state.docked = false;
+      document.body.classList.remove("near-beacon");
+      dom.operate.classList.add("hidden");
       updateMissionHud();
       const mission = MISSIONS[state.mission];
       speak(`System restored. Next: ${mission.title}.`, 3000);
@@ -538,6 +578,8 @@
 
   function beginFinale() {
     state.control = false;
+    state.docked = false;
+    document.body.classList.remove("near-beacon");
     dom.operate.classList.add("hidden");
     audio.sfx("victory");
     const scene = state.scene;
@@ -567,7 +609,7 @@
     if (!state.started || state.completed >= 3) return;
     const next = typeof force === "boolean" ? force : !state.paused;
     state.paused = next;
-    state.keys.left = state.keys.right = false;
+    releaseDrive();
     dom.pause.classList.toggle("hidden", !next);
     if (next) game.scene.pause("mission"); else game.scene.resume("mission");
   }
@@ -650,15 +692,15 @@
 
   window.__MECHSHIFT_QA__ = {
     build: BUILD,
-    getState: () => ({ mission: state.mission, completed: state.completed, form: state.form, playerX: state.playerX, challengeOpen: state.challengeOpen }),
+    getState: () => ({ mission: state.mission, completed: state.completed, form: state.form, playerX: state.playerX, docked: state.docked, challengeOpen: state.challengeOpen }),
     getVisualMetrics: () => ({
       canvas: { width: game.canvas.width, height: game.canvas.height, clientWidth: game.canvas.clientWidth, clientHeight: game.canvas.clientHeight },
       cityScale: { x: state.scene?.city?.scaleX || 0, y: state.scene?.city?.scaleY || 0 },
       vehicleScale: { x: state.scene?.sprite?.scaleX || 0, y: state.scene?.sprite?.scaleY || 0 }
     }),
     start: () => { if (!state.started) startMission(); takeControl(); },
-    gotoMission: (index) => { state.mission = Math.max(0, Math.min(2,index)); state.completed = state.mission; state.playerX = MISSIONS[state.mission].x; state.scene?.placeVehicle(); selectForm(MISSIONS[state.mission].form, false); updateObjectives(); updateMissionHud(); },
-    openChallenge: (index) => { state.mission = index; state.completed = index; state.playerX = MISSIONS[index].x; state.form = MISSIONS[index].form; state.scene?.sprite.setTexture(FORMS[state.form].texture); state.scene?.placeVehicle(); openChallenge(index); },
+    gotoMission: (index) => { state.mission = Math.max(0, Math.min(2,index)); state.completed = state.mission; state.playerX = MISSIONS[state.mission].x; state.docked = true; state.scene?.placeVehicle(); selectForm(MISSIONS[state.mission].form, false); updateObjectives(); updateMissionHud(); },
+    openChallenge: (index) => { state.mission = index; state.completed = index; state.playerX = MISSIONS[index].x; state.docked = true; state.form = MISSIONS[index].form; state.scene?.sprite.setTexture(FORMS[state.form].texture); state.scene?.placeVehicle(); openChallenge(index); },
     solveCurrent: () => {
       if (state.mission === 0) { state.challengeData.answer = "19"; state.challengeData.groups.forEach((g,i) => { g.pod = [0,0,2,2,1][i]; }); }
       if (state.mission === 1) { state.challengeData.answer = "106"; state.challengeData.targets = { lift:"p60",boostA:"p20a",boostB:"p20b",reserve:"p6" }; }

@@ -18,7 +18,7 @@ const OUT = resolve("qa-screens/mechshift-rescue");
 await mkdir(OUT, { recursive: true });
 
 const report = {
-  build: "mechshift-controls-003",
+  build: "mechshift-beacon-dock-004",
   baseUrl: BASE,
   startedAt: new Date().toISOString(),
   checks: [],
@@ -53,9 +53,9 @@ try {
   const desktop = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
   watch(desktop, "game-desktop");
   await desktop.goto(`${BASE}/mechshift-rescue/`, { waitUntil: "networkidle" });
-  await desktop.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-controls-003");
+  await desktop.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-beacon-dock-004");
   check("game route loads", await desktop.title() === "Mechshift Rescue | Bright Quest", await desktop.title());
-  check("reference build marker present", await desktop.evaluate(() => window.__MECHSHIFT_QA__.build) === "mechshift-controls-003");
+  check("reference build marker present", await desktop.evaluate(() => window.__MECHSHIFT_QA__.build) === "mechshift-beacon-dock-004");
   await screenshot(desktop, "01-start-desktop.png");
 
   await desktop.getByRole("button", { name: "Launch rescue" }).click();
@@ -70,10 +70,28 @@ try {
   const movedX = (await desktop.evaluate(() => window.__MECHSHIFT_QA__.getState())).playerX;
   check("keyboard driving moves Relay-7", movedX > startX + 0.05, `${startX} -> ${movedX}`);
 
+  await desktop.keyboard.down("ArrowRight");
+  await desktop.waitForTimeout(900);
+  await desktop.keyboard.up("ArrowRight");
+  const dockedState = await desktop.evaluate(() => window.__MECHSHIFT_QA__.getState());
+  check("Relay-7 automatically stops at the Evac Dock", dockedState.docked && Math.abs(dockedState.playerX - 0.22) < 0.0001, JSON.stringify(dockedState));
+  check("load action remains visible at the dock", await desktop.getByRole("button", { name: "Load rescue pods" }).isVisible());
+  await screenshot(desktop, "02-beacon-docked-desktop.png");
+
   await desktop.getByRole("button", { name: /Lift/ }).click();
   await desktop.waitForTimeout(450);
   check("form transformation changes state", (await desktop.evaluate(() => window.__MECHSHIFT_QA__.getState())).form === "lift");
-  await desktop.getByRole("button", { name: /Rover/ }).click();
+  check("wrong form produces a clear recovery action", await desktop.getByRole("button", { name: "Switch to Rover" }).isVisible());
+  await desktop.getByRole("button", { name: "Switch to Rover" }).click();
+  await desktop.waitForTimeout(450);
+  check("recovery action selects the required form", (await desktop.evaluate(() => window.__MECHSHIFT_QA__.getState())).form === "rover");
+  check("load action returns after form recovery", await desktop.getByRole("button", { name: "Load rescue pods" }).isVisible());
+  await desktop.getByRole("button", { name: "Load rescue pods" }).click();
+  check("load action opens the capacity system", await desktop.getByRole("heading", { name: "Set the passenger capacity" }).isVisible());
+  await desktop.getByRole("button", { name: "Return to the roadway" }).click();
+
+  const labelFit = await desktop.evaluate(() => [...document.querySelectorAll(".drive-button, .objective-module li")].map((element) => ({ text: element.textContent.trim(), fitsWidth: element.scrollWidth <= element.clientWidth + 1, fitsHeight: element.scrollHeight <= element.clientHeight + 1 })));
+  check("drive and objective labels stay inside their boxes", labelFit.every((item) => item.fitsWidth && item.fitsHeight), JSON.stringify(labelFit));
 
   await desktop.getByRole("button", { name: "Pause mission" }).click();
   check("pause overlay opens", await desktop.getByRole("heading", { name: "Relay-7 holding position" }).isVisible());
@@ -89,14 +107,18 @@ try {
   await desktop.waitForFunction(() => window.__MECHSHIFT_QA__.getState().completed === 1);
   await desktop.waitForTimeout(700);
 
-  await desktop.evaluate(() => window.__MECHSHIFT_QA__.openChallenge(1));
+  await desktop.evaluate(() => window.__MECHSHIFT_QA__.gotoMission(1));
+  check("Power Yard docking exposes its action", await desktop.getByRole("button", { name: "Power lift clamps" }).isVisible());
+  await desktop.getByRole("button", { name: "Power lift clamps" }).click();
   check("power challenge opens", await desktop.getByRole("heading", { name: "Build the lift power plan" }).isVisible());
   await screenshot(desktop, "04-power-system.png");
   await desktop.evaluate(() => window.__MECHSHIFT_QA__.solveCurrent());
   await desktop.waitForFunction(() => window.__MECHSHIFT_QA__.getState().completed === 2);
   await desktop.waitForTimeout(700);
 
-  await desktop.evaluate(() => window.__MECHSHIFT_QA__.openChallenge(2));
+  await desktop.evaluate(() => window.__MECHSHIFT_QA__.gotoMission(2));
+  check("Sky Gap docking exposes its action", await desktop.getByRole("button", { name: "Deploy bridge route" }).isVisible());
+  await desktop.getByRole("button", { name: "Deploy bridge route" }).click();
   check("timeline challenge opens", await desktop.getByRole("heading", { name: "Program the safe crossing" }).isVisible());
   await screenshot(desktop, "05-timeline-system.png");
   await desktop.evaluate(() => window.__MECHSHIFT_QA__.solveCurrent());
@@ -119,10 +141,27 @@ try {
   check("visible buttons are named", desktopLayout.buttons.every((button) => button.text || button.label), JSON.stringify(desktopLayout.buttons));
   report.metrics.desktop = desktopLayout;
 
+  const wide = await browser.newPage({ viewport: { width: 2048, height: 1076 }, deviceScaleFactor: 1 });
+  watch(wide, "game-wide-desktop");
+  await wide.goto(`${BASE}/mechshift-rescue/`, { waitUntil: "networkidle" });
+  await wide.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-beacon-dock-004");
+  await wide.getByRole("button", { name: "Launch rescue" }).click();
+  await wide.getByRole("button", { name: "Take control" }).click();
+  await wide.evaluate(() => window.__MECHSHIFT_QA__.gotoMission(0));
+  check("wide desktop keeps the load action visible", await wide.getByRole("button", { name: "Load rescue pods" }).isVisible());
+  const wideLayout = await wide.evaluate(() => {
+    const visible = (element) => element && element.offsetParent !== null;
+    const labels = [...document.querySelectorAll(".drive-button, .form-button, .objective-module li, .operate-button")].filter(visible).map((element) => ({ text: element.textContent.trim(), fitsWidth: element.scrollWidth <= element.clientWidth + 1, fitsHeight: element.scrollHeight <= element.clientHeight + 1 }));
+    return { viewport: { width: innerWidth, height: innerHeight }, documentWidth: document.documentElement.scrollWidth, labels };
+  });
+  check("wide desktop has no horizontal overflow", wideLayout.documentWidth <= wideLayout.viewport.width, JSON.stringify(wideLayout));
+  check("wide desktop text stays inside every game control", wideLayout.labels.every((item) => item.fitsWidth && item.fitsHeight), JSON.stringify(wideLayout.labels));
+  await screenshot(wide, "07-wide-docked.png");
+
   const tablet = await browser.newPage({ viewport: { width: 1180, height: 820 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
   watch(tablet, "game-tablet");
   await tablet.goto(`${BASE}/mechshift-rescue/`, { waitUntil: "networkidle" });
-  await tablet.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-controls-003");
+  await tablet.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-beacon-dock-004");
   await screenshot(tablet, "07-start-tablet.png");
   await tablet.getByRole("button", { name: "Launch rescue" }).click();
   await tablet.getByRole("button", { name: "Take control" }).click();
@@ -153,7 +192,7 @@ try {
   const shortPhone = await browser.newPage({ viewport: { width: 740, height: 320 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
   watch(shortPhone, "game-short-landscape");
   await shortPhone.goto(`${BASE}/mechshift-rescue/`, { waitUntil: "networkidle" });
-  await shortPhone.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-controls-003");
+  await shortPhone.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-beacon-dock-004");
   const launchBox = await shortPhone.getByRole("button", { name: "Launch rescue" }).boundingBox();
   check("short landscape launch is fully visible", launchBox && launchBox.y >= 0 && launchBox.y + launchBox.height <= 320, JSON.stringify(launchBox));
   await screenshot(shortPhone, "09-short-landscape-launch.png");
@@ -174,6 +213,7 @@ try {
       drive,
       forms,
       controlsOverlapForms: drive.some((control) => forms.some((form) => overlaps(control, form))),
+      labelFit: [...document.querySelectorAll(".drive-button, .form-button")].filter(visible).map((element) => ({ text: element.textContent.trim(), fitsWidth: element.scrollWidth <= element.clientWidth + 1, fitsHeight: element.scrollHeight <= element.clientHeight + 1 })),
       viewport: { width: innerWidth, height: innerHeight },
       startBackgroundSize: getComputedStyle(document.querySelector(".start-screen")).backgroundSize,
       visuals: window.__MECHSHIFT_QA__.getVisualMetrics()
@@ -181,9 +221,19 @@ try {
   });
   check("short phone thumb controls are visible and large", phoneLayout.drive.length === 2 && phoneLayout.drive.every((box) => box.width >= 86 && box.height >= 66), JSON.stringify(phoneLayout));
   check("short phone keeps controls clear of transform dock", phoneLayout.forms.length === 3 && !phoneLayout.controlsOverlapForms, JSON.stringify(phoneLayout));
+  check("short phone labels stay inside controls", phoneLayout.labelFit.every((item) => item.fitsWidth && item.fitsHeight), JSON.stringify(phoneLayout.labelFit));
   check("short phone uses aspect-safe key-art framing", phoneLayout.startBackgroundSize === "auto 100%", phoneLayout.startBackgroundSize);
   check("short phone canvas matches viewport without CSS stretch", Math.abs(phoneLayout.visuals.canvas.clientWidth - phoneLayout.viewport.width) <= 1 && Math.abs(phoneLayout.visuals.canvas.clientHeight - phoneLayout.viewport.height) <= 1, JSON.stringify(phoneLayout.visuals));
   check("short phone painted images retain uniform scale", Math.abs(phoneLayout.visuals.cityScale.x - phoneLayout.visuals.cityScale.y) < 0.0001 && Math.abs(phoneLayout.visuals.vehicleScale.x - phoneLayout.visuals.vehicleScale.y) < 0.0001, JSON.stringify(phoneLayout.visuals));
+  const phoneRight = phoneLayout.drive[1];
+  await shortPhone.mouse.move((phoneRight.left + phoneRight.right) / 2, (phoneRight.top + phoneRight.bottom) / 2);
+  await shortPhone.mouse.down();
+  await shortPhone.waitForTimeout(1500);
+  await shortPhone.mouse.up();
+  const phoneDockedState = await shortPhone.evaluate(() => window.__MECHSHIFT_QA__.getState());
+  check("short phone auto-stops at the rescue beacon", phoneDockedState.docked && Math.abs(phoneDockedState.playerX - 0.22) < 0.0001, JSON.stringify(phoneDockedState));
+  check("short phone shows the load action", await shortPhone.getByRole("button", { name: "Load rescue pods" }).isVisible());
+  await screenshot(shortPhone, "10-short-landscape-docked.png");
 
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
   watch(mobile, "game-mobile");

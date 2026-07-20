@@ -204,7 +204,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, [tabindex]:focus-vis
 .objective-module strong { font-size: 13px; }
 .objective-module div span { color: var(--muted); font-size: 10px; }
 .objective-module ol { grid-column: 1/-1; list-style: none; display: flex; gap: 5px; margin: 0; padding: 0; }
-.objective-module li { flex: 1; color: #779ab8; font-size: 8px; text-align: center; }
+.objective-module li { flex: 1; min-width: 0; color: #779ab8; font-size: 8px; line-height: 1.15; overflow-wrap: anywhere; text-align: center; }
 .objective-module li span { display: grid; place-items: center; width: 25px; height: 25px; margin: 0 auto 3px; border: 1px solid rgba(111,224,255,.25); border-radius: 50%; color: #7394b1; font-size: 10px; font-weight: 900; }
 .objective-module li.active, .objective-module li.complete { color: white; }
 .objective-module li.active span { color: #06162d; background: var(--orange); border-color: var(--amber); box-shadow: 0 0 14px rgba(255,157,46,.54); }
@@ -216,7 +216,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, [tabindex]:focus-vis
   left: 238px;
   bottom: var(--safe-bottom);
   display: grid;
-  grid-template-columns: repeat(2, 78px);
+  grid-template-columns: repeat(2, 92px);
   gap: 10px;
 }
 .drive-coach {
@@ -234,15 +234,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, [tabindex]:focus-vis
   transition: opacity .2s ease;
 }
 .drive-button {
-  width: 78px;
-  height: 68px;
+  width: 92px;
+  height: 72px;
   border: 1px solid rgba(111,224,255,.38);
   border-radius: 18px 8px 18px 8px;
   color: white;
   background: linear-gradient(145deg, rgba(10,54,88,.94), rgba(3,22,45,.94));
   box-shadow: 0 10px 25px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.12);
   display: grid;
-  grid-template-columns: 52px 1fr;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr auto;
   place-items: center;
   gap: 1px;
   padding: 5px 6px;
@@ -252,10 +253,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, [tabindex]:focus-vis
   text-transform: uppercase;
   transition: transform .12s ease, border-color .12s ease, background .12s ease, box-shadow .12s ease;
 }
-.drive-button img { width: 52px; height: 48px; object-fit: contain; filter: drop-shadow(0 5px 6px rgba(0,0,0,.45)); }
+.drive-button img { width: 58px; height: 44px; object-fit: contain; filter: drop-shadow(0 5px 6px rgba(0,0,0,.45)); }
+.drive-button > span { display: block; width: 100%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.1; text-align: center; }
 .drive-left img { transform: scaleX(-1); }
 .drive-button.pressed { border-color: #c8fbff; background: linear-gradient(145deg,#55f3ff,#18b9d6); color: #06162d; transform: translateY(3px) scale(.97); box-shadow: 0 4px 12px rgba(0,0,0,.26), 0 0 28px rgba(76,244,255,.5), inset 0 2px rgba(255,255,255,.42); }
 body.drive-learned .drive-coach, body.near-beacon .drive-coach { opacity: 0; }
+body.near-beacon .touch-controls { opacity: .38; }
+body.near-beacon .drive-button { pointer-events: none; }
 
 .operate-button {
   position: absolute;
