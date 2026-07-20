@@ -86,15 +86,24 @@ const statements = [
      failed_attempts, locked_until, created_at, updated_at)
    VALUES (${sql(userId)}, ${sql(familyId)}, ${sql(email)}, ${sql(displayName)}, ${sql(passwordHash)}, ${sql(passwordSalt)},
      600000, 0, NULL, ${sql(now)}, ${sql(now)})`,
-  `INSERT INTO child_profiles
-    (id, family_id, legacy_profile_id, profile_name, stars, payload_json, version,
-     child_pin_hash, child_pin_salt, child_pin_iterations, created_at, updated_at)
-   VALUES (${sql(childId)}, ${sql(familyId)}, ${sql(legacyProfileId)}, ${sql(childName)}, ${Number(profile.stars || legacy?.stars || 0)},
-     ${sql(payload)}, 1, NULL, NULL, NULL, ${sql(legacy?.created_at || now)}, ${sql(legacy?.updated_at || now)})`,
-  ...legacyEvents.map((event) => `INSERT INTO family_profile_events
+  legacy
+    ? `INSERT INTO child_profiles
+        (id, family_id, legacy_profile_id, profile_name, stars, payload_json, version,
+         child_pin_hash, child_pin_salt, child_pin_iterations, created_at, updated_at)
+       SELECT ${sql(childId)}, ${sql(familyId)}, profile_id, ${sql(childName)}, stars, payload_json, 1,
+              NULL, NULL, NULL, created_at, updated_at
+         FROM app_profiles
+        WHERE app_id = 'bright-quest' AND profile_id = ${sql(legacyProfileId)}`
+    : `INSERT INTO child_profiles
+        (id, family_id, legacy_profile_id, profile_name, stars, payload_json, version,
+         child_pin_hash, child_pin_salt, child_pin_iterations, created_at, updated_at)
+       VALUES (${sql(childId)}, ${sql(familyId)}, ${sql(legacyProfileId)}, ${sql(childName)}, ${Number(profile.stars || 0)},
+         ${sql(payload)}, 1, NULL, NULL, NULL, ${sql(now)}, ${sql(now)})`,
+  ...(legacyEvents.length ? [`INSERT INTO family_profile_events
     (id, family_id, child_id, event_type, idempotency_key, payload_json, created_at)
-   VALUES (${sql(event.id)}, ${sql(familyId)}, ${sql(childId)}, ${sql(event.event_type)}, ${sql(`legacy:${event.id}`)},
-     ${sql(event.payload_json)}, ${sql(event.created_at)})`),
+   SELECT id, ${sql(familyId)}, ${sql(childId)}, event_type, 'legacy:' || id, payload_json, created_at
+     FROM app_events
+    WHERE app_id = 'bright-quest' AND profile_id = ${sql(legacyProfileId)}`] : []),
   `INSERT INTO profile_migration_log
     (id, family_id, child_id, source_kind, source_id, source_checksum, record_counts_json, migrated_at)
    VALUES (${sql(randomUUID())}, ${sql(familyId)}, ${sql(childId)}, ${sql(legacy ? "app_profiles" : "bootstrap")},
