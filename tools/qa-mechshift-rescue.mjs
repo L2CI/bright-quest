@@ -18,7 +18,7 @@ const OUT = resolve("qa-screens/mechshift-rescue");
 await mkdir(OUT, { recursive: true });
 
 const report = {
-  build: "mechshift-rescue-001",
+  build: "mechshift-controls-003",
   baseUrl: BASE,
   startedAt: new Date().toISOString(),
   checks: [],
@@ -53,9 +53,9 @@ try {
   const desktop = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
   watch(desktop, "game-desktop");
   await desktop.goto(`${BASE}/mechshift-rescue/`, { waitUntil: "networkidle" });
-  await desktop.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-rescue-001");
+  await desktop.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-controls-003");
   check("game route loads", await desktop.title() === "Mechshift Rescue | Bright Quest", await desktop.title());
-  check("reference build marker present", await desktop.evaluate(() => window.__MECHSHIFT_QA__.build) === "mechshift-rescue-001");
+  check("reference build marker present", await desktop.evaluate(() => window.__MECHSHIFT_QA__.build) === "mechshift-controls-003");
   await screenshot(desktop, "01-start-desktop.png");
 
   await desktop.getByRole("button", { name: "Launch rescue" }).click();
@@ -119,21 +119,41 @@ try {
   check("visible buttons are named", desktopLayout.buttons.every((button) => button.text || button.label), JSON.stringify(desktopLayout.buttons));
   report.metrics.desktop = desktopLayout;
 
-  const tablet = await browser.newPage({ viewport: { width: 1180, height: 820 }, deviceScaleFactor: 1 });
+  const tablet = await browser.newPage({ viewport: { width: 1180, height: 820 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
   watch(tablet, "game-tablet");
   await tablet.goto(`${BASE}/mechshift-rescue/`, { waitUntil: "networkidle" });
-  await tablet.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-rescue-001");
+  await tablet.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-controls-003");
   await screenshot(tablet, "07-start-tablet.png");
   await tablet.getByRole("button", { name: "Launch rescue" }).click();
   await tablet.getByRole("button", { name: "Take control" }).click();
   await tablet.waitForTimeout(200);
   await screenshot(tablet, "08-roadway-tablet.png");
   check("tablet roadway renders", await tablet.locator("canvas").isVisible());
+  const tabletLayout = await tablet.evaluate(() => {
+    const rect = (element) => { const box = element.getBoundingClientRect(); return { left: box.left, top: box.top, right: box.right, bottom: box.bottom, width: box.width, height: box.height }; };
+    const drive = [...document.querySelectorAll("[data-drive]")].map(rect);
+    const objective = rect(document.querySelector(".objective-module"));
+    const overlaps = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+    return { drive, objective, driveOverlapsObjective: drive.some((box) => overlaps(box, objective)), viewport: { width: innerWidth, height: innerHeight }, visuals: window.__MECHSHIFT_QA__.getVisualMetrics() };
+  });
+  check("tablet uses two large thumb controls", tabletLayout.drive.length === 2 && tabletLayout.drive.every((box) => box.width >= 88 && box.height >= 68), JSON.stringify(tabletLayout));
+  check("tablet drive controls occupy opposite thumb edges", tabletLayout.drive[0].left < 40 && tabletLayout.drive[1].right > tabletLayout.viewport.width - 40, JSON.stringify(tabletLayout));
+  check("tablet drive controls do not cover objectives", !tabletLayout.driveOverlapsObjective, JSON.stringify(tabletLayout));
+  check("tablet canvas matches viewport without CSS stretch", Math.abs(tabletLayout.visuals.canvas.clientWidth - tabletLayout.viewport.width) <= 1 && Math.abs(tabletLayout.visuals.canvas.clientHeight - tabletLayout.viewport.height) <= 1, JSON.stringify(tabletLayout.visuals));
+  check("tablet painted images retain uniform scale", Math.abs(tabletLayout.visuals.cityScale.x - tabletLayout.visuals.cityScale.y) < 0.0001 && Math.abs(tabletLayout.visuals.vehicleScale.x - tabletLayout.visuals.vehicleScale.y) < 0.0001, JSON.stringify(tabletLayout.visuals));
+  const tabletRight = tabletLayout.drive[1];
+  const tabletStartX = (await tablet.evaluate(() => window.__MECHSHIFT_QA__.getState())).playerX;
+  await tablet.mouse.move((tabletRight.left + tabletRight.right) / 2, (tabletRight.top + tabletRight.bottom) / 2);
+  await tablet.mouse.down();
+  await tablet.waitForTimeout(650);
+  await tablet.mouse.up();
+  const tabletMovedX = (await tablet.evaluate(() => window.__MECHSHIFT_QA__.getState())).playerX;
+  check("press-and-hold thumb control moves Relay-7", tabletMovedX > tabletStartX + 0.04, `${tabletStartX} -> ${tabletMovedX}`);
 
   const shortPhone = await browser.newPage({ viewport: { width: 740, height: 320 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
   watch(shortPhone, "game-short-landscape");
   await shortPhone.goto(`${BASE}/mechshift-rescue/`, { waitUntil: "networkidle" });
-  await shortPhone.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-rescue-001");
+  await shortPhone.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-controls-003");
   const launchBox = await shortPhone.getByRole("button", { name: "Launch rescue" }).boundingBox();
   check("short landscape launch is fully visible", launchBox && launchBox.y >= 0 && launchBox.y + launchBox.height <= 320, JSON.stringify(launchBox));
   await screenshot(shortPhone, "09-short-landscape-launch.png");
@@ -142,6 +162,28 @@ try {
   check("short landscape mission brief action is fully visible", controlBox && controlBox.y >= 0 && controlBox.y + controlBox.height <= 320, JSON.stringify(controlBox));
   await shortPhone.getByRole("button", { name: "Take control" }).click();
   check("short landscape game canvas renders", await shortPhone.locator("canvas").isVisible());
+  await shortPhone.waitForTimeout(250);
+  await screenshot(shortPhone, "10-short-landscape-gameplay.png");
+  const phoneLayout = await shortPhone.evaluate(() => {
+    const rect = (element) => { const box = element.getBoundingClientRect(); return { left: box.left, top: box.top, right: box.right, bottom: box.bottom, width: box.width, height: box.height }; };
+    const visible = (element) => element && element.offsetParent !== null;
+    const drive = [...document.querySelectorAll("[data-drive]")].filter(visible).map(rect);
+    const forms = [...document.querySelectorAll(".form-button")].filter(visible).map(rect);
+    const overlaps = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+    return {
+      drive,
+      forms,
+      controlsOverlapForms: drive.some((control) => forms.some((form) => overlaps(control, form))),
+      viewport: { width: innerWidth, height: innerHeight },
+      startBackgroundSize: getComputedStyle(document.querySelector(".start-screen")).backgroundSize,
+      visuals: window.__MECHSHIFT_QA__.getVisualMetrics()
+    };
+  });
+  check("short phone thumb controls are visible and large", phoneLayout.drive.length === 2 && phoneLayout.drive.every((box) => box.width >= 86 && box.height >= 66), JSON.stringify(phoneLayout));
+  check("short phone keeps controls clear of transform dock", phoneLayout.forms.length === 3 && !phoneLayout.controlsOverlapForms, JSON.stringify(phoneLayout));
+  check("short phone uses aspect-safe key-art framing", phoneLayout.startBackgroundSize === "auto 100%", phoneLayout.startBackgroundSize);
+  check("short phone canvas matches viewport without CSS stretch", Math.abs(phoneLayout.visuals.canvas.clientWidth - phoneLayout.viewport.width) <= 1 && Math.abs(phoneLayout.visuals.canvas.clientHeight - phoneLayout.viewport.height) <= 1, JSON.stringify(phoneLayout.visuals));
+  check("short phone painted images retain uniform scale", Math.abs(phoneLayout.visuals.cityScale.x - phoneLayout.visuals.cityScale.y) < 0.0001 && Math.abs(phoneLayout.visuals.vehicleScale.x - phoneLayout.visuals.vehicleScale.y) < 0.0001, JSON.stringify(phoneLayout.visuals));
 
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
   watch(mobile, "game-mobile");

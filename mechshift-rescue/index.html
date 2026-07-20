@@ -9,7 +9,7 @@
     <link rel="icon" href="assets/relay7-rover.webp" type="image/webp" />
     <link rel="preload" href="assets/aether-city-mission-deck.webp" as="image" />
     <link rel="preload" href="assets/relay7-rover.webp" as="image" />
-    <link rel="stylesheet" href="mechshift-rescue.css?v=mobile-landscape-002" />
+    <link rel="stylesheet" href="mechshift-rescue.css?v=controls-003" />
   </head>
   <body>
     <main id="mechshiftApp" class="mechshift-app" aria-label="Mechshift Rescue game">
@@ -37,13 +37,13 @@
       </header>
 
       <nav class="form-rail" aria-label="Choose Relay-7 form">
-        <button class="form-button selected" type="button" data-form="rover" aria-pressed="true">
+        <button class="form-button selected" type="button" data-form="rover" aria-label="Choose Rover form" aria-pressed="true">
           <img src="assets/relay7-rover.webp" alt="" /><span><strong>Rover</strong><small>Drive + carry</small></span><kbd>1</kbd>
         </button>
-        <button class="form-button" type="button" data-form="lift" aria-pressed="false">
+        <button class="form-button" type="button" data-form="lift" aria-label="Choose Lift mech" aria-pressed="false">
           <img src="assets/relay7-lift.webp" alt="" /><span><strong>Lift</strong><small>Move + clear</small></span><kbd>2</kbd>
         </button>
-        <button class="form-button" type="button" data-form="bridge" aria-pressed="false">
+        <button class="form-button" type="button" data-form="bridge" aria-label="Choose Bridge crawler" aria-pressed="false">
           <img src="assets/relay7-bridge.webp" alt="" /><span><strong>Bridge</strong><small>Span + rescue</small></span><kbd>3</kbd>
         </button>
       </nav>
@@ -58,11 +58,18 @@
         </ol>
       </aside>
 
-      <div class="touch-controls" aria-label="Vehicle controls">
-        <button type="button" data-drive="left" aria-label="Drive left">Left</button>
-        <button type="button" data-drive="right" aria-label="Drive right">Right</button>
+      <div class="touch-controls" aria-label="Drive Relay-7">
+        <span class="drive-coach" aria-hidden="true">Hold a rover to drive</span>
+        <button class="drive-button drive-left" type="button" data-drive="left" aria-label="Hold to drive left">
+          <img src="assets/relay7-rover.webp" alt="" /><span>Left</span>
+        </button>
+        <button class="drive-button drive-right" type="button" data-drive="right" aria-label="Hold to drive right">
+          <img src="assets/relay7-rover.webp" alt="" /><span>Right</span>
+        </button>
       </div>
-      <button class="operate-button hidden" id="operateButton" type="button"><span>Operate</span><small>Space</small></button>
+      <button class="operate-button hidden" id="operateButton" type="button">
+        <img id="operateFormIcon" src="assets/relay7-rover.webp" alt="" /><span>Operate</span><small><span class="keyboard-copy">Space</span><span class="touch-copy">Tap</span></small>
+      </button>
 
       <div class="captions" id="captions" role="status" aria-live="polite">Nimbus: Relay-7 online. The city needs us!</div>
       <div class="feedback-burst" id="feedbackBurst" aria-hidden="true"></div>
@@ -138,6 +145,6 @@
     </main>
 
     <script src="vendor/phaser.min.js"></script>
-    <script src="mechshift-rescue.js?v=mechshift-rescue-001"></script>
+    <script src="mechshift-rescue.js?v=controls-003"></script>
   </body>
 </html>

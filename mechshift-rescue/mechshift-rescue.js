@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const BUILD = "mechshift-rescue-001";
+  const BUILD = "mechshift-controls-003";
   const FORMS = {
     rover: { label: "Rover form", texture: "rover", charge: 2, speed: 0.00034 },
     lift: { label: "Lift mech", texture: "lift", charge: 4, speed: 0.00019 },
@@ -49,7 +49,7 @@
     result: $("#resultScreen"), resultTime: $("#resultTime"), resultStars: $("#resultStars"), playAgain: $("#playAgainButton"),
     missionKicker: $("#missionKicker"), missionTitle: $("#missionTitle"), missionInstruction: $("#missionInstruction"),
     objectiveCount: $("#objectiveCount"), objectiveCopy: $("#objectiveCopy"), objectiveList: $("#objectiveList"),
-    operate: $("#operateButton"), captions: $("#captions"), chargeRing: $("#chargeRing"), chargeValue: $("#chargeValue"), formName: $("#formName"), feedback: $("#feedbackBurst")
+    operate: $("#operateButton"), operateIcon: $("#operateFormIcon"), captions: $("#captions"), chargeRing: $("#chargeRing"), chargeValue: $("#chargeValue"), formName: $("#formName"), feedback: $("#feedbackBurst")
   };
 
   const state = {
@@ -104,21 +104,25 @@
       const width = gameSize.width;
       const height = gameSize.height;
       const cover = Math.max(width / this.city.width, height / this.city.height);
-      this.city.setPosition(width / 2, height / 2).setScale(cover);
+      const shortLandscape = width / Math.max(height, 1) > 2;
+      this.city.setPosition(width / 2, height * (shortLandscape ? 0.47 : 0.5)).setScale(cover);
       this.victory.setPosition(width / 2, height / 2).setScale(Math.max(width / this.victory.width, height / this.victory.height));
       this.placeVehicle();
     }
 
     vehicleScale() {
       const width = this.scale.width;
-      if (state.form === "lift") return Math.max(0.17, Math.min(0.29, width / 5600));
-      if (state.form === "bridge") return Math.max(0.18, Math.min(0.31, width / 5200));
-      return Math.max(0.19, Math.min(0.32, width / 5100));
+      const height = this.scale.height;
+      const viewportScale = Math.min(width / 1360, height / 720);
+      if (state.form === "lift") return Math.max(0.12, Math.min(0.29, viewportScale * 0.25));
+      if (state.form === "bridge") return Math.max(0.125, Math.min(0.31, viewportScale * 0.26));
+      return Math.max(0.13, Math.min(0.32, viewportScale * 0.27));
     }
 
     placeVehicle() {
       if (!this.sprite) return;
-      this.sprite.setPosition(this.scale.width * state.playerX, this.scale.height * 0.79);
+      const shortLandscape = this.scale.width / Math.max(this.scale.height, 1) > 2;
+      this.sprite.setPosition(this.scale.width * state.playerX, this.scale.height * (shortLandscape ? 0.72 : 0.79));
       const s = this.vehicleScale();
       if (!this.tweens.isTweening(this.sprite)) this.sprite.setScale(s);
     }
@@ -216,10 +220,21 @@
   }
 
   function setDrive(direction, pressed) {
+    if (!pressed) {
+      state.keys[direction] = false;
+      document.querySelector(`[data-drive="${direction}"]`)?.classList.remove("pressed");
+      return;
+    }
     if (!state.control || state.paused || state.challengeOpen) return;
-    state.keys[direction] = pressed;
-    if (pressed) audio.sfx("move");
-    document.querySelector(`[data-drive="${direction}"]`)?.classList.toggle("pressed", pressed);
+    state.keys[direction] = true;
+    audio.sfx("move");
+    document.body.classList.add("drive-learned");
+    document.querySelector(`[data-drive="${direction}"]`)?.classList.add("pressed");
+  }
+
+  function releaseDrive() {
+    setDrive("left", false);
+    setDrive("right", false);
   }
 
   function selectForm(nextForm, announce = true) {
@@ -242,11 +257,12 @@
     } else {
       scene.cameras.main.flash(170, 58, 229, 255, true);
       scene.tweens.killTweensOf(sprite);
-      scene.tweens.add({ targets: sprite, scaleX: finalScale * .2, scaleY: finalScale * 1.16, alpha: .45, duration: 125, ease: "Quad.In", onComplete: () => {
+      scene.tweens.add({ targets: sprite, scaleX: finalScale * .68, scaleY: finalScale * .68, alpha: .38, angle: sprite.flipX ? 3 : -3, duration: 125, ease: "Quad.In", onComplete: () => {
         sprite.setTexture(FORMS[nextForm].texture);
-        scene.tweens.add({ targets: sprite, scaleX: finalScale, scaleY: finalScale, alpha: 1, duration: 245, ease: "Back.Out" });
+        scene.tweens.add({ targets: sprite, scaleX: finalScale, scaleY: finalScale, alpha: 1, angle: 0, duration: 245, ease: "Back.Out" });
       }});
     }
+    dom.operateIcon.src = `assets/relay7-${nextForm}.webp`;
     burst(innerWidth * state.playerX, innerHeight * .73, ["#4cf4ff", "#ffad37"], 24);
     if (announce) speak(`Transformation complete. ${FORMS[nextForm].label} ready.`, 2200);
     updateProximity();
@@ -263,6 +279,7 @@
     if (!mission) { dom.operate.classList.add("hidden"); return; }
     const near = Math.abs(state.playerX - mission.x) < .062;
     dom.operate.classList.toggle("hidden", !near);
+    document.body.classList.toggle("near-beacon", near);
     dom.operate.querySelector("span").textContent = state.form === mission.form ? mission.operate : `Need ${FORMS[mission.form].label}`;
     if (near) dom.missionInstruction.textContent = state.form === mission.form ? "Beacon locked. Operate when ready." : `Transform to ${FORMS[mission.form].label} before operating.`;
     else dom.missionInstruction.textContent = mission.instruction;
@@ -605,6 +622,7 @@
     const direction = button.dataset.drive;
     button.addEventListener("pointerdown", (event) => { event.preventDefault(); button.setPointerCapture?.(event.pointerId); setDrive(direction, true); });
     ["pointerup", "pointercancel", "lostpointercapture"].forEach((type) => button.addEventListener(type, () => setDrive(direction, false)));
+    button.addEventListener("contextmenu", (event) => event.preventDefault());
   });
 
   window.addEventListener("keydown", (event) => {
@@ -621,7 +639,9 @@
     if (event.code === "ArrowLeft" || event.code === "KeyA") setDrive("left", false);
     if (event.code === "ArrowRight" || event.code === "KeyD") setDrive("right", false);
   });
-  document.addEventListener("visibilitychange", () => { if (document.hidden && state.started && !state.paused && state.completed < 3) togglePause(true); });
+  window.addEventListener("blur", releaseDrive);
+  window.addEventListener("pagehide", releaseDrive);
+  document.addEventListener("visibilitychange", () => { if (document.hidden) releaseDrive(); if (document.hidden && state.started && !state.paused && state.completed < 3) togglePause(true); });
 
   updateCharge();
   document.body.classList.toggle("reduced-motion", state.reducedMotion);
@@ -631,6 +651,11 @@
   window.__MECHSHIFT_QA__ = {
     build: BUILD,
     getState: () => ({ mission: state.mission, completed: state.completed, form: state.form, playerX: state.playerX, challengeOpen: state.challengeOpen }),
+    getVisualMetrics: () => ({
+      canvas: { width: game.canvas.width, height: game.canvas.height, clientWidth: game.canvas.clientWidth, clientHeight: game.canvas.clientHeight },
+      cityScale: { x: state.scene?.city?.scaleX || 0, y: state.scene?.city?.scaleY || 0 },
+      vehicleScale: { x: state.scene?.sprite?.scaleX || 0, y: state.scene?.sprite?.scaleY || 0 }
+    }),
     start: () => { if (!state.started) startMission(); takeControl(); },
     gotoMission: (index) => { state.mission = Math.max(0, Math.min(2,index)); state.completed = state.mission; state.playerX = MISSIONS[state.mission].x; state.scene?.placeVehicle(); selectForm(MISSIONS[state.mission].form, false); updateObjectives(); updateMissionHud(); },
     openChallenge: (index) => { state.mission = index; state.completed = index; state.playerX = MISSIONS[index].x; state.form = MISSIONS[index].form; state.scene?.sprite.setTexture(FORMS[state.form].texture); state.scene?.placeVehicle(); openChallenge(index); },

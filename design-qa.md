@@ -22,14 +22,15 @@ The build keeps the approved painted cinematic direction: the same cobalt-and-or
 
 ## Interaction and accessibility
 
-- Keyboard and touch driving, three-form transformation, pause, audio, captions, reduced motion, recovery hints, and replay: passed.
+- Keyboard driving plus large split-thumb press-and-hold controls, three-form transformation, pause, audio, captions, reduced motion, recovery hints, and replay: passed.
 - All visible controls meet the 44 px target; visible buttons have accessible names: passed.
-- No horizontal overflow on desktop; landscape tablet renders correctly; portrait shows rotation guidance: passed.
+- Touch drive controls are at least 88 x 68 px, sit on opposite device edges, and do not overlap the objective or transform controls: passed.
+- No horizontal overflow on desktop; landscape tablet renders correctly; short-phone canvas and painted assets preserve equal X/Y scale; portrait shows rotation guidance: passed.
 - Wrong choices recover in place and do not shame or end the mission: passed.
 
 ## Functional and performance checks
 
-- 30 automated browser checks passed with no page exceptions, console errors, or failed required responses.
+- 41 automated browser checks passed with no page exceptions, console errors, or failed required responses.
 - All three multi-step Grade 4 systems and the completion save were exercised end to end.
 - Production game art uses compressed WebP assets; the Phaser runtime is stored locally and requires no third-party CDN.
 - Local Pages Functions/D1 verification passed: parent confirmation required, honeypot rejected, signup created, child nominated, and active child selected. Only synthetic local QA data was used.
@@ -40,5 +41,8 @@ The build keeps the approved painted cinematic direction: the same cobalt-and-or
 - Restored strong contrast to the catalogue mission banner after a later uplift stylesheet overrode its painted background.
 - Corrected the capacity QA seating plan and removed redundant unreferenced PNG production copies.
 - Removed the fixed 540 px mobile-height floor, compacted the start and mission-brief layouts for browser-bar-constrained landscape screens, and added regression checks for both launch buttons and the catalogue link.
+- Replaced the small adjacent Left/Right buttons with picture-first split-thumb controls, added resilient pointer release handling, and moved the short-phone transform forms into a compact visual dock.
+- Removed CSS canvas overrides and non-uniform transformation squashing; added uniform-scale and viewport-fit assertions for tablet and short-phone artwork.
+- Switched short-landscape key art to aspect-safe right-side framing and sized the playable vehicle from both viewport width and height.
 
 final result: passed
