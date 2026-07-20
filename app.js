@@ -4,14 +4,7 @@ const internationalTests = window.BrightQuestInternationalTests || [];
 const storageKey = "brightQuestProfilesV2";
 const apiBase = "/api";
 const gameCatalogue = [
-  { level: 1, name: "Star Skimmer Reef", className: "reef", mode: "catch", icon: "STAR", targetLabel: "stars", description: "Surf a glowing board between island reefs and catch falling starfish tokens.", help: "Slide the board. Catch yellow stars, dodge purple splash blocks." },
-  { level: 2, name: "Brick Rocket Rally", className: "brick-rally", mode: "drift", icon: "BOOST", targetLabel: "boosts", description: "Drift a brick-built rocket car through toy-city ramps and booster rings.", help: "Drag to drift through blue boosters. Red road blocks break the combo." },
-  { level: 3, name: "Sky Balloon Carnival", className: "balloon-carnival", mode: "burst", icon: "POP", targetLabel: "pops", description: "Tap cheerful balloons over a parade skyline and keep the combo floating.", help: "Tap balloons before they escape. Golden balloons are worth extra." },
-  { level: 4, name: "Number Ninja Gates", className: "ninja-gates", mode: "drift", icon: "GO", targetLabel: "gates", description: "Dash through glowing number gates in a training dojo full of moving pads.", help: "Slide through green gates. Avoid red danger tiles." },
-  { level: 5, name: "Comet Candy Pop", className: "candy-comet", mode: "burst", icon: "ZAP", targetLabel: "comets", description: "Pop comet candies as they swirl through a neon sweet-shop galaxy.", help: "Tap the comet candies. Chain quick taps for bigger bursts." },
-  { level: 6, name: "Treasure Kart Cove", className: "treasure-kart", mode: "drift", icon: "GEM", targetLabel: "gems", description: "Steer a tiny treasure kart over beach bridges, collecting gems and avoiding rocks.", help: "Collect gems in the bright lane. Rocks cost a life." },
-  { level: 7, name: "Portal Crystal Clash", className: "portal-clash", mode: "burst", icon: "ORB", targetLabel: "orbs", description: "Tap portal crystals before they overload a colourful science lab.", help: "Tap glowing orbs quickly. Bonus orbs boost the combo." },
-  { level: 8, name: "Firework Hero Finale", className: "hero-finale", mode: "burst", icon: "BOOM", targetLabel: "fireworks", description: "Launch a superhero-style firework finale across the Bright Quest skyline.", help: "Tap fireworks at peak glow. Keep the finale chain alive." }
+  { level: 1, name: "Mechshift Rescue", className: "mechshift-rescue", mode: "mission", icon: "R7", targetLabel: "systems", url: "mechshift-rescue/", description: "Transform Relay-7 into three rescue forms, solve city systems, and bridge a storm-lit sky gap.", help: "Drive, transform, and build three rescue plans." }
 ];
 
 const screens = {
@@ -787,38 +780,28 @@ function startInternationalTest(testId) {
 }
 
 function openGamesList() {
-  const completedLevels = new Set((state.profile.attempts || []).map((attempt) => attempt.level));
-  const unlockedCount = gameCatalogue.filter((game) => completedLevels.has(game.level)).length;
+  const game = gameCatalogue[0];
   gamesList.innerHTML = `
-    <article class="game-gallery-hero">
+    <article class="game-gallery-hero bq-play-summary">
       <div>
-        <p class="eyebrow">Arcade vault</p>
-        <h3>Unlocked games and coming attractions</h3>
-        <p>${unlockedCount} of ${gameCatalogue.length} games unlocked. Finish tests to light up the rest of the arcade.</p>
+        <p class="eyebrow">Featured rescue adventure</p>
+        <h3>One complete game. Three transformation systems.</h3>
+        <p>Play an 8–12 minute cinematic mission built around real movement, decisions, recovery and Grade 4 strategy.</p>
       </div>
-      <div class="gallery-mini-console" aria-hidden="true"><span></span><i></i><b></b></div>
+      <strong class="bq-mechshift-rating">Mission ready</strong>
     </article>
-    ${gameCatalogue.map((game) => {
-    const unlocked = completedLevels.has(game.level);
-    return `
-      <article class="game-tile ${game.className} ${unlocked ? "unlocked" : "locked"}">
-        ${gamePreviewArt(game)}
-        <p class="eyebrow">Level ${game.level} arcade</p>
+    <article class="game-tile mechshift-rescue unlocked bq-featured-game">
+      <img class="bq-mechshift-keyart" src="mechshift-rescue/assets/mechshift-rescue-keyframe.webp" alt="Relay-7 extending a bridge between floating cities above storm clouds" />
+      <div class="bq-mechshift-card-copy">
+        <p class="eyebrow">Painted cinematic adventure</p>
         <strong>${escapeHtml(game.name)}</strong>
         <span>${escapeHtml(game.description)}</span>
-        <small>${unlocked ? `${game.mode === "burst" ? "Tap challenge" : game.mode === "drift" ? "Drift challenge" : "Catch challenge"} unlocked` : `Complete level ${game.level} to unlock`}</small>
-        ${unlocked ? `<button class="button button-primary" type="button" data-play-game="${game.level}">Play</button>` : ""}
-      </article>
-    `;
-  }).join("")}
+        <small>Rover · Lift Mech · Bridge Crawler · saved mission reward</small>
+        <button class="button button-primary" type="button" data-open-game-url="${escapeAttr(game.url)}">Launch rescue</button>
+      </div>
+    </article>
   `;
-
-  gamesList.querySelectorAll("[data-play-game]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const game = gameCatalogue.find((item) => item.level === Number(button.dataset.playGame));
-      startRewardGame(game);
-    });
-  });
+  gamesList.querySelector("[data-open-game-url]")?.addEventListener("click", () => { window.location.href = game.url; });
 
   showScreen("gamesList");
 }
@@ -1148,39 +1131,7 @@ function completeTraining() {
 }
 
 function startRewardGame(game = gameForLevel(state.latestResult?.level || state.activeLevel?.level || 1)) {
-  stopRewardGameTimers();
-  state.activeGame = game;
-  state.gameRemainingSeconds = 120;
-  state.gameScore = 0;
-  state.gameActive = true;
-  state.gamePlayerX = 50;
-  state.gameObjects = [];
-  state.gameLastFrame = 0;
-  state.gameLastSpawn = 0;
-  state.gameSpawnEvery = game.mode === "burst" ? 520 : 580;
-  state.gameCombo = 1;
-  state.gameLives = game.mode === "burst" ? 5 : 3;
-  state.gameDriftTilt = 0;
-  gameScore.textContent = "0";
-  gameScoreLabel.textContent = game.targetLabel || "score";
-  gameCombo.textContent = "x1";
-  gameLives.textContent = String(state.gameLives);
-  gameTitle.textContent = game.name;
-  gameHelp.textContent = game.help;
-  updateGameTimer();
-  clearGameStage();
-  gameStage.className = `game-stage ${game.className} ${game.mode}`;
-  playerShip.style.left = "50%";
-  playerShip.style.transform = "translateX(-50%)";
-  showScreen("game");
-
-  state.gameTimerId = setInterval(() => {
-    state.gameRemainingSeconds -= 1;
-    updateGameTimer();
-    if (state.gameRemainingSeconds <= 0) endRewardGame();
-  }, 1000);
-  spawnGameObject(performance.now());
-  state.gameFrameId = requestAnimationFrame(runGameFrame);
+  window.location.href = game?.url || "mechshift-rescue/";
 }
 
 function stopRewardGameTimers() {

@@ -2,6 +2,9 @@ name = "bright-quest"
 compatibility_date = "2026-05-14"
 pages_build_output_dir = "."
 
+[vars]
+BQ_SIGNUP_ENABLED = "true"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "bright-quest-db"

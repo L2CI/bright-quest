@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#071b35" />
+    <meta name="description" content="Mechshift Rescue — transform Relay-7, solve three rescue systems, and save Aether City." />
+    <title>Mechshift Rescue | Bright Quest</title>
+    <link rel="icon" href="assets/relay7-rover.webp" type="image/webp" />
+    <link rel="preload" href="assets/aether-city-mission-deck.webp" as="image" />
+    <link rel="preload" href="assets/relay7-rover.webp" as="image" />
+    <link rel="stylesheet" href="mechshift-rescue.css?v=mechshift-rescue-001" />
+  </head>
+  <body>
+    <main id="mechshiftApp" class="mechshift-app" aria-label="Mechshift Rescue game">
+      <div id="gameCanvas" class="game-canvas" aria-hidden="true"></div>
+      <div class="cinematic-shade" aria-hidden="true"></div>
+
+      <header class="mission-hud" aria-label="Mission status">
+        <section class="charge-module" aria-label="Relay-7 charge">
+          <div class="charge-ring" id="chargeRing"><span id="chargeValue">100</span><small>%</small></div>
+          <div class="charge-copy"><span>Relay charge</span><strong id="formName">Rover form</strong></div>
+        </section>
+        <section class="mission-readout" aria-live="polite">
+          <span class="mission-kicker" id="missionKicker">Aether City / Rescue 01</span>
+          <strong id="missionTitle">Reach the Evac Dock</strong>
+          <span id="missionInstruction">Drive to the amber rescue beacon.</span>
+        </section>
+        <div class="top-actions">
+          <button class="hex-button" id="soundButton" type="button" aria-label="Mute sound" aria-pressed="false">
+            Sound
+          </button>
+          <button class="hex-button" id="pauseButton" type="button" aria-label="Pause mission">
+            Pause
+          </button>
+        </div>
+      </header>
+
+      <nav class="form-rail" aria-label="Choose Relay-7 form">
+        <button class="form-button selected" type="button" data-form="rover" aria-pressed="true">
+          <img src="assets/relay7-rover.webp" alt="" /><span><strong>Rover</strong><small>Drive + carry</small></span><kbd>1</kbd>
+        </button>
+        <button class="form-button" type="button" data-form="lift" aria-pressed="false">
+          <img src="assets/relay7-lift.webp" alt="" /><span><strong>Lift</strong><small>Move + clear</small></span><kbd>2</kbd>
+        </button>
+        <button class="form-button" type="button" data-form="bridge" aria-pressed="false">
+          <img src="assets/relay7-bridge.webp" alt="" /><span><strong>Bridge</strong><small>Span + rescue</small></span><kbd>3</kbd>
+        </button>
+      </nav>
+
+      <aside class="objective-module" aria-label="Rescue objectives">
+        <div class="objective-count"><span id="objectiveCount">0</span><small>/3</small></div>
+        <div><strong>Rescue systems</strong><span id="objectiveCopy">Evac dock awaiting Relay-7</span></div>
+        <ol id="objectiveList">
+          <li class="active"><span>1</span>Load pods</li>
+          <li><span>2</span>Clear debris</li>
+          <li><span>3</span>Bridge the gap</li>
+        </ol>
+      </aside>
+
+      <div class="touch-controls" aria-label="Vehicle controls">
+        <button type="button" data-drive="left" aria-label="Drive left">Left</button>
+        <button type="button" data-drive="right" aria-label="Drive right">Right</button>
+      </div>
+      <button class="operate-button hidden" id="operateButton" type="button"><span>Operate</span><small>Space</small></button>
+
+      <div class="captions" id="captions" role="status" aria-live="polite">Nimbus: Relay-7 online. The city needs us!</div>
+      <div class="feedback-burst" id="feedbackBurst" aria-hidden="true"></div>
+
+      <section class="start-screen overlay-screen" id="startScreen" aria-labelledby="startTitle">
+        <div class="start-gradient"></div>
+        <div class="start-copy">
+          <p class="eyebrow">Bright Quest presents</p>
+          <h1 id="startTitle">Mechshift <span>Rescue</span></h1>
+          <p class="start-deck">One pilot. Three machine forms. A city above the clouds counting on you.</p>
+          <div class="mission-specs" aria-label="Game information">
+            <span>8–12 min mission</span><span>3 rescue systems</span><span>Grade 4 strategy</span>
+          </div>
+          <button class="primary-cta" id="startButton" type="button"><span>Launch rescue</span><small>Relay-7 ready</small></button>
+          <a class="quiet-link" href="../?from=mechshift-rescue">Return to Bright Quest</a>
+        </div>
+      </section>
+
+      <section class="brief-screen overlay-screen hidden" id="briefScreen" aria-labelledby="briefTitle">
+        <div class="brief-panel">
+          <div class="nimbus-portrait"><img src="assets/relay7-rover.webp" alt="Nimbus helper drone beside the pilot" /></div>
+          <div class="brief-copy">
+            <p class="eyebrow" id="briefKicker">Nimbus mission brief</p>
+            <h2 id="briefTitle">Three systems. One rescue route.</h2>
+            <p id="briefText">Drive Relay-7 across the city. Choose the right form at each beacon, then build a rescue plan that works.</p>
+            <div class="brief-tips">
+              <span><kbd>←</kbd><kbd>→</kbd> Drive</span><span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> Transform</span><span><kbd>Space</kbd> Operate</span>
+            </div>
+            <button class="primary-cta compact" id="briefContinueButton" type="button">Take control</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="challenge-screen overlay-screen hidden" id="challengeScreen" aria-labelledby="challengeTitle">
+        <div class="challenge-shell">
+          <header class="challenge-header">
+            <div><p class="eyebrow" id="challengeKicker">System 1 / Evac dock</p><h2 id="challengeTitle">Set the passenger capacity</h2></div>
+            <button class="round-close" id="challengeCloseButton" type="button" aria-label="Return to the roadway">×</button>
+          </header>
+          <div class="challenge-story" id="challengeStory"></div>
+          <div class="challenge-body" id="challengeBody"></div>
+          <footer class="challenge-footer">
+            <div class="hint-ladder"><button id="hintButton" type="button">Ask Nimbus for a clue</button><span id="hintText" aria-live="polite"></span></div>
+            <button class="confirm-button" id="confirmChallengeButton" type="button">Check rescue plan</button>
+          </footer>
+        </div>
+      </section>
+
+      <section class="pause-screen overlay-screen hidden" id="pauseScreen" aria-labelledby="pauseTitle">
+        <div class="pause-panel">
+          <p class="eyebrow">Mission paused</p><h2 id="pauseTitle">Relay-7 holding position</h2>
+          <button class="primary-cta compact" id="resumeButton" type="button">Resume rescue</button>
+          <button class="menu-button" id="motionButton" type="button" aria-pressed="false">Reduced motion: off</button>
+          <button class="menu-button" id="restartButton" type="button">Restart mission</button>
+          <a class="quiet-link" href="../?from=mechshift-rescue">Return to Bright Quest</a>
+        </div>
+      </section>
+
+      <section class="result-screen overlay-screen hidden" id="resultScreen" aria-labelledby="resultTitle">
+        <div class="result-panel">
+          <p class="eyebrow">Aether City secured</p>
+          <h2 id="resultTitle">Rescue route complete!</h2>
+          <p>You transformed, calculated and planned like a real rescue commander.</p>
+          <div class="result-score"><span><strong>3</strong><small>systems restored</small></span><span><strong id="resultStars">3</strong><small>rescue stars</small></span><span><strong id="resultTime">00:00</strong><small>mission time</small></span></div>
+          <div class="badge"><img src="assets/relay7-bridge.webp" alt="Relay-7 Bridge Crawler" /><span>New badge earned</span><strong>Aether City Pathfinder</strong></div>
+          <div class="result-actions"><button class="primary-cta compact" id="playAgainButton" type="button">Play again</button><a class="secondary-cta" href="../?from=mechshift-rescue&complete=1">Return to Bright Quest</a></div>
+        </div>
+      </section>
+
+      <section class="orientation-screen" aria-label="Rotate device">
+        <img src="assets/relay7-rover.webp" alt="Relay-7 Rover" /><strong>Turn your tablet sideways</strong><span>Relay-7 needs a wider view of the skyway.</span>
+      </section>
+    </main>
+
+    <script src="vendor/phaser.min.js"></script>
+    <script src="mechshift-rescue.js?v=mechshift-rescue-001"></script>
+  </body>
+</html>

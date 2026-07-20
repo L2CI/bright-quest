@@ -5,6 +5,7 @@
   const nextStep = document.querySelector("#familyNextStep");
   const loginForm = document.querySelector("#familyLoginForm");
   const signupForm = document.querySelector("#familySignupForm");
+  const landingSignupButton = document.querySelector("#familyLandingSignupButton");
   const tabs = [...document.querySelectorAll("[data-auth-tab]")];
   const parentCapabilityKey = "brightQuestParentCapability";
   const childCapabilityKey = "brightQuestChildCapability";
@@ -22,6 +23,7 @@
   window.BrightQuestFamilyAuth = controller;
 
   tabs.forEach((tab) => tab.addEventListener("click", () => selectTab(tab.dataset.authTab)));
+  landingSignupButton?.addEventListener("click", () => selectTab("signup"));
   loginForm?.addEventListener("submit", handleLogin);
   signupForm?.addEventListener("submit", handleSignup);
   switchProfileButton?.addEventListener("click", interceptLegacyLogout, true);
@@ -42,6 +44,7 @@
     controller.enabled = true;
     const signupTab = document.querySelector('[data-auth-tab="signup"]');
     signupTab?.classList.toggle("hidden", !config.signupEnabled);
+    landingSignupButton?.classList.toggle("hidden", !config.signupEnabled);
     document.body.classList.add("bq-family-auth-enabled");
     const current = await api("/api/auth/session", { silent: true });
     if (current?.authenticated) {
@@ -79,7 +82,9 @@
         displayName: data.get("displayName"),
         email: data.get("email"),
         password: data.get("password"),
-        parentPin: data.get("parentPin")
+        parentPin: data.get("parentPin"),
+        parentConfirmed: data.get("parentConfirmed") === "on",
+        website: data.get("website")
       }
     });
     setBusy(signupForm, false);
@@ -167,13 +172,14 @@
     forms.classList.add("hidden");
     nextStep.classList.remove("hidden");
     nextStep.innerHTML = `
-      <p class="eyebrow">First explorer</p>
-      <h3>Who is learning?</h3>
-      <p>Add a first name. Bright Quest will create a private journey inside this family account.</p>
+      <div class="bq-signup-steps complete-first" aria-label="Signup steps"><strong>1</strong><span>Family created</span><i></i><strong>2</strong><span>Nominate your kid</span></div>
+      <p class="eyebrow">Step 2 of 2</p>
+      <h3>Nominate your kid</h3>
+      <p>Add the first name of the child who will use Bright Quest. Their learning journey stays private inside this family account.</p>
       <form class="bq-auth-form" data-create-child>
         <label for="familyChildName">Child first name</label>
         <input id="familyChildName" name="name" autocomplete="given-name" maxlength="40" required />
-        <button class="button button-primary" type="submit">Create journey</button>
+        <button class="button button-primary" type="submit">Create their journey</button>
       </form>
       <div class="bq-auth-secondary-actions"><button class="button button-soft" type="button" data-family-logout>Log out</button></div>
     `;

@@ -1,12 +1,15 @@
 import {
   createSession,
   assertFamilyAuthEnabled,
+  consumeRateLimitAttempt,
   errorResponse,
   hashSecret,
   json,
   normalizeEmail,
+  pruneRateLimits,
   randomHex,
   readJson,
+  requestAddress,
   sessionCookie,
   sessionSummary,
   sha256,
@@ -21,6 +24,10 @@ export async function onRequestPost(context) {
     assertFamilyAuthEnabled(context.env);
     if (context.env.BQ_SIGNUP_ENABLED !== "true") return json({ error: "Signup is currently closed" }, 403);
     const body = await readJson(context.request);
+    if (String(body.website || "").trim()) return json({ error: "Signup could not be completed" }, 400);
+    if (body.parentConfirmed !== true) return json({ error: "A parent or guardian must create the family account" }, 400);
+    await pruneRateLimits(context.env);
+    await consumeRateLimitAttempt(context.env, `signup-ip:${requestAddress(context.request)}`, { maxFailures: 5 });
     const email = normalizeEmail(body.email);
     const password = String(body.password || "");
     const parentPin = String(body.parentPin || "");

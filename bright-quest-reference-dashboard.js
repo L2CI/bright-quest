@@ -1,14 +1,15 @@
 ﻿(() => {
   const tests = window.BrightQuestInternationalTests || [];
   const gameNames = {
-    'intl-1': 'Cave River Quest',
-    'intl-2': 'Street Smart Rescue',
-    'intl-3': 'Logic Lab Battle'
+    'intl-1': 'Mechshift Rescue',
+    'intl-2': 'Mechshift Rescue',
+    'intl-3': 'Mechshift Rescue'
   };
 
   const standaloneGames = {
-    'intl-1': 'cave-river-quest/',
-    'intl-2': 'street-smart-rescue/'
+    'intl-1': 'mechshift-rescue/',
+    'intl-2': 'mechshift-rescue/',
+    'intl-3': 'mechshift-rescue/'
   };
 
   function getProfile() {

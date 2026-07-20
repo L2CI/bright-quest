@@ -311,7 +311,7 @@
         <button type="button" class="bq-zone-card games" data-bq-action="games">
           ${art("treasure")}
           <strong>Games & Rewards</strong>
-          <span>Cave River Quest, Street Smart Rescue, Treasure Quest, Dragon Forge, and arcade unlocks.</span>
+          <span>Mechshift Rescue: one polished transforming-machine adventure with three rescue systems.</span>
         </button>
 
         <button type="button" class="bq-zone-card progress" data-bq-action="progress">
@@ -422,8 +422,8 @@
         </section>
 
         <section class="bq-reward-strip" aria-label="Reward game">
-          <img src="assets/ui/reward-cave-river.svg" alt="" />
-          <div><p class="eyebrow">Play</p><h2>${attempts.length ? "A reward quest is ready" : "Your first reward is close"}</h2><p>${attempts.length ? "Choose an unlocked game for a short break." : "Complete one exam set to open the reward trail."}</p></div>
+          <img src="mechshift-rescue/assets/mechshift-rescue-keyframe.webp" alt="" />
+          <div><p class="eyebrow">Play</p><h2>${attempts.length ? "Mechshift Rescue is ready" : "Your first rescue mission is close"}</h2><p>${attempts.length ? "Transform Relay-7 and restore three city systems." : "Complete one exam set, then launch the transforming rescue adventure."}</p></div>
           <button type="button" class="button button-soft" data-bq-action="games">Open Play</button>
         </section>
       </section>
@@ -483,7 +483,7 @@
       return;
     }
     if (action === "open-dragon-forge") {
-      window.location.href = agmathsUrl("game");
+      window.location.href = "mechshift-rescue/";
       return;
     }
     if (action === "logout") {
@@ -611,7 +611,7 @@
         <div class="bq-winter-actions">
           <button type="button" class="bq-command-button primary" data-bq-action="open-agmaths"><span>Open training map</span></button>
           <button type="button" class="bq-command-button" data-bq-action="open-agmaths-cockpit"><span>Open AGMaths cockpit</span></button>
-          <button type="button" class="bq-command-button" data-bq-action="open-dragon-forge"><span>Play Dragon Forge</span></button>
+          <button type="button" class="bq-command-button" data-open-game-url="mechshift-rescue/"><span>Play Mechshift Rescue</span></button>
         </div>
       </section>
       <section class="bq-course-path winter-path" aria-label="Winter 2026 workshop path">
@@ -810,30 +810,7 @@
   function addDragonForgeKidCard() {
     const list = document.getElementById("gamesList");
     if (!list) return;
-    if (!list.querySelector("[data-bq-treasure-map-card]")) {
-      const treasureCard = document.createElement("article");
-      treasureCard.className = "game-tile bq-reward-game-tile bq-treasure-map-card unlocked";
-      treasureCard.dataset.bqTreasureMapCard = "true";
-      treasureCard.innerHTML = `
-        ${art("treasure")}
-        <p class="eyebrow">Pirate map quest</p>
-        <h3>Treasure Quest</h3>
-        <p>Follow the pirate map, collect treasure, and keep the reward-game trail visible.</p>
-        <button class="button button-primary" type="button" data-open-game-url="treasure-quest/">Open Treasure Quest</button>
-      `;
-      list.appendChild(treasureCard);
-    }
-    if (list.querySelector("[data-open-game-url*='agmaths']")) return;
-    const dragonCard = document.createElement("article");
-    dragonCard.className = "game-tile bq-reward-game-tile bq-dragon-forge-card unlocked";
-    dragonCard.innerHTML = `
-      ${art("winter")}
-      <p class="eyebrow">Winter maths quest</p>
-      <h3>Dragon Forge</h3>
-      <p>Winter 2026 maths reward game with harder Grade 4 multiplication gates.</p>
-      <button class="button button-primary" type="button" data-open-game-url="${agmathsUrl("game")}">Open Dragon Forge</button>
-    `;
-    list.appendChild(dragonCard);
+    list.querySelectorAll(".game-tile:not(.mechshift-rescue)").forEach((tile) => tile.remove());
   }
 
   function getParentProfile(profiles) {
@@ -1261,15 +1238,11 @@
 
   function renderGamesPage(metrics) {
     const rows = gameCatalogue.map((game) => {
-      const unlocked = metrics.completedLevels.has(game.level);
-      return `<article class="bq-game-record ${unlocked ? "unlocked" : ""}"><strong>${escapeHtml(game.name)}</strong><span>${unlocked ? "Unlocked" : `Complete level ${game.level}`}</span></article>`;
+      return `<article class="bq-game-record unlocked"><strong>${escapeHtml(game.name)}</strong><span>Mission ready · 8–12 minutes · three systems</span></article>`;
     }).join("");
     return parentPageShell("games", `
       <section class="bq-parent-query-grid compact">
-        <button class="bq-query-card area-play" type="button" data-open-game-url="cave-river-quest/">${art("mountain")}<strong>Cave River Quest</strong><span>3D reward quest</span></button>
-        <button class="bq-query-card area-play" type="button" data-open-game-url="street-smart-rescue/">${art("focus")}<strong>Street Smart Rescue</strong><span>Animated puzzle quest</span></button>
-        <button class="bq-query-card area-play" type="button" data-open-game-url="treasure-quest/">${art("treasure")}<strong>Treasure Quest</strong><span>Pirate map reward prototype</span></button>
-        <button class="bq-query-card area-winter" type="button" data-open-game-url="${agmathsUrl("game", metrics.profile)}">${art("winter")}<strong>Dragon Forge</strong><span>Winter 2026 Training 1 game</span></button>
+        <button class="bq-query-card area-play bq-parent-mechshift" type="button" data-open-game-url="mechshift-rescue/"><img src="mechshift-rescue/assets/mechshift-rescue-keyframe.webp" alt="" /><strong>Mechshift Rescue</strong><span>Painted cinematic rescue mission · Rover, Lift and Bridge forms</span></button>
       </section>
       <section class="bq-page-list">${rows}</section>
     `);
@@ -1281,7 +1254,7 @@
         <div>
           <p class="eyebrow">Linked module</p>
           <h3>AGMaths progress bridge</h3>
-          <p>AGMaths remains the source of truth for its Grade 4 training, tests, cockpit, and Dragon Forge data.</p>
+          <p>AGMaths remains the source of truth for its Grade 4 training, tests, and cockpit data.</p>
         </div>
         <div class="bq-linked-actions">
           <button class="button button-primary" type="button" data-open-game-url="${agmathsUrl("map", metrics.profile)}">Open training</button>
