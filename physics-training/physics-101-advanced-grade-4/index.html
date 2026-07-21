@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en-AU">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#fff8e8" />
+    <title>Physics 101: Advanced Grade 4 | Bright Quest</title>
+    <link rel="icon" href="./assets/ui/chapter-01-card.png" type="image/png" />
+    <link rel="stylesheet" href="./physics-101.css?v=physics-101-pilot-001" />
+  </head>
+  <body>
+    <main class="physics-app landing-view">
+      <header class="site-header">
+        <a class="brand" href="../../" aria-label="Back to Bright Quest">
+          <span class="brand-mark" aria-hidden="true">BQ</span>
+          <span><strong>Bright Quest</strong><small>Physics 101</small></span>
+        </a>
+        <nav class="header-actions" aria-label="Physics course navigation">
+          <button class="text-button" id="courseMapButton" type="button">Course map</button>
+          <a class="text-button" href="../../">Back to Bright Quest</a>
+        </nav>
+        <div class="course-stat" aria-live="polite"><strong id="courseProgress">0/1</strong><span>pilot chapters done</span></div>
+      </header>
+
+      <section class="course-landing" aria-label="Physics 101 course overview">
+        <div class="landing-art">
+          <img src="./assets/source/chapter-01-contact-hero.png" alt="Two young skaters on wheeled platforms pressing their palms together in a bright workshop" />
+        </div>
+        <article class="landing-copy">
+          <p class="eyebrow">Advanced Grade 4 · Chapter 1 pilot</p>
+          <h1>Physics begins when two objects interact.</h1>
+          <p class="lead">Enter the Kinetic Workshop. Watch closely, follow the force evidence, then prove your reasoning in a 10-question Cockpit Check.</p>
+          <ul class="feature-list" aria-label="Course features">
+            <li><strong>3:25</strong><span>animated lesson</span></li>
+            <li><strong>10</strong><span>reasoning questions</span></li>
+            <li><strong>Saved</strong><span>family progress</span></li>
+          </ul>
+          <button class="primary-button" id="courseStartButton" type="button"><span>Start Chapter 1</span><span aria-hidden="true">→</span></button>
+        </article>
+      </section>
+
+      <section class="course-map" id="courseMap" aria-label="Physics 101 chapter path">
+        <div class="section-heading"><div><p class="eyebrow">Course map</p><h2>Build a physicist's toolkit</h2></div><p>Chapter 1 is ready for live testing. The full 11-chapter sequence is mapped and follows this same format.</p></div>
+        <div class="chapter-grid" id="chapterGrid"></div>
+      </section>
+
+      <section class="lesson-stage" id="lessonStage" aria-label="Physics video lesson">
+        <div class="lesson-heading">
+          <div><p class="eyebrow" id="chapterCount">Chapter 1 of 11</p><h2 id="chapterTitle">Force Is An Interaction</h2></div>
+          <button class="text-button" id="backToMapButton" type="button">Course map</button>
+        </div>
+
+        <div class="lesson-layout">
+          <section class="player-column" aria-label="Animated physics lesson">
+            <div class="video-frame">
+              <video id="lessonVideo" preload="metadata" playsinline poster="./assets/posters/chapter-01.jpg">
+                <source id="videoSource" src="./assets/videos/chapter-01.mp4" type="video/mp4" />
+                <track id="captionTrack" kind="subtitles" srclang="en" label="English" src="./assets/captions/chapter-01.vtt" />
+              </video>
+              <button class="video-start" id="videoStartButton" type="button" aria-label="Play Force Is An Interaction">
+                <span class="play-disc" aria-hidden="true">▶</span>
+                <span><strong>Begin the investigation</strong><small>Teacher voice · captions available</small></span>
+              </button>
+            </div>
+
+            <div class="timeline-panel">
+              <div class="timeline-meta"><span id="elapsedTime">0:00 elapsed</span><span id="totalTime">3:25 total</span></div>
+              <input id="timeline" class="timeline" type="range" min="0" max="100" value="0" step="0.1" aria-label="Chapter timeline" />
+              <div class="player-controls" aria-label="Lesson controls">
+                <button class="control-button primary" id="playButton" type="button"><span aria-hidden="true" id="playIcon">▶</span><span id="playLabel">Play</span></button>
+                <button class="control-button" id="rewindButton" type="button"><span aria-hidden="true">↶</span><span>15 sec</span></button>
+                <button class="control-button" id="stopButton" type="button"><span aria-hidden="true">■</span><span>Stop</span></button>
+                <button class="control-button" id="ccButton" type="button" aria-pressed="false"><span aria-hidden="true">CC</span><span id="ccLabel">Captions off</span></button>
+              </div>
+            </div>
+          </section>
+
+          <aside class="lesson-aside">
+            <section class="evidence-panel" aria-live="polite">
+              <p class="eyebrow">Now investigating</p>
+              <h3 id="lessonPoint">Watch the motion</h3>
+              <p id="lessonPrompt">Which two objects are interacting, and what changes?</p>
+              <div class="caption-readout" id="captionReadout" hidden></div>
+            </section>
+
+            <section class="test-panel" id="testPanel" aria-labelledby="testHeading">
+              <div class="test-heading"><div><p class="eyebrow">Cockpit Check</p><h3 id="testHeading">Prove it with evidence</h3></div><span class="status-pill" id="testStatus">Locked</span></div>
+              <div id="testBody"></div>
+            </section>
+          </aside>
+        </div>
+      </section>
+    </main>
+    <script src="./physics-101.js?v=physics-101-pilot-001"></script>
+  </body>
+</html>

@@ -3,6 +3,7 @@
   const AGMATHS_BASE_URL = "https://agmaths.dipanjan-gupta.workers.dev/";
   const AGMATHS_API_BASE = "https://agmaths.dipanjan-gupta.workers.dev";
   const CHEMISTRY_COURSE_DATA_URL = "chemistry-training/chemistry-101-winter-2026/data/chemistry-101-course.json?v=20260711a";
+  const PHYSICS_COURSE_URL = "physics-training/physics-101-advanced-grade-4/";
   let pendingKidProfile = null;
   let chemistryCourseCache = null;
 
@@ -305,6 +306,11 @@
               <strong>Chemistry 101 Winter 2026</strong>
               <span>Video chapters + tests</span>
             </button>
+            <button type="button" class="bq-module-card chemistry" data-bq-action="physics-training">
+              ${art("focus")}
+              <strong>Physics 101: Advanced Grade 4</strong>
+              <span>Chapter 1 live pilot</span>
+            </button>
           </div>
         </article>
 
@@ -332,6 +338,7 @@
     const attempts = profile.attempts || [];
     const chemistryChapters = profile.chemistry101Progress?.chapters || {};
     const chemistryCompleted = Object.values(chemistryChapters).filter((chapter) => chapter?.completed).length;
+    const physicsStatus = physicsProgress(profile);
     const nextChemistryChapter = nextChemistryChapterNumber(profile);
     const trainingCompleted = profile.trainingCompleted || {};
     const winterCompleted = Object.keys(trainingCompleted).filter((key) => /winter|agmaths/i.test(key) && !/chemistry/i.test(key)).length;
@@ -418,6 +425,12 @@
               <strong>Chemistry Lab</strong>
               <small>Animated lessons and tests</small>
             </button>
+            <button type="button" class="bq-world-tile chemistry" data-bq-action="physics-training">
+              <img src="physics-training/physics-101-advanced-grade-4/assets/ui/chapter-01-card.png" alt="" />
+              <span class="bq-world-status">${physicsStatus.completed ? "Chapter complete" : "Pilot ready"}</span>
+              <strong>Physics Workshop</strong>
+              <small>Forces, evidence and a cockpit check</small>
+            </button>
           </div>
         </section>
 
@@ -456,6 +469,10 @@
     }
     if (action === "chemistry-training") {
       window.location.href = chemistry101Url(state.profile, nextChemistryChapterNumber(state.profile));
+      return;
+    }
+    if (action === "physics-training") {
+      window.location.href = physics101Url(state.profile);
       return;
     }
     if (action === "games") {
@@ -531,6 +548,13 @@
     const url = new URL("chemistry-training/chemistry-101-winter-2026/", window.location.href);
     if (profileId) url.searchParams.set("profileId", profileId);
     if (chapterNumber) url.searchParams.set("chapter", String(chapterNumber));
+    return `${url.pathname.replace(/^\//, "")}${url.search}`;
+  }
+
+  function physics101Url(profile = null) {
+    const profileId = profile?.id || state.profileId || localStorage.getItem("brightQuestActiveProfile") || "";
+    const url = new URL(PHYSICS_COURSE_URL, window.location.href);
+    if (profileId) url.searchParams.set("profileId", profileId);
     return `${url.pathname.replace(/^\//, "")}${url.search}`;
   }
 
@@ -756,6 +780,7 @@
     const latest = latestAttemptsByLevel();
     const levels = getAllLevels();
     const chemistryDone = Object.values(state.profile.chemistry101Progress?.chapters || {}).filter((chapter) => chapter?.completed).length;
+    const physics = physicsProgress(state.profile);
     const latestAttempt = attempts.at(-1);
     const completedLevels = levels.filter((level) => latest[level.level]).length;
     const focusCopy = weak.length ? `Build confidence in ${weak[0][0]} next.` : "Complete a mission to reveal your next focus.";
@@ -767,6 +792,7 @@
       <section class="bq-journey-subjects" aria-label="Subject progress">
         ${journeySubject("Exam Expedition", completedLevels, levels.length, latestAttempt ? `${latestAttempt.percent}% latest` : "First set ready", "exam")}
         ${journeySubject("Chemistry Lab", chemistryDone, 11, `${chemistryDone} chapters complete`, "chemistry")}
+        ${journeySubject("Physics Workshop", physics.completed ? 1 : 0, 1, physics.test ? `Cockpit Check ${physics.test.score}/10` : physics.completed ? "Cockpit Check ready" : "Chapter 1 ready", "chemistry")}
         ${journeySubject("Winter Workshop", Object.keys(state.profile.trainingCompleted || {}).filter((key) => /winter|agmaths/i.test(key) && !/chemistry/i.test(key)).length, 10, "Maths practice path", "winter")}
       </section>
       <section class="bq-journey-wins">
@@ -872,7 +898,7 @@
   }
 
   function parentNavButton(route, label, activeRoute) {
-    const active = route === activeRoute || (route === "learning" && ["exam-results", "focus", "training", "chemistry", "winter-2026"].includes(activeRoute)) || (route === "evidence" && ["writing", "records"].includes(activeRoute));
+    const active = route === activeRoute || (route === "learning" && ["exam-results", "focus", "training", "chemistry", "physics", "winter-2026"].includes(activeRoute)) || (route === "evidence" && ["writing", "records"].includes(activeRoute));
     return `<button type="button" class="${active ? "active" : ""}" data-parent-route="${route}" ${active ? 'aria-current="page"' : ""}>${label}</button>`;
   }
 
@@ -917,6 +943,7 @@
       writing: () => renderWritingPage(metrics),
       games: () => renderGamesPage(metrics),
       chemistry: () => renderChemistryPage(metrics),
+      physics: () => renderPhysicsPage(metrics),
       "winter-2026": () => renderWinterPage(metrics),
       records: () => renderRecordsPage(metrics)
     };
@@ -946,6 +973,7 @@
       <section class="bq-parent-subject-rows" aria-label="Learning summary">
         ${parentHubRow("learning", "Learning", `${metrics.attempts.length} exam attempts`, metrics.attempts.length ? `${metrics.average}% average` : "No baseline", "chart")}
         ${parentHubRow("chemistry", "Chemistry", `${chemistryProgress(metrics.profile).completed} of 11 chapters`, "Chapter tests and wrong answers", "chemistry")}
+        ${parentHubRow("physics", "Physics", `${physicsProgress(metrics.profile).completed ? 1 : 0} of 1 pilot chapter`, "Cockpit Check and evidence reasoning", "focus")}
         ${parentHubRow("evidence", "Evidence", `${metrics.questionStats.length} saved question records`, `${metrics.writing.length} writing samples`, "database")}
       </section>
     `, true);
@@ -959,6 +987,7 @@
         ${parentHubRow("focus", "Focus Areas", `${metrics.focus.length} signals`, metrics.focus[0]?.skill || "No focus flagged", "focus")}
         ${parentHubRow("training", "Bright Quest Training", `${metrics.training.completed.length} complete`, `${metrics.training.untouched.length} available`, "book")}
         ${parentHubRow("chemistry", "Chemistry 101", `${chemistry.completed} of ${chemistry.total} chapters`, `${chemistry.tested} tests submitted`, "chemistry")}
+        ${parentHubRow("physics", "Physics 101", `${physicsProgress(metrics.profile).completed ? 1 : 0} of 1 pilot chapter`, physicsProgress(metrics.profile).test ? `Cockpit Check ${physicsProgress(metrics.profile).test.score}/10` : "Test not submitted", "focus")}
         ${parentHubLink(agmathsUrl("cockpit", metrics.profile, "parent/learning"), "Winter Maths", "Open linked AGMaths progress", "External course", "snow")}
       </section>
     `);
@@ -1155,6 +1184,7 @@
           queryCard("focus", "Focus Areas", "Recurring missed or slow skills with evidence.", "focus"),
           queryCard("training", "Training Coverage", "Completed, untouched, and recommended Bright Quest training.", "book"),
           queryCard("chemistry", "Chemistry 101 Winter 2026", "Video chapters, tests, and course progress.", "chemistry"),
+          queryCard("physics", "Physics 101: Advanced Grade 4", "Force-interaction lesson, Cockpit Check and saved evidence.", "focus"),
           queryLinkCard(agmathsUrl("cockpit", metrics.profile, "parent/overview"), "Winter 2026 Training 1", "Open the AGMaths cockpit for this child.", "winter")
         ])}
         ${queryGroup("Play", "Reward games and motivation signals.", [
@@ -1293,6 +1323,56 @@
         ])}</article>
       </section>
     `);
+  }
+
+  function renderPhysicsPage(metrics) {
+    const status = physicsProgress(metrics.profile);
+    const answerRows = Array.isArray(status.test?.answers) ? status.test.answers.map((answer, index) => ({
+      label: `Q${index + 1} ${String(answer.concept || "evidence").replaceAll("-", " ")}`,
+      value: answer.correct ? "Correct" : `Review: ${answer.correctAnswer || answer.feedback || "Check the interaction evidence"}`
+    })) : [];
+    return parentPageShell("physics", `
+      <section class="bq-cockpit-status winter">
+        <div>
+          <p class="eyebrow">Bright Quest live pilot</p>
+          <h3>Force Is An Interaction</h3>
+          <p>${status.completed ? "The animated lesson is complete." : "The animated lesson has not yet been completed."} ${status.test ? `Latest Cockpit Check: ${status.test.score}/${status.test.total || 10}; best ${status.bestScore || status.test.score}/10.` : "The Cockpit Check has not yet been submitted."}</p>
+        </div>
+        <div class="bq-linked-actions">
+          <button class="button button-primary" type="button" data-open-game-url="${physics101Url(metrics.profile)}">Open Physics 101</button>
+        </div>
+      </section>
+      <section class="bq-two-column records">
+        <article>${recordBlock("Pilot progress", [
+          { label: "Animated lesson", value: status.completed ? "Complete" : "Pending" },
+          { label: "Watched", value: `${Math.round(status.watchedSeconds || 0)} seconds` },
+          { label: "Cockpit Check", value: status.test ? `${status.test.score}/${status.test.total || 10}` : "Pending" },
+          { label: "Attempts", value: String(status.attempts || 0) }
+        ])}</article>
+        <article>${recordBlock("Question evidence", answerRows.length ? answerRows : [{ label: "No result yet", value: "Complete the lesson, then submit the Cockpit Check." }])}</article>
+      </section>
+    `);
+  }
+
+  function physicsProgress(profile) {
+    let saved = {};
+    try {
+      saved = JSON.parse(localStorage.getItem("brightQuestPhysics101ProgressV1")) || {};
+    } catch {
+      saved = {};
+    }
+    const profileId = profile?.id || "demo-student";
+    const id = "force-is-an-interaction";
+    const local = saved[profileId]?.chapters?.[id] || saved["demo-student"]?.chapters?.[id] || {};
+    const profileChapter = profile?.physics101Progress?.chapters?.[id] || {};
+    const chapter = { ...local, ...profileChapter };
+    return {
+      completed: Boolean(chapter.completed || profile?.trainingCompleted?.[`physics-101-advanced-grade-4:${id}`]),
+      watchedSeconds: Math.max(Number(local.watchedSeconds) || 0, Number(profileChapter.watchedSeconds) || 0),
+      test: chapter.test || null,
+      bestScore: Math.max(Number(local.bestScore) || 0, Number(profileChapter.bestScore) || 0, Number(chapter.test?.score) || 0),
+      attempts: Math.max(Number(local.attempts) || 0, Number(profileChapter.attempts) || 0)
+    };
   }
 
   function chemistryReviewPanel(status) {
@@ -1547,6 +1627,7 @@
       writing: ["English and writing", "Writing Signals", "Saved writing responses and parent review signals."],
       games: ["Rewards", "Games & Rewards", "Unlocked and recommended Bright Quest game experiences."],
       chemistry: ["Bright Quest module", "Chemistry 101 Winter 2026", "Video chapter progress and chapter-test results."],
+      physics: ["Bright Quest live pilot", "Physics 101: Advanced Grade 4", "Animated force lesson, Cockpit Check and saved evidence reasoning."],
       "winter-2026": ["Linked module", "Winter 2026 Training 1", "Open AGMaths without moving its data."],
       records: ["Audit", "All Records", "Complete saved Bright Quest records remain accessible here."]
     }[route] || ["Parent cockpit", "Parent Cockpit", "Review saved progress."]);
