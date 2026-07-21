@@ -71,6 +71,7 @@ try {
 
   await evaluate("document.querySelector('#ccButton').click(); document.querySelector('#rewindButton').click(); document.querySelector('#stopButton').click(); true");
   await waitFor(() => evaluate("document.querySelector('#ccButton').getAttribute('aria-pressed') === 'true'"));
+  await evaluate("document.querySelector('#lessonVideo').load(); true");
   const videoReady = await waitFor(() => evaluate("Number.isFinite(document.querySelector('#lessonVideo').duration) && document.querySelector('#lessonVideo').duration > 190"), 15000);
   if (!videoReady) throw new Error("Video metadata did not load within 15 seconds.");
   await evaluate("(() => { const video=document.querySelector('#lessonVideo'); video.currentTime=video.duration*0.96; video.dispatchEvent(new Event('timeupdate')); video.dispatchEvent(new Event('ended')); return true; })()");
