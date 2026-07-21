@@ -9,7 +9,7 @@
     <link rel="icon" href="assets/relay7-rover.webp" type="image/webp" />
     <link rel="preload" href="assets/aether-city-mission-deck.webp" as="image" />
     <link rel="preload" href="assets/relay7-rover.webp" as="image" />
-    <link rel="stylesheet" href="mechshift-rescue.css?v=beacon-dock-004" />
+    <link rel="stylesheet" href="mechshift-rescue.css?v=mission-command-005" />
   </head>
   <body>
     <main id="mechshiftApp" class="mechshift-app" aria-label="Mechshift Rescue game">
@@ -90,15 +90,22 @@
 
       <section class="brief-screen overlay-screen hidden" id="briefScreen" aria-labelledby="briefTitle">
         <div class="brief-panel">
-          <div class="nimbus-portrait"><img src="assets/relay7-rover.webp" alt="Nimbus helper drone beside the pilot" /></div>
+          <div class="nimbus-portrait"><img id="briefFormImage" src="assets/relay7-rover.webp" alt="Relay-7 Rover form" /></div>
           <div class="brief-copy">
-            <p class="eyebrow" id="briefKicker">Nimbus mission brief</p>
-            <h2 id="briefTitle">Three systems. One rescue route.</h2>
-            <p id="briefText">Drive Relay-7 across the city. Choose the right form at each beacon, then build a rescue plan that works.</p>
-            <div class="brief-tips">
-              <span><kbd>←</kbd><kbd>→</kbd> Drive</span><span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> Transform</span><span><kbd>Space</kbd> Operate</span>
+            <p class="eyebrow" id="briefKicker">Commander Nimbus // Stage 1</p>
+            <h2 id="briefTitle">Rover to the Evac Dock</h2>
+            <p id="briefText">Your orders are shown and spoken before every stage.</p>
+            <div class="brief-form-callout"><span>Required form</span><strong id="briefFormName">Rover mode</strong></div>
+            <ol class="brief-orders" id="briefOrders">
+              <li><span>1</span><strong>Stay in Rover mode</strong></li>
+              <li><span>2</span><strong>Drive right to the amber beacon</strong></li>
+              <li><span>3</span><strong>Load the pods, then solve the capacity plan</strong></li>
+            </ol>
+            <div class="brief-actions">
+              <button class="primary-cta compact" id="briefContinueButton" type="button">Begin stage 1</button>
+              <button class="brief-replay" id="briefReplayButton" type="button" aria-label="Replay Commander Nimbus briefing">Replay briefing</button>
             </div>
-            <button class="primary-cta compact" id="briefContinueButton" type="button">Take control</button>
+            <p class="voice-disclosure">Commander voice is AI-generated.</p>
           </div>
         </div>
       </section>
@@ -145,6 +152,6 @@
     </main>
 
     <script src="vendor/phaser.min.js"></script>
-    <script src="mechshift-rescue.js?v=beacon-dock-004"></script>
+    <script src="mechshift-rescue.js?v=mission-command-005"></script>
   </body>
 </html>

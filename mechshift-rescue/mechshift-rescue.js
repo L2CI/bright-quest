@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const BUILD = "mechshift-beacon-dock-004";
+  const BUILD = "mechshift-mission-command-005";
   const FORMS = {
     rover: { name: "Rover", label: "Rover form", texture: "rover", charge: 2, speed: 0.0001 },
     lift: { name: "Lift", label: "Lift mech", texture: "lift", charge: 4, speed: 0.000075 },
@@ -15,7 +15,12 @@
       operate: "Load rescue pods",
       form: "rover",
       x: 0.22,
-      objective: "Evac dock awaiting Relay-7"
+      objective: "Evac dock awaiting Relay-7",
+      briefTitle: "Rover to the Evac Dock",
+      briefText: "Reach the dock, activate the loading system, then complete the passenger plan.",
+      briefForm: "Rover mode",
+      briefOrders: ["Stay in Rover mode", "Drive right to the amber beacon", "Load the pods, then solve the capacity plan"],
+      voiceFile: "assets/audio/commander-stage-1-rover.mp3"
     },
     {
       kicker: "Aether City / System 02",
@@ -24,7 +29,12 @@
       operate: "Power lift clamps",
       form: "lift",
       x: 0.54,
-      objective: "Power yard blocked by debris"
+      objective: "Power yard blocked by debris",
+      briefTitle: "Transform to Lift Mode",
+      briefText: "Change Relay-7 before moving, power the clamps, then complete the charge plan.",
+      briefForm: "Lift mode — button 2",
+      briefOrders: ["Transform into Lift mode", "Drive right to the cyan Power Yard", "Power the clamps, solve the charge, then wire each power cell"],
+      voiceFile: "assets/audio/commander-stage-2-lift.mp3"
     },
     {
       kicker: "Aether City / System 03",
@@ -33,7 +43,12 @@
       operate: "Deploy bridge route",
       form: "bridge",
       x: 0.84,
-      objective: "Sky gap needs a safe route"
+      objective: "Sky gap needs a safe route",
+      briefTitle: "Transform to Bridge Mode",
+      briefText: "Change Relay-7 for the sky gap, deploy the route, then plan the safe crossing.",
+      briefForm: "Bridge mode — button 3",
+      briefOrders: ["Transform into Bridge mode", "Drive right to the storm-side beacon", "Deploy the route, then order the rescue steps"],
+      voiceFile: "assets/audio/commander-stage-3-bridge.mp3"
     }
   ];
 
@@ -41,7 +56,8 @@
   const $$ = (selector) => Array.from(document.querySelectorAll(selector));
   const dom = {
     start: $("#startScreen"), startButton: $("#startButton"),
-    brief: $("#briefScreen"), briefButton: $("#briefContinueButton"),
+    brief: $("#briefScreen"), briefButton: $("#briefContinueButton"), briefReplay: $("#briefReplayButton"),
+    briefKicker: $("#briefKicker"), briefTitle: $("#briefTitle"), briefText: $("#briefText"), briefFormName: $("#briefFormName"), briefFormImage: $("#briefFormImage"), briefOrders: $("#briefOrders"),
     challenge: $("#challengeScreen"), challengeBody: $("#challengeBody"),
     challengeKicker: $("#challengeKicker"), challengeTitle: $("#challengeTitle"), challengeStory: $("#challengeStory"),
     challengeClose: $("#challengeCloseButton"), confirm: $("#confirmChallengeButton"), hintButton: $("#hintButton"), hintText: $("#hintText"),
@@ -165,11 +181,37 @@
   });
 
   class RescueAudio {
-    constructor() { this.ctx = null; this.muted = false; this.loop = null; this.step = 0; }
+    constructor() {
+      this.ctx = null;
+      this.muted = false;
+      this.voice = null;
+      this.voiceStage = null;
+      this.music = null;
+    }
+    ensureMusic() {
+      if (this.music) return;
+      const music = new Audio("assets/audio/mechshift-command-loop.webm");
+      this.music = music;
+      music.loop = true;
+      music.preload = "auto";
+      music.volume = .16;
+      music.addEventListener("error", () => {
+        if (!music.src.endsWith("mechshift-command-loop.wav")) {
+          music.src = "assets/audio/mechshift-command-loop.wav";
+          music.load();
+          if (state.started && !state.paused && !this.muted) music.play().catch(() => document.body.classList.add("audio-fallback"));
+          return;
+        }
+        document.body.classList.add("audio-fallback");
+      });
+    }
     start() {
       if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
       this.ctx.resume();
-      if (!this.loop) this.loop = setInterval(() => this.musicTick(), 760);
+      this.ensureMusic();
+      this.music.muted = this.muted;
+      this.setMusicMix();
+      if (this.music.paused) this.music.play().catch(() => document.body.classList.add("audio-fallback"));
     }
     tone(freq, duration = .12, type = "sine", volume = .035, slide = 0) {
       if (!this.ctx || this.muted) return;
@@ -185,12 +227,48 @@
       osc.connect(gain).connect(this.ctx.destination);
       osc.start(now); osc.stop(now + duration + .03);
     }
-    musicTick() {
-      if (!state.started || state.paused || state.challengeOpen || this.muted) return;
-      const notes = [110, 146.83, 164.81, 196, 164.81, 146.83, 123.47, 146.83];
-      const freq = notes[this.step++ % notes.length];
-      this.tone(freq, .5, "triangle", .014);
-      if (this.step % 4 === 0) this.tone(freq * 2, .2, "sine", .009);
+    setMusicMix() {
+      if (!this.music) return;
+      if (this.muted || state.paused) this.music.volume = 0;
+      else if (this.voice && !this.voice.paused) this.music.volume = .045;
+      else if (state.challengeOpen) this.music.volume = .095;
+      else if (!dom.brief.classList.contains("hidden")) this.music.volume = .075;
+      else this.music.volume = .16;
+    }
+    playBrief(stageIndex) {
+      const mission = MISSIONS[stageIndex];
+      if (!mission || this.muted) return;
+      this.stopVoice();
+      const voice = new Audio(mission.voiceFile);
+      this.voice = voice;
+      this.voiceStage = stageIndex;
+      voice.preload = "auto";
+      voice.volume = .98;
+      voice.addEventListener("playing", () => this.setMusicMix());
+      voice.addEventListener("ended", () => { if (this.voice === voice) this.voice = null; this.setMusicMix(); });
+      voice.addEventListener("error", () => { document.body.classList.add("audio-fallback"); if (this.voice === voice) this.voice = null; this.setMusicMix(); });
+      voice.play().catch(() => document.body.classList.add("audio-fallback"));
+      this.setMusicMix();
+    }
+    stopVoice() {
+      if (!this.voice) return;
+      this.voice.pause();
+      this.voice.currentTime = 0;
+      this.voice = null;
+      this.voiceStage = null;
+      this.setMusicMix();
+    }
+    setPaused(paused) {
+      if (paused) {
+        this.music?.pause();
+        this.voice?.pause();
+        this.ctx?.suspend();
+        return;
+      }
+      this.ctx?.resume();
+      if (state.started && !this.muted) this.music?.play().catch(() => document.body.classList.add("audio-fallback"));
+      if (this.voice && this.voice.paused && !this.muted) this.voice.play().catch(() => document.body.classList.add("audio-fallback"));
+      this.setMusicMix();
     }
     sfx(name) {
       if (name === "transform") { this.tone(140, .22, "sawtooth", .03, 420); setTimeout(() => this.tone(620, .12, "sine", .025), 120); }
@@ -200,27 +278,69 @@
       if (name === "success") [0, 110, 220].forEach((delay, i) => setTimeout(() => this.tone([392,523.25,659.25][i], .28, "triangle", .03), delay));
       if (name === "victory") [0,120,240,380].forEach((delay, i) => setTimeout(() => this.tone([261.63,392,523.25,783.99][i], .42, "triangle", .04), delay));
     }
-    toggle() { this.muted = !this.muted; return this.muted; }
+    toggle() {
+      this.muted = !this.muted;
+      if (this.music) this.music.muted = this.muted;
+      if (this.muted) this.stopVoice();
+      else if (state.started && !state.paused) this.music?.play().catch(() => document.body.classList.add("audio-fallback"));
+      this.setMusicMix();
+      return this.muted;
+    }
+    getState() {
+      return {
+        muted: this.muted,
+        musicReady: Boolean(this.music && this.music.readyState >= 1),
+        musicPaused: this.music ? this.music.paused : true,
+        musicVolume: this.music?.volume || 0,
+        voiceStage: this.voiceStage,
+        voicePlaying: Boolean(this.voice && !this.voice.paused)
+      };
+    }
   }
   const audio = new RescueAudio();
 
   function startMission() {
-    audio.start();
     state.started = true;
+    state.control = false;
     state.startedAt = Date.now();
     state.elapsed = 0;
+    audio.start();
     dom.start.classList.add("hidden");
-    dom.brief.classList.remove("hidden");
     state.scene?.tweens.add({ targets: state.sprite, alpha: 1, duration: state.reducedMotion ? 1 : 600, ease: "Sine.Out" });
     startTimer();
-    speak("Nimbus: Storm front incoming. Let’s build one safe route through the city.", 4600);
+    showStageBrief(0);
+  }
+
+  function showStageBrief(index) {
+    const mission = MISSIONS[index];
+    if (!mission) return;
+    state.control = false;
+    releaseDrive();
+    dom.briefKicker.textContent = `Commander Nimbus // Stage ${index + 1}`;
+    dom.briefTitle.textContent = mission.briefTitle;
+    dom.briefText.textContent = mission.briefText;
+    dom.briefFormName.textContent = mission.briefForm;
+    dom.briefFormImage.src = `assets/relay7-${mission.form}.webp`;
+    dom.briefFormImage.alt = `Relay-7 ${FORMS[mission.form].name} form`;
+    dom.briefOrders.innerHTML = mission.briefOrders.map((order, orderIndex) => `<li><span>${orderIndex + 1}</span><strong>${order}</strong></li>`).join("");
+    dom.briefButton.textContent = `Begin stage ${index + 1}`;
+    dom.brief.classList.remove("hidden");
+    speak(`Stage ${index + 1}: ${mission.briefOrders.join(". ")}.`, 7200);
+    audio.playBrief(index);
+    audio.setMusicMix();
   }
 
   function takeControl() {
+    audio.stopVoice();
     dom.brief.classList.add("hidden");
     state.control = true;
     updateMissionHud();
-    speak("Drive right to the amber Evac Dock beacon. Rover form is ready.", 3800);
+    audio.setMusicMix();
+    const mission = MISSIONS[state.mission];
+    const action = state.form === mission.form
+      ? `Hold right and drive to the rescue beacon.`
+      : `Transform to ${FORMS[mission.form].name} mode, then hold right and drive to the rescue beacon.`;
+    speak(action, 4200);
   }
 
   function startTimer() {
@@ -316,11 +436,13 @@
       dom.operateIcon.src = `assets/relay7-${mission.form}.webp`;
       dom.operate.querySelector(":scope > span").textContent = action;
       dom.operate.setAttribute("aria-label", action);
-      dom.missionInstruction.textContent = ready ? `Ready — tap ${mission.operate}.` : `Tap Switch to ${FORMS[mission.form].name}, then load.`;
+      dom.missionInstruction.textContent = ready ? `Ready — tap ${mission.operate}.` : `Tap Switch to ${FORMS[mission.form].name}, then ${mission.operate.toLowerCase()}.`;
       return;
     }
     const direction = state.playerX < mission.x ? "RIGHT" : "LEFT";
-    dom.missionInstruction.textContent = `Hold ${direction} — Relay-7 stops at the rescue beacon.`;
+    dom.missionInstruction.textContent = state.form === mission.form
+      ? `Hold ${direction} — Relay-7 stops at the rescue beacon.`
+      : `Transform to ${FORMS[mission.form].name}, then hold ${direction}.`;
   }
 
   function operate() {
@@ -349,12 +471,14 @@
     dom.challenge.classList.remove("hidden");
     renderChallenge(index);
     audio.sfx("select");
+    audio.setMusicMix();
   }
 
   function closeChallenge() {
     state.challengeOpen = false;
     dom.challenge.classList.add("hidden");
     updateProximity();
+    audio.setMusicMix();
   }
 
   function renderChallenge(index) {
@@ -366,7 +490,7 @@
   function renderCapacity() {
     dom.challengeKicker.textContent = "System 1 / Evac dock";
     dom.challengeTitle.textContent = "Set the passenger capacity";
-    dom.challengeStory.innerHTML = `<strong>Three pods hold 8 people each.</strong> Five seats must stay reserved for medics. Find the passenger capacity, then load every waiting group without overfilling a pod.`;
+    dom.challengeStory.innerHTML = `<strong>Three pods hold 8 people each.</strong> Five seats must stay reserved for medics. Find the passenger capacity, then load every waiting group without overfilling a pod.<span class="challenge-order"><b>Your mission:</b> Enter the capacity, then tap a group and tap the pod that should carry it.</span>`;
     state.challengeData = {
       answer: "",
       capacities: [6, 6, 7],
@@ -417,7 +541,7 @@
   function renderPower() {
     dom.challengeKicker.textContent = "System 2 / Power yard";
     dom.challengeTitle.textContent = "Build the lift power plan";
-    dom.challengeStory.innerHTML = `<strong>Six racks carry 24 charge units each.</strong> The bridge system must keep 38 units. Find what remains, then power the lift and two stabiliser boosts without draining the reserve.`;
+    dom.challengeStory.innerHTML = `<strong>Six racks carry 24 charge units each.</strong> The bridge system must keep 38 units. Find what remains, then power the lift and two stabiliser boosts without draining the reserve.<span class="challenge-order"><b>Your mission:</b> Enter the usable charge, then tap a power cell and its matching socket.</span>`;
     state.challengeData = {
       answer: "", targets: { lift: null, boostA: null, boostB: null, reserve: null },
       chips: [{ id: "p60", value: 60 }, { id: "p20a", value: 20 }, { id: "p20b", value: 20 }, { id: "p6", value: 6 }, { id: "p4", value: 4 }],
@@ -460,7 +584,7 @@
   function renderTimeline() {
     dom.challengeKicker.textContent = "System 3 / Sky gap";
     dom.challengeTitle.textContent = "Program the safe crossing";
-    dom.challengeStory.innerHTML = `<strong>The storm closes the route in 11 minutes.</strong> Stabilising the east ramp takes 3 minutes, locking Relay-7 takes 2, and returning with the pods takes 4. Put the actions in a safe order and preserve a time buffer.`;
+    dom.challengeStory.innerHTML = `<strong>The storm closes the route in 11 minutes.</strong> Stabilising the east ramp takes 3 minutes, locking Relay-7 takes 2, and returning with the pods takes 4. Put the actions in a safe order and preserve a time buffer.<span class="challenge-order"><b>Your mission:</b> Tap an action, then tap its next empty route slot. Use three safe steps.</span>`;
     state.challengeData = {
       slots: [null, null, null],
       chips: [{ id: "stabilise", label: "Stabilise east ramp", value: 3 }, { id: "lock", label: "Lock bridge form", value: 2 }, { id: "return", label: "Return with pods", value: 4 }, { id: "scan", label: "Repeat full scan", value: 5 }],
@@ -540,8 +664,7 @@
       document.body.classList.remove("near-beacon");
       dom.operate.classList.add("hidden");
       updateMissionHud();
-      const mission = MISSIONS[state.mission];
-      speak(`System restored. Next: ${mission.title}.`, 3000);
+      showStageBrief(state.mission);
     }, state.reducedMotion ? 500 : 1200);
   }
 
@@ -581,6 +704,8 @@
     state.docked = false;
     document.body.classList.remove("near-beacon");
     dom.operate.classList.add("hidden");
+    audio.stopVoice();
+    audio.setMusicMix();
     audio.sfx("victory");
     const scene = state.scene;
     if (!scene) return showResults();
@@ -612,6 +737,7 @@
     releaseDrive();
     dom.pause.classList.toggle("hidden", !next);
     if (next) game.scene.pause("mission"); else game.scene.resume("mission");
+    audio.setPaused(next);
   }
 
   function toggleMotion() {
@@ -647,6 +773,7 @@
 
   dom.startButton.addEventListener("click", startMission);
   dom.briefButton.addEventListener("click", takeControl);
+  dom.briefReplay.addEventListener("click", () => { audio.start(); audio.playBrief(state.mission); });
   dom.operate.addEventListener("click", operate);
   dom.challengeClose.addEventListener("click", closeChallenge);
   dom.confirm.addEventListener("click", confirmChallenge);
@@ -692,15 +819,17 @@
 
   window.__MECHSHIFT_QA__ = {
     build: BUILD,
-    getState: () => ({ mission: state.mission, completed: state.completed, form: state.form, playerX: state.playerX, docked: state.docked, challengeOpen: state.challengeOpen }),
+    getState: () => ({ mission: state.mission, completed: state.completed, form: state.form, playerX: state.playerX, docked: state.docked, challengeOpen: state.challengeOpen, briefingOpen: !dom.brief.classList.contains("hidden") }),
+    getAudioState: () => audio.getState(),
     getVisualMetrics: () => ({
       canvas: { width: game.canvas.width, height: game.canvas.height, clientWidth: game.canvas.clientWidth, clientHeight: game.canvas.clientHeight },
       cityScale: { x: state.scene?.city?.scaleX || 0, y: state.scene?.city?.scaleY || 0 },
       vehicleScale: { x: state.scene?.sprite?.scaleX || 0, y: state.scene?.sprite?.scaleY || 0 }
     }),
     start: () => { if (!state.started) startMission(); takeControl(); },
-    gotoMission: (index) => { state.mission = Math.max(0, Math.min(2,index)); state.completed = state.mission; state.playerX = MISSIONS[state.mission].x; state.docked = true; state.scene?.placeVehicle(); selectForm(MISSIONS[state.mission].form, false); updateObjectives(); updateMissionHud(); },
-    openChallenge: (index) => { state.mission = index; state.completed = index; state.playerX = MISSIONS[index].x; state.docked = true; state.form = MISSIONS[index].form; state.scene?.sprite.setTexture(FORMS[state.form].texture); state.scene?.placeVehicle(); openChallenge(index); },
+    showBrief: (index) => { state.mission = Math.max(0, Math.min(2, index)); state.completed = state.mission; updateObjectives(); updateMissionHud(); showStageBrief(state.mission); },
+    gotoMission: (index) => { audio.stopVoice(); dom.brief.classList.add("hidden"); state.control = true; state.mission = Math.max(0, Math.min(2,index)); state.completed = state.mission; state.playerX = MISSIONS[state.mission].x; state.docked = true; state.scene?.placeVehicle(); selectForm(MISSIONS[state.mission].form, false); updateObjectives(); updateMissionHud(); audio.setMusicMix(); },
+    openChallenge: (index) => { audio.stopVoice(); dom.brief.classList.add("hidden"); state.control = true; state.mission = index; state.completed = index; state.playerX = MISSIONS[index].x; state.docked = true; state.form = MISSIONS[index].form; state.scene?.sprite.setTexture(FORMS[state.form].texture); state.scene?.placeVehicle(); openChallenge(index); },
     solveCurrent: () => {
       if (state.mission === 0) { state.challengeData.answer = "19"; state.challengeData.groups.forEach((g,i) => { g.pod = [0,0,2,2,1][i]; }); }
       if (state.mission === 1) { state.challengeData.answer = "106"; state.challengeData.targets = { lift:"p60",boostA:"p20a",boostB:"p20b",reserve:"p6" }; }

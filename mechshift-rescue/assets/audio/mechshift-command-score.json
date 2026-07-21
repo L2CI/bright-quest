@@ -1,0 +1,247 @@
+{
+  "generator": "OpenAI Responses API",
+  "model": "gpt-5.6-sol",
+  "originalWork": true,
+  "intendedUse": "Mechshift Rescue background music",
+  "title": "Skybridge Rescue Shift",
+  "bpm": 96,
+  "key": "D minor",
+  "mood": "Confident futuristic rescue adventure with warm heroism, hopeful momentum, and controlled child-friendly excitement",
+  "chords": [
+    [
+      50,
+      57,
+      65
+    ],
+    [
+      46,
+      53,
+      62
+    ],
+    [
+      48,
+      53,
+      57
+    ],
+    [
+      48,
+      55,
+      64
+    ],
+    [
+      50,
+      57,
+      65
+    ],
+    [
+      43,
+      50,
+      58
+    ],
+    [
+      46,
+      53,
+      62
+    ],
+    [
+      45,
+      52,
+      61
+    ]
+  ],
+  "bass": [
+    38,
+    33,
+    38,
+    33,
+    34,
+    41,
+    34,
+    41,
+    41,
+    36,
+    41,
+    36,
+    36,
+    31,
+    36,
+    31,
+    38,
+    33,
+    38,
+    41,
+    31,
+    38,
+    31,
+    38,
+    34,
+    41,
+    34,
+    41,
+    33,
+    40,
+    33,
+    40
+  ],
+  "arp": [
+    62,
+    69,
+    65,
+    69,
+    74,
+    69,
+    65,
+    69,
+    58,
+    65,
+    62,
+    65,
+    70,
+    65,
+    62,
+    65,
+    60,
+    65,
+    69,
+    65,
+    72,
+    69,
+    65,
+    69,
+    60,
+    67,
+    64,
+    67,
+    72,
+    67,
+    64,
+    67,
+    62,
+    69,
+    65,
+    69,
+    74,
+    72,
+    69,
+    65,
+    55,
+    62,
+    58,
+    62,
+    67,
+    62,
+    58,
+    62,
+    58,
+    65,
+    62,
+    65,
+    70,
+    74,
+    70,
+    65,
+    57,
+    64,
+    61,
+    64,
+    69,
+    64,
+    61,
+    64
+  ],
+  "brass": [
+    {
+      "beat": 0,
+      "notes": [
+        62,
+        65,
+        69
+      ],
+      "length": 0.75,
+      "velocity": 0.72
+    },
+    {
+      "beat": 7.5,
+      "notes": [
+        58,
+        62,
+        65
+      ],
+      "length": 0.5,
+      "velocity": 0.58
+    },
+    {
+      "beat": 8,
+      "notes": [
+        60,
+        65,
+        69
+      ],
+      "length": 1,
+      "velocity": 0.7
+    },
+    {
+      "beat": 14.5,
+      "notes": [
+        60,
+        64,
+        67
+      ],
+      "length": 0.5,
+      "velocity": 0.56
+    },
+    {
+      "beat": 16,
+      "notes": [
+        62,
+        65,
+        69
+      ],
+      "length": 0.75,
+      "velocity": 0.76
+    },
+    {
+      "beat": 22,
+      "notes": [
+        55,
+        58,
+        62
+      ],
+      "length": 0.75,
+      "velocity": 0.62
+    },
+    {
+      "beat": 24,
+      "notes": [
+        58,
+        62,
+        65
+      ],
+      "length": 1,
+      "velocity": 0.72
+    },
+    {
+      "beat": 30.5,
+      "notes": [
+        57,
+        61,
+        64
+      ],
+      "length": 0.75,
+      "velocity": 0.68
+    }
+  ],
+  "accentBeats": [
+    0,
+    3,
+    8,
+    11.5,
+    16,
+    19,
+    24,
+    27.5,
+    30,
+    31.5
+  ],
+  "mixNotes": "Render as an exact 20-second loop. Use warm compact strings, rounded short brass, a soft mono synth engine below 120 Hz, and a clean glassy eighth-note arpeggio. Add a restrained brushed-electronic snare cadence only on selected accents, with light kick pulses and no aggressive impacts. Keep 1.5-4 kHz uncluttered for spoken instructions and apply gentle voice-triggered music ducking. Use short bright ambience, controlled transients, wide upper textures, and a centered low end. Print wrapped ambience from the previous pass into beat 0 and leave the final 0.75 beat brass-free so the A-major tension resolves cleanly into the opening D minor without a seam. No vocals, alarms, weapon-like effects, distortion, or franchise-style motifs."
+}

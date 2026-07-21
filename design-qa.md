@@ -27,11 +27,14 @@ The build keeps the approved painted cinematic direction: the same cobalt-and-or
 - Touch drive controls are at least 88 x 68 px, sit on opposite device edges, and do not overlap the objective or transform controls: passed.
 - No horizontal overflow on desktop; landscape tablet renders correctly; short-phone canvas and painted assets preserve equal X/Y scale; portrait shows rotation guidance: passed.
 - Wrong choices recover in place and do not shame or end the mission: passed.
+- Every stage opens with three compact mission orders that name the required form, driving/action sequence, and the follow-on maths interaction: passed.
+- Commander Nimbus briefings are prerecorded OpenAI TTS media with visible replay, transcript-equivalent orders, AI-voice disclosure, and mute/pause handling: passed.
 
 ## Functional and performance checks
 
-- 56 automated browser checks passed with no page exceptions, console errors, or failed required responses.
+- 77 automated browser checks passed with no page exceptions, console errors, or failed required responses.
 - All three multi-step Grade 4 systems and the completion save were exercised end to end.
+- The original 20-second `Skybridge Rescue Shift` loop was composed from an OpenAI-generated score specification, rendered locally, compressed to a 243 KB Opus game asset with WAV fallback, and verified at runtime with voice ducking.
 - Production game art uses compressed WebP assets; the Phaser runtime is stored locally and requires no third-party CDN.
 - Local Pages Functions/D1 verification passed: parent confirmation required, honeypot rejected, signup created, child nominated, and active child selected. Only synthetic local QA data was used.
 
@@ -47,5 +50,8 @@ The build keeps the approved painted cinematic direction: the same cobalt-and-or
 - Reduced drive speed, added automatic stopping at every rescue beacon, and locked Relay-7 in place until the child chooses the visible rescue action.
 - Added a no-penalty wrong-form recovery button that switches to the required form, then reveals the actual mission action.
 - Contained direction and objective labels at short-phone, tablet, standard desktop, and the reported 2048 x 1076 wide-screen viewport.
+- Added automatic Stage 1, Lift, and Bridge briefing overlays, plus explicit “your mission” instructions inside all three maths systems.
+- Reduced oversized title, briefing, challenge, result, equation, and number-entry typography without shrinking the touch targets.
+- Added three OpenAI-generated baritone commander recordings, a replay control, a cinematic soundtrack, and one Sound control that governs voice, music, and effects together.
 
 final result: passed

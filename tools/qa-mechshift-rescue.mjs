@@ -18,13 +18,14 @@ const OUT = resolve("qa-screens/mechshift-rescue");
 await mkdir(OUT, { recursive: true });
 
 const report = {
-  build: "mechshift-beacon-dock-004",
+  build: "mechshift-mission-command-005",
   baseUrl: BASE,
   startedAt: new Date().toISOString(),
   checks: [],
   consoleErrors: [],
   pageErrors: [],
   failedResponses: [],
+  screenshotCount: 0,
   metrics: {}
 };
 
@@ -47,19 +48,31 @@ function watch(page, label) {
 
 async function screenshot(page, name) {
   await page.screenshot({ path: resolve(OUT, name), type: "png", fullPage: false });
+  report.screenshotCount += 1;
 }
 
 try {
   const desktop = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
   watch(desktop, "game-desktop");
   await desktop.goto(`${BASE}/mechshift-rescue/`, { waitUntil: "networkidle" });
-  await desktop.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-beacon-dock-004");
+  await desktop.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-mission-command-005");
   check("game route loads", await desktop.title() === "Mechshift Rescue | Bright Quest", await desktop.title());
-  check("reference build marker present", await desktop.evaluate(() => window.__MECHSHIFT_QA__.build) === "mechshift-beacon-dock-004");
+  check("reference build marker present", await desktop.evaluate(() => window.__MECHSHIFT_QA__.build) === "mechshift-mission-command-005");
   await screenshot(desktop, "01-start-desktop.png");
 
   await desktop.getByRole("button", { name: "Launch rescue" }).click();
-  await desktop.getByRole("button", { name: "Take control" }).click();
+  check("stage 1 mission orders appear before control", await desktop.getByRole("heading", { name: "Rover to the Evac Dock" }).isVisible());
+  check("stage 1 names the required Rover form", await desktop.getByText("Rover mode", { exact: true }).isVisible());
+  check("stage 1 gives three physical and maths orders", await desktop.locator("#briefOrders li").count() === 3, await desktop.locator("#briefOrders").innerText());
+  check("AI commander voice is disclosed", await desktop.getByText("Commander voice is AI-generated.").isVisible());
+  const typography = await desktop.evaluate(() => ({ start: parseFloat(getComputedStyle(document.querySelector("#startTitle")).fontSize), brief: parseFloat(getComputedStyle(document.querySelector("#briefTitle")).fontSize) }));
+  check("display typography is restrained", typography.start <= 88 && typography.brief <= 40, JSON.stringify(typography));
+  await desktop.waitForFunction(() => { const audio = window.__MECHSHIFT_QA__.getAudioState(); return audio.musicReady && audio.voicePlaying; }, null, { timeout: 5000 });
+  const launchAudio = await desktop.evaluate(() => window.__MECHSHIFT_QA__.getAudioState());
+  check("OpenAI commander briefing starts", launchAudio.voiceStage === 0 && launchAudio.voicePlaying, JSON.stringify(launchAudio));
+  check("mission soundtrack starts without blocking", launchAudio.musicReady && !launchAudio.musicPaused, JSON.stringify(launchAudio));
+  await screenshot(desktop, "02-stage-1-briefing.png");
+  await desktop.getByRole("button", { name: "Begin stage 1" }).click();
   await desktop.waitForTimeout(350);
   await screenshot(desktop, "02-roadway-desktop.png");
 
@@ -99,27 +112,48 @@ try {
   check("reduced motion toggles", await desktop.getByRole("button", { name: "Reduced motion: on" }).isVisible());
   await desktop.getByRole("button", { name: "Resume rescue" }).click();
 
+  await desktop.getByRole("button", { name: "Mute sound" }).click();
+  check("sound control mutes music and voice together", (await desktop.evaluate(() => window.__MECHSHIFT_QA__.getAudioState())).muted);
+  await desktop.getByRole("button", { name: "Mute sound" }).click();
+  check("sound control restores the soundtrack", !(await desktop.evaluate(() => window.__MECHSHIFT_QA__.getAudioState())).muted);
+
   await desktop.evaluate(() => window.__MECHSHIFT_QA__.openChallenge(0));
   await desktop.waitForTimeout(150);
   check("capacity challenge opens", await desktop.getByRole("heading", { name: "Set the passenger capacity" }).isVisible());
+  check("capacity challenge explains what to do with the maths", (await desktop.locator(".challenge-order").innerText()).includes("tap a group"));
   await screenshot(desktop, "03-capacity-system.png");
   await desktop.evaluate(() => window.__MECHSHIFT_QA__.solveCurrent());
   await desktop.waitForFunction(() => window.__MECHSHIFT_QA__.getState().completed === 1);
-  await desktop.waitForTimeout(700);
+  await desktop.waitForFunction(() => window.__MECHSHIFT_QA__.getState().briefingOpen, null, { timeout: 3500 });
+  check("stage 2 briefing appears automatically", await desktop.getByRole("heading", { name: "Transform to Lift Mode" }).isVisible());
+  check("stage 2 names Lift button 2 and the next maths interaction", /Lift mode[\s\S]*button 2/i.test(await desktop.locator("#briefScreen").innerText()) && /power cell/i.test(await desktop.locator("#briefOrders").innerText()));
+  check("stage 2 commander briefing plays", await desktop.evaluate(() => { const audio = window.__MECHSHIFT_QA__.getAudioState(); return audio.voiceStage === 1 && audio.voicePlaying; }));
+  await screenshot(desktop, "04-stage-2-briefing.png");
+  await desktop.getByRole("button", { name: "Begin stage 2" }).click();
+  check("roadway repeats the Lift transformation order", /Transform to Lift/i.test(await desktop.locator("#missionInstruction").innerText()));
+  await desktop.getByRole("button", { name: /Lift/ }).click();
+  check("student can perform the required Lift transformation", (await desktop.evaluate(() => window.__MECHSHIFT_QA__.getState())).form === "lift");
 
   await desktop.evaluate(() => window.__MECHSHIFT_QA__.gotoMission(1));
   check("Power Yard docking exposes its action", await desktop.getByRole("button", { name: "Power lift clamps" }).isVisible());
   await desktop.getByRole("button", { name: "Power lift clamps" }).click();
   check("power challenge opens", await desktop.getByRole("heading", { name: "Build the lift power plan" }).isVisible());
+  check("power challenge explains the wiring interaction", (await desktop.locator(".challenge-order").innerText()).includes("matching socket"));
   await screenshot(desktop, "04-power-system.png");
   await desktop.evaluate(() => window.__MECHSHIFT_QA__.solveCurrent());
   await desktop.waitForFunction(() => window.__MECHSHIFT_QA__.getState().completed === 2);
-  await desktop.waitForTimeout(700);
+  await desktop.waitForFunction(() => window.__MECHSHIFT_QA__.getState().briefingOpen, null, { timeout: 3500 });
+  check("stage 3 briefing appears automatically", await desktop.getByRole("heading", { name: "Transform to Bridge Mode" }).isVisible());
+  check("stage 3 names Bridge button 3 and route ordering", /Bridge mode[\s\S]*button 3/i.test(await desktop.locator("#briefScreen").innerText()) && /order the rescue steps/i.test(await desktop.locator("#briefOrders").innerText()));
+  check("stage 3 commander briefing plays", await desktop.evaluate(() => { const audio = window.__MECHSHIFT_QA__.getAudioState(); return audio.voiceStage === 2 && audio.voicePlaying; }));
+  await screenshot(desktop, "05-stage-3-briefing.png");
+  await desktop.getByRole("button", { name: "Begin stage 3" }).click();
 
   await desktop.evaluate(() => window.__MECHSHIFT_QA__.gotoMission(2));
   check("Sky Gap docking exposes its action", await desktop.getByRole("button", { name: "Deploy bridge route" }).isVisible());
   await desktop.getByRole("button", { name: "Deploy bridge route" }).click();
   check("timeline challenge opens", await desktop.getByRole("heading", { name: "Program the safe crossing" }).isVisible());
+  check("timeline challenge explains how to place route steps", (await desktop.locator(".challenge-order").innerText()).includes("next empty route slot"));
   await screenshot(desktop, "05-timeline-system.png");
   await desktop.evaluate(() => window.__MECHSHIFT_QA__.solveCurrent());
   await desktop.waitForFunction(() => window.__MECHSHIFT_QA__.getState().completed === 3);
@@ -144,9 +178,9 @@ try {
   const wide = await browser.newPage({ viewport: { width: 2048, height: 1076 }, deviceScaleFactor: 1 });
   watch(wide, "game-wide-desktop");
   await wide.goto(`${BASE}/mechshift-rescue/`, { waitUntil: "networkidle" });
-  await wide.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-beacon-dock-004");
+  await wide.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-mission-command-005");
   await wide.getByRole("button", { name: "Launch rescue" }).click();
-  await wide.getByRole("button", { name: "Take control" }).click();
+  await wide.getByRole("button", { name: "Begin stage 1" }).click();
   await wide.evaluate(() => window.__MECHSHIFT_QA__.gotoMission(0));
   check("wide desktop keeps the load action visible", await wide.getByRole("button", { name: "Load rescue pods" }).isVisible());
   const wideLayout = await wide.evaluate(() => {
@@ -161,10 +195,10 @@ try {
   const tablet = await browser.newPage({ viewport: { width: 1180, height: 820 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
   watch(tablet, "game-tablet");
   await tablet.goto(`${BASE}/mechshift-rescue/`, { waitUntil: "networkidle" });
-  await tablet.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-beacon-dock-004");
+  await tablet.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-mission-command-005");
   await screenshot(tablet, "07-start-tablet.png");
   await tablet.getByRole("button", { name: "Launch rescue" }).click();
-  await tablet.getByRole("button", { name: "Take control" }).click();
+  await tablet.getByRole("button", { name: "Begin stage 1" }).click();
   await tablet.waitForTimeout(200);
   await screenshot(tablet, "08-roadway-tablet.png");
   check("tablet roadway renders", await tablet.locator("canvas").isVisible());
@@ -192,14 +226,22 @@ try {
   const shortPhone = await browser.newPage({ viewport: { width: 740, height: 320 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
   watch(shortPhone, "game-short-landscape");
   await shortPhone.goto(`${BASE}/mechshift-rescue/`, { waitUntil: "networkidle" });
-  await shortPhone.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-beacon-dock-004");
+  await shortPhone.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-mission-command-005");
   const launchBox = await shortPhone.getByRole("button", { name: "Launch rescue" }).boundingBox();
   check("short landscape launch is fully visible", launchBox && launchBox.y >= 0 && launchBox.y + launchBox.height <= 320, JSON.stringify(launchBox));
   await screenshot(shortPhone, "09-short-landscape-launch.png");
   await shortPhone.getByRole("button", { name: "Launch rescue" }).click();
-  const controlBox = await shortPhone.getByRole("button", { name: "Take control" }).boundingBox();
+  const controlBox = await shortPhone.getByRole("button", { name: "Begin stage 1" }).boundingBox();
   check("short landscape mission brief action is fully visible", controlBox && controlBox.y >= 0 && controlBox.y + controlBox.height <= 320, JSON.stringify(controlBox));
-  await shortPhone.getByRole("button", { name: "Take control" }).click();
+  const phoneBriefLayout = await shortPhone.evaluate(() => {
+    const panel = document.querySelector(".brief-panel");
+    const box = panel.getBoundingClientRect();
+    const labels = [...document.querySelectorAll(".brief-orders li, .brief-actions button")].map((element) => ({ text: element.textContent.trim(), fitsWidth: element.scrollWidth <= element.clientWidth + 1, fitsHeight: element.scrollHeight <= element.clientHeight + 1 }));
+    return { box: { top: box.top, bottom: box.bottom, height: box.height }, labels, viewportHeight: innerHeight };
+  });
+  check("short landscape mission orders fit without scrolling or overflow", phoneBriefLayout.box.top >= 0 && phoneBriefLayout.box.bottom <= phoneBriefLayout.viewportHeight && phoneBriefLayout.labels.every((item) => item.fitsWidth && item.fitsHeight), JSON.stringify(phoneBriefLayout));
+  await screenshot(shortPhone, "10-short-landscape-briefing.png");
+  await shortPhone.getByRole("button", { name: "Begin stage 1" }).click();
   check("short landscape game canvas renders", await shortPhone.locator("canvas").isVisible());
   await shortPhone.waitForTimeout(250);
   await screenshot(shortPhone, "10-short-landscape-gameplay.png");
@@ -301,4 +343,4 @@ try {
   await browser.close();
 }
 
-console.log(JSON.stringify({ result: report.result, checks: report.checks.length, screenshots: 12, report: resolve(OUT, "qa-report.json") }, null, 2));
+console.log(JSON.stringify({ result: report.result, checks: report.checks.length, screenshots: report.screenshotCount, report: resolve(OUT, "qa-report.json") }, null, 2));
