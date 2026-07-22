@@ -9,7 +9,7 @@ const ffmpeg = path.join(userHome, ".codex", "skills", "animation-qa-scanner", "
 const ffprobe = path.join(userHome, ".codex", "skills", "animation-qa-scanner", "assets", "bin", "ffprobe.exe");
 const courseDir = path.join(root, "physics-training", "physics-101-advanced-grade-4");
 const dataFile = path.join(courseDir, "data", "physics-101-course.json");
-const renderScript = path.join(root, "tools", "render_physics_chapter_01.py");
+const renderScript = path.join(root, "tools", "render_physics_chapter_01_motion.py");
 const workDir = path.join(root, "outputs", "physics-101-pilot-media");
 const segmentsDir = path.join(workDir, "voice-segments");
 const targetSeconds = 205;
@@ -91,7 +91,15 @@ async function main() {
   });
 
   const timelinePath = path.join(courseDir, "assets", "timelines", "chapter-01.json");
-  await fs.writeFile(timelinePath, `${JSON.stringify({ release: course.release, duration: round(audioDuration), cues: timeline }, null, 2)}\n`, "utf8");
+  const actions = timeline.map((cue) => ({
+    id: cue.id,
+    start: cue.start,
+    end: cue.beatEnd,
+    narration: cue.text,
+    expected_action: cue.visual,
+    board_region: "demonstration-stage",
+  }));
+  await fs.writeFile(timelinePath, `${JSON.stringify({ release: course.release, duration: round(audioDuration), cues: timeline, actions }, null, 2)}\n`, "utf8");
   await fs.writeFile(path.join(courseDir, "assets", "captions", "chapter-01.vtt"), buildVtt(timeline), "utf8");
 
   const silentName = "physics-chapter-01-silent";
@@ -103,7 +111,7 @@ async function main() {
     "--fps", "8",
     "-o", silentName,
     renderScript,
-    "PhysicsChapter01",
+    "PhysicsChapter01Motion",
   ], {
     BQ_TIMELINE_PATH: timelinePath,
     BQ_PHYSICS_COURSE_DIR: courseDir,
@@ -112,8 +120,9 @@ async function main() {
   const silentVideo = await findFile(workDir, `${silentName}.mp4`);
   const videoPath = path.join(courseDir, "assets", "videos", "chapter-01.mp4");
   await run(ffmpeg, [
-    "-y", "-i", silentVideo, "-i", audioPath,
+    "-y", "-ss", "0.5", "-i", silentVideo, "-i", audioPath,
     "-map", "0:v:0", "-map", "1:a:0",
+    "-vf", "tpad=stop_mode=clone:stop_duration=0.5",
     "-c:v", "libx264", "-preset", "medium", "-crf", "22",
     "-c:a", "aac", "-b:a", "160k",
     "-shortest", "-movflags", "+faststart", videoPath,

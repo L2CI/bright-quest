@@ -4,16 +4,19 @@ import { spawn } from "node:child_process";
 
 const root = process.cwd();
 const chromePath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
-const baseUrl = "http://localhost:4173/physics-training/physics-101-advanced-grade-4/";
+const browserPath = process.env.BQ_BROWSER_PATH || chromePath;
+const browserName = process.env.BQ_BROWSER_NAME || "Google Chrome headless";
+const baseUrl = process.env.BQ_QA_BASE_URL || "http://localhost:4173/physics-training/physics-101-advanced-grade-4/";
 const evidenceDir = path.join(root, "outputs", "physics-101-qa");
 const profileDir = path.join(evidenceDir, `chrome-profile-${Date.now()}`);
 const port = 9334;
 let nextId = 1;
 const pending = new Map();
 const events = [];
+const keepAlive = setInterval(() => {}, 1000);
 
 await fs.mkdir(evidenceDir, { recursive: true });
-const chrome = spawn(chromePath, [
+const chrome = spawn(browserPath, [
   "--headless=new",
   "--disable-gpu",
   "--hide-scrollbars",
@@ -112,8 +115,8 @@ try {
   ).map((event) => ({ method: event.method, params: event.params }));
 
   const report = {
-    release: "physics-101-pilot-001",
-    browser: "Google Chrome headless",
+    release: "physics-101-motion-002",
+    browser: browserName,
     route: baseUrl,
     results,
     browserErrors,
@@ -124,6 +127,7 @@ try {
   ws.close();
   if (!report.passed) process.exitCode = 1;
 } finally {
+  clearInterval(keepAlive);
   chrome.kill();
 }
 
