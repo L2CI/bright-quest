@@ -121,7 +121,7 @@ try {
   ).map((event) => ({ method: event.method, params: event.params }));
 
   const report = {
-    release: "physics-101-motion-003",
+    release: "physics-101-motion-004",
     browser: browserName,
     route: baseUrl,
     results,
