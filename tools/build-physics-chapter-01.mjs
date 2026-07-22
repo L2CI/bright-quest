@@ -15,8 +15,7 @@ const segmentsDir = path.join(workDir, "voice-segments");
 const targetSeconds = 205;
 
 async function main() {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) throw new Error("OPENAI_API_KEY is not available in this session.");
+  const apiKey = process.env.OPENAI_API_KEY || "";
 
   const course = JSON.parse(await fs.readFile(dataFile, "utf8"));
   const chapter = course.chapters.find((entry) => entry.number === 1);
@@ -38,10 +37,12 @@ async function main() {
     const segmentPath = path.join(segmentsDir, `${String(index + 1).padStart(2, "0")}-${segment.id}.mp3`);
     let duration = await reusableSpeechDuration(segmentPath);
     if (!duration) {
+      if (!apiKey) throw new Error(`Reusable voice segment is missing: ${segment.id}. OPENAI_API_KEY is required only to regenerate missing speech.`);
       await createSpeech(apiKey, segment, segmentPath);
       duration = await mediaDuration(segmentPath);
     }
     if (duration < 5) {
+      if (!apiKey) throw new Error(`Reusable voice segment is too short: ${segment.id}. OPENAI_API_KEY is required only to regenerate invalid speech.`);
       await createSpeech(apiKey, segment, segmentPath);
       duration = await mediaDuration(segmentPath);
     }
@@ -117,7 +118,9 @@ async function main() {
     BQ_PHYSICS_COURSE_DIR: courseDir,
   });
 
-  const silentVideo = await findFile(workDir, `${silentName}.mp4`);
+  const renderFolder = path.basename(renderScript, path.extname(renderScript));
+  const silentVideo = path.join(workDir, "videos", renderFolder, "720p8", `${silentName}.mp4`);
+  await fs.access(silentVideo);
   const videoPath = path.join(courseDir, "assets", "videos", "chapter-01.mp4");
   await run(ffmpeg, [
     "-y", "-ss", "0.5", "-i", silentVideo, "-i", audioPath,

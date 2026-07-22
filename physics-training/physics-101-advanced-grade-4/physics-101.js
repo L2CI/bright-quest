@@ -1,8 +1,8 @@
 (() => {
   "use strict";
 
-  const RELEASE = "physics-101-motion-002";
-  const ASSET_VERSION = "20260721b";
+  const RELEASE = "physics-101-motion-003";
+  const ASSET_VERSION = "20260722a";
   const COURSE_URL = `./data/physics-101-course.json?v=${ASSET_VERSION}`;
   const TIMELINE_URL = `./assets/timelines/chapter-01.json?v=${ASSET_VERSION}`;
   const PROGRESS_KEY = "brightQuestPhysics101ProgressV1";

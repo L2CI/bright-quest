@@ -72,8 +72,10 @@ class PhysicsChapter01Motion(Scene):
         badge = RoundedRectangle(width=0.78, height=0.46, corner_radius=0.12, stroke_width=0, fill_color=GOLD, fill_opacity=1)
         number = Text(f"{index + 1:02d}", font_size=18, weight=BOLD, color=INK).move_to(badge)
         text = Text(title.upper(), font_size=23, weight=BOLD, color=INK)
+        if text.width > 6.15:
+            text.scale_to_fit_width(6.15)
         row = VGroup(VGroup(badge, number), text).arrange(RIGHT, buff=0.22)
-        plate = RoundedRectangle(width=min(7.6, row.width + 0.62), height=0.72, corner_radius=0.16, stroke_color="#D5A33B", stroke_width=2, fill_color=CREAM, fill_opacity=0.95).move_to(row)
+        plate = RoundedRectangle(width=row.width + 0.62, height=0.72, corner_radius=0.16, stroke_color="#D5A33B", stroke_width=2, fill_color=CREAM, fill_opacity=0.95).move_to(row)
         return VGroup(plate, row).move_to(LEFT * 2.40 + UP * 2.73).set_z_index(30)
 
     def finish(self, started, cue):
@@ -114,20 +116,29 @@ class PhysicsChapter01Motion(Scene):
         for label, color in labels:
             rows.append(self.status_row(label, color).move_to([shell.get_center()[0], y, 0]))
             y -= 0.78
-        return VGroup(shell, heading, rule), rows
+        shell_group = VGroup(shell, heading, rule).set_z_index(20)
+        for row in rows:
+            row.set_z_index(21)
+        return shell_group, rows
 
     def status_row(self, label, color):
-        dot = Circle(radius=0.17, stroke_width=0, fill_color=color, fill_opacity=1)
+        plate_width = 3.20
+        dot = Circle(radius=0.15, stroke_width=0, fill_color=color, fill_opacity=1)
         text = Text(label, font_size=18, weight=BOLD, color=INK)
+        if text.width > 2.42:
+            text.scale_to_fit_width(2.42)
         row = VGroup(dot, text).arrange(RIGHT, buff=0.18)
-        plate = RoundedRectangle(width=3.05, height=0.60, corner_radius=0.13, stroke_color=color, stroke_width=2, fill_color=WHITE, fill_opacity=0.98).move_to(row)
+        plate = RoundedRectangle(width=plate_width, height=0.60, corner_radius=0.13, stroke_color=color, stroke_width=2, fill_color=WHITE, fill_opacity=0.98).move_to(row)
         row.move_to(plate)
-        return VGroup(plate, row)
+        return VGroup(plate, row).set_z_index(21)
 
     def tag(self, text, color=COBALT, width=None):
         label = Text(text, font_size=18, weight=BOLD, color=INK)
-        plate = RoundedRectangle(width=width or max(1.55, label.width + 0.46), height=0.52, corner_radius=0.12, stroke_color=color, stroke_width=2, fill_color=WHITE, fill_opacity=0.96).move_to(label)
-        return VGroup(plate, label)
+        plate_width = width or max(1.55, label.width + 0.46)
+        if label.width > plate_width - 0.38:
+            label.scale_to_fit_width(plate_width - 0.38)
+        plate = RoundedRectangle(width=plate_width, height=0.52, corner_radius=0.12, stroke_color=color, stroke_width=2, fill_color=WHITE, fill_opacity=0.96).move_to(label)
+        return VGroup(plate, label).set_z_index(20)
 
     def force_arrow(self, start, end, label, color, label_shift=UP * 0.36):
         arrow = Arrow(start, end, buff=0, color=color, stroke_width=8, max_tip_length_to_length_ratio=0.20)
@@ -270,7 +281,7 @@ class PhysicsChapter01Motion(Scene):
         self.keep(left_r, right_r, shell, *rows, dots_l, dots_r, note)
 
     def push_pull(self):
-        shell, rows = self.panel("Contact forces", [("HAND ON CART", ORANGE), ("ROPE ON TROLLEY", COBALT), ("NAME THE PAIR", GREEN)], ORANGE)
+        shell, rows = self.panel("Contact forces", [("HAND + CART", ORANGE), ("ROPE + TROLLEY", COBALT), ("NAME BOTH", GREEN)], ORANGE)
         push = self.sprite("push-cart.png", 2.60, [-2.55, -0.35, 0])
         self.play(FadeIn(push), FadeIn(shell), run_time=0.55)
         push_arrow = self.force_arrow([-3.35, 1.45, 0], [-1.65, 1.45, 0], "PUSH", ORANGE)
@@ -319,7 +330,7 @@ class PhysicsChapter01Motion(Scene):
         self.keep(shell, *rows, book, earth, gravity, dots)
 
     def classification(self):
-        shell, rows = self.panel("Two questions", [("NAME BOTH OBJECTS", COBALT), ("DO THEY TOUCH?", ORANGE), ("CHECK THE MOTION", GREEN)], COBALT)
+        shell, rows = self.panel("Two questions", [("NAME BOTH", COBALT), ("TOUCHING?", ORANGE), ("MOTION CHANGE?", GREEN)], COBALT)
         self.play(FadeIn(shell), LaggedStart(*[FadeIn(row) for row in rows], lag_ratio=0.20), run_time=1.15)
         label = self.tag("CONTACT", ORANGE, 2.15).move_to(LEFT * 1.60 + DOWN * 2.55)
         foot_ball = self.sprite("foot-ball.png", 2.55, [-2.35, -0.35, 0])
@@ -351,7 +362,7 @@ class PhysicsChapter01Motion(Scene):
         self.keep(shell, *rows, gravity, book, answer)
 
     def fair_test(self):
-        shell, rows = self.panel("Fair test", [("SAME CART", COBALT), ("SAME SURFACE", COBALT), ("ONLY PUSH CHANGES", ORANGE)], GREEN)
+        shell, rows = self.panel("Fair test", [("SAME CART", COBALT), ("SAME TRACK", COBALT), ("CHANGE PUSH", ORANGE)], GREEN)
         self.play(FadeIn(shell), LaggedStart(*[FadeIn(row) for row in rows], lag_ratio=0.20), run_time=1.20)
         top_track = Line([-5.15, 0.70, 0], [1.80, 0.70, 0], color=MUTED, stroke_width=5)
         bottom_track = Line([-5.15, -1.30, 0], [1.80, -1.30, 0], color=MUTED, stroke_width=5)
@@ -383,7 +394,7 @@ class PhysicsChapter01Motion(Scene):
         self.keep(shell, *rows, top_track, bottom_track, cart_top, cart_bottom, small_force, big_force, mark_top, mark_bottom, compare)
 
     def repair(self):
-        shell, rows = self.panel("Repair the idea", [("FOOT ON BALL", ORANGE), ("CONTACT ENDS", RED), ("BALL KEEPS MOVING", GREEN)], RED)
+        shell, rows = self.panel("Repair the idea", [("FOOT + BALL", ORANGE), ("CONTACT ENDS", RED), ("BALL ROLLS ON", GREEN)], RED)
         wrong = self.tag("FORCE HIDES INSIDE?", RED, 3.25).move_to(LEFT * 1.55 + UP * 1.95)
         contact = self.sprite("foot-ball.png", 2.55, [-2.35, -0.35, 0])
         self.play(FadeIn(contact), FadeIn(shell), FadeIn(wrong), run_time=0.60)
@@ -411,7 +422,7 @@ class PhysicsChapter01Motion(Scene):
         self.keep(shell, *rows, ball, trail, fixed)
 
     def predict(self):
-        shell, rows = self.panel("Predict the evidence", [("GAP STAYS VISIBLE", CYAN), ("BOTH CARTS MOVE", GREEN), ("NO HAND TOUCHES", ORANGE)], MAGENTA)
+        shell, rows = self.panel("Predict the evidence", [("GAP VISIBLE", CYAN), ("CARTS MOVE", GREEN), ("NO HAND", ORANGE)], MAGENTA)
         left = self.sprite("magnet-cart-left.png", 1.75, [-3.25, -0.50, 0])
         right = self.sprite("magnet-cart-right.png", 1.75, [-0.25, -0.50, 0])
         predict = self.tag("PREDICT", GOLD, 1.90).move_to(LEFT * 1.75 + UP * 1.65)

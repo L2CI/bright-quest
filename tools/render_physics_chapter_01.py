@@ -105,7 +105,7 @@ class PhysicsChapter01(Scene):
         if index == 0:
             return VGroup(self.chip("SKATER A", COBALT), self.chip("SKATER B", GOLD), self.note("LOOK FOR THE PAIR", ORANGE)).arrange(DOWN, buff=0.34)
         if index == 1:
-            pair = VGroup(self.chip("OBJECT A", COBALT), self.chip("OBJECT B", GOLD)).arrange(RIGHT, buff=0.28)
+            pair = VGroup(self.chip("OBJECT A", COBALT, 1.82), self.chip("OBJECT B", GOLD, 1.82)).arrange(RIGHT, buff=0.24)
             link = DoubleArrow(pair[0].get_right(), pair[1].get_left(), buff=0.08, color=ORANGE, stroke_width=6)
             return VGroup(pair, link, self.note("ONE INTERACTION", GREEN).shift(DOWN * 1.10))
         if index == 2:
@@ -137,7 +137,7 @@ class PhysicsChapter01(Scene):
             return VGroup(self.step("1", "NAME BOTH OBJECTS", COBALT), self.step("2", "DO THEY TOUCH?", ORANGE), self.step("3", "CHECK THE MOTION", GREEN)).arrange(DOWN, buff=0.22)
         if index == 8:
             keep = VGroup(self.chip("SAME CART", COBALT), self.chip("SAME SURFACE", COBALT)).arrange(DOWN, buff=0.20)
-            change = self.chip("CHANGE ONLY THE PUSH", ORANGE)
+            change = self.chip("ONLY PUSH CHANGES", ORANGE)
             measure = self.chip("MEASURE DISTANCE", GREEN)
             return VGroup(keep, change, measure).arrange(DOWN, buff=0.28)
         if index == 9:
@@ -149,13 +149,19 @@ class PhysicsChapter01(Scene):
             return VGroup(self.step("E", "GAP STAYS VISIBLE", CYAN), self.step("E", "BOTH CARTS MOVE", GREEN), self.step("C", "NON-CONTACT PUSH", ORANGE)).arrange(DOWN, buff=0.22)
         return VGroup(self.step("1", "NAME THE PAIR", COBALT), self.step("2", "TOUCH OR NO TOUCH", ORANGE), self.step("3", "USE MOTION EVIDENCE", GREEN), self.note("COCKPIT CHECK READY", GOLD)).arrange(DOWN, buff=0.22)
 
-    def chip(self, text, color):
-        box = RoundedRectangle(width=3.65, height=0.64, corner_radius=0.14, stroke_color=color, stroke_width=3, fill_color="#FFFFFF", fill_opacity=0.96)
-        label = Text(text, font_size=23, weight=BOLD, color=INK).move_to(box)
+    def chip(self, text, color, width=3.65):
+        box = RoundedRectangle(width=width, height=0.64, corner_radius=0.14, stroke_color=color, stroke_width=3, fill_color="#FFFFFF", fill_opacity=0.96)
+        label = Text(text, font_size=23, weight=BOLD, color=INK)
+        if label.width > width - 0.42:
+            label.scale_to_fit_width(width - 0.42)
+        label.move_to(box)
         return VGroup(box, label)
 
     def note(self, text, color):
-        return Text(text, font_size=22, weight=BOLD, color=color)
+        label = Text(text, font_size=22, weight=BOLD, color=color)
+        if label.width > 3.72:
+            label.scale_to_fit_width(3.72)
+        return label
 
     def object_token(self, text, color):
         circle = Circle(radius=0.48, color=color, stroke_width=5, fill_color="#FFFFFF", fill_opacity=0.96)
@@ -165,13 +171,18 @@ class PhysicsChapter01(Scene):
     def evidence(self, heading, detail, color):
         box = RoundedRectangle(width=1.92, height=1.25, corner_radius=0.16, stroke_color=color, stroke_width=3, fill_color="#FFFFFF", fill_opacity=0.96)
         head = Text(heading, font_size=21, weight=BOLD, color=color).move_to(box.get_center() + UP * 0.26)
-        copy = Text(detail, font_size=16, weight=BOLD, color=INK).move_to(box.get_center() + DOWN * 0.28)
+        copy = Text(detail, font_size=16, weight=BOLD, color=INK)
+        if copy.width > 1.58:
+            copy.scale_to_fit_width(1.58)
+        copy.move_to(box.get_center() + DOWN * 0.28)
         return VGroup(box, head, copy)
 
     def step(self, number, text, color):
         badge = Circle(radius=0.28, stroke_width=0, fill_color=color, fill_opacity=1)
         digit = Text(number, font_size=20, weight=BOLD, color=WHITE).move_to(badge)
         label = Text(text, font_size=19, weight=BOLD, color=INK)
+        if label.width > 2.82:
+            label.scale_to_fit_width(2.82)
         row = VGroup(VGroup(badge, digit), label).arrange(RIGHT, buff=0.22)
         panel = RoundedRectangle(width=4.0, height=0.66, corner_radius=0.14, stroke_color=color, stroke_width=2, fill_color="#FFFFFF", fill_opacity=0.96).move_to(row)
         row.move_to(panel)

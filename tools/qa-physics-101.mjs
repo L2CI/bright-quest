@@ -96,6 +96,8 @@ try {
   await waitFor(() => evaluate("document.querySelector('.physics-app').classList.contains('player-view')"));
   results.push(await inspect(evaluate, "tablet lesson"));
   await screenshot(send, path.join(evidenceDir, "tablet-lesson.png"));
+  await seekVideo(evaluate, 145);
+  await screenshot(send, path.join(evidenceDir, "tablet-lesson-145s.png"));
 
   await setViewport(send, 390, 844, 2, true);
   await navigate(send, baseUrl);
@@ -106,6 +108,10 @@ try {
   await waitFor(() => evaluate("document.querySelector('.physics-app').classList.contains('player-view')"));
   results.push(await inspect(evaluate, "mobile lesson"));
   await screenshot(send, path.join(evidenceDir, "mobile-lesson.png"));
+  await seekVideo(evaluate, 145);
+  await screenshot(send, path.join(evidenceDir, "mobile-lesson-145s.png"));
+  await seekVideo(evaluate, 183);
+  await screenshot(send, path.join(evidenceDir, "mobile-lesson-183s.png"));
 
   const browserErrors = events.filter((event) =>
     event.method === "Runtime.exceptionThrown" ||
@@ -115,7 +121,7 @@ try {
   ).map((event) => ({ method: event.method, params: event.params }));
 
   const report = {
-    release: "physics-101-motion-002",
+    release: "physics-101-motion-003",
     browser: browserName,
     route: baseUrl,
     results,
@@ -162,6 +168,41 @@ async function navigate(send, url) {
 async function screenshot(send, outputPath) {
   const { data } = await send("Page.captureScreenshot", { format: "png", captureBeyondViewport: true });
   await fs.writeFile(outputPath, Buffer.from(data, "base64"));
+}
+
+async function seekVideo(evaluate, seconds) {
+  return evaluate(`(async () => {
+    const video = document.querySelector('#lessonVideo');
+    if (!video) throw new Error('Lesson video not found.');
+    const source = video.currentSrc || video.querySelector('source')?.src;
+    const response = await fetch(source);
+    if (!response.ok) throw new Error('Could not load lesson video for timestamp QA.');
+    const blobUrl = URL.createObjectURL(await response.blob());
+    video.src = blobUrl;
+    video.preload = 'auto';
+    video.load();
+    if (!(Number.isFinite(video.duration) && video.duration > 0)) {
+      await new Promise((resolve, reject) => {
+        video.addEventListener('loadedmetadata', resolve, { once: true });
+        video.addEventListener('error', () => reject(new Error('Video metadata failed.')), { once: true });
+      });
+    }
+    video.currentTime = Math.min(${seconds}, Math.max(0, video.duration - 0.25));
+    if (video.seeking) await new Promise((resolve) => video.addEventListener('seeked', resolve, { once: true }));
+    document.querySelector('#videoStartButton').hidden = true;
+    video.dispatchEvent(new Event('timeupdate'));
+    await new Promise((resolve) => {
+      let finished = false;
+      const finish = () => {
+        if (finished) return;
+        finished = true;
+        resolve();
+      };
+      setTimeout(finish, 1000);
+      if (video.requestVideoFrameCallback) video.requestVideoFrameCallback(finish);
+    });
+    return { currentTime: video.currentTime, duration: video.duration };
+  })()`);
 }
 
 async function waitFor(predicate, timeout = 10000) {
