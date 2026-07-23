@@ -25,14 +25,16 @@ await fs.writeFile(outputPath, transcript, "utf8");
 
 const normalised = transcript.toLowerCase().replace(/[^a-z0-9]+/g, " ");
 const required = [
-  "where did the force come from",
-  "one interaction two objects",
-  "change in motion is evidence",
-  "hand to hand force has ended",
-  "some forces act without the objects touching",
-  "change only the push",
-  "force is not a substance hiding inside an object",
-  "ready for the cockpit check",
+  "two skaters are still",
+  "point to the pair",
+  "one interaction gives two forces",
+  "a on b belongs on b",
+  "before contact still",
+  "hands separate the arrows vanish",
+  "these magnets never touch",
+  "same carts same floor same starting line",
+  "foot leaves that push ends",
+  "name the pair",
 ];
 const missing = required.filter((phrase) => !normalised.includes(phrase));
 const report = { transcriptCharacters: transcript.length, requiredPhrases: required.length, missing, passed: missing.length === 0 };

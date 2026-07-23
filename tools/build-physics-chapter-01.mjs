@@ -11,8 +11,11 @@ const courseDir = path.join(root, "physics-training", "physics-101-advanced-grad
 const dataFile = path.join(courseDir, "data", "physics-101-course.json");
 const renderScript = path.join(root, "tools", "render_physics_chapter_01_motion.py");
 const workDir = path.join(root, "outputs", "physics-101-pilot-media");
-const segmentsDir = path.join(workDir, "voice-segments");
+const segmentsDir = path.join(workDir, "voice-segments-v2");
+const voiceWavDir = path.join(workDir, "voice-wav-v2");
 const targetSeconds = 205;
+const voiceModel = "gpt-4o-mini-tts-2025-12-15";
+const voiceName = "coral";
 
 async function main() {
   const apiKey = process.env.OPENAI_API_KEY || "";
@@ -23,6 +26,7 @@ async function main() {
 
   await Promise.all([
     fs.mkdir(segmentsDir, { recursive: true }),
+    fs.mkdir(voiceWavDir, { recursive: true }),
     fs.mkdir(path.join(courseDir, "assets", "audio"), { recursive: true }),
     fs.mkdir(path.join(courseDir, "assets", "captions"), { recursive: true }),
     fs.mkdir(path.join(courseDir, "assets", "posters"), { recursive: true }),
@@ -52,28 +56,41 @@ async function main() {
   }
 
   const spokenSeconds = parts.reduce((total, part) => total + part.duration, 0);
+  if (spokenSeconds > 178) {
+    throw new Error(`Measured speech is ${spokenSeconds.toFixed(2)}s; the approved maximum is 178s.`);
+  }
   const leadout = 1.25;
-  const gap = Math.max(0.65, (targetSeconds - leadout - spokenSeconds) / Math.max(1, parts.length - 1));
+  const gap = Math.max(1.5, (targetSeconds - leadout - spokenSeconds) / Math.max(1, parts.length - 1));
   const expectedDuration = spokenSeconds + gap * (parts.length - 1) + leadout;
   console.log(`Spoken ${spokenSeconds.toFixed(2)}s; evidence pause ${gap.toFixed(2)}s; target ${expectedDuration.toFixed(2)}s`);
 
-  const silencePath = path.join(workDir, "evidence-pause.mp3");
-  const leadoutPath = path.join(workDir, "leadout.mp3");
-  await run(ffmpeg, ["-y", "-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo", "-t", String(gap), "-q:a", "4", silencePath]);
-  await run(ffmpeg, ["-y", "-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo", "-t", String(leadout), "-q:a", "4", leadoutPath]);
+  for (let index = 0; index < parts.length; index += 1) {
+    const wavPath = path.join(voiceWavDir, `${String(index + 1).padStart(2, "0")}-${parts[index].id}.wav`);
+    await run(ffmpeg, ["-y", "-i", parts[index].file, "-ar", "44100", "-ac", "2", "-c:a", "pcm_s16le", wavPath]);
+    parts[index].wavFile = wavPath;
+  }
+
+  const silencePath = path.join(workDir, "evidence-room-tone.wav");
+  const leadoutPath = path.join(workDir, "leadout-room-tone.wav");
+  await run(ffmpeg, ["-y", "-f", "lavfi", "-i", "anoisesrc=color=pink:amplitude=0.0007:r=44100", "-t", String(gap), "-ar", "44100", "-ac", "2", "-c:a", "pcm_s16le", silencePath]);
+  await run(ffmpeg, ["-y", "-f", "lavfi", "-i", "anoisesrc=color=pink:amplitude=0.0007:r=44100", "-t", String(leadout), "-ar", "44100", "-ac", "2", "-c:a", "pcm_s16le", leadoutPath]);
 
   const concatFile = path.join(workDir, "chapter-01-concat.txt");
   const concatLines = [];
   parts.forEach((part, index) => {
-    concatLines.push(`file '${escapeConcatPath(part.file)}'`);
+    concatLines.push(`file '${escapeConcatPath(part.wavFile)}'`);
     if (index < parts.length - 1) concatLines.push(`file '${escapeConcatPath(silencePath)}'`);
   });
   concatLines.push(`file '${escapeConcatPath(leadoutPath)}'`);
   await fs.writeFile(concatFile, `${concatLines.join("\n")}\n`, "utf8");
 
-  const audioPath = path.join(courseDir, "assets", "audio", "chapter-01-teacher.mp3");
-  await run(ffmpeg, ["-y", "-f", "concat", "-safe", "0", "-i", concatFile, "-ar", "44100", "-ac", "2", "-b:a", "160k", audioPath]);
-  const audioDuration = await mediaDuration(audioPath);
+  const rawAudioPath = path.join(workDir, "chapter-01-teacher-raw.wav");
+  const audioWavPath = path.join(workDir, "chapter-01-teacher-master.wav");
+  const audioMp3Path = path.join(courseDir, "assets", "audio", "chapter-01-teacher.mp3");
+  await run(ffmpeg, ["-y", "-f", "concat", "-safe", "0", "-i", concatFile, "-ar", "44100", "-ac", "2", "-c:a", "pcm_s16le", rawAudioPath]);
+  await run(ffmpeg, ["-y", "-i", rawAudioPath, "-af", "loudnorm=I=-16:TP=-1.5:LRA=7", "-ar", "44100", "-ac", "2", "-c:a", "pcm_s16le", audioWavPath]);
+  await run(ffmpeg, ["-y", "-i", audioWavPath, "-c:a", "libmp3lame", "-b:a", "192k", audioMp3Path]);
+  const audioDuration = await mediaDuration(audioWavPath);
 
   let cursor = 0;
   const timeline = parts.map((part, index) => {
@@ -109,7 +126,7 @@ async function main() {
     "--media_dir", workDir,
     "--disable_caching",
     "-r", "1280,720",
-    "--fps", "8",
+    "--fps", "24",
     "-o", silentName,
     renderScript,
     "PhysicsChapter01Motion",
@@ -119,14 +136,13 @@ async function main() {
   });
 
   const renderFolder = path.basename(renderScript, path.extname(renderScript));
-  const silentVideo = path.join(workDir, "videos", renderFolder, "720p8", `${silentName}.mp4`);
-  await fs.access(silentVideo);
+  const silentVideo = await findFile(path.join(workDir, "videos", renderFolder), `${silentName}.mp4`);
   const videoPath = path.join(courseDir, "assets", "videos", "chapter-01.mp4");
   await run(ffmpeg, [
-    "-y", "-ss", "0.5", "-i", silentVideo, "-i", audioPath,
+    "-y", "-ss", "0.5", "-i", silentVideo, "-i", audioWavPath,
     "-map", "0:v:0", "-map", "1:a:0",
     "-vf", "tpad=stop_mode=clone:stop_duration=0.5",
-    "-c:v", "libx264", "-preset", "medium", "-crf", "22",
+    "-c:v", "libx264", "-preset", "slow", "-crf", "21", "-pix_fmt", "yuv420p",
     "-c:a", "aac", "-b:a", "160k",
     "-shortest", "-movflags", "+faststart", videoPath,
   ]);
@@ -151,11 +167,12 @@ async function createSpeech(apiKey, segment, outputPath) {
       "content-type": "application/json",
     },
     body: JSON.stringify({
-      model: "gpt-4o-mini-tts",
-      voice: "onyx",
+      model: voiceModel,
+      voice: voiceName,
       response_format: "mp3",
+      speed: 1.12,
       input: segment.text,
-      instructions: "Speak as a warm, confident Australian primary science teacher with a clear lower register. Aim for 140 to 150 words per minute. Use precise diction for interaction, contact, non-contact, evidence and motion. Pause naturally at punctuation so a capable nine-year-old can inspect the diagram. Sound curious and encouraging, never military, theatrical, sing-song, or like an advertisement.",
+      instructions: teacherInstructions(segment.id),
     }),
   });
   if (!response.ok) {
@@ -176,13 +193,87 @@ async function reusableSpeechDuration(outputPath) {
 
 function buildVtt(cues) {
   const lines = ["WEBVTT", ""];
-  cues.forEach((cue, index) => {
-    lines.push(String(index + 1));
-    lines.push(`${vttTime(cue.start)} --> ${vttTime(cue.end)}`);
-    lines.push(cue.text);
-    lines.push("");
+  let captionIndex = 1;
+  cues.forEach((cue) => {
+    const chunks = captionChunks(cue.text);
+    const weights = chunks.map((chunk) => Math.max(1, chunk.replace(/\s+/g, " ").length));
+    const totalWeight = weights.reduce((sum, value) => sum + value, 0);
+    let cursor = cue.start;
+    chunks.forEach((chunk, index) => {
+      const end = index === chunks.length - 1
+        ? cue.end
+        : cursor + (cue.end - cue.start) * (weights[index] / totalWeight);
+      lines.push(String(captionIndex));
+      lines.push(`${vttTime(cursor)} --> ${vttTime(end)}`);
+      lines.push(chunk);
+      lines.push("");
+      captionIndex += 1;
+      cursor = end;
+    });
   });
   return `${lines.join("\n")}\n`;
+}
+
+function captionChunks(text) {
+  const sentences = text.split(/(?<=[.!?])\s+/u).filter(Boolean);
+  const chunks = [];
+  for (const sentence of sentences) {
+    const words = sentence.split(/\s+/u);
+    let current = "";
+    for (const word of words) {
+      const candidate = current ? `${current} ${word}` : word;
+      if (candidate.length > 62 && current) {
+        chunks.push(wrapCaption(current));
+        current = word;
+      } else {
+        current = candidate;
+      }
+    }
+    if (current) chunks.push(wrapCaption(current));
+  }
+  return chunks;
+}
+
+function wrapCaption(text) {
+  if (text.length <= 32) return text;
+  const words = text.split(/\s+/u);
+  let bestIndex = 1;
+  let bestScore = Number.POSITIVE_INFINITY;
+  for (let index = 1; index < words.length; index += 1) {
+    const first = words.slice(0, index).join(" ");
+    const second = words.slice(index).join(" ");
+    if (first.length > 34 || second.length > 34) continue;
+    const score = Math.abs(first.length - second.length);
+    if (score < bestScore) {
+      bestScore = score;
+      bestIndex = index;
+    }
+  }
+  return `${words.slice(0, bestIndex).join(" ")}\n${words.slice(bestIndex).join(" ")}`;
+}
+
+function teacherInstructions(segmentId) {
+  const direction = {
+    mystery: "Begin close and gently hushed, then brighten with real surprise when both skaters move. Make the final question sound like a genuine invitation and leave a thinking beat.",
+    interaction: "Sound confident and explanatory, with crisp contrast between A on B and B on A. Lift the energy on two forces.",
+    arrows: "Use deliberate, precise diction as if building the labels with the learner. Give Two objects. Two forces. a satisfying rhythmic finish.",
+    "motion-evidence": "Use a compare-and-discover rhythm. Keep Before contact and After contact distinct, then brighten on Their motion.",
+    "force-does-not-ride": "Start warmly and conspiratorially on Ooh, careful. Correct the idea kindly, then become firm and clear when the arrows vanish.",
+    "push-or-pull": "Use lively contrast between push and pull, with clean short beats for the two object pairs.",
+    "non-contact": "Lower the energy slightly to focus attention on the gap, then sound intrigued when the carts move without touching.",
+    classification: "Sound quick and game-like but never rushed. Give each example its own clean decision beat.",
+    "fair-evidence": "Sound like a scientist setting up a fair challenge. Emphasise same, same, same, then change only the push.",
+    transfer: "Acknowledge the tempting idea without mockery. Use warm curiosity for the check and calm certainty for the correct sequence.",
+    challenge: "Build anticipation, pause after Hold your answer, then reveal the three observations with bright confidence.",
+    exit: "Sound proud and encouraging, not triumphant. Give the three-step physicist routine a memorable, steady rhythm.",
+  }[segmentId] || "Use warm, varied and precise primary science teaching delivery.";
+  return [
+    "Speak as a warm, engaging Australian primary science teacher beside one capable nine-year-old learner.",
+    direction,
+    "Use natural pitch variety and conversational rhythm, not constant loudness.",
+    "Keep calm adult authority without becoming deep, dull, military, theatrical, sing-song, breathless, or like an advertisement.",
+    "Pronounce interaction, contact, non-contact, evidence and motion crisply.",
+  ].join(" ");
 }
 
 function vttTime(seconds) {

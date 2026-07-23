@@ -29,6 +29,7 @@ class PhysicsChapter01Motion(Scene):
         self.dynamic = []
         self.focus = None
         self.replay = None
+        self.minimum_hold = 0
         background = ImageMobject(str(self.assets / "workshop-stage-16x9.png")).set_width(config.frame_width * 1.04)
         background.set_z_index(-100)
         background.add_updater(
@@ -69,6 +70,7 @@ class PhysicsChapter01Motion(Scene):
         self.dynamic = [heading]
         self.focus = heading
         self.replay = None
+        self.minimum_hold = 0
 
     def cue_heading(self, index, title):
         badge = RoundedRectangle(width=0.78, height=0.46, corner_radius=0.12, stroke_width=0, fill_color=GOLD, fill_opacity=1)
@@ -83,15 +85,15 @@ class PhysicsChapter01Motion(Scene):
     def finish(self, started, cue):
         duration = cue["beatEnd"] - cue["start"]
         remaining = max(0, duration - (self.time - started))
-        while remaining > 2.8:
-            replay_time = min(1.8, remaining - 1.0)
+        while remaining > 2.8 + self.minimum_hold:
+            replay_time = min(1.8, remaining - 1.0 - self.minimum_hold)
             if self.replay:
                 self.replay(replay_time)
             else:
                 self.play(Indicate(self.focus, color=GOLD, scale_factor=1.055), run_time=replay_time)
             remaining = max(0, duration - (self.time - started))
-            if remaining > 2.8:
-                self.wait(min(0.9, remaining - 2.5))
+            if remaining > 2.8 + self.minimum_hold:
+                self.wait(min(0.9, remaining - 2.5 - self.minimum_hold))
             remaining = max(0, duration - (self.time - started))
         if remaining > 0:
             self.wait(remaining)
@@ -190,11 +192,17 @@ class PhysicsChapter01Motion(Scene):
     def mystery(self):
         left, right = self.skaters("contact")
         shell, rows = self.panel("Observe the change", [("STILL", COBALT), ("PALMS TOUCH", GOLD), ("MOVE APART", GREEN)], GOLD)
-        self.play(FadeIn(Group(left, right), shift=UP * 0.08), FadeIn(shell), run_time=0.60)
+        stage_hint = self.tag("LOOK CLOSELY", COBALT, 2.25).move_to(LEFT * 1.40 + UP * 1.75)
+        self.play(FadeIn(stage_hint, shift=UP * 0.08), FadeIn(shell), run_time=0.55)
+        self.wait(0.65)
+        self.play(FadeIn(Group(left, right), shift=UP * 0.08, scale=0.96), FadeOut(stage_hint), run_time=0.75)
         self.play(FadeIn(rows[0]), run_time=0.38)
-        self.play(left.animate.shift(RIGHT * 0.16), right.animate.shift(LEFT * 0.16), run_time=1.25, rate_func=smooth)
+        self.play(left.animate.shift(RIGHT * 0.10), right.animate.shift(LEFT * 0.10), run_time=0.72, rate_func=rate_functions.ease_in_out_sine)
+        self.play(left.animate.shift(RIGHT * 0.10), right.animate.shift(LEFT * 0.10), run_time=0.58, rate_func=rate_functions.ease_in_cubic)
         contact = self.cue_ring(LEFT * 1.38 + UP * 0.42, radius=0.24)
-        self.play(Create(contact), Flash(contact.get_center(), color=CUE_BLACK, flash_radius=0.55), run_time=0.75)
+        contact_echo = self.cue_ring(LEFT * 1.38 + UP * 0.42, radius=0.42, stroke_width=4)
+        self.play(Create(contact), Create(contact_echo), Flash(contact.get_center(), color=CUE_WHITE, flash_radius=0.60), run_time=0.72)
+        self.play(FadeOut(contact_echo, scale=1.28), run_time=0.42)
         self.play(FadeIn(rows[1]), run_time=0.42)
         left_r, right_r = self.skaters("recoil", -3.05, 0.25)
         self.play(FadeTransform(left, left_r), FadeTransform(right, right_r), FadeOut(contact), run_time=0.62)
@@ -206,6 +214,7 @@ class PhysicsChapter01Motion(Scene):
         self.play(FadeIn(question, shift=UP * 0.10), run_time=0.55)
         self.play(Circumscribe(left_r, color=COBALT), run_time=0.75)
         self.play(Circumscribe(right_r, color=GOLD), run_time=0.75)
+        self.minimum_hold = 2.1
         self.focus = Group(left_r, right_r, trail_l, trail_r)
         self.replay = lambda run_time: self.play(
             left_r.animate.shift(RIGHT * 0.50), right_r.animate.shift(LEFT * 0.50),
@@ -229,7 +238,7 @@ class PhysicsChapter01Motion(Scene):
         self.play(FadeIn(arrow_a[1]), FadeIn(arrow_b[1]), run_time=0.55)
         self.play(left.animate.shift(RIGHT * 0.12), right.animate.shift(LEFT * 0.12), rate_func=there_and_back, run_time=1.20)
         self.play(FadeIn(rows[2]), run_time=0.45)
-        equal = self.tag("EQUAL SIZE - DIFFERENT OBJECTS", GREEN, 4.35).move_to(LEFT * 1.38 + DOWN * 2.58)
+        equal = self.tag("EQUAL LENGTH - DIFFERENT OBJECTS", GREEN, 4.60).move_to(LEFT * 1.38 + DOWN * 2.58)
         self.play(FadeIn(equal), run_time=0.55)
         self.play(Indicate(arrow_a, color=CUE_BLACK), Indicate(arrow_b, color=CUE_BLACK), run_time=1.05)
         self.focus = Group(left, right, arrow_a, arrow_b)
@@ -248,8 +257,12 @@ class PhysicsChapter01Motion(Scene):
         arrow_b = self.force_arrow([-0.40, -0.10, 0], [0.95, -0.10, 0], "A ON B", GOLD)
         self.play(GrowArrow(arrow_a[0]), FadeIn(rows[0]), run_time=0.80)
         self.play(FadeIn(arrow_a[1]), run_time=0.35)
+        receiver_a = self.tag("RECEIVER: A", COBALT, 2.05).move_to([-3.15, 1.45, 0])
+        self.play(FadeIn(receiver_a, shift=DOWN * 0.06), run_time=0.42)
         self.play(GrowArrow(arrow_b[0]), FadeIn(rows[1]), run_time=0.80)
         self.play(FadeIn(arrow_b[1]), run_time=0.35)
+        receiver_b = self.tag("RECEIVER: B", GOLD, 2.05).move_to([0.10, 1.45, 0])
+        self.play(FadeIn(receiver_b, shift=DOWN * 0.06), run_time=0.42)
         self.play(Group(left, arrow_a).animate.shift(LEFT * 0.85), Group(right, arrow_b).animate.shift(RIGHT * 0.85), run_time=2.20, rate_func=rate_functions.ease_out_cubic)
         self.play(FadeIn(rows[2]), run_time=0.45)
         axis = self.cue_double_arrow(LEFT * 2.4, RIGHT * 2.4, stroke_width=4).move_to(LEFT * 1.40 + DOWN * 2.60)
@@ -261,7 +274,7 @@ class PhysicsChapter01Motion(Scene):
             right.animate.shift(LEFT * 0.80), arrow_b.animate.shift(LEFT * 0.80),
             run_time=run_time, rate_func=there_and_back,
         )
-        self.keep(left, right, shell, *rows, arrow_a, arrow_b, axis)
+        self.keep(left, right, shell, *rows, arrow_a, arrow_b, receiver_a, receiver_b, axis)
 
     def motion_evidence(self):
         ghost_l, ghost_r = self.skaters("contact", -2.80, -0.05)
@@ -272,9 +285,13 @@ class PhysicsChapter01Motion(Scene):
         ruler = NumberLine(x_range=[0, 6, 1], length=6.8, include_numbers=False, color=MUTED, stroke_width=3).move_to(LEFT * 1.55 + DOWN * 2.25)
         self.play(FadeIn(Group(ghost_l, ghost_r)), FadeIn(shell), Create(ruler), run_time=0.70)
         self.play(FadeIn(rows[0]), run_time=0.40)
+        before = self.tag("BEFORE", COBALT, 1.65).move_to(LEFT * 4.30 + UP * 1.62)
+        self.play(FadeIn(before), run_time=0.35)
         self.play(FadeIn(Group(left, right)), run_time=0.45)
         self.play(left.animate.shift(LEFT * 1.25), right.animate.shift(RIGHT * 1.25), run_time=2.65, rate_func=rate_functions.ease_out_cubic)
         self.play(FadeIn(rows[1]), run_time=0.42)
+        after = self.tag("AFTER", ORANGE, 1.65).move_to(LEFT * 0.15 + UP * 1.62)
+        self.play(FadeIn(after), run_time=0.35)
         end_l = self.cue_marker(UP * 0.35, DOWN * 0.35).move_to([-4.05, -2.25, 0])
         end_r = self.cue_marker(UP * 0.35, DOWN * 0.35).move_to([1.20, -2.25, 0])
         self.play(Create(end_l), Create(end_r), run_time=0.65)
@@ -283,7 +300,7 @@ class PhysicsChapter01Motion(Scene):
         stamp = self.tag("MOTION CHANGED", GREEN, 2.85).move_to(LEFT * 1.45 + DOWN * 2.85)
         self.play(FadeIn(stamp, scale=0.92), Circumscribe(stamp, color=GREEN), run_time=0.90)
         self.focus = Group(ghost_l, ghost_r, left, right, ruler, end_l, end_r)
-        self.keep(ghost_l, ghost_r, left, right, shell, *rows, ruler, end_l, end_r, stamp)
+        self.keep(ghost_l, ghost_r, left, right, shell, *rows, ruler, end_l, end_r, before, after, stamp)
 
     def push_ended(self):
         left, right = self.skaters("contact")
@@ -342,12 +359,15 @@ class PhysicsChapter01Motion(Scene):
         self.play(FadeIn(Group(left, right)), FadeIn(shell), run_time=0.55)
         gap = self.cue_double_arrow([-2.35, 0.05, 0], [-1.22, 0.05, 0])
         self.play(Create(gap), FadeIn(rows[0]), run_time=0.70)
+        gap_hold = self.tag("GAP STAYS OPEN", MAGENTA, 2.55).move_to(LEFT * 1.78 + UP * 1.70)
+        self.play(FadeIn(gap_hold), run_time=0.42)
+        self.wait(1.15)
         force_l = self.cue_arrow([-2.80, 0.72, 0], [-4.00, 0.72, 0], stroke_width=7)
         force_r = self.cue_arrow([-0.75, 0.72, 0], [0.45, 0.72, 0], stroke_width=7)
         self.play(GrowArrow(force_l), GrowArrow(force_r), run_time=0.75)
         self.play(left.animate.shift(LEFT * 1.00), right.animate.shift(RIGHT * 1.00), run_time=2.20, rate_func=rate_functions.ease_out_cubic)
         self.play(FadeIn(rows[1]), run_time=0.38)
-        self.play(FadeOut(Group(left, right, gap, force_l, force_r)), run_time=0.50)
+        self.play(FadeOut(Group(left, right, gap, force_l, force_r, gap_hold)), run_time=0.50)
         book = self.sprite("book.png", 1.25, [-1.75, 1.85, 0])
         earth = self.tag("EARTH", VIOLET, 1.60).move_to([-1.75, -2.20, 0])
         gravity = self.force_arrow([-1.75, 1.25, 0], [-1.75, 0.05, 0], "EARTH ON BOOK", VIOLET, RIGHT * 1.05)
@@ -397,7 +417,9 @@ class PhysicsChapter01Motion(Scene):
         bottom_track = Line([-5.15, -1.30, 0], [1.80, -1.30, 0], color=MUTED, stroke_width=5)
         cart_top = self.sprite("magnet-cart-left.png", 1.05, [-4.45, 1.02, 0])
         cart_bottom = self.sprite("magnet-cart-left.png", 1.05, [-4.45, -0.98, 0])
-        self.play(Create(top_track), Create(bottom_track), FadeIn(Group(cart_top, cart_bottom)), run_time=0.80)
+        start_line = self.cue_marker(UP * 1.45, DOWN * 1.45, stroke_width=4).move_to([-4.45, -0.30, 0])
+        start_label = self.tag("SAME START", COBALT, 2.10).move_to([-4.45, 2.00, 0])
+        self.play(Create(top_track), Create(bottom_track), FadeIn(Group(cart_top, cart_bottom)), Create(start_line), FadeIn(start_label), run_time=0.90)
         small_force = self.cue_arrow([-5.10, 1.65, 0], [-4.15, 1.65, 0], stroke_width=7)
         big_force = self.cue_arrow([-5.10, -0.35, 0], [-3.45, -0.35, 0], stroke_width=7)
         self.play(GrowArrow(small_force), GrowArrow(big_force), run_time=0.72)
@@ -420,24 +442,25 @@ class PhysicsChapter01Motion(Scene):
                 run_time=max(0.45, run_time - reset_time), rate_func=rate_functions.ease_out_cubic,
             )
         self.replay = replay_fair_test
-        self.keep(shell, *rows, top_track, bottom_track, cart_top, cart_bottom, small_force, big_force, mark_top, mark_bottom, compare)
+        self.keep(shell, *rows, top_track, bottom_track, cart_top, cart_bottom, start_line, start_label, small_force, big_force, mark_top, mark_bottom, compare)
 
     def repair(self):
         shell, rows = self.panel("Repair the idea", [("FOOT + BALL", ORANGE), ("CONTACT ENDS", RED), ("BALL ROLLS ON", GREEN)], RED)
-        wrong = self.tag("FORCE HIDES INSIDE?", RED, 3.25).move_to(LEFT * 1.55 + UP * 1.95)
+        check = self.tag("LET'S CHECK THE EVIDENCE", COBALT, 3.55).move_to(LEFT * 1.55 + UP * 1.95)
         contact = self.sprite("foot-ball.png", 2.55, [-2.35, -0.35, 0])
-        self.play(FadeIn(contact), FadeIn(shell), FadeIn(wrong), run_time=0.60)
-        strike = Cross(wrong, stroke_color=RED, stroke_width=6)
-        self.play(Create(strike), run_time=0.62)
+        self.play(FadeIn(contact), FadeIn(shell), FadeIn(check), run_time=0.60)
         contact_arrow = self.force_arrow([-3.70, 1.00, 0], [-2.20, 1.00, 0], "FOOT ON BALL", ORANGE)
         self.play(GrowArrow(contact_arrow[0]), FadeIn(contact_arrow[1]), FadeIn(rows[0]), run_time=0.85)
+        self.play(contact.animate.shift(RIGHT * 0.42), contact_arrow.animate.shift(RIGHT * 0.42), run_time=0.62, rate_func=rate_functions.ease_in_cubic)
         ball = self.sprite("ball.png", 1.40, [-1.70, -0.45, 0])
         self.play(FadeOut(contact), FadeIn(ball), FadeOut(contact_arrow), FadeIn(rows[1]), run_time=0.68)
+        ended = self.tag("CONTACT PUSH ENDED", RED, 3.20).move_to(LEFT * 1.55 + UP * 1.95)
+        self.play(FadeTransform(check, ended), run_time=0.50)
         trail = self.dots([-2.10, -0.50, 0], LEFT, count=5, spacing=0.40)
         self.play(ball.animate.shift(RIGHT * 3.25).rotate(-PI * 1.35), LaggedStart(*[FadeIn(dot) for dot in trail], lag_ratio=0.10), run_time=2.65, rate_func=linear)
         self.play(FadeIn(rows[2]), run_time=0.42)
         fixed = self.tag("INTERACTION, THEN MOTION", GREEN, 3.70).move_to(LEFT * 1.55 + DOWN * 2.58)
-        self.play(FadeOut(Group(wrong, strike)), FadeIn(fixed), run_time=0.62)
+        self.play(FadeOut(ended), FadeIn(fixed), run_time=0.62)
         self.play(Indicate(trail, color=CUE_BLACK), run_time=0.85)
         self.focus = Group(ball, trail)
         def replay_roll(run_time):
@@ -458,7 +481,7 @@ class PhysicsChapter01Motion(Scene):
         gap = self.cue_double_arrow([-2.33, 0.08, 0], [-1.23, 0.08, 0])
         self.play(FadeIn(Group(left, right)), FadeIn(shell), FadeIn(predict), Create(gap), run_time=0.70)
         self.play(Indicate(predict, color=GOLD), run_time=0.85)
-        self.wait(1.35)
+        self.wait(2.10)
         force_l = self.cue_arrow([-2.75, 0.75, 0], [-4.05, 0.75, 0])
         force_r = self.cue_arrow([-0.75, 0.75, 0], [0.55, 0.75, 0])
         self.play(GrowArrow(force_l), GrowArrow(force_r), run_time=0.72)
@@ -466,6 +489,7 @@ class PhysicsChapter01Motion(Scene):
         self.reveal(rows, 1.65)
         claim = self.tag("CLAIM SUPPORTED", GREEN, 2.80).move_to(LEFT * 1.70 + DOWN * 2.48)
         self.play(FadeIn(claim, scale=0.92), Circumscribe(claim, color=GREEN), run_time=0.85)
+        self.minimum_hold = 2.1
         self.focus = Group(left, right, gap, force_l, force_r)
         self.replay = lambda run_time: self.play(
             left.animate.shift(RIGHT * 0.62), right.animate.shift(LEFT * 0.62),
