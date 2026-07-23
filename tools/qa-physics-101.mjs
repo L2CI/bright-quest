@@ -64,6 +64,8 @@ try {
   await setViewport(send, 1440, 900, 1, false);
   await navigate(send, baseUrl);
   await waitFor(() => evaluate("Boolean(window.getComputedStyle(document.querySelector('.course-landing')).display !== 'none' && document.querySelectorAll('.chapter-card').length === 11)"));
+  const deployedMarker = await evaluate("Boolean(document.querySelector('script[src*=\"physics-101-motion-005\"]'))");
+  if (!deployedMarker) throw new Error("The expected physics-101-motion-005 release marker is not live.");
   results.push(await inspect(evaluate, "desktop landing"));
   await screenshot(send, path.join(evidenceDir, "desktop-landing.png"));
 
@@ -92,7 +94,9 @@ try {
   await screenshot(send, path.join(evidenceDir, "desktop-test-result.png"));
 
   await setViewport(send, 834, 1194, 1, true);
-  await navigate(send, `${baseUrl}?chapter=1`);
+  const tabletUrl = new URL(baseUrl);
+  tabletUrl.searchParams.set("chapter", "1");
+  await navigate(send, tabletUrl.toString());
   await waitFor(() => evaluate("document.querySelector('.physics-app').classList.contains('player-view')"));
   results.push(await inspect(evaluate, "tablet lesson"));
   await screenshot(send, path.join(evidenceDir, "tablet-lesson.png"));
@@ -124,6 +128,7 @@ try {
     release: "physics-101-motion-005",
     browser: browserName,
     route: baseUrl,
+    deployedMarker,
     results,
     browserErrors,
     passed: results.every((result) => result.horizontalOverflow === 0 && result.brokenImages === 0 && result.smallPrimaryControls === 0) && browserErrors.length === 0,
