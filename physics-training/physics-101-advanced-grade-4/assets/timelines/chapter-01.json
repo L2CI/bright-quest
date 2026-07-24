@@ -1,210 +1,222 @@
 {
-  "release": "physics-101-motion-005",
-  "duration": 205,
+  "release": "physics-101-kinetic-lab-006",
+  "duration": 206.714,
   "cues": [
     {
       "id": "mystery",
       "title": "Watch the motion",
       "visual": "contact",
-      "text": "Shh—look closely. Two skaters are still. Watch their hands. They press, then both platforms roll apart. Freeze the picture. Point to the pair. Where did the pushes act?",
+      "text": "Watch the two pilots on the glide track. At first, both are still. Now watch their hands. Their palms press, and both platforms begin to move apart. The motion is our first clue. Which two objects are interacting?",
       "start": 0,
-      "end": 13.464,
-      "beatEnd": 16.701
+      "end": 14.615,
+      "beatEnd": 14.615,
+      "voiceSection": "observe-explain"
     },
     {
       "id": "interaction",
       "title": "A force needs two",
       "visual": "contact",
-      "text": "A force is a push or pull during an interaction. Skater A pushes on B. At once, B pushes on A. One interaction gives two forces, acting on different objects. Watch the contact again.",
-      "start": 16.701,
-      "end": 31.749,
-      "beatEnd": 34.986
+      "text": "A force is a push or pull during an interaction. The blue pilot pushes on the orange pilot. At the same moment, the orange pilot pushes on the blue pilot. One interaction produces two forces, acting on two different objects.",
+      "start": 14.615,
+      "end": 29.999,
+      "beatEnd": 29.999,
+      "voiceSection": "observe-explain"
     },
     {
       "id": "arrows",
       "title": "Name both objects",
       "visual": "contact-arrows",
-      "text": "Read the labels. A on B belongs on B, because B receives that push. B on A belongs on A. The arrows are equal and point opposite ways. Two objects. Two forces.",
-      "start": 34.986,
-      "end": 46.122,
-      "beatEnd": 49.359
+      "text": "Follow each arrow to the object receiving the push. Blue on orange belongs with the orange pilot. Orange on blue belongs with the blue pilot. The arrows are equal in length and point in opposite directions. One interaction; two force arrows.",
+      "start": 29.999,
+      "end": 45.768,
+      "beatEnd": 48.768,
+      "voiceSection": "observe-explain"
     },
     {
       "id": "motion-evidence",
       "title": "Motion is evidence",
       "visual": "separation",
-      "text": "Now compare the evidence. Before contact: still. After contact: moving apart. What changed? Their motion. We cannot see a force floating by itself, but we can observe what the interaction changed.",
-      "start": 49.359,
-      "end": 64.143,
-      "beatEnd": 67.38
+      "text": "Compare the evidence before and after contact. Before the push, both platforms are still. Afterwards, they move apart. The change is motion. We do not see a force floating through the air; we identify the interaction and measure what changes.",
+      "start": 48.768,
+      "end": 64.562,
+      "beatEnd": 64.562,
+      "voiceSection": "evidence-contact"
     },
     {
       "id": "force-does-not-ride",
       "title": "The push has ended",
       "visual": "separation-clean",
-      "text": "Ooh, careful—many scientists think the push rides inside the skater. Let’s check. Hands touch: contact arrows appear. Hands separate: the arrows vanish. On this low-friction track, the skaters keep gliding while other forces still act.",
-      "start": 67.38,
-      "end": 84.228,
-      "beatEnd": 87.465
+      "text": "Here is an idea worth testing: perhaps the push travels inside each pilot. Check the sequence. While their palms touch, the contact-force arrows are present. When their hands separate, those arrows disappear. The platforms keep gliding, but that contact push has ended.",
+      "start": 64.562,
+      "end": 81.145,
+      "beatEnd": 81.145,
+      "voiceSection": "evidence-contact"
     },
     {
       "id": "push-or-pull",
       "title": "Push or pull",
       "visual": "bench",
-      "text": "Contact forces can push or pull. A hand pushes a cart away. A rope pulls a trolley closer. Name each pair: hand on cart; rope on trolley. One object alone is not a complete explanation.",
-      "start": 87.465,
-      "end": 100.929,
-      "beatEnd": 104.165
+      "text": "Contact forces can push or pull. In the first bay, the robot's padded hand pushes the cart. In the second, the robot pulls the trolley through a taut cable. In both cases, name the pair. One object alone cannot describe an interaction.",
+      "start": 81.145,
+      "end": 97.728,
+      "beatEnd": 100.728,
+      "voiceSection": "evidence-contact"
     },
     {
       "id": "non-contact",
       "title": "No touch required",
       "visual": "magnets",
-      "text": "Keep your eye on the gap. These magnets never touch, yet both carts move. That is non-contact evidence. Earth also pulls a falling book without touching it. Again: which two objects?",
-      "start": 104.165,
-      "end": 116.549,
-      "beatEnd": 119.786
+      "text": "Now focus on the gap between the magnets. They do not touch, yet both carts can begin to move. That is evidence of a non-contact interaction. Gravity is another example: Earth pulls objects towards it without making surface contact.",
+      "start": 100.728,
+      "end": 116.49,
+      "beatEnd": 116.49,
+      "voiceSection": "classify-test"
     },
     {
       "id": "classification",
       "title": "Contact or non-contact",
       "visual": "compare",
-      "text": "Quick check. Which two objects interact? Are they touching? Foot on ball: contact. Magnet on magnet: non-contact. Earth on book: non-contact. Strength does not choose the label; touching does.",
-      "start": 119.786,
-      "end": 134.498,
-      "beatEnd": 137.735
+      "text": "Use two questions to classify an interaction. First: which two objects are involved? Second: do they touch? A robot hand on a cart is contact. Magnet on magnet is non-contact. Earth pulling an object is non-contact. Strength does not choose the label; touching does.",
+      "start": 116.49,
+      "end": 134.273,
+      "beatEnd": 134.273,
+      "voiceSection": "classify-test"
     },
     {
       "id": "fair-evidence",
       "title": "Test one change",
       "visual": "evidence",
-      "text": "Let’s test two pushes fairly. Same carts. Same floor. Same starting line. We change only the push, then measure distance. Change several things, and the evidence cannot tell us what mattered.",
-      "start": 137.735,
-      "end": 151.199,
-      "beatEnd": 154.436
+      "text": "For a fair comparison, keep the cart, track, and starting line the same. Change only the size of the push, then measure the distance travelled in the same time. If several conditions change together, the evidence cannot tell us which change mattered.",
+      "start": 134.273,
+      "end": 151.248,
+      "beatEnd": 154.248,
+      "voiceSection": "classify-test"
     },
     {
       "id": "transfer",
       "title": "Repair the explanation",
       "visual": "transfer",
-      "text": "A tempting idea: the ball keeps moving, so the kick must be inside it. Let’s check. Foot touches ball: the contact push acts. Foot leaves: that push ends. The ball keeps moving. Interaction first; changed motion afterwards.",
-      "start": 154.436,
-      "end": 169.484,
-      "beatEnd": 172.721
+      "text": "Return to the pilots. Their platforms are still moving after their hands separate. Does that mean a push is stored inside them? No. The contact interaction happened first and changed their motion. After contact ends, the new motion can continue while other forces still act.",
+      "start": 154.248,
+      "end": 172.114,
+      "beatEnd": 172.114,
+      "voiceSection": "reason-conclude"
     },
     {
       "id": "challenge",
       "title": "Predict the evidence",
       "visual": "magnets-arrows",
-      "text": "Final prediction. Two magnet carts start still with a gap, then move apart. Which observations support a non-contact push? Hold your answer. The gap stays visible, both motions change, and no hand touches either cart.",
-      "start": 172.721,
-      "end": 186.929,
-      "beatEnd": 190.166
+      "text": "Make a prediction before the magnet trial runs. Which observations would support a non-contact interaction? Take three quiet seconds to decide. Now check: the gap remains visible, both carts change motion, and no hand touches either cart. Those observations support the claim.",
+      "start": 172.114,
+      "end": 188.789,
+      "beatEnd": 188.789,
+      "voiceSection": "reason-conclude"
     },
     {
       "id": "exit",
       "title": "Your physics move",
       "visual": "exit",
-      "text": "You have the physicist’s move. Name the pair. Decide: touch or no touch. Use a change in motion as evidence. A force is not hidden stuff inside an object. It is an interaction.",
-      "start": 190.166,
-      "end": 203.75,
-      "beatEnd": 205
+      "text": "Use this physicist's routine whenever you investigate a force. Name both objects. Decide whether they touch. Then use a change in motion as evidence. A force is not hidden material carried by one object. A force belongs to an interaction between objects.",
+      "start": 188.789,
+      "end": 205.464,
+      "beatEnd": 206.714,
+      "voiceSection": "reason-conclude"
     }
   ],
   "actions": [
     {
       "id": "mystery",
       "start": 0,
-      "end": 16.701,
-      "narration": "Shh—look closely. Two skaters are still. Watch their hands. They press, then both platforms roll apart. Freeze the picture. Point to the pair. Where did the pushes act?",
+      "end": 14.615,
+      "narration": "Watch the two pilots on the glide track. At first, both are still. Now watch their hands. Their palms press, and both platforms begin to move apart. The motion is our first clue. Which two objects are interacting?",
       "expected_action": "contact",
       "board_region": "demonstration-stage"
     },
     {
       "id": "interaction",
-      "start": 16.701,
-      "end": 34.986,
-      "narration": "A force is a push or pull during an interaction. Skater A pushes on B. At once, B pushes on A. One interaction gives two forces, acting on different objects. Watch the contact again.",
+      "start": 14.615,
+      "end": 29.999,
+      "narration": "A force is a push or pull during an interaction. The blue pilot pushes on the orange pilot. At the same moment, the orange pilot pushes on the blue pilot. One interaction produces two forces, acting on two different objects.",
       "expected_action": "contact",
       "board_region": "demonstration-stage"
     },
     {
       "id": "arrows",
-      "start": 34.986,
-      "end": 49.359,
-      "narration": "Read the labels. A on B belongs on B, because B receives that push. B on A belongs on A. The arrows are equal and point opposite ways. Two objects. Two forces.",
+      "start": 29.999,
+      "end": 48.768,
+      "narration": "Follow each arrow to the object receiving the push. Blue on orange belongs with the orange pilot. Orange on blue belongs with the blue pilot. The arrows are equal in length and point in opposite directions. One interaction; two force arrows.",
       "expected_action": "contact-arrows",
       "board_region": "demonstration-stage"
     },
     {
       "id": "motion-evidence",
-      "start": 49.359,
-      "end": 67.38,
-      "narration": "Now compare the evidence. Before contact: still. After contact: moving apart. What changed? Their motion. We cannot see a force floating by itself, but we can observe what the interaction changed.",
+      "start": 48.768,
+      "end": 64.562,
+      "narration": "Compare the evidence before and after contact. Before the push, both platforms are still. Afterwards, they move apart. The change is motion. We do not see a force floating through the air; we identify the interaction and measure what changes.",
       "expected_action": "separation",
       "board_region": "demonstration-stage"
     },
     {
       "id": "force-does-not-ride",
-      "start": 67.38,
-      "end": 87.465,
-      "narration": "Ooh, careful—many scientists think the push rides inside the skater. Let’s check. Hands touch: contact arrows appear. Hands separate: the arrows vanish. On this low-friction track, the skaters keep gliding while other forces still act.",
+      "start": 64.562,
+      "end": 81.145,
+      "narration": "Here is an idea worth testing: perhaps the push travels inside each pilot. Check the sequence. While their palms touch, the contact-force arrows are present. When their hands separate, those arrows disappear. The platforms keep gliding, but that contact push has ended.",
       "expected_action": "separation-clean",
       "board_region": "demonstration-stage"
     },
     {
       "id": "push-or-pull",
-      "start": 87.465,
-      "end": 104.165,
-      "narration": "Contact forces can push or pull. A hand pushes a cart away. A rope pulls a trolley closer. Name each pair: hand on cart; rope on trolley. One object alone is not a complete explanation.",
+      "start": 81.145,
+      "end": 100.728,
+      "narration": "Contact forces can push or pull. In the first bay, the robot's padded hand pushes the cart. In the second, the robot pulls the trolley through a taut cable. In both cases, name the pair. One object alone cannot describe an interaction.",
       "expected_action": "bench",
       "board_region": "demonstration-stage"
     },
     {
       "id": "non-contact",
-      "start": 104.165,
-      "end": 119.786,
-      "narration": "Keep your eye on the gap. These magnets never touch, yet both carts move. That is non-contact evidence. Earth also pulls a falling book without touching it. Again: which two objects?",
+      "start": 100.728,
+      "end": 116.49,
+      "narration": "Now focus on the gap between the magnets. They do not touch, yet both carts can begin to move. That is evidence of a non-contact interaction. Gravity is another example: Earth pulls objects towards it without making surface contact.",
       "expected_action": "magnets",
       "board_region": "demonstration-stage"
     },
     {
       "id": "classification",
-      "start": 119.786,
-      "end": 137.735,
-      "narration": "Quick check. Which two objects interact? Are they touching? Foot on ball: contact. Magnet on magnet: non-contact. Earth on book: non-contact. Strength does not choose the label; touching does.",
+      "start": 116.49,
+      "end": 134.273,
+      "narration": "Use two questions to classify an interaction. First: which two objects are involved? Second: do they touch? A robot hand on a cart is contact. Magnet on magnet is non-contact. Earth pulling an object is non-contact. Strength does not choose the label; touching does.",
       "expected_action": "compare",
       "board_region": "demonstration-stage"
     },
     {
       "id": "fair-evidence",
-      "start": 137.735,
-      "end": 154.436,
-      "narration": "Let’s test two pushes fairly. Same carts. Same floor. Same starting line. We change only the push, then measure distance. Change several things, and the evidence cannot tell us what mattered.",
+      "start": 134.273,
+      "end": 154.248,
+      "narration": "For a fair comparison, keep the cart, track, and starting line the same. Change only the size of the push, then measure the distance travelled in the same time. If several conditions change together, the evidence cannot tell us which change mattered.",
       "expected_action": "evidence",
       "board_region": "demonstration-stage"
     },
     {
       "id": "transfer",
-      "start": 154.436,
-      "end": 172.721,
-      "narration": "A tempting idea: the ball keeps moving, so the kick must be inside it. Let’s check. Foot touches ball: the contact push acts. Foot leaves: that push ends. The ball keeps moving. Interaction first; changed motion afterwards.",
+      "start": 154.248,
+      "end": 172.114,
+      "narration": "Return to the pilots. Their platforms are still moving after their hands separate. Does that mean a push is stored inside them? No. The contact interaction happened first and changed their motion. After contact ends, the new motion can continue while other forces still act.",
       "expected_action": "transfer",
       "board_region": "demonstration-stage"
     },
     {
       "id": "challenge",
-      "start": 172.721,
-      "end": 190.166,
-      "narration": "Final prediction. Two magnet carts start still with a gap, then move apart. Which observations support a non-contact push? Hold your answer. The gap stays visible, both motions change, and no hand touches either cart.",
+      "start": 172.114,
+      "end": 188.789,
+      "narration": "Make a prediction before the magnet trial runs. Which observations would support a non-contact interaction? Take three quiet seconds to decide. Now check: the gap remains visible, both carts change motion, and no hand touches either cart. Those observations support the claim.",
       "expected_action": "magnets-arrows",
       "board_region": "demonstration-stage"
     },
     {
       "id": "exit",
-      "start": 190.166,
-      "end": 205,
-      "narration": "You have the physicist’s move. Name the pair. Decide: touch or no touch. Use a change in motion as evidence. A force is not hidden stuff inside an object. It is an interaction.",
+      "start": 188.789,
+      "end": 206.714,
+      "narration": "Use this physicist's routine whenever you investigate a force. Name both objects. Decide whether they touch. Then use a change in motion as evidence. A force is not hidden material carried by one object. A force belongs to an interaction between objects.",
       "expected_action": "exit",
       "board_region": "demonstration-stage"
     }

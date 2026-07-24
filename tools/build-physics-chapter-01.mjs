@@ -11,8 +11,8 @@ const courseDir = path.join(root, "physics-training", "physics-101-advanced-grad
 const dataFile = path.join(courseDir, "data", "physics-101-course.json");
 const renderScript = path.join(root, "tools", "render_physics_chapter_01_motion.py");
 const workDir = path.join(root, "outputs", "physics-101-pilot-media");
-const segmentsDir = path.join(workDir, "voice-segments-v2");
-const voiceWavDir = path.join(workDir, "voice-wav-v2");
+const segmentsDir = path.join(workDir, "voice-sections-v4");
+const voiceWavDir = path.join(workDir, "voice-wav-v4");
 const targetSeconds = 205;
 const voiceModel = "gpt-4o-mini-tts-2025-12-15";
 const voiceName = "coral";
@@ -35,32 +35,33 @@ async function main() {
     fs.mkdir(path.join(courseDir, "assets", "videos"), { recursive: true }),
   ]);
 
+  const sections = narrationSections(chapter);
   const parts = [];
-  for (let index = 0; index < chapter.narration.length; index += 1) {
-    const segment = chapter.narration[index];
-    const segmentPath = path.join(segmentsDir, `${String(index + 1).padStart(2, "0")}-${segment.id}.mp3`);
+  for (let index = 0; index < sections.length; index += 1) {
+    const section = sections[index];
+    const segmentPath = path.join(segmentsDir, `${String(index + 1).padStart(2, "0")}-${section.id}.mp3`);
     let duration = await reusableSpeechDuration(segmentPath);
     if (!duration) {
-      if (!apiKey) throw new Error(`Reusable voice segment is missing: ${segment.id}. OPENAI_API_KEY is required only to regenerate missing speech.`);
-      await createSpeech(apiKey, segment, segmentPath);
+      if (!apiKey) throw new Error(`Reusable voice section is missing: ${section.id}. OPENAI_API_KEY is required only to regenerate missing speech.`);
+      await createSpeech(apiKey, section, segmentPath);
       duration = await mediaDuration(segmentPath);
     }
     if (duration < 5) {
-      if (!apiKey) throw new Error(`Reusable voice segment is too short: ${segment.id}. OPENAI_API_KEY is required only to regenerate invalid speech.`);
-      await createSpeech(apiKey, segment, segmentPath);
+      if (!apiKey) throw new Error(`Reusable voice section is too short: ${section.id}. OPENAI_API_KEY is required only to regenerate invalid speech.`);
+      await createSpeech(apiKey, section, segmentPath);
       duration = await mediaDuration(segmentPath);
     }
-    if (duration < 5) throw new Error(`Voice segment ${segment.id} is unexpectedly short (${duration.toFixed(2)}s).`);
-    parts.push({ ...segment, file: segmentPath, duration });
-    console.log(`Voice ${index + 1}/${chapter.narration.length}: ${duration.toFixed(2)}s`);
+    if (duration < 5) throw new Error(`Voice section ${section.id} is unexpectedly short (${duration.toFixed(2)}s).`);
+    parts.push({ ...section, file: segmentPath, duration });
+    console.log(`Voice ${index + 1}/${sections.length}: ${duration.toFixed(2)}s`);
   }
 
   const spokenSeconds = parts.reduce((total, part) => total + part.duration, 0);
-  if (spokenSeconds > 178) {
-    throw new Error(`Measured speech is ${spokenSeconds.toFixed(2)}s; the approved maximum is 178s.`);
+  if (spokenSeconds > 198) {
+    throw new Error(`Measured speech is ${spokenSeconds.toFixed(2)}s; the approved maximum is 198s.`);
   }
   const leadout = 1.25;
-  const gap = Math.max(1.5, (targetSeconds - leadout - spokenSeconds) / Math.max(1, parts.length - 1));
+  const gap = Math.max(3, (targetSeconds - leadout - spokenSeconds) / Math.max(1, parts.length - 1));
   const expectedDuration = spokenSeconds + gap * (parts.length - 1) + leadout;
   console.log(`Spoken ${spokenSeconds.toFixed(2)}s; evidence pause ${gap.toFixed(2)}s; target ${expectedDuration.toFixed(2)}s`);
 
@@ -93,19 +94,28 @@ async function main() {
   const audioDuration = await mediaDuration(audioWavPath);
 
   let cursor = 0;
-  const timeline = parts.map((part, index) => {
-    const start = cursor;
-    const end = start + part.duration;
-    cursor = end + (index < parts.length - 1 ? gap : leadout);
-    return {
-      id: part.id,
-      title: part.title,
-      visual: part.visual,
-      text: part.text,
-      start: round(start),
-      end: round(end),
-      beatEnd: round(cursor),
-    };
+  const timeline = [];
+  parts.forEach((part, sectionIndex) => {
+    const weights = part.cues.map((cue) => Math.max(1, cue.text.trim().split(/\s+/u).length));
+    const totalWeight = weights.reduce((sum, value) => sum + value, 0);
+    part.cues.forEach((cue, cueIndex) => {
+      const start = cursor;
+      const duration = part.duration * (weights[cueIndex] / totalWeight);
+      const end = start + duration;
+      timeline.push({
+        id: cue.id,
+        title: cue.title,
+        visual: cue.visual,
+        text: cue.text,
+        start: round(start),
+        end: round(end),
+        beatEnd: round(end),
+        voiceSection: part.id,
+      });
+      cursor = end;
+    });
+    cursor += sectionIndex < parts.length - 1 ? gap : leadout;
+    timeline[timeline.length - 1].beatEnd = round(cursor);
   });
 
   const timelinePath = path.join(courseDir, "assets", "timelines", "chapter-01.json");
@@ -159,7 +169,7 @@ async function main() {
   console.log(`Physics Chapter 1 complete: ${finalDuration.toFixed(2)}s`);
 }
 
-async function createSpeech(apiKey, segment, outputPath) {
+async function createSpeech(apiKey, section, outputPath) {
   const response = await fetch("https://api.openai.com/v1/audio/speech", {
     method: "POST",
     headers: {
@@ -170,9 +180,9 @@ async function createSpeech(apiKey, segment, outputPath) {
       model: voiceModel,
       voice: voiceName,
       response_format: "mp3",
-      speed: 1.12,
-      input: segment.text,
-      instructions: teacherInstructions(segment.id),
+      speed: 1.08,
+      input: section.text,
+      instructions: teacherInstructions(section.id),
     }),
   });
   if (!response.ok) {
@@ -252,26 +262,34 @@ function wrapCaption(text) {
   return `${words.slice(0, bestIndex).join(" ")}\n${words.slice(bestIndex).join(" ")}`;
 }
 
-function teacherInstructions(segmentId) {
+function narrationSections(chapter) {
+  const groups = [
+    { id: "observe-explain", cueIds: ["mystery", "interaction", "arrows"] },
+    { id: "evidence-contact", cueIds: ["motion-evidence", "force-does-not-ride", "push-or-pull"] },
+    { id: "classify-test", cueIds: ["non-contact", "classification", "fair-evidence"] },
+    { id: "reason-conclude", cueIds: ["transfer", "challenge", "exit"] },
+  ];
+  const byId = new Map(chapter.narration.map((cue) => [cue.id, cue]));
+  return groups.map((group) => {
+    const cues = group.cueIds.map((id) => byId.get(id));
+    if (cues.some((cue) => !cue)) throw new Error(`Voice section ${group.id} references a missing narration cue.`);
+    return { ...group, cues, text: cues.map((cue) => cue.text).join("\n\n") };
+  });
+}
+
+function teacherInstructions(sectionId) {
   const direction = {
-    mystery: "Begin close and gently hushed, then brighten with real surprise when both skaters move. Make the final question sound like a genuine invitation and leave a thinking beat.",
-    interaction: "Sound confident and explanatory, with crisp contrast between A on B and B on A. Lift the energy on two forces.",
-    arrows: "Use deliberate, precise diction as if building the labels with the learner. Give Two objects. Two forces. a satisfying rhythmic finish.",
-    "motion-evidence": "Use a compare-and-discover rhythm. Keep Before contact and After contact distinct, then brighten on Their motion.",
-    "force-does-not-ride": "Start warmly and conspiratorially on Ooh, careful. Correct the idea kindly, then become firm and clear when the arrows vanish.",
-    "push-or-pull": "Use lively contrast between push and pull, with clean short beats for the two object pairs.",
-    "non-contact": "Lower the energy slightly to focus attention on the gap, then sound intrigued when the carts move without touching.",
-    classification: "Sound quick and game-like but never rushed. Give each example its own clean decision beat.",
-    "fair-evidence": "Sound like a scientist setting up a fair challenge. Emphasise same, same, same, then change only the push.",
-    transfer: "Acknowledge the tempting idea without mockery. Use warm curiosity for the check and calm certainty for the correct sequence.",
-    challenge: "Build anticipation, pause after Hold your answer, then reveal the three observations with bright confidence.",
-    exit: "Sound proud and encouraging, not triumphant. Give the three-step physicist routine a memorable, steady rhythm.",
-  }[segmentId] || "Use warm, varied and precise primary science teaching delivery.";
+    "observe-explain": "Begin with conversational curiosity. Settle into a clear explanatory pace. Stress only the scientific contrast words: still, interacting, receiving, equal, and opposite.",
+    "evidence-contact": "Use calm compare-and-check delivery. Let before and afterwards sound distinct. Correct the stored-push idea with respectful certainty, then give push and pull one clean emphasis each.",
+    "classify-test": "Sound like a teacher guiding a practical investigation. Keep the pace steady and make the two classification questions clearly separate. Use measured emphasis for same and change only.",
+    "reason-conclude": "Acknowledge the misconception neutrally, then resolve it with calm confidence. For the prediction, leave a genuine three-second silent thinking pause after the instruction. End warmly and firmly, without a celebratory flourish.",
+  }[sectionId] || "Use warm, varied and precise primary science teaching delivery.";
   return [
-    "Speak as a warm, engaging Australian primary science teacher beside one capable nine-year-old learner.",
+    "Speak as a warm Australian primary science teacher beside one capable nine-year-old learner.",
     direction,
-    "Use natural pitch variety and conversational rhythm, not constant loudness.",
-    "Keep calm adult authority without becoming deep, dull, military, theatrical, sing-song, breathless, or like an advertisement.",
+    "Maintain one continuous thought across the paragraphs. Do not restart with a fresh announcer tone at paragraph boundaries.",
+    "Use a natural middle pitch, comfortable intensity, and approximately 140 to 155 words per minute. Facts end with a settled fall. Genuine questions open gently and are followed by silence.",
+    "Use one principal emphasis per thought group. Keep the delivery adult, unforced, trustworthy, and conversational.",
     "Pronounce interaction, contact, non-contact, evidence and motion crisply.",
   ].join(" ");
 }

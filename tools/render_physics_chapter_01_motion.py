@@ -6,45 +6,45 @@ from pathlib import Path
 from manim import *
 
 
-COBALT = "#1659B7"
-INK = "#102A43"
-CREAM = "#FFF8E8"
-GOLD = "#F3B33D"
-ORANGE = "#F07C36"
-CYAN = "#37C8D7"
-GREEN = "#2D9C72"
-RED = "#D64545"
-VIOLET = "#6D4BEF"
-MAGENTA = "#D83798"
-MUTED = "#55738B"
-CUE_WHITE = "#FFFFFF"
-CUE_BLACK = "#07111A"
+INK = "#071827"
+NAVY = "#0A2944"
+COBALT = "#1265C9"
+BLUE = "#13B9E8"
+ORANGE = "#FF8A1F"
+GOLD = "#FFC857"
+GREEN = "#32D296"
+RED = "#FF5A59"
+WHITE = "#FFFFFF"
+SOFT = "#EAF5FF"
+BLACK = "#030A10"
 
 
 class PhysicsChapter01Motion(Scene):
     def construct(self):
         self.course_dir = Path(os.environ["BQ_PHYSICS_COURSE_DIR"])
         self.timeline = json.loads(Path(os.environ["BQ_TIMELINE_PATH"]).read_text(encoding="utf-8"))
-        self.assets = self.course_dir / "assets" / "source" / "motion-v2"
+        self.assets = self.course_dir / "assets" / "source" / "kinetic-lab-v3"
         self.dynamic = []
         self.focus = None
-        self.replay = None
         self.minimum_hold = 0
-        background = ImageMobject(str(self.assets / "workshop-stage-16x9.png")).set_width(config.frame_width * 1.04)
-        background.set_z_index(-100)
-        background.add_updater(
-            lambda mob: mob.move_to([
-                0.16 * math.sin(self.time * 0.55),
-                0.035 * math.cos(self.time * 0.41),
-                0,
-            ])
-        )
-        self.add(background, self.header())
+        self.background = self.image("lab-stage-clean.png", width=config.frame_width * 1.035, point=ORIGIN, z=-100)
+        self.header_group = self.header()
+        self.add(self.background, self.header_group)
         self.wait(0.25)
+
         handlers = [
-            self.mystery, self.interaction, self.arrows, self.motion_evidence,
-            self.push_ended, self.push_pull, self.non_contact, self.classification,
-            self.fair_test, self.repair, self.predict, self.exit_scene,
+            self.mystery,
+            self.interaction,
+            self.arrows,
+            self.motion_evidence,
+            self.push_ended,
+            self.push_pull,
+            self.non_contact,
+            self.classification,
+            self.fair_test,
+            self.repair,
+            self.predict,
+            self.exit_scene,
         ]
         for index, cue in enumerate(self.timeline["cues"]):
             started = self.time
@@ -54,475 +54,311 @@ class PhysicsChapter01Motion(Scene):
         if self.time < self.timeline["duration"]:
             self.wait(self.timeline["duration"] - self.time)
 
+    def image(self, name, height=None, width=None, point=ORIGIN, z=8):
+        mob = ImageMobject(str(self.assets / name))
+        if width:
+            mob.set_width(width)
+        elif height:
+            mob.set_height(height)
+        return mob.move_to(point).set_z_index(z)
+
     def header(self):
-        rail = Rectangle(width=config.frame_width, height=0.70, stroke_width=0, fill_color=INK, fill_opacity=0.97).to_edge(UP, buff=0)
-        brand = Text("BRIGHT QUEST  /  PHYSICS 101", font_size=20, weight=BOLD, color=CREAM).to_edge(LEFT, buff=0.42).shift(UP * 3.25)
-        chapter = Text("01  FORCE IS AN INTERACTION", font_size=19, weight=BOLD, color=GOLD).to_edge(RIGHT, buff=0.42).shift(UP * 3.25)
-        return VGroup(rail, brand, chapter).set_z_index(50)
+        rail = Rectangle(width=config.frame_width, height=0.54, stroke_width=0, fill_color=INK, fill_opacity=0.96).to_edge(UP, buff=0)
+        brand = Text("BRIGHT QUEST  /  PHYSICS 101", font_size=17, weight=BOLD, color=WHITE).to_edge(LEFT, buff=0.38).shift(UP * 3.34)
+        chapter = Text("FORCE LAB 01", font_size=17, weight=BOLD, color=GOLD).to_edge(RIGHT, buff=0.38).shift(UP * 3.34)
+        return VGroup(rail, brand, chapter).set_z_index(80)
 
     def transition(self, index, title):
-        heading = self.cue_heading(index, title)
-        animations = [FadeOut(item, shift=DOWN * 0.04) for item in self.dynamic if item in self.mobjects]
-        animations.append(FadeIn(heading, shift=RIGHT * 0.10))
-        self.play(AnimationGroup(*animations, lag_ratio=0), run_time=0.45 if index else 0.35)
-        for item in self.dynamic:
-            self.remove(item)
+        heading = self.heading(index, title)
+        previous_layers = [
+            item for item in list(self.mobjects)
+            if item is not self.background and item is not self.header_group
+        ]
+        fades = [FadeOut(item, shift=DOWN * 0.05) for item in previous_layers]
+        drift = LEFT * 0.08 if index % 2 else RIGHT * 0.08
+        self.play(
+            AnimationGroup(*fades, FadeIn(heading, shift=RIGHT * 0.12), lag_ratio=0),
+            self.background.animate.shift(drift).scale(1.002),
+            run_time=0.45 if index else 0.34,
+        )
+        for item in list(self.mobjects):
+            if item is not self.background and item is not self.header_group and item is not heading:
+                self.remove(item)
         self.dynamic = [heading]
         self.focus = heading
-        self.replay = None
         self.minimum_hold = 0
 
-    def cue_heading(self, index, title):
-        badge = RoundedRectangle(width=0.78, height=0.46, corner_radius=0.12, stroke_width=0, fill_color=GOLD, fill_opacity=1)
-        number = Text(f"{index + 1:02d}", font_size=18, weight=BOLD, color=INK).move_to(badge)
-        text = Text(title.upper(), font_size=23, weight=BOLD, color=INK)
-        if text.width > 6.15:
-            text.scale_to_fit_width(6.15)
-        row = VGroup(VGroup(badge, number), text).arrange(RIGHT, buff=0.22)
-        plate = RoundedRectangle(width=row.width + 0.62, height=0.72, corner_radius=0.16, stroke_color="#D5A33B", stroke_width=2, fill_color=CREAM, fill_opacity=0.95).move_to(row)
-        return VGroup(plate, row).move_to(LEFT * 2.40 + UP * 2.73).set_z_index(30)
+    def heading(self, index, title):
+        number = Text(f"{index + 1:02d}", font_size=18, weight=BOLD, color=INK)
+        badge = RoundedRectangle(width=0.68, height=0.46, corner_radius=0.12, stroke_width=0, fill_color=ORANGE, fill_opacity=1).move_to(number)
+        label = Text(title.upper(), font_size=21, weight=BOLD, color=WHITE)
+        if label.width > 5.8:
+            label.scale_to_fit_width(5.8)
+        row = VGroup(VGroup(badge, number), label).arrange(RIGHT, buff=0.20)
+        shell = RoundedRectangle(width=row.width + 0.58, height=0.66, corner_radius=0.16, stroke_color=WHITE, stroke_width=1.5, fill_color=INK, fill_opacity=0.88).move_to(row)
+        return VGroup(shell, row).move_to(LEFT * 3.40 + UP * 2.80).set_z_index(50)
 
-    def finish(self, started, cue):
-        duration = cue["beatEnd"] - cue["start"]
-        remaining = max(0, duration - (self.time - started))
-        while remaining > 2.8 + self.minimum_hold:
-            replay_time = min(1.8, remaining - 1.0 - self.minimum_hold)
-            if self.replay:
-                self.replay(replay_time)
-            else:
-                self.play(Indicate(self.focus, color=GOLD, scale_factor=1.055), run_time=replay_time)
-            remaining = max(0, duration - (self.time - started))
-            if remaining > 2.8 + self.minimum_hold:
-                self.wait(min(0.9, remaining - 2.5 - self.minimum_hold))
-            remaining = max(0, duration - (self.time - started))
-        if remaining > 0:
-            self.wait(remaining)
+    def chip(self, text, accent=BLUE, width=None, point=ORIGIN, size=18):
+        label = Text(text.upper(), font_size=size, weight=BOLD, color=WHITE)
+        plate_width = width or max(1.5, label.width + 0.52)
+        if label.width > plate_width - 0.42:
+            label.scale_to_fit_width(plate_width - 0.42)
+        plate = RoundedRectangle(width=plate_width, height=0.56, corner_radius=0.14, stroke_color=accent, stroke_width=2.3, fill_color=BLACK, fill_opacity=0.86).move_to(label)
+        return VGroup(plate, label).move_to(point).set_z_index(45)
 
-    def sprite(self, name, height, point):
-        return ImageMobject(str(self.assets / name)).set_height(height).move_to(point).set_z_index(8)
-
-    def skaters(self, pose="contact", left_x=-3.0, right_x=0.2, y=-0.55, height=4.75):
-        suffix = "contact" if pose == "contact" else "recoil"
-        return (
-            self.sprite(f"skater-a-{suffix}.png", height, [left_x, y, 0]),
-            self.sprite(f"skater-b-{suffix}.png", height, [right_x, y, 0]),
-        )
-
-    def panel(self, title, labels, accent=COBALT):
-        shell = RoundedRectangle(width=3.75, height=4.35, corner_radius=0.20, stroke_color=accent, stroke_width=2.5, fill_color="#FFFDF7", fill_opacity=0.96).move_to(RIGHT * 4.70 + DOWN * 0.18)
-        heading = Text(title.upper(), font_size=21, weight=BOLD, color=INK)
-        if heading.width > 3.15:
-            heading.scale_to_fit_width(3.15)
-        heading.move_to(shell.get_top() + DOWN * 0.45)
-        rule = Line(LEFT * 1.45, RIGHT * 1.45, color="#D9CBA9", stroke_width=2).next_to(heading, DOWN, buff=0.15)
-        rows = []
-        y = shell.get_top()[1] - 1.20
-        for label, color in labels:
-            rows.append(self.status_row(label, color).move_to([shell.get_center()[0], y, 0]))
-            y -= 0.78
-        shell_group = VGroup(shell, heading, rule).set_z_index(20)
-        for row in rows:
-            row.set_z_index(21)
-        return shell_group, rows
-
-    def status_row(self, label, color):
-        plate_width = 3.20
-        dot = Circle(radius=0.15, stroke_width=0, fill_color=color, fill_opacity=1)
-        text = Text(label, font_size=18, weight=BOLD, color=INK)
-        if text.width > 2.42:
-            text.scale_to_fit_width(2.42)
-        row = VGroup(dot, text).arrange(RIGHT, buff=0.18)
-        plate = RoundedRectangle(width=plate_width, height=0.60, corner_radius=0.13, stroke_color=color, stroke_width=2, fill_color=WHITE, fill_opacity=0.98).move_to(row)
-        row.move_to(plate)
-        return VGroup(plate, row).set_z_index(21)
-
-    def tag(self, text, color=COBALT, width=None):
-        label = Text(text, font_size=18, weight=BOLD, color=INK)
-        plate_width = width or max(1.55, label.width + 0.46)
-        if label.width > plate_width - 0.38:
-            label.scale_to_fit_width(plate_width - 0.38)
-        plate = RoundedRectangle(width=plate_width, height=0.52, corner_radius=0.12, stroke_color=color, stroke_width=2, fill_color=WHITE, fill_opacity=0.96).move_to(label)
-        return VGroup(plate, label).set_z_index(20)
-
-    def force_arrow(self, start, end, label, color, label_shift=UP * 0.36):
-        arrow = self.cue_arrow(start, end, stroke_width=8)
-        label_plate = self.tag(label, CUE_BLACK).scale(0.78).move_to(arrow.get_center() + label_shift)
-        return VGroup(arrow, label_plate)
-
-    def cue_arrow(self, start, end, stroke_width=8):
-        arrow = Arrow(start, end, buff=0, color=CUE_WHITE, stroke_width=stroke_width, max_tip_length_to_length_ratio=0.20)
-        arrow.set_stroke(CUE_WHITE, width=stroke_width, opacity=1)
-        arrow.set_fill(CUE_WHITE, opacity=1)
-        arrow.set_background_stroke(color=CUE_BLACK, width=stroke_width + 5, opacity=1)
-        return arrow.set_z_index(18)
-
-    def cue_double_arrow(self, start, end, stroke_width=5):
-        arrow = DoubleArrow(start, end, buff=0, color=CUE_WHITE, stroke_width=stroke_width)
-        arrow.set_stroke(CUE_WHITE, width=stroke_width, opacity=1)
-        arrow.set_fill(CUE_WHITE, opacity=1)
-        arrow.set_background_stroke(color=CUE_BLACK, width=stroke_width + 5, opacity=1)
-        return arrow.set_z_index(18)
-
-    def cue_marker(self, start, end, stroke_width=4):
-        marker = DashedLine(start, end, color=CUE_WHITE, stroke_width=stroke_width)
-        marker.set_background_stroke(color=CUE_BLACK, width=stroke_width + 4, opacity=1)
-        return marker.set_z_index(18)
-
-    def cue_ring(self, point, radius=0.22, stroke_width=7):
-        ring = Circle(radius=radius, color=CUE_WHITE, stroke_width=stroke_width).move_to(point)
-        ring.set_background_stroke(color=CUE_BLACK, width=stroke_width + 5, opacity=1)
-        return ring.set_z_index(18)
-
-    def dots(self, start, direction, count=4, spacing=0.42, color=CYAN, increasing=False):
-        group = VGroup()
-        offset = 0
-        for index in range(count):
-            offset += spacing * (0.55 + index * 0.35) if increasing else spacing
-            dot = Dot(start + direction * offset, radius=0.06, color=CUE_WHITE, fill_opacity=0.96 - index * 0.10)
-            dot.set_stroke(CUE_BLACK, width=2, opacity=0.96)
-            group.add(dot.set_z_index(18))
+    def chips(self, items, y=-2.86):
+        group = VGroup(*[self.chip(text, colour, width) for text, colour, width in items]).arrange(RIGHT, buff=0.16).move_to([0, y, 0])
         return group
+
+    def cue_arrow(self, start, end, label=None, colour=WHITE, label_shift=UP * 0.38):
+        arrow = Arrow(start, end, buff=0, color=colour, stroke_width=8, max_tip_length_to_length_ratio=0.18)
+        arrow.set_background_stroke(color=BLACK, width=13, opacity=0.94).set_z_index(34)
+        if not label:
+            return arrow
+        tag = self.chip(label, colour, width=2.12, size=15).move_to(arrow.get_center() + label_shift)
+        return VGroup(arrow, tag)
+
+    def contact_ring(self, point, radius=0.22):
+        core = Circle(radius=radius, color=WHITE, stroke_width=7).move_to(point)
+        core.set_background_stroke(color=BLACK, width=12, opacity=0.9)
+        halo = Circle(radius=radius * 1.75, color=ORANGE, stroke_width=4).move_to(point)
+        return VGroup(core, halo).set_z_index(36)
+
+    def lab_sweep(self):
+        bands = VGroup(
+            Rectangle(width=0.92, height=5.82, stroke_width=0, fill_color=BLUE, fill_opacity=0.060),
+            Rectangle(width=0.42, height=5.82, stroke_width=0, fill_color=WHITE, fill_opacity=0.180),
+            Rectangle(width=0.92, height=5.82, stroke_width=0, fill_color=BLUE, fill_opacity=0.060),
+        ).arrange(RIGHT, buff=-0.04)
+        return bands.rotate(-0.10).move_to([-6.65, -0.12, 0]).set_z_index(5)
+
+    def trail(self, start, direction, colour, count=5):
+        group = VGroup()
+        for index in range(count):
+            line = Line(start + direction * (index * 0.34), start + direction * (0.18 + index * 0.34), color=colour, stroke_width=max(2, 7 - index))
+            line.set_background_stroke(color=BLACK, width=max(5, 11 - index), opacity=0.55)
+            group.add(line.set_z_index(30))
+        return group
+
+    def pilots(self, left_x=-2.70, right_x=2.62, y=-0.22, height=5.42):
+        left = self.image("pilot-blue-contact.png", height=height, point=[left_x, y, 0], z=12)
+        right = self.image("pilot-orange-contact.png", height=height, point=[right_x, y, 0], z=12)
+        return left, right
+
+    def magnets(self, left_x=-2.15, right_x=2.05, y=-0.58, height=2.65):
+        left = self.image("magnet-cart-orange.png", height=height, point=[left_x, y, 0], z=12)
+        right = self.image("magnet-cart-cyan.png", height=height, point=[right_x, y, 0], z=12)
+        return left, right
 
     def keep(self, *items):
         self.dynamic.extend(items)
 
-    def reveal(self, rows, run_time=1.25):
-        self.play(LaggedStart(*[FadeIn(row, shift=UP * 0.07) for row in rows], lag_ratio=0.25), run_time=run_time)
+    def finish(self, started, cue):
+        duration = cue["beatEnd"] - cue["start"]
+        remaining = max(0, duration - (self.time - started))
+        while remaining > 1.15:
+            sweep = self.lab_sweep()
+            self.add(sweep)
+            sweep_time = min(1.25, remaining)
+            self.play(sweep.animate.shift(RIGHT * 13.30), run_time=sweep_time, rate_func=linear)
+            self.remove(sweep)
+            remaining = max(0, duration - (self.time - started))
+            quiet_hold = min(2.20, max(0, remaining - 1.15))
+            if quiet_hold > 0:
+                self.wait(quiet_hold)
+            remaining = max(0, duration - (self.time - started))
+        if remaining > 0:
+            self.wait(remaining)
 
     def mystery(self):
-        left, right = self.skaters("contact")
-        shell, rows = self.panel("Observe the change", [("STILL", COBALT), ("PALMS TOUCH", GOLD), ("MOVE APART", GREEN)], GOLD)
-        stage_hint = self.tag("LOOK CLOSELY", COBALT, 2.25).move_to(LEFT * 1.40 + UP * 1.75)
-        self.play(FadeIn(stage_hint, shift=UP * 0.08), FadeIn(shell), run_time=0.55)
-        self.wait(0.65)
-        self.play(FadeIn(Group(left, right), shift=UP * 0.08, scale=0.96), FadeOut(stage_hint), run_time=0.75)
-        self.play(FadeIn(rows[0]), run_time=0.38)
-        self.play(left.animate.shift(RIGHT * 0.10), right.animate.shift(LEFT * 0.10), run_time=0.72, rate_func=rate_functions.ease_in_out_sine)
-        self.play(left.animate.shift(RIGHT * 0.10), right.animate.shift(LEFT * 0.10), run_time=0.58, rate_func=rate_functions.ease_in_cubic)
-        contact = self.cue_ring(LEFT * 1.38 + UP * 0.42, radius=0.24)
-        contact_echo = self.cue_ring(LEFT * 1.38 + UP * 0.42, radius=0.42, stroke_width=4)
-        self.play(Create(contact), Create(contact_echo), Flash(contact.get_center(), color=CUE_WHITE, flash_radius=0.60), run_time=0.72)
-        self.play(FadeOut(contact_echo, scale=1.28), run_time=0.42)
-        self.play(FadeIn(rows[1]), run_time=0.42)
-        left_r, right_r = self.skaters("recoil", -3.05, 0.25)
-        self.play(FadeTransform(left, left_r), FadeTransform(right, right_r), FadeOut(contact), run_time=0.62)
-        trail_l = self.dots([-2.05, -1.75, 0], LEFT)
-        trail_r = self.dots([-0.85, -1.75, 0], RIGHT)
-        self.play(left_r.animate.shift(LEFT * 0.95), right_r.animate.shift(RIGHT * 0.95), LaggedStart(*[FadeIn(dot) for dot in [*trail_l, *trail_r]], lag_ratio=0.08), run_time=2.25, rate_func=rate_functions.ease_out_cubic)
-        self.play(FadeIn(rows[2]), run_time=0.45)
-        question = self.tag("WHERE IS THE PAIR?", ORANGE, 3.3).move_to(LEFT * 1.40 + DOWN * 2.55)
-        self.play(FadeIn(question, shift=UP * 0.10), run_time=0.55)
-        self.play(Circumscribe(left_r, color=COBALT), run_time=0.75)
-        self.play(Circumscribe(right_r, color=GOLD), run_time=0.75)
-        self.minimum_hold = 2.1
-        self.focus = Group(left_r, right_r, trail_l, trail_r)
-        self.replay = lambda run_time: self.play(
-            left_r.animate.shift(RIGHT * 0.50), right_r.animate.shift(LEFT * 0.50),
-            run_time=run_time, rate_func=there_and_back,
-        )
-        self.keep(left_r, right_r, shell, *rows, trail_l, trail_r, question)
+        left, right = self.pilots(-2.95, 2.90)
+        states = self.chips([("still", BLUE, 1.65), ("palms touch", ORANGE, 2.25), ("motion changes", GREEN, 2.55)])
+        self.play(FadeIn(Group(left, right), shift=UP * 0.08, scale=0.96), FadeIn(states[0]), run_time=0.80)
+        self.play(left.animate.shift(RIGHT * 0.26), right.animate.shift(LEFT * 0.26), run_time=1.20, rate_func=rate_functions.ease_in_out_sine)
+        contact = self.contact_ring([0.02, 0.58, 0])
+        self.play(Create(contact), Flash(contact.get_center(), color=GOLD, flash_radius=0.62), FadeIn(states[1]), run_time=0.78)
+        trails = VGroup(self.trail([-1.65, -1.54, 0], LEFT, BLUE), self.trail([1.64, -1.54, 0], RIGHT, ORANGE))
+        self.play(FadeOut(contact, scale=1.35), left.animate.shift(LEFT * 1.05), right.animate.shift(RIGHT * 1.05), LaggedStart(*[Create(line) for line in trails], lag_ratio=0.05), run_time=2.50, rate_func=rate_functions.ease_out_cubic)
+        self.play(FadeIn(states[2]), run_time=0.44)
+        question = self.chip("Which two objects interact?", GOLD, width=4.10, point=[0, 2.00, 0], size=17)
+        self.play(FadeIn(question, shift=DOWN * 0.08), run_time=0.55)
+        self.minimum_hold = 2.8
+        self.focus = Group(left, right)
+        self.keep(left, right, states, trails, question)
 
     def interaction(self):
-        left, right = self.skaters("contact")
-        shell, rows = self.panel("One interaction", [("SKATER A", COBALT), ("SKATER B", GOLD), ("TWO FORCES", GREEN)], ORANGE)
-        self.play(FadeIn(Group(left, right)), FadeIn(shell), run_time=0.55)
-        halo_a = Ellipse(width=2.15, height=4.25, color=COBALT, stroke_width=4).move_to(left)
-        halo_b = Ellipse(width=2.15, height=4.25, color=GOLD, stroke_width=4).move_to(right)
-        self.play(Create(halo_a), FadeIn(rows[0]), run_time=0.75)
-        self.play(Create(halo_b), FadeIn(rows[1]), run_time=0.75)
-        pulse = self.cue_ring(LEFT * 1.38 + UP * 0.42)
-        self.play(Create(pulse), Flash(pulse.get_center(), color=CUE_BLACK, flash_radius=0.50), run_time=0.70)
-        arrow_a = self.force_arrow([-2.40, -0.20, 0], [-3.70, -0.20, 0], "B ON A", COBALT)
-        arrow_b = self.force_arrow([-0.35, -0.20, 0], [0.95, -0.20, 0], "A ON B", GOLD)
-        self.play(GrowArrow(arrow_a[0]), GrowArrow(arrow_b[0]), run_time=0.85)
-        self.play(FadeIn(arrow_a[1]), FadeIn(arrow_b[1]), run_time=0.55)
-        self.play(left.animate.shift(RIGHT * 0.12), right.animate.shift(LEFT * 0.12), rate_func=there_and_back, run_time=1.20)
-        self.play(FadeIn(rows[2]), run_time=0.45)
-        equal = self.tag("EQUAL LENGTH - DIFFERENT OBJECTS", GREEN, 4.60).move_to(LEFT * 1.38 + DOWN * 2.58)
-        self.play(FadeIn(equal), run_time=0.55)
-        self.play(Indicate(arrow_a, color=CUE_BLACK), Indicate(arrow_b, color=CUE_BLACK), run_time=1.05)
-        self.focus = Group(left, right, arrow_a, arrow_b)
-        self.replay = lambda run_time: self.play(
-            left.animate.shift(LEFT * 0.58), arrow_a.animate.shift(LEFT * 0.58),
-            right.animate.shift(RIGHT * 0.58), arrow_b.animate.shift(RIGHT * 0.58),
-            run_time=run_time, rate_func=there_and_back,
-        )
-        self.keep(left, right, shell, *rows, halo_a, halo_b, pulse, arrow_a, arrow_b, equal)
+        left, right = self.pilots(-2.76, 2.72)
+        self.play(FadeIn(Group(left, right)), run_time=0.58)
+        outline_l = SurroundingRectangle(left, color=BLUE, buff=0.02, corner_radius=0.18, stroke_width=4)
+        outline_r = SurroundingRectangle(right, color=ORANGE, buff=0.02, corner_radius=0.18, stroke_width=4)
+        self.play(Create(outline_l), run_time=0.62)
+        self.play(Create(outline_r), run_time=0.62)
+        contact = self.contact_ring([0, 0.58, 0])
+        self.play(Create(contact), run_time=0.48)
+        force_l = self.cue_arrow([-0.20, 0.38, 0], [-2.10, 0.38, 0], "ORANGE ON BLUE", BLUE)
+        force_r = self.cue_arrow([0.20, 0.38, 0], [2.10, 0.38, 0], "BLUE ON ORANGE", ORANGE)
+        self.play(GrowArrow(force_l[0]), FadeIn(force_l[1]), run_time=0.82)
+        self.play(GrowArrow(force_r[0]), FadeIn(force_r[1]), run_time=0.82)
+        principle = self.chip("one interaction  •  two forces", GREEN, width=4.60, point=[0, -2.82, 0], size=17)
+        self.play(FadeIn(principle), left.animate.shift(LEFT * 0.30), right.animate.shift(RIGHT * 0.30), run_time=1.05)
+        self.focus = Group(force_l, force_r)
+        self.keep(left, right, outline_l, outline_r, contact, force_l, force_r, principle)
 
     def arrows(self):
-        left, right = self.skaters("recoil", -2.65, -0.15)
-        shell, rows = self.panel("Read every arrow", [("FORCE ON A", COBALT), ("FORCE ON B", GOLD), ("OPPOSITE WAYS", GREEN)], COBALT)
-        self.play(FadeIn(Group(left, right)), FadeIn(shell), run_time=0.55)
-        arrow_a = self.force_arrow([-2.40, -0.10, 0], [-3.75, -0.10, 0], "B ON A", COBALT)
-        arrow_b = self.force_arrow([-0.40, -0.10, 0], [0.95, -0.10, 0], "A ON B", GOLD)
-        self.play(GrowArrow(arrow_a[0]), FadeIn(rows[0]), run_time=0.80)
-        self.play(FadeIn(arrow_a[1]), run_time=0.35)
-        receiver_a = self.tag("RECEIVER: A", COBALT, 2.05).move_to([-3.15, 1.45, 0])
-        self.play(FadeIn(receiver_a, shift=DOWN * 0.06), run_time=0.42)
-        self.play(GrowArrow(arrow_b[0]), FadeIn(rows[1]), run_time=0.80)
-        self.play(FadeIn(arrow_b[1]), run_time=0.35)
-        receiver_b = self.tag("RECEIVER: B", GOLD, 2.05).move_to([0.10, 1.45, 0])
-        self.play(FadeIn(receiver_b, shift=DOWN * 0.06), run_time=0.42)
-        self.play(Group(left, arrow_a).animate.shift(LEFT * 0.85), Group(right, arrow_b).animate.shift(RIGHT * 0.85), run_time=2.20, rate_func=rate_functions.ease_out_cubic)
-        self.play(FadeIn(rows[2]), run_time=0.45)
-        axis = self.cue_double_arrow(LEFT * 2.4, RIGHT * 2.4, stroke_width=4).move_to(LEFT * 1.40 + DOWN * 2.60)
-        self.play(Create(axis), run_time=0.75)
-        self.play(Indicate(arrow_a, color=CUE_BLACK), Indicate(arrow_b, color=CUE_BLACK), run_time=1.10)
-        self.focus = Group(left, right, arrow_a, arrow_b, axis)
-        self.replay = lambda run_time: self.play(
-            left.animate.shift(RIGHT * 0.80), arrow_a.animate.shift(RIGHT * 0.80),
-            right.animate.shift(LEFT * 0.80), arrow_b.animate.shift(LEFT * 0.80),
-            run_time=run_time, rate_func=there_and_back,
-        )
-        self.keep(left, right, shell, *rows, arrow_a, arrow_b, receiver_a, receiver_b, axis)
+        left, right = self.pilots(-3.05, 3.02, height=5.12)
+        self.play(FadeIn(Group(left, right)), run_time=0.55)
+        force_l = self.cue_arrow([-0.18, 0.40, 0], [-2.35, 0.40, 0], "ON BLUE", BLUE)
+        force_r = self.cue_arrow([0.18, 0.40, 0], [2.35, 0.40, 0], "ON ORANGE", ORANGE)
+        self.play(GrowArrow(force_l[0]), FadeIn(force_l[1]), run_time=0.82)
+        self.play(Circumscribe(left, color=BLUE), run_time=0.70)
+        self.play(GrowArrow(force_r[0]), FadeIn(force_r[1]), run_time=0.82)
+        self.play(Circumscribe(right, color=ORANGE), run_time=0.70)
+        measure = DoubleArrow([-2.30, -2.20, 0], [2.30, -2.20, 0], color=WHITE, stroke_width=5)
+        measure.set_background_stroke(color=BLACK, width=10, opacity=0.9)
+        rule = self.chip("equal length  •  opposite direction", GOLD, width=4.75, point=[0, -2.80, 0], size=17)
+        self.play(Create(measure), FadeIn(rule), run_time=0.82)
+        self.focus = Group(force_l, force_r, measure)
+        self.keep(left, right, force_l, force_r, measure, rule)
 
     def motion_evidence(self):
-        ghost_l, ghost_r = self.skaters("contact", -2.80, -0.05)
-        ghost_l.set_opacity(0.18)
-        ghost_r.set_opacity(0.18)
-        left, right = self.skaters("recoil", -2.80, -0.05)
-        shell, rows = self.panel("Before and after", [("BEFORE: STILL", COBALT), ("AFTER: MOVING", ORANGE), ("CHANGE = EVIDENCE", GREEN)], GREEN)
-        ruler = NumberLine(x_range=[0, 6, 1], length=6.8, include_numbers=False, color=MUTED, stroke_width=3).move_to(LEFT * 1.55 + DOWN * 2.25)
-        self.play(FadeIn(Group(ghost_l, ghost_r)), FadeIn(shell), Create(ruler), run_time=0.70)
-        self.play(FadeIn(rows[0]), run_time=0.40)
-        before = self.tag("BEFORE", COBALT, 1.65).move_to(LEFT * 4.30 + UP * 1.62)
-        self.play(FadeIn(before), run_time=0.35)
-        self.play(FadeIn(Group(left, right)), run_time=0.45)
-        self.play(left.animate.shift(LEFT * 1.25), right.animate.shift(RIGHT * 1.25), run_time=2.65, rate_func=rate_functions.ease_out_cubic)
-        self.play(FadeIn(rows[1]), run_time=0.42)
-        after = self.tag("AFTER", ORANGE, 1.65).move_to(LEFT * 0.15 + UP * 1.62)
-        self.play(FadeIn(after), run_time=0.35)
-        end_l = self.cue_marker(UP * 0.35, DOWN * 0.35).move_to([-4.05, -2.25, 0])
-        end_r = self.cue_marker(UP * 0.35, DOWN * 0.35).move_to([1.20, -2.25, 0])
-        self.play(Create(end_l), Create(end_r), run_time=0.65)
-        self.play(left.animate.shift(RIGHT * 0.45), right.animate.shift(LEFT * 0.45), run_time=1.15, rate_func=there_and_back)
-        self.play(FadeIn(rows[2]), run_time=0.45)
-        stamp = self.tag("MOTION CHANGED", GREEN, 2.85).move_to(LEFT * 1.45 + DOWN * 2.85)
-        self.play(FadeIn(stamp, scale=0.92), Circumscribe(stamp, color=GREEN), run_time=0.90)
-        self.focus = Group(ghost_l, ghost_r, left, right, ruler, end_l, end_r)
-        self.keep(ghost_l, ghost_r, left, right, shell, *rows, ruler, end_l, end_r, before, after, stamp)
+        ghost_l, ghost_r = self.pilots(-2.72, 2.67, height=5.05)
+        ghost_l.set_opacity(0.20)
+        ghost_r.set_opacity(0.20)
+        left, right = self.pilots(-2.72, 2.67, height=5.05)
+        before = self.chip("before: still", BLUE, width=2.30, point=[-3.90, 1.85, 0])
+        after = self.chip("after: moving", ORANGE, width=2.55, point=[3.80, 1.85, 0])
+        self.play(FadeIn(Group(ghost_l, ghost_r)), FadeIn(before), run_time=0.66)
+        self.play(FadeIn(Group(left, right)), run_time=0.42)
+        self.play(left.animate.shift(LEFT * 1.00), right.animate.shift(RIGHT * 1.00), FadeIn(after), run_time=2.35, rate_func=rate_functions.ease_out_cubic)
+        track = Line([-4.95, -2.30, 0], [4.95, -2.30, 0], color=WHITE, stroke_width=5)
+        track.set_background_stroke(color=BLACK, width=10, opacity=0.65)
+        markers = VGroup(*[Line([x, -2.47, 0], [x, -2.13, 0], color=GOLD, stroke_width=4) for x in [-3.75, -2.70, 2.65, 3.70]])
+        claim = self.chip("change in motion = evidence", GREEN, width=4.20, point=[0, -2.82, 0], size=17)
+        self.play(Create(track), LaggedStart(*[Create(mark) for mark in markers], lag_ratio=0.12), FadeIn(claim), run_time=0.95)
+        self.focus = Group(left, right, markers)
+        self.keep(ghost_l, ghost_r, left, right, before, after, track, markers, claim)
 
     def push_ended(self):
-        left, right = self.skaters("contact")
-        shell, rows = self.panel("Track the contact", [("TOUCHING", GOLD), ("HANDS APART", COBALT), ("PUSH ENDED", RED)], RED)
-        self.play(FadeIn(Group(left, right)), FadeIn(shell), FadeIn(rows[0]), run_time=0.60)
-        arrow_a = self.cue_arrow([-1.62, 0.34, 0], [-2.72, 0.34, 0])
-        arrow_b = self.cue_arrow([-1.15, 0.34, 0], [-0.05, 0.34, 0])
-        self.play(GrowArrow(arrow_a), GrowArrow(arrow_b), run_time=0.78)
-        self.play(left.animate.shift(RIGHT * 0.12), right.animate.shift(LEFT * 0.12), rate_func=there_and_back, run_time=1.05)
-        left_r, right_r = self.skaters("recoil", -3.05, 0.25)
-        self.play(FadeTransform(left, left_r), FadeTransform(right, right_r), Uncreate(arrow_a), Uncreate(arrow_b), FadeIn(rows[1]), run_time=0.80)
-        dots_l = self.dots([-2.15, -1.72, 0], LEFT, count=5, spacing=0.38)
-        dots_r = self.dots([-0.75, -1.72, 0], RIGHT, count=5, spacing=0.38)
-        self.play(left_r.animate.shift(LEFT * 1.05), right_r.animate.shift(RIGHT * 1.05), LaggedStart(*[FadeIn(dot) for dot in [*dots_l, *dots_r]], lag_ratio=0.07), run_time=2.55, rate_func=linear)
-        self.play(FadeIn(rows[2]), run_time=0.42)
-        note = self.tag("LOW-FRICTION TRACK: STEADY GLIDE", CYAN, 4.10).move_to(LEFT * 1.42 + DOWN * 2.62)
-        self.play(FadeIn(note), run_time=0.55)
-        self.play(Indicate(dots_l, color=CUE_BLACK), Indicate(dots_r, color=CUE_BLACK), run_time=0.95)
-        self.focus = Group(left_r, right_r, dots_l, dots_r)
-        self.replay = lambda run_time: self.play(
-            left_r.animate.shift(LEFT * 0.35), right_r.animate.shift(RIGHT * 0.35),
-            run_time=run_time, rate_func=there_and_back,
-        )
-        self.keep(left_r, right_r, shell, *rows, dots_l, dots_r, note)
+        left, right = self.pilots(-2.76, 2.72, height=5.12)
+        contact = self.contact_ring([0, 0.58, 0])
+        arrows = VGroup(self.cue_arrow([-0.18, 0.32, 0], [-1.72, 0.32, 0]), self.cue_arrow([0.18, 0.32, 0], [1.72, 0.32, 0]))
+        self.play(FadeIn(Group(left, right)), Create(contact), run_time=0.62)
+        self.play(GrowArrow(arrows[0]), GrowArrow(arrows[1]), run_time=0.78)
+        ended = self.chip("contact push", ORANGE, width=2.22, point=[0, 1.72, 0])
+        self.play(FadeIn(ended), run_time=0.42)
+        continue_tag = self.chip("motion continues", GREEN, width=2.60, point=[0, -2.82, 0])
+        self.play(FadeOut(Group(contact, arrows, ended)), left.animate.shift(LEFT * 1.12), right.animate.shift(RIGHT * 1.12), FadeIn(continue_tag), run_time=2.45, rate_func=linear)
+        no_force = self.chip("that contact has ended", RED, width=3.18, point=[0, 1.72, 0], size=17)
+        self.play(FadeIn(no_force), run_time=0.48)
+        self.focus = Group(left, right)
+        self.keep(left, right, continue_tag, no_force)
 
     def push_pull(self):
-        shell, rows = self.panel("Contact forces", [("HAND + CART", ORANGE), ("ROPE + TROLLEY", COBALT), ("NAME BOTH", GREEN)], ORANGE)
-        push = self.sprite("push-cart.png", 2.60, [-2.55, -0.35, 0])
-        self.play(FadeIn(push), FadeIn(shell), run_time=0.55)
-        push_arrow = self.force_arrow([-3.35, 1.45, 0], [-1.65, 1.45, 0], "PUSH", ORANGE)
-        self.play(GrowArrow(push_arrow[0]), FadeIn(push_arrow[1]), FadeIn(rows[0]), run_time=0.85)
-        self.play(push.animate.shift(RIGHT * 2.15), push_arrow.animate.shift(RIGHT * 1.25), run_time=2.25, rate_func=rate_functions.ease_out_cubic)
-        ring = self.cue_ring([-2.45, 0.00, 0], stroke_width=6)
-        self.play(Create(ring), Flash(ring.get_center(), color=CUE_BLACK), run_time=0.65)
-        pull = self.sprite("pull-trolley.png", 2.55, [-2.40, -0.35, 0])
-        self.play(FadeOut(Group(push, push_arrow, ring), shift=RIGHT * 0.22), FadeIn(pull, shift=LEFT * 0.18), run_time=0.55)
-        pull_arrow = self.force_arrow([-3.15, 1.42, 0], [-1.45, 1.42, 0], "PULL", COBALT)
-        self.play(GrowArrow(pull_arrow[0]), FadeIn(pull_arrow[1]), FadeIn(rows[1]), run_time=0.85)
-        self.play(pull.animate.shift(RIGHT * 2.15), pull_arrow.animate.shift(RIGHT * 1.35), run_time=2.25, rate_func=rate_functions.ease_out_cubic)
-        self.play(FadeIn(rows[2]), run_time=0.45)
-        self.focus = Group(pull, pull_arrow)
-        def replay_pull(run_time):
-            reset_time = min(0.42, run_time * 0.28)
-            self.play(pull.animate.shift(LEFT * 0.95), pull_arrow.animate.shift(LEFT * 0.95), run_time=reset_time)
-            self.play(
-                pull.animate.shift(RIGHT * 0.95), pull_arrow.animate.shift(RIGHT * 0.95),
-                run_time=max(0.45, run_time - reset_time), rate_func=rate_functions.ease_out_cubic,
-            )
-        self.replay = replay_pull
-        self.keep(shell, *rows, pull, pull_arrow)
+        push = self.image("robot-push-cart.png", height=4.75, point=[-1.25, -0.35, 0], z=12)
+        push_tag = self.chip("push: hand + cart", ORANGE, width=3.18, point=[0, 1.94, 0], size=17)
+        self.play(FadeIn(push, shift=LEFT * 0.14), FadeIn(push_tag), run_time=0.64)
+        contact = self.contact_ring([-0.10, 0.34, 0], radius=0.17)
+        self.play(Create(contact), Flash(contact.get_center(), color=ORANGE, flash_radius=0.45), run_time=0.62)
+        self.play(push.animate.shift(RIGHT * 2.10), run_time=2.20, rate_func=rate_functions.ease_out_cubic)
+        pull = self.image("robot-pull-trolley.png", height=4.65, point=[0.20, -0.28, 0], z=12)
+        pull_tag = self.chip("pull: cable + trolley", BLUE, width=3.42, point=[0, 1.94, 0], size=17)
+        self.play(FadeOut(Group(push, push_tag, contact), shift=RIGHT * 0.16), FadeIn(pull, shift=LEFT * 0.16), FadeIn(pull_tag), run_time=0.62)
+        self.play(pull.animate.shift(RIGHT * 1.85), run_time=2.18, rate_func=rate_functions.ease_out_cubic)
+        pair = self.chip("name both objects", GREEN, width=2.75, point=[0, -2.82, 0])
+        self.play(FadeIn(pair), run_time=0.45)
+        self.focus = pull
+        self.keep(pull, pull_tag, pair)
 
     def non_contact(self):
-        shell, rows = self.panel("No touch required", [("AIR GAP", CYAN), ("MOTION CHANGES", GREEN), ("EARTH ON BOOK", VIOLET)], MAGENTA)
-        left = self.sprite("magnet-cart-left.png", 1.72, [-3.30, -0.55, 0])
-        right = self.sprite("magnet-cart-right.png", 1.72, [-0.25, -0.55, 0])
-        self.play(FadeIn(Group(left, right)), FadeIn(shell), run_time=0.55)
-        gap = self.cue_double_arrow([-2.35, 0.05, 0], [-1.22, 0.05, 0])
-        self.play(Create(gap), FadeIn(rows[0]), run_time=0.70)
-        gap_hold = self.tag("GAP STAYS OPEN", MAGENTA, 2.55).move_to(LEFT * 1.78 + UP * 1.70)
-        self.play(FadeIn(gap_hold), run_time=0.42)
-        self.wait(1.15)
-        force_l = self.cue_arrow([-2.80, 0.72, 0], [-4.00, 0.72, 0], stroke_width=7)
-        force_r = self.cue_arrow([-0.75, 0.72, 0], [0.45, 0.72, 0], stroke_width=7)
-        self.play(GrowArrow(force_l), GrowArrow(force_r), run_time=0.75)
-        self.play(left.animate.shift(LEFT * 1.00), right.animate.shift(RIGHT * 1.00), run_time=2.20, rate_func=rate_functions.ease_out_cubic)
-        self.play(FadeIn(rows[1]), run_time=0.38)
-        self.play(FadeOut(Group(left, right, gap, force_l, force_r, gap_hold)), run_time=0.50)
-        book = self.sprite("book.png", 1.25, [-1.75, 1.85, 0])
-        earth = self.tag("EARTH", VIOLET, 1.60).move_to([-1.75, -2.20, 0])
-        gravity = self.force_arrow([-1.75, 1.25, 0], [-1.75, 0.05, 0], "EARTH ON BOOK", VIOLET, RIGHT * 1.05)
-        dots = self.dots([-1.75, 1.30, 0], DOWN, count=4, spacing=0.38, color=VIOLET, increasing=True)
-        self.play(FadeIn(book), FadeIn(earth), GrowArrow(gravity[0]), FadeIn(gravity[1]), run_time=0.80)
-        self.play(book.animate.shift(DOWN * 3.15).rotate(-0.16), LaggedStart(*[FadeIn(dot) for dot in dots], lag_ratio=0.18), run_time=2.45, rate_func=rate_functions.ease_in_cubic)
-        self.play(FadeIn(rows[2]), run_time=0.42)
-        self.focus = Group(book, gravity, dots)
-        self.keep(shell, *rows, book, earth, gravity, dots)
+        left, right = self.magnets(-2.25, 2.18)
+        gap = DoubleArrow([-0.68, 0.20, 0], [0.64, 0.20, 0], color=WHITE, stroke_width=5)
+        gap.set_background_stroke(color=BLACK, width=10, opacity=0.9)
+        gap_tag = self.chip("air gap", BLUE, width=1.62, point=[0, 1.35, 0])
+        self.play(FadeIn(Group(left, right)), Create(gap), FadeIn(gap_tag), run_time=0.78)
+        self.wait(0.90)
+        arrows = VGroup(self.cue_arrow([-1.35, 0.92, 0], [-3.20, 0.92, 0], colour=ORANGE), self.cue_arrow([1.35, 0.92, 0], [3.20, 0.92, 0], colour=BLUE))
+        self.play(GrowArrow(arrows[0]), GrowArrow(arrows[1]), run_time=0.82)
+        self.play(left.animate.shift(LEFT * 1.12), right.animate.shift(RIGHT * 1.12), run_time=2.25, rate_func=rate_functions.ease_out_cubic)
+        evidence = self.chips([("no touch", BLUE, 1.78), ("motion changes", GREEN, 2.48), ("non-contact", ORANGE, 2.15)])
+        self.play(LaggedStart(*[FadeIn(item, shift=UP * 0.05) for item in evidence], lag_ratio=0.20), run_time=1.05)
+        self.focus = Group(left, right, gap)
+        self.keep(left, right, gap, gap_tag, arrows, evidence)
 
     def classification(self):
-        shell, rows = self.panel("Two questions", [("NAME BOTH", COBALT), ("TOUCHING?", ORANGE), ("MOTION CHANGE?", GREEN)], COBALT)
-        self.play(FadeIn(shell), LaggedStart(*[FadeIn(row) for row in rows], lag_ratio=0.20), run_time=1.15)
-        label = self.tag("CONTACT", ORANGE, 2.15).move_to(LEFT * 1.60 + DOWN * 2.55)
-        foot_ball = self.sprite("foot-ball.png", 2.55, [-2.35, -0.35, 0])
-        self.play(FadeIn(foot_ball), FadeIn(label), run_time=0.55)
-        self.play(foot_ball.animate.shift(RIGHT * 1.15), run_time=1.55, rate_func=rate_functions.ease_out_cubic)
-        self.play(Indicate(label, color=ORANGE), run_time=0.60)
-        left = self.sprite("magnet-cart-left.png", 1.55, [-3.20, -0.55, 0])
-        right = self.sprite("magnet-cart-right.png", 1.55, [-0.55, -0.55, 0])
-        no_touch = self.tag("NO TOUCH", MAGENTA, 2.15).move_to(label)
-        self.play(FadeOut(foot_ball), FadeTransform(label, no_touch), FadeIn(Group(left, right)), run_time=0.58)
-        self.play(left.animate.shift(LEFT * 0.75), right.animate.shift(RIGHT * 0.75), run_time=1.60, rate_func=rate_functions.ease_out_cubic)
-        self.play(Indicate(no_touch, color=MAGENTA), run_time=0.60)
-        book = self.sprite("book.png", 1.20, [-1.75, 1.55, 0])
-        earth_label = self.tag("EARTH + BOOK", VIOLET, 2.35).move_to(no_touch)
-        self.play(FadeOut(Group(left, right)), FadeTransform(no_touch, earth_label), FadeIn(book), run_time=0.58)
-        gravity = self.cue_arrow([-1.75, 0.90, 0], [-1.75, -0.35, 0])
-        self.play(GrowArrow(gravity), book.animate.shift(DOWN * 2.85), run_time=2.15, rate_func=rate_functions.ease_in_cubic)
-        answer = self.tag("NON-CONTACT", VIOLET, 2.55).move_to(LEFT * 1.60 + DOWN * 2.55)
-        self.play(FadeTransform(earth_label, answer), run_time=0.55)
-        self.focus = Group(book, gravity)
-        def replay_fall(run_time):
-            reset_time = min(0.40, run_time * 0.28)
-            self.play(book.animate.shift(UP * 1.45), gravity.animate.shift(UP * 1.45), run_time=reset_time)
-            self.play(
-                book.animate.shift(DOWN * 1.45), gravity.animate.shift(DOWN * 1.45),
-                run_time=max(0.45, run_time - reset_time), rate_func=rate_functions.ease_in_cubic,
-            )
-        self.replay = replay_fall
-        self.keep(shell, *rows, gravity, book, answer)
+        question = self.chip("1  name both objects     2  do they touch?", GOLD, width=6.15, point=[0, 1.92, 0], size=18)
+        self.play(FadeIn(question), run_time=0.52)
+        push = self.image("robot-push-cart.png", height=3.55, point=[-2.70, -0.40, 0], z=12)
+        contact = self.chip("contact", ORANGE, width=1.80, point=[-2.55, -2.45, 0])
+        self.play(FadeIn(push), FadeIn(contact), run_time=0.68)
+        magnets = self.image("magnet-carts.png", height=2.45, point=[2.55, -0.40, 0], z=12)
+        noncontact = self.chip("non-contact", BLUE, width=2.25, point=[2.55, -2.45, 0])
+        self.play(FadeIn(magnets), FadeIn(noncontact), run_time=0.68)
+        self.play(Indicate(push, color=ORANGE, scale_factor=1.02), run_time=0.75)
+        self.play(Indicate(magnets, color=BLUE, scale_factor=1.02), run_time=0.75)
+        rule = self.chip("touching chooses the label", GREEN, width=3.70, point=[0, -2.88, 0], size=17)
+        self.play(FadeIn(rule), run_time=0.48)
+        self.focus = Group(contact, noncontact)
+        self.keep(question, push, contact, magnets, noncontact, rule)
 
     def fair_test(self):
-        shell, rows = self.panel("Fair test", [("SAME CART", COBALT), ("SAME TRACK", COBALT), ("CHANGE PUSH", ORANGE)], GREEN)
-        self.play(FadeIn(shell), LaggedStart(*[FadeIn(row) for row in rows], lag_ratio=0.20), run_time=1.20)
-        top_track = Line([-5.15, 0.70, 0], [1.80, 0.70, 0], color=MUTED, stroke_width=5)
-        bottom_track = Line([-5.15, -1.30, 0], [1.80, -1.30, 0], color=MUTED, stroke_width=5)
-        cart_top = self.sprite("magnet-cart-left.png", 1.05, [-4.45, 1.02, 0])
-        cart_bottom = self.sprite("magnet-cart-left.png", 1.05, [-4.45, -0.98, 0])
-        start_line = self.cue_marker(UP * 1.45, DOWN * 1.45, stroke_width=4).move_to([-4.45, -0.30, 0])
-        start_label = self.tag("SAME START", COBALT, 2.10).move_to([-4.45, 2.00, 0])
-        self.play(Create(top_track), Create(bottom_track), FadeIn(Group(cart_top, cart_bottom)), Create(start_line), FadeIn(start_label), run_time=0.90)
-        small_force = self.cue_arrow([-5.10, 1.65, 0], [-4.15, 1.65, 0], stroke_width=7)
-        big_force = self.cue_arrow([-5.10, -0.35, 0], [-3.45, -0.35, 0], stroke_width=7)
-        self.play(GrowArrow(small_force), GrowArrow(big_force), run_time=0.72)
-        self.play(cart_top.animate.shift(RIGHT * 2.45), cart_bottom.animate.shift(RIGHT * 4.05), run_time=2.70, rate_func=rate_functions.ease_out_cubic)
-        mark_top = self.cue_marker(UP * 0.36, DOWN * 0.36).move_to([-2.00, 0.70, 0])
-        mark_bottom = self.cue_marker(UP * 0.36, DOWN * 0.36).move_to([-0.40, -1.30, 0])
-        self.play(Create(mark_top), Create(mark_bottom), run_time=0.62)
-        compare = self.tag("BIGGER PUSH - LONGER DISTANCE", GREEN, 4.35).move_to(LEFT * 1.52 + DOWN * 2.58)
-        self.play(FadeIn(compare), run_time=0.52)
-        self.play(Indicate(rows[0], color=COBALT), Indicate(rows[1], color=COBALT), run_time=0.90)
-        self.focus = Group(cart_top, cart_bottom, small_force, big_force, mark_top, mark_bottom)
-        def replay_fair_test(run_time):
-            reset_time = min(0.42, run_time * 0.28)
-            self.play(
-                cart_top.animate.shift(LEFT * 1.25), cart_bottom.animate.shift(LEFT * 2.05),
-                run_time=reset_time,
-            )
-            self.play(
-                cart_top.animate.shift(RIGHT * 1.25), cart_bottom.animate.shift(RIGHT * 2.05),
-                run_time=max(0.45, run_time - reset_time), rate_func=rate_functions.ease_out_cubic,
-            )
-        self.replay = replay_fair_test
-        self.keep(shell, *rows, top_track, bottom_track, cart_top, cart_bottom, start_line, start_label, small_force, big_force, mark_top, mark_bottom, compare)
+        top_track = Line([-5.15, 0.55, 0], [5.05, 0.55, 0], color=WHITE, stroke_width=5).set_background_stroke(color=BLACK, width=10, opacity=0.55)
+        bottom_track = Line([-5.15, -1.48, 0], [5.05, -1.48, 0], color=WHITE, stroke_width=5).set_background_stroke(color=BLACK, width=10, opacity=0.55)
+        cart_a = self.image("magnet-cart-orange.png", height=1.55, point=[-4.15, 0.92, 0], z=12)
+        cart_b = self.image("magnet-cart-orange.png", height=1.55, point=[-4.15, -1.11, 0], z=12)
+        start = DashedLine([-4.15, 1.55, 0], [-4.15, -2.08, 0], color=GOLD, stroke_width=5)
+        same = self.chip("same cart  •  same track  •  same start", BLUE, width=5.35, point=[0, 1.95, 0], size=17)
+        self.play(Create(top_track), Create(bottom_track), FadeIn(Group(cart_a, cart_b)), Create(start), FadeIn(same), run_time=0.90)
+        small = self.cue_arrow([-5.20, 1.58, 0], [-4.42, 1.58, 0], colour=ORANGE)
+        large = self.cue_arrow([-5.20, -0.45, 0], [-3.62, -0.45, 0], colour=ORANGE)
+        self.play(GrowArrow(small), GrowArrow(large), run_time=0.72)
+        self.play(cart_a.animate.shift(RIGHT * 2.55), cart_b.animate.shift(RIGHT * 4.25), run_time=2.65, rate_func=rate_functions.ease_out_cubic)
+        result = self.chip("change only the push", GREEN, width=3.15, point=[0, -2.82, 0], size=17)
+        self.play(FadeIn(result), run_time=0.48)
+        self.focus = Group(cart_a, cart_b)
+        self.keep(top_track, bottom_track, cart_a, cart_b, start, same, small, large, result)
 
     def repair(self):
-        shell, rows = self.panel("Repair the idea", [("FOOT + BALL", ORANGE), ("CONTACT ENDS", RED), ("BALL ROLLS ON", GREEN)], RED)
-        check = self.tag("LET'S CHECK THE EVIDENCE", COBALT, 3.55).move_to(LEFT * 1.55 + UP * 1.95)
-        contact = self.sprite("foot-ball.png", 2.55, [-2.35, -0.35, 0])
-        self.play(FadeIn(contact), FadeIn(shell), FadeIn(check), run_time=0.60)
-        contact_arrow = self.force_arrow([-3.70, 1.00, 0], [-2.20, 1.00, 0], "FOOT ON BALL", ORANGE)
-        self.play(GrowArrow(contact_arrow[0]), FadeIn(contact_arrow[1]), FadeIn(rows[0]), run_time=0.85)
-        self.play(contact.animate.shift(RIGHT * 0.42), contact_arrow.animate.shift(RIGHT * 0.42), run_time=0.62, rate_func=rate_functions.ease_in_cubic)
-        ball = self.sprite("ball.png", 1.40, [-1.70, -0.45, 0])
-        self.play(FadeOut(contact), FadeIn(ball), FadeOut(contact_arrow), FadeIn(rows[1]), run_time=0.68)
-        ended = self.tag("CONTACT PUSH ENDED", RED, 3.20).move_to(LEFT * 1.55 + UP * 1.95)
-        self.play(FadeTransform(check, ended), run_time=0.50)
-        trail = self.dots([-2.10, -0.50, 0], LEFT, count=5, spacing=0.40)
-        self.play(ball.animate.shift(RIGHT * 3.25).rotate(-PI * 1.35), LaggedStart(*[FadeIn(dot) for dot in trail], lag_ratio=0.10), run_time=2.65, rate_func=linear)
-        self.play(FadeIn(rows[2]), run_time=0.42)
-        fixed = self.tag("INTERACTION, THEN MOTION", GREEN, 3.70).move_to(LEFT * 1.55 + DOWN * 2.58)
-        self.play(FadeOut(ended), FadeIn(fixed), run_time=0.62)
-        self.play(Indicate(trail, color=CUE_BLACK), run_time=0.85)
-        self.focus = Group(ball, trail)
-        def replay_roll(run_time):
-            reset_time = min(0.42, run_time * 0.28)
-            self.play(ball.animate.shift(LEFT * 2.65).rotate(PI * 0.85), run_time=reset_time)
-            self.play(
-                ball.animate.shift(RIGHT * 2.65).rotate(-PI * 0.85),
-                run_time=max(0.45, run_time - reset_time), rate_func=linear,
-            )
-        self.replay = replay_roll
-        self.keep(shell, *rows, ball, trail, fixed)
+        left, right = self.pilots(-2.76, 2.72, height=5.08)
+        stored = self.chip("is the push stored inside?", RED, width=3.65, point=[0, 1.88, 0], size=17)
+        self.play(FadeIn(Group(left, right)), FadeIn(stored), run_time=0.62)
+        contact = self.contact_ring([0, 0.58, 0])
+        arrows = VGroup(self.cue_arrow([-0.18, 0.36, 0], [-1.70, 0.36, 0]), self.cue_arrow([0.18, 0.36, 0], [1.70, 0.36, 0]))
+        self.play(Create(contact), GrowArrow(arrows[0]), GrowArrow(arrows[1]), run_time=0.80)
+        first = self.chip("interaction first", ORANGE, width=2.52, point=[-1.48, -2.82, 0])
+        later = self.chip("motion afterwards", GREEN, width=2.82, point=[1.55, -2.82, 0])
+        self.play(FadeIn(first), run_time=0.42)
+        self.play(FadeOut(Group(contact, arrows, stored)), left.animate.shift(LEFT * 1.10), right.animate.shift(RIGHT * 1.10), FadeIn(later), run_time=2.35, rate_func=linear)
+        answer = self.chip("no stored push", BLUE, width=2.35, point=[0, 1.88, 0])
+        self.play(FadeIn(answer), run_time=0.48)
+        self.focus = Group(left, right)
+        self.keep(left, right, first, later, answer)
 
     def predict(self):
-        shell, rows = self.panel("Predict the evidence", [("GAP VISIBLE", CYAN), ("CARTS MOVE", GREEN), ("NO HAND", ORANGE)], MAGENTA)
-        left = self.sprite("magnet-cart-left.png", 1.75, [-3.25, -0.50, 0])
-        right = self.sprite("magnet-cart-right.png", 1.75, [-0.25, -0.50, 0])
-        predict = self.tag("PREDICT", GOLD, 1.90).move_to(LEFT * 1.75 + UP * 1.65)
-        gap = self.cue_double_arrow([-2.33, 0.08, 0], [-1.23, 0.08, 0])
-        self.play(FadeIn(Group(left, right)), FadeIn(shell), FadeIn(predict), Create(gap), run_time=0.70)
-        self.play(Indicate(predict, color=GOLD), run_time=0.85)
-        self.wait(2.10)
-        force_l = self.cue_arrow([-2.75, 0.75, 0], [-4.05, 0.75, 0])
-        force_r = self.cue_arrow([-0.75, 0.75, 0], [0.55, 0.75, 0])
-        self.play(GrowArrow(force_l), GrowArrow(force_r), run_time=0.72)
-        self.play(left.animate.shift(LEFT * 1.05), right.animate.shift(RIGHT * 1.05), run_time=2.35, rate_func=rate_functions.ease_out_cubic)
-        self.reveal(rows, 1.65)
-        claim = self.tag("CLAIM SUPPORTED", GREEN, 2.80).move_to(LEFT * 1.70 + DOWN * 2.48)
-        self.play(FadeIn(claim, scale=0.92), Circumscribe(claim, color=GREEN), run_time=0.85)
-        self.minimum_hold = 2.1
-        self.focus = Group(left, right, gap, force_l, force_r)
-        self.replay = lambda run_time: self.play(
-            left.animate.shift(RIGHT * 0.62), right.animate.shift(LEFT * 0.62),
-            run_time=run_time, rate_func=there_and_back,
-        )
-        self.keep(shell, *rows, left, right, predict, gap, force_l, force_r, claim)
+        left, right = self.magnets(-2.20, 2.12, height=2.75)
+        prompt = self.chip("predict the evidence", GOLD, width=3.10, point=[0, 1.78, 0], size=18)
+        gap = DoubleArrow([-0.70, 0.17, 0], [0.66, 0.17, 0], color=WHITE, stroke_width=5).set_background_stroke(color=BLACK, width=10, opacity=0.9)
+        self.play(FadeIn(Group(left, right)), FadeIn(prompt), Create(gap), run_time=0.72)
+        clock = VGroup(*[Arc(radius=0.42, start_angle=PI / 2, angle=-TAU * (index + 1) / 3, color=GOLD, stroke_width=6) for index in range(3)]).move_to([0, 0.92, 0])
+        for arc in clock:
+            self.play(Create(arc), run_time=0.88)
+        arrows = VGroup(self.cue_arrow([-1.35, 0.90, 0], [-3.25, 0.90, 0], colour=ORANGE), self.cue_arrow([1.35, 0.90, 0], [3.25, 0.90, 0], colour=BLUE))
+        self.play(FadeOut(clock), GrowArrow(arrows[0]), GrowArrow(arrows[1]), run_time=0.78)
+        self.play(left.animate.shift(LEFT * 1.10), right.animate.shift(RIGHT * 1.10), run_time=2.25, rate_func=rate_functions.ease_out_cubic)
+        evidence = self.chips([("gap visible", BLUE, 2.08), ("both move", GREEN, 1.88), ("no hand", ORANGE, 1.72)])
+        self.play(LaggedStart(*[FadeIn(item) for item in evidence], lag_ratio=0.20), run_time=1.05)
+        self.minimum_hold = 2.8
+        self.focus = Group(left, right, gap)
+        self.keep(left, right, prompt, gap, arrows, evidence)
 
     def exit_scene(self):
-        left, right = self.skaters("contact", -3.10, 0.10)
-        shell, rows = self.panel("Your physics move", [("1  NAME THE PAIR", COBALT), ("2  TOUCH OR NO TOUCH", ORANGE), ("3  USE MOTION EVIDENCE", GREEN)], GOLD)
-        self.play(FadeIn(Group(left, right)), FadeIn(shell), run_time=0.60)
-        self.play(FadeIn(rows[0]), Circumscribe(Group(left, right), color=COBALT), run_time=0.90)
-        touch = self.cue_ring(LEFT * 1.48 + UP * 0.42, radius=0.24)
-        self.play(Create(touch), FadeIn(rows[1]), run_time=0.80)
-        arrow_a = self.cue_arrow([-1.78, 0.34, 0], [-2.88, 0.34, 0])
-        arrow_b = self.cue_arrow([-1.18, 0.34, 0], [-0.08, 0.34, 0])
-        self.play(GrowArrow(arrow_a), GrowArrow(arrow_b), run_time=0.75)
-        left_r, right_r = self.skaters("recoil", -3.10, 0.10)
-        self.play(
-            FadeTransform(left, left_r), FadeTransform(right, right_r),
-            FadeOut(touch), FadeOut(arrow_a), FadeOut(arrow_b), run_time=0.62,
-        )
-        dots_l = self.dots([-2.15, -1.72, 0], LEFT, count=4, spacing=0.38)
-        dots_r = self.dots([-0.75, -1.72, 0], RIGHT, count=4, spacing=0.38)
-        self.play(left_r.animate.shift(LEFT * 0.90), right_r.animate.shift(RIGHT * 0.90), FadeIn(rows[2]), run_time=2.25, rate_func=rate_functions.ease_out_cubic)
-        self.play(LaggedStart(*[FadeIn(dot) for dot in [*dots_l, *dots_r]], lag_ratio=0.08), run_time=0.62)
-        ready = self.tag("COCKPIT CHECK READY", GREEN, 3.45).move_to(LEFT * 1.50 + DOWN * 2.58)
-        glow = SurroundingRectangle(ready, color=GREEN, buff=0.12, corner_radius=0.16, stroke_width=5)
-        self.play(FadeIn(ready), Create(glow), run_time=0.75)
-        self.play(Indicate(ready, color=GREEN, scale_factor=1.035), run_time=0.95)
-        self.focus = Group(left_r, right_r, dots_l, dots_r)
-        self.replay = lambda run_time: self.play(
-            left_r.animate.shift(RIGHT * 0.45), right_r.animate.shift(LEFT * 0.45),
-            run_time=run_time, rate_func=there_and_back,
-        )
-        self.keep(shell, *rows, left_r, right_r, dots_l, dots_r, ready, glow)
+        hero = self.image("selected-visual-target.png", width=config.frame_width * 1.02, point=[0, -0.02, 0], z=-20)
+        shade = Rectangle(width=config.frame_width, height=config.frame_height, stroke_width=0, fill_color=INK, fill_opacity=0.18).set_z_index(-10)
+        self.play(FadeIn(hero), FadeIn(shade), run_time=0.72)
+        routine = self.chip("THE PHYSICIST'S ROUTINE", GOLD, width=4.05, point=[0, 2.05, 0], size=19)
+        steps = self.chips([("1  name the pair", BLUE, 2.45), ("2  touch?", ORANGE, 1.78), ("3  use motion", GREEN, 2.25)], y=-2.62)
+        self.play(FadeIn(routine, shift=DOWN * 0.08), run_time=0.50)
+        self.play(LaggedStart(*[FadeIn(step, shift=UP * 0.08) for step in steps], lag_ratio=0.28), hero.animate.scale(1.025), run_time=1.65)
+        conclusion = self.chip("a force belongs to an interaction", WHITE, width=4.78, point=[0, -3.18, 0], size=17)
+        self.play(FadeIn(conclusion), run_time=0.52)
+        self.focus = steps
+        self.keep(hero, shade, routine, steps, conclusion)

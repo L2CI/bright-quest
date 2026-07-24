@@ -63,9 +63,9 @@ try {
   const results = [];
   await setViewport(send, 1440, 900, 1, false);
   await navigate(send, baseUrl);
-  await waitFor(() => evaluate("Boolean(window.getComputedStyle(document.querySelector('.course-landing')).display !== 'none' && document.querySelectorAll('.chapter-card').length === 11)"));
-  const deployedMarker = await evaluate("Boolean(document.querySelector('script[src*=\"physics-101-motion-005\"]'))");
-  if (!deployedMarker) throw new Error("The expected physics-101-motion-005 release marker is not live.");
+  await waitFor(() => evaluate("(() => { const landing=document.querySelector('.course-landing'); return Boolean(landing && window.getComputedStyle(landing).display !== 'none' && document.querySelectorAll('.chapter-card').length === 11); })()"));
+  const deployedMarker = await evaluate("Boolean(document.querySelector('script[src*=\"physics-101-kinetic-lab-006\"]'))");
+  if (!deployedMarker) throw new Error("The expected physics-101-kinetic-lab-006 release marker is not live.");
   results.push(await inspect(evaluate, "desktop landing"));
   await screenshot(send, path.join(evidenceDir, "desktop-landing.png"));
 
@@ -79,8 +79,9 @@ try {
   await evaluate("document.querySelector('#lessonVideo').load(); true");
   const videoReady = await waitFor(() => evaluate("Number.isFinite(document.querySelector('#lessonVideo').duration) && document.querySelector('#lessonVideo').duration > 190"), 15000);
   if (!videoReady) throw new Error("Video metadata did not load within 15 seconds.");
-  await evaluate("(() => { const video=document.querySelector('#lessonVideo'); video.currentTime=video.duration*0.96; video.dispatchEvent(new Event('timeupdate')); video.dispatchEvent(new Event('ended')); return true; })()");
-  if (!await waitFor(() => evaluate("document.querySelector('#testStatus').textContent.includes('Ready')"))) throw new Error("Cockpit Check did not unlock after lesson completion.");
+  await seekVideo(evaluate, 9999);
+  await evaluate("(() => { const video=document.querySelector('#lessonVideo'); video.dispatchEvent(new Event('timeupdate')); video.dispatchEvent(new Event('ended')); return true; })()");
+  if (!await waitFor(() => evaluate("/Ready|Best/.test(document.querySelector('#testStatus')?.textContent || '')"))) throw new Error("Cockpit Check did not unlock after lesson completion.");
   if (!await waitFor(() => evaluate("Boolean(document.querySelector('#beginTestButton, #retakeTestButton'))"))) throw new Error("Cockpit Check start action was not rendered.");
   await evaluate("document.querySelector('#beginTestButton, #retakeTestButton').click(); true");
   for (let index = 0; index < 10; index += 1) {
@@ -125,7 +126,7 @@ try {
   ).map((event) => ({ method: event.method, params: event.params }));
 
   const report = {
-    release: "physics-101-motion-005",
+    release: "physics-101-kinetic-lab-006",
     browser: browserName,
     route: baseUrl,
     deployedMarker,
