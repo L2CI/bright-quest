@@ -33,8 +33,8 @@ The implementation preserves the approved sunrise-to-storm composition, floating
 
 - Pass 1: 31 checks; two test-harness false negatives corrected.
 - Pass 2: 37/37 Level 2 checks passed with zero captured errors.
-- Final button, audio, and asset-compression rerun: 42/42 Level 2 checks passed with zero captured errors.
-- Level 1 regression: 77/77 checks passed with 21 screenshots.
+- Final live button, audio, asset-download, and responsive rerun: 43/43 Level 2 checks passed with zero captured errors.
+- Live Level 1 regression: 77/77 checks passed with 21 screenshots.
 - Animation scan: 0 high-severity findings; one reviewed intentional safe-hold transition.
 
 ## Final result

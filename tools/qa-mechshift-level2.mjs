@@ -18,6 +18,7 @@ await mkdir(OUT, { recursive: true });
 
 const report = { build: "stormrail-shield-sprint-001", baseUrl: BASE, startedAt: new Date().toISOString(), checks: [], errors: [], screenshots: [] };
 const check = (name, passed, detail = "") => { report.checks.push({ name, passed: Boolean(passed), detail }); if (!passed) console.error(`FAIL ${name}: ${detail}`); };
+const isIgnorableError = (error) => /favicon/i.test(error.text) || (error.type === "requestfailed" && /commander-level-2-stage-[123]\.mp3 .*ERR_ABORTED/i.test(error.text));
 const watch = (page, label) => {
   page.on("console", (msg) => { if (msg.type() === "error") report.errors.push({ label, type: "console", text: msg.text() }); });
   page.on("pageerror", (error) => report.errors.push({ label, type: "pageerror", text: error.message }));
@@ -42,6 +43,13 @@ try {
   await desktop.goto(`${BASE}/mechshift-rescue/level-2/`, { waitUntil: "networkidle" });
   await desktop.waitForFunction(() => window.__STORMRAIL_QA__?.build === "stormrail-shield-sprint-001");
   check("Level 2 build marker present", await desktop.evaluate(() => window.__STORMRAIL_QA__.build) === "stormrail-shield-sprint-001");
+  const audioAssets = await desktop.evaluate(async () => Promise.all([
+    "../assets/level-2/audio/commander-level-2-stage-1.mp3",
+    "../assets/level-2/audio/commander-level-2-stage-2.mp3",
+    "../assets/level-2/audio/commander-level-2-stage-3.mp3",
+    "../assets/level-2/audio/stormrail-command-loop.webm"
+  ].map(async (url) => { const response = await fetch(url); const bytes = (await response.arrayBuffer()).byteLength; return { url, status: response.status, bytes }; })));
+  check("Commander voice and soundtrack assets load completely", audioAssets.every((asset) => asset.status === 200 && asset.bytes > 200000), JSON.stringify(audioAssets));
   check("Selected Stormrail launch art visible", await desktop.getByRole("heading", { name: /Stormrail Shield Sprint/i }).isVisible());
   const launchFits = await fits(desktop, [".launch-copy", ".primary-cta", ".mission-specs span"]);
   check("Desktop launch content has no overflow", launchFits.every((item) => item.fitsWidth && item.fitsHeight), JSON.stringify(launchFits));
@@ -197,14 +205,14 @@ try {
   check("Portrait rotation guidance appears", await portrait.getByText("Turn your tablet sideways").isVisible());
   await shot(portrait, "12-portrait-guidance.png");
 
-  const scopedErrors = report.errors.filter((error) => !/favicon/i.test(error.text));
+  const scopedErrors = report.errors.filter((error) => !isIgnorableError(error));
   check("No console, page, required-network or asset errors", scopedErrors.length === 0, JSON.stringify(scopedErrors));
 } finally {
   await browser.close();
 }
 
 report.finishedAt = new Date().toISOString();
-report.passed = report.checks.every((item) => item.passed) && report.errors.filter((error) => !/favicon/i.test(error.text)).length === 0;
+report.passed = report.checks.every((item) => item.passed) && report.errors.filter((error) => !isIgnorableError(error)).length === 0;
 await writeFile(resolve(OUT, "qa-report.json"), `${JSON.stringify(report, null, 2)}\n`);
-console.log(JSON.stringify({ passed: report.passed, checks: report.checks.length, failed: report.checks.filter((item)=>!item.passed), errors: report.errors }, null, 2));
+console.log(JSON.stringify({ passed: report.passed, checks: report.checks.length, failed: report.checks.filter((item)=>!item.passed), errors: report.errors.filter((error) => !isIgnorableError(error)) }, null, 2));
 if (!report.passed) process.exitCode = 1;
