@@ -60,7 +60,7 @@ try {
   check("reference build marker present", await desktop.evaluate(() => window.__MECHSHIFT_QA__.build) === "mechshift-mission-command-005");
   await screenshot(desktop, "01-start-desktop.png");
 
-  await desktop.getByRole("button", { name: "Launch rescue" }).click();
+  await desktop.locator("#startButton").click();
   check("stage 1 mission orders appear before control", await desktop.getByRole("heading", { name: "Rover to the Evac Dock" }).isVisible());
   check("stage 1 names the required Rover form", await desktop.getByText("Rover mode", { exact: true }).isVisible());
   check("stage 1 gives three physical and maths orders", await desktop.locator("#briefOrders li").count() === 3, await desktop.locator("#briefOrders").innerText());
@@ -179,7 +179,7 @@ try {
   watch(wide, "game-wide-desktop");
   await wide.goto(`${BASE}/mechshift-rescue/`, { waitUntil: "networkidle" });
   await wide.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-mission-command-005");
-  await wide.getByRole("button", { name: "Launch rescue" }).click();
+  await wide.locator("#startButton").click();
   await wide.getByRole("button", { name: "Begin stage 1" }).click();
   await wide.evaluate(() => window.__MECHSHIFT_QA__.gotoMission(0));
   check("wide desktop keeps the load action visible", await wide.getByRole("button", { name: "Load rescue pods" }).isVisible());
@@ -197,7 +197,7 @@ try {
   await tablet.goto(`${BASE}/mechshift-rescue/`, { waitUntil: "networkidle" });
   await tablet.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-mission-command-005");
   await screenshot(tablet, "07-start-tablet.png");
-  await tablet.getByRole("button", { name: "Launch rescue" }).click();
+  await tablet.locator("#startButton").click();
   await tablet.getByRole("button", { name: "Begin stage 1" }).click();
   await tablet.waitForTimeout(200);
   await screenshot(tablet, "08-roadway-tablet.png");
@@ -227,10 +227,10 @@ try {
   watch(shortPhone, "game-short-landscape");
   await shortPhone.goto(`${BASE}/mechshift-rescue/`, { waitUntil: "networkidle" });
   await shortPhone.waitForFunction(() => window.__MECHSHIFT_QA__?.build === "mechshift-mission-command-005");
-  const launchBox = await shortPhone.getByRole("button", { name: "Launch rescue" }).boundingBox();
+  const launchBox = await shortPhone.locator("#startButton").boundingBox();
   check("short landscape launch is fully visible", launchBox && launchBox.y >= 0 && launchBox.y + launchBox.height <= 320, JSON.stringify(launchBox));
   await screenshot(shortPhone, "09-short-landscape-launch.png");
-  await shortPhone.getByRole("button", { name: "Launch rescue" }).click();
+  await shortPhone.locator("#startButton").click();
   const controlBox = await shortPhone.getByRole("button", { name: "Begin stage 1" }).boundingBox();
   check("short landscape mission brief action is fully visible", controlBox && controlBox.y >= 0 && controlBox.y + controlBox.height <= 320, JSON.stringify(controlBox));
   const phoneBriefLayout = await shortPhone.evaluate(() => {

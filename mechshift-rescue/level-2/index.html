@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#071b35" />
+    <meta name="description" content="Mechshift Rescue Level 2 — escort the Stormrail Convoy through a lightning supercell." />
+    <title>Stormrail Shield Sprint | Mechshift Rescue</title>
+    <link rel="icon" href="../assets/relay7-rover.webp" type="image/webp" />
+    <link rel="preload" href="../assets/level-2/stormrail-selected-keyframe.webp" as="image" />
+    <link rel="stylesheet" href="stormrail.css?v=stormrail-shield-sprint-001" />
+  </head>
+  <body>
+    <main id="stormrailApp" class="stormrail-app" aria-label="Mechshift Rescue Level 2 game">
+      <div id="gameCanvas" class="game-canvas" aria-hidden="true"></div>
+      <div class="cinematic-vignette" aria-hidden="true"></div>
+
+      <header class="mission-hud" aria-label="Mission status">
+        <section class="charge-module" aria-label="Shield reserve">
+          <div class="charge-ring" id="chargeRing"><span id="chargeValue">100</span><small>%</small></div>
+          <div class="charge-copy"><span id="chargeLabel">Relay charge</span><strong id="formName">Rover form</strong></div>
+        </section>
+        <section class="mission-readout" aria-live="polite">
+          <span class="mission-kicker" id="missionKicker">Stormrail Convoy / Level 2</span>
+          <strong id="missionTitle">Charge the couplers</strong>
+          <span id="missionInstruction">Wait for Commander Nimbus.</span>
+          <div class="mission-progress" aria-label="Mission progress"><i class="active"></i><i></i><i></i></div>
+        </section>
+        <div class="top-actions">
+          <button class="hud-button" id="soundButton" type="button" aria-label="Mute sound" aria-pressed="false">Sound</button>
+          <button class="hud-button" id="pauseButton" type="button" aria-label="Pause mission">Pause</button>
+        </div>
+      </header>
+
+      <section class="run-status hidden" id="runStatus" aria-label="Shield run status">
+        <span><b id="convoyCount">0</b>/6 pulses</span>
+        <div class="run-meter"><i id="runMeterFill"></i></div>
+        <span id="runTimer">00:35</span>
+      </section>
+
+      <div class="run-controls hidden" id="runControls" aria-label="Shield Runner controls">
+        <div class="lane-controls">
+          <span>Change lane</span>
+          <button id="laneUpButton" type="button" aria-label="Move Relay-7 up one lane"><b>↑</b><small>Up</small></button>
+          <button id="laneDownButton" type="button" aria-label="Move Relay-7 down one lane"><b>↓</b><small>Down</small></button>
+        </div>
+        <button class="shield-button" id="shieldButton" type="button" aria-label="Hold to raise the shield">
+          <span class="shield-icon" aria-hidden="true"></span><strong>Shield</strong><small><span class="keyboard-copy">Hold Space</span><span class="touch-copy">Hold</span></small>
+        </button>
+      </div>
+
+      <div class="caption-bar" id="captions" role="status" aria-live="polite">Commander Nimbus standing by.</div>
+      <div class="safe-hold hidden" id="safeHold" role="status"><strong>Safe hold</strong><span>The convoy is protected. Watch the lane marker and try that pulse again.</span></div>
+
+      <section class="launch-screen overlay-screen" id="launchScreen" aria-labelledby="launchTitle">
+        <div class="launch-shade"></div>
+        <div class="launch-copy">
+          <p class="eyebrow">Mechshift Rescue / Level 2</p>
+          <h1 id="launchTitle">Stormrail <span>Shield Sprint</span></h1>
+          <p class="launch-deck">Escort three rescue carriers through the lightning belt. Calculate the reserve. Transform. Protect the convoy.</p>
+          <div class="mission-specs"><span>8–12 min mission</span><span>Real action controls</span><span>Advanced Grade 4</span></div>
+          <button class="primary-cta" id="launchButton" type="button"><span>Launch Level 2</span><small>Relay-7 upgrade ready</small></button>
+          <a class="quiet-link" href="../">Choose another Mechshift level</a>
+        </div>
+      </section>
+
+      <section class="brief-screen overlay-screen hidden" id="briefScreen" aria-labelledby="briefTitle">
+        <div class="brief-panel">
+          <div class="brief-art"><img id="briefImage" src="../assets/level-2/stormrail-selected-keyframe.webp" alt="Relay-7 Shield Runner protecting the convoy" /></div>
+          <div class="brief-copy">
+            <p class="eyebrow" id="briefKicker">Commander Nimbus // Stage 1</p>
+            <h2 id="briefTitle">Charge the magnetic couplers</h2>
+            <p id="briefText">Calculate the usable charge, then lock all three couplers into the rail.</p>
+            <div class="form-callout"><span>Transform order</span><strong id="briefForm">Mag-Claw mode</strong></div>
+            <ol id="briefOrders" class="brief-orders"></ol>
+            <div class="brief-actions">
+              <button class="primary-cta compact" id="briefContinueButton" type="button">Begin stage 1</button>
+              <button class="secondary-button" id="briefReplayButton" type="button">Replay orders</button>
+            </div>
+            <p class="voice-disclosure">Commander voice is AI-generated. Captions repeat every order.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="challenge-screen overlay-screen hidden" id="challengeScreen" aria-labelledby="challengeTitle">
+        <div class="challenge-shell">
+          <header class="challenge-header">
+            <div><p class="eyebrow" id="challengeKicker">System 1 / Rail junction</p><h2 id="challengeTitle">Charge the magnetic couplers</h2></div>
+            <button class="round-close" id="challengeCloseButton" type="button" aria-label="Return to the mission view">×</button>
+          </header>
+          <div class="challenge-story" id="challengeStory"></div>
+          <div class="challenge-body" id="challengeBody"></div>
+          <footer class="challenge-footer">
+            <div class="hint-ladder"><button id="hintButton" type="button">Ask Nimbus for a clue</button><span id="hintText" aria-live="polite"></span></div>
+            <button class="confirm-button" id="confirmChallengeButton" type="button">Check system</button>
+          </footer>
+        </div>
+      </section>
+
+      <section class="pause-screen overlay-screen hidden" id="pauseScreen" aria-labelledby="pauseTitle">
+        <div class="menu-panel">
+          <p class="eyebrow">Mission paused</p><h2 id="pauseTitle">Convoy holding safely</h2>
+          <button class="primary-cta compact" id="resumeButton" type="button">Resume mission</button>
+          <button class="menu-button" id="motionButton" type="button" aria-pressed="false">Reduced motion: off</button>
+          <button class="menu-button" id="restartButton" type="button">Restart Level 2</button>
+          <a class="quiet-link" href="../">Choose another level</a>
+        </div>
+      </section>
+
+      <section class="result-screen overlay-screen hidden" id="resultScreen" aria-labelledby="resultTitle">
+        <div class="result-panel">
+          <p class="eyebrow">Stormrail Convoy secured</p>
+          <h2 id="resultTitle">Shield sprint complete!</h2>
+          <p>You calculated the reserve, protected every carrier and transformed Relay-7 into a bridge-mech.</p>
+          <div class="result-score"><span><strong>3</strong><small>systems restored</small></span><span><strong id="resultStars">3</strong><small>rescue stars</small></span><span><strong id="resultTime">00:00</strong><small>mission time</small></span></div>
+          <div class="badge"><img src="../assets/level-2/stormrail-selected-keyframe.webp" alt="Relay-7 shielding the Stormrail Convoy" /><span>New badge earned</span><strong>Stormrail Guardian</strong></div>
+          <div class="result-actions"><button class="primary-cta compact" id="playAgainButton" type="button">Play Level 2 again</button><a class="secondary-cta" href="../../?from=mechshift-rescue&complete=2">Return to Bright Quest</a></div>
+        </div>
+      </section>
+
+      <section class="orientation-screen" aria-label="Rotate device">
+        <img src="../assets/level-2/stormrail-selected-keyframe.webp" alt="Relay-7 Shield Runner" /><strong>Turn your tablet sideways</strong><span>The Stormrail needs a wider rescue view.</span>
+      </section>
+    </main>
+
+    <script src="../vendor/phaser.min.js"></script>
+    <script src="stormrail.js?v=stormrail-shield-sprint-001"></script>
+  </body>
+</html>

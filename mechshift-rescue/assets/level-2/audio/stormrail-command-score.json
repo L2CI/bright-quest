@@ -1,0 +1,249 @@
+{
+  "generator": "OpenAI Responses API",
+  "model": "gpt-5.6-sol",
+  "originalWork": true,
+  "intendedUse": "Mechshift Rescue Level 2 Stormrail Shield Sprint background music",
+  "title": "Stormrail Command",
+  "bpm": 96,
+  "key": "D minor",
+  "mood": "Confident field-command energy, propulsive rescue action, warm heroism, bright storm electricity, and controlled excitement",
+  "chords": [
+    [
+      62,
+      65,
+      69
+    ],
+    [
+      58,
+      62,
+      65
+    ],
+    [
+      57,
+      60,
+      65
+    ],
+    [
+      60,
+      64,
+      67
+    ],
+    [
+      55,
+      58,
+      62
+    ],
+    [
+      58,
+      62,
+      65
+    ],
+    [
+      60,
+      64,
+      67
+    ],
+    [
+      57,
+      61,
+      64
+    ]
+  ],
+  "bass": [
+    38,
+    38,
+    45,
+    38,
+    34,
+    34,
+    41,
+    34,
+    41,
+    41,
+    48,
+    45,
+    36,
+    36,
+    43,
+    40,
+    31,
+    31,
+    38,
+    34,
+    34,
+    34,
+    41,
+    38,
+    36,
+    36,
+    43,
+    40,
+    33,
+    33,
+    40,
+    37
+  ],
+  "arp": [
+    74,
+    81,
+    77,
+    81,
+    76,
+    81,
+    77,
+    81,
+    70,
+    77,
+    74,
+    77,
+    79,
+    77,
+    74,
+    77,
+    72,
+    77,
+    81,
+    77,
+    79,
+    77,
+    81,
+    77,
+    72,
+    79,
+    76,
+    79,
+    74,
+    79,
+    76,
+    79,
+    67,
+    74,
+    70,
+    74,
+    69,
+    74,
+    70,
+    74,
+    70,
+    77,
+    74,
+    77,
+    79,
+    77,
+    74,
+    77,
+    72,
+    79,
+    76,
+    79,
+    74,
+    79,
+    76,
+    79,
+    69,
+    76,
+    73,
+    76,
+    71,
+    76,
+    73,
+    76
+  ],
+  "brass": [
+    {
+      "beat": 0,
+      "notes": [
+        62,
+        65,
+        69
+      ],
+      "length": 0.75,
+      "velocity": 0.72
+    },
+    {
+      "beat": 6,
+      "notes": [
+        58,
+        62,
+        65
+      ],
+      "length": 0.5,
+      "velocity": 0.58
+    },
+    {
+      "beat": 8.5,
+      "notes": [
+        60,
+        65,
+        69
+      ],
+      "length": 0.75,
+      "velocity": 0.66
+    },
+    {
+      "beat": 14,
+      "notes": [
+        60,
+        64,
+        67
+      ],
+      "length": 0.5,
+      "velocity": 0.6
+    },
+    {
+      "beat": 16,
+      "notes": [
+        55,
+        58,
+        62
+      ],
+      "length": 0.75,
+      "velocity": 0.67
+    },
+    {
+      "beat": 22,
+      "notes": [
+        58,
+        62,
+        65
+      ],
+      "length": 0.5,
+      "velocity": 0.62
+    },
+    {
+      "beat": 24.5,
+      "notes": [
+        60,
+        64,
+        67
+      ],
+      "length": 0.75,
+      "velocity": 0.7
+    },
+    {
+      "beat": 30.5,
+      "notes": [
+        57,
+        61,
+        64
+      ],
+      "length": 0.5,
+      "velocity": 0.74
+    }
+  ],
+  "accentBeats": [
+    0,
+    3.5,
+    6,
+    8,
+    11.5,
+    14,
+    16,
+    19.5,
+    22,
+    24,
+    27.5,
+    30.5
+  ],
+  "mixNotes": "Use tight low strings and a rounded mono synth for the engine pulse, with restrained snare and side-stick accents only on listed beats. Keep brass calls short, warm, and centered; place the glassy arpeggio wide with softened transients and subtle bright delay. Add low-level rain-like filtered noise and occasional non-pitched electrical shimmer without thunder impacts. Preserve the 1–4 kHz center for spoken instructions, avoid heavy sub-bass, and use gentle bus compression. End the final A-major colour cleanly before beat 32 while allowing only tempo-synced ambience to wrap into the opening D-minor downbeat for a seamless loop."
+}

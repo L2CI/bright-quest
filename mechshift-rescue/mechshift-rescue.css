@@ -345,6 +345,10 @@ body.near-beacon .drive-button { pointer-events: none; }
 .primary-cta small { font-size: 9px; opacity: .7; letter-spacing: .1em; }
 .primary-cta.compact { min-width: 190px; min-height: 52px; place-items: center; text-align: center; }
 .primary-cta:hover { filter: brightness(1.08); transform: translateY(-2px); }
+.level-launches { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; }
+.level-launches .primary-cta { min-width: min(252px, 100%); }
+.level-two-cta { border-color: #bffaff; color: #f5feff; background: linear-gradient(180deg,#177ab5,#07507f); box-shadow: 0 0 35px rgba(76,244,255,.28), inset 0 2px 0 rgba(255,255,255,.2); }
+.level-two-cta small { color: #bdf5ff; opacity: .82; }
 .quiet-link { display: block; width: max-content; margin-top: 18px; color: #c8d9e7; font-size: 12px; text-underline-offset: 4px; }
 
 .brief-panel { width: min(940px, calc(100vw - 44px)); min-height: 420px; display: grid; grid-template-columns: 38% 62%; overflow: hidden; border: 1px solid rgba(111,224,255,.45); border-radius: 30px 10px 30px 10px; background: linear-gradient(135deg,rgba(11,47,85,.98),rgba(4,19,41,.98)); box-shadow: 0 30px 90px rgba(0,0,0,.58); }
@@ -551,3 +555,12 @@ kbd { padding: 2px 5px; border: 1px solid rgba(111,224,255,.36); border-bottom-w
 body.reduced-motion *, body.reduced-motion *::before, body.reduced-motion *::after { animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important; }
 
 @media (pointer: fine) { .touch-controls { opacity:.82; } .touch-controls:hover { opacity:1; } }
+
+@media (max-height: 540px) and (orientation: landscape) {
+  .level-launches { flex-wrap: nowrap; gap: 7px; }
+  .level-launches .primary-cta { min-width: 0; width: 220px; font-size: 10px; }
+}
+
+@media (max-height: 340px) and (orientation: landscape) {
+  .level-launches .primary-cta { width: 204px; min-height: 42px; padding: 5px 11px; }
+}

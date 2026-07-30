@@ -9,7 +9,7 @@
     <link rel="icon" href="assets/relay7-rover.webp" type="image/webp" />
     <link rel="preload" href="assets/aether-city-mission-deck.webp" as="image" />
     <link rel="preload" href="assets/relay7-rover.webp" as="image" />
-    <link rel="stylesheet" href="mechshift-rescue.css?v=mission-command-005" />
+    <link rel="stylesheet" href="mechshift-rescue.css?v=stormrail-level-select-006" />
   </head>
   <body>
     <main id="mechshiftApp" class="mechshift-app" aria-label="Mechshift Rescue game">
@@ -83,7 +83,10 @@
           <div class="mission-specs" aria-label="Game information">
             <span>8–12 min mission</span><span>3 rescue systems</span><span>Grade 4 strategy</span>
           </div>
-          <button class="primary-cta" id="startButton" type="button"><span>Launch rescue</span><small>Relay-7 ready</small></button>
+          <div class="level-launches" aria-label="Choose a Mechshift mission">
+            <button class="primary-cta" id="startButton" type="button"><span>Level 1 — Aether Rescue</span><small>Relay-7 original mission</small></button>
+            <a class="primary-cta level-two-cta" href="level-2/"><span>Level 2 — Stormrail</span><small>New shield sprint mission</small></a>
+          </div>
           <a class="quiet-link" href="../?from=mechshift-rescue">Return to Bright Quest</a>
         </div>
       </section>
