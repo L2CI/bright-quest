@@ -333,6 +333,10 @@ body.bq-experience-uplift .bq-world-tile.winter {
   border-top: 4px solid #f4bc2e;
 }
 
+body.bq-experience-uplift .bq-world-tile.icas {
+  border-top: 4px solid #087f8c;
+}
+
 body.bq-experience-uplift .bq-world-tile.chemistry {
   border-top: 4px solid #ef735f;
 }

@@ -61,6 +61,11 @@ check("All question IDs are unique", new Set(bank.tests.flatMap((test) => test.q
 const browser = await chromium.launch({ executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", headless: true });
 try {
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1, reducedMotion: "reduce" });
+  await context.route("**/api/auth/config", (route) => route.fulfill({
+    status: 200,
+    contentType: "application/json",
+    body: JSON.stringify({ enabled: false, experienceUpliftEnabled: true })
+  }));
   await context.addInitScript((seed) => {
     if (!localStorage.getItem("qaIcasSeededV1")) {
       localStorage.setItem("brightQuestProfilesV2", JSON.stringify({ [seed.id]: seed }));
@@ -199,13 +204,31 @@ try {
   watch(root, "bright-quest-kid");
   await root.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
   await enterKid(root);
-  check("Kid Training area contains ICAS card", await root.locator('[data-bq-action="icas-prep"]').count() === 1);
+  const icasPortalCard = root.locator('.bq-world-grid .bq-world-tile.icas[data-bq-action="icas-prep"]');
+  check("Logged-in kid portal contains standalone ICAS module", await icasPortalCard.count() === 1 && await icasPortalCard.isVisible());
+  check("Standalone ICAS module shows attempt status", /complete|Ready/.test(await icasPortalCard.locator(".bq-world-status").innerText()));
+  check("Standalone ICAS module artwork loads", await icasPortalCard.locator("img").evaluate((image) => image.complete && image.naturalWidth > 0));
   await shot(root, "07-kid-launch-card.png", true);
-  await root.locator('[data-bq-action="icas-prep"]').click();
+  await icasPortalCard.click();
   await root.waitForURL(/\/icas-prep\//);
   check("Kid ICAS card opens module route", root.url().includes("/icas-prep/"));
   await root.goBack();
   check("Browser Back from module returns to Bright Quest", new URL(root.url()).pathname === "/");
+
+  const mobilePortal = await context.newPage();
+  watch(mobilePortal, "bright-quest-kid-mobile");
+  await mobilePortal.setViewportSize({ width: 390, height: 844 });
+  await mobilePortal.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
+  await enterKid(mobilePortal);
+  const mobileIcasCard = mobilePortal.locator('.bq-world-grid .bq-world-tile.icas[data-bq-action="icas-prep"]');
+  check("Mobile kid portal shows standalone ICAS module", await mobileIcasCard.isVisible());
+  check("Mobile kid portal fits viewport", await mobilePortal.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1));
+  await shot(mobilePortal, "08-kid-launch-card-mobile.png", true);
+  await mobileIcasCard.click();
+  await mobilePortal.waitForURL(/\/icas-prep\//);
+  check("Mobile ICAS module link opens", mobilePortal.url().includes("/icas-prep/"));
+  await mobilePortal.goBack();
+  check("Mobile browser Back returns to kid portal", new URL(mobilePortal.url()).pathname === "/");
 
   const moduleBack = await context.newPage();
   watch(moduleBack, "module-home-back");

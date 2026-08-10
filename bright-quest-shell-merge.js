@@ -341,6 +341,7 @@
   function renderKidMissionControl(ref) {
     const profile = state.profile;
     const attempts = profile.attempts || [];
+    const icasAttempts = profile.icasAttempts || [];
     const chemistryChapters = profile.chemistry101Progress?.chapters || {};
     const chemistryCompleted = Object.values(chemistryChapters).filter((chapter) => chapter?.completed).length;
     const physicsStatus = physicsProgress(profile);
@@ -417,6 +418,12 @@
               <span class="bq-world-status">${mission.action === "city-exam" ? "Current" : `${attempts.length} sets`}</span>
               <strong>Exam Expedition</strong>
               <small>Maths, English and reasoning</small>
+            </button>
+            <button type="button" class="bq-world-tile icas" data-bq-action="icas-prep">
+              <img src="assets/ui/world-challenge.svg" alt="" />
+              <span class="bq-world-status">${icasAttempts.length ? `${icasAttempts.length} complete` : "Ready"}</span>
+              <strong>ICAS Challenge Lab</strong>
+              <small>Grade 3 maths and spelling</small>
             </button>
             <button type="button" class="bq-world-tile winter" data-bq-action="winter-training">
               <img src="assets/ui/winter-2026/place-value.png" alt="" />
