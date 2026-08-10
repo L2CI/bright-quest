@@ -13,6 +13,7 @@
     hero.querySelector("#academyGrammarButton, #academyGrammarButton2")?.addEventListener("click", openGrammarGym);
     hero.querySelector("#academyGamesButton, #academyGamesButton2")?.addEventListener("click", openGamesList);
     hero.querySelector("#internationalTestsButton, #academyInternationalButton")?.addEventListener("click", openInternationalArena);
+    hero.querySelector("[data-open-icas-prep]")?.addEventListener("click", () => { window.location.href = "icas-prep/"; });
   }
 
   function ensureAcademyHero() {
@@ -36,6 +37,7 @@
           <button class="academy-zone english" type="button" id="academyGrammarButton2"><span aria-hidden="true">G</span><strong>Grammar Gym</strong><small>Sentence power</small></button>
           <button class="academy-zone reasoning" type="button" data-zone-level="4"><span aria-hidden="true">?</span><strong>Reasoning Lab</strong><small>Pattern moves</small></button>
           <button class="academy-zone world" type="button" id="academyInternationalButton"><span aria-hidden="true">W</span><strong>International Tests</strong><small>World arena</small></button>
+          <button class="academy-zone icas" type="button" data-open-icas-prep><span aria-hidden="true">I</span><strong>ICAS Challenge Lab</strong><small>Grade 3 maths + spelling</small></button>
           <button class="academy-zone arcade" type="button" id="academyGamesButton2"><span aria-hidden="true">A</span><strong>Arcade Rewards</strong><small>Unlocked games</small></button>
         </div>
       </div>

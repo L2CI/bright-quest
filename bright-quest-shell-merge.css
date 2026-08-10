@@ -405,6 +405,13 @@ body.bq-shell-merge {
     linear-gradient(135deg, rgba(255,255,255,0.96), rgba(255,237,213,0.92));
 }
 
+.bq-module-card.icas {
+  border-left-color: #087f8c;
+  background:
+    radial-gradient(circle at 92% 12%, rgba(244, 200, 74, 0.26), transparent 28%),
+    linear-gradient(135deg, rgba(255,255,255,0.96), rgba(222,244,246,0.92));
+}
+
 .bq-module-card.exam .bq-art,
 .bq-query-card.area-exam .bq-art {
   background: linear-gradient(145deg, rgba(219,234,254,0.95), rgba(191,219,254,0.72));
@@ -421,6 +428,11 @@ body.bq-shell-merge {
 .bq-query-card.area-chemistry .bq-art {
   background: linear-gradient(145deg, rgba(255,247,237,0.98), rgba(254,215,170,0.78));
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.72), 0 18px 34px rgba(207, 123, 63, 0.18);
+}
+
+.bq-module-card.icas .bq-art {
+  background: linear-gradient(145deg, rgba(238,250,251,0.98), rgba(181,228,232,0.8));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.72), 0 18px 34px rgba(8, 127, 140, 0.18);
 }
 
 .bq-module-card strong,

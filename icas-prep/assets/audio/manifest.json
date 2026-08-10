@@ -1,0 +1,169 @@
+{
+  "model": "gpt-4o-mini-tts-2025-12-15",
+  "voice": "coral",
+  "count": 27,
+  "files": [
+    {
+      "id": "icas-spelling-diagnostic-q01",
+      "file": "icas-spelling-diagnostic-q01.mp3",
+      "status": "generated",
+      "bytes": 139392
+    },
+    {
+      "id": "icas-spelling-diagnostic-q02",
+      "file": "icas-spelling-diagnostic-q02.mp3",
+      "status": "generated",
+      "bytes": 124032
+    },
+    {
+      "id": "icas-spelling-diagnostic-q03",
+      "file": "icas-spelling-diagnostic-q03.mp3",
+      "status": "generated",
+      "bytes": 112896
+    },
+    {
+      "id": "icas-spelling-diagnostic-q04",
+      "file": "icas-spelling-diagnostic-q04.mp3",
+      "status": "generated",
+      "bytes": 107520
+    },
+    {
+      "id": "icas-spelling-full-1-q01",
+      "file": "icas-spelling-full-1-q01.mp3",
+      "status": "generated",
+      "bytes": 140160
+    },
+    {
+      "id": "icas-spelling-full-1-q02",
+      "file": "icas-spelling-full-1-q02.mp3",
+      "status": "generated",
+      "bytes": 141696
+    },
+    {
+      "id": "icas-spelling-full-1-q03",
+      "file": "icas-spelling-full-1-q03.mp3",
+      "status": "generated",
+      "bytes": 153600
+    },
+    {
+      "id": "icas-spelling-full-1-q04",
+      "file": "icas-spelling-full-1-q04.mp3",
+      "status": "generated",
+      "bytes": 150528
+    },
+    {
+      "id": "icas-spelling-full-1-q05",
+      "file": "icas-spelling-full-1-q05.mp3",
+      "status": "generated",
+      "bytes": 113664
+    },
+    {
+      "id": "icas-spelling-full-1-q06",
+      "file": "icas-spelling-full-1-q06.mp3",
+      "status": "generated",
+      "bytes": 139392
+    },
+    {
+      "id": "icas-spelling-full-1-q07",
+      "file": "icas-spelling-full-1-q07.mp3",
+      "status": "generated",
+      "bytes": 100992
+    },
+    {
+      "id": "icas-spelling-full-1-q08",
+      "file": "icas-spelling-full-1-q08.mp3",
+      "status": "generated",
+      "bytes": 118656
+    },
+    {
+      "id": "icas-spelling-full-1-q09",
+      "file": "icas-spelling-full-1-q09.mp3",
+      "status": "generated",
+      "bytes": 142464
+    },
+    {
+      "id": "icas-spelling-full-1-q10",
+      "file": "icas-spelling-full-1-q10.mp3",
+      "status": "generated",
+      "bytes": 120192
+    },
+    {
+      "id": "icas-spelling-full-1-q11",
+      "file": "icas-spelling-full-1-q11.mp3",
+      "status": "generated",
+      "bytes": 135168
+    },
+    {
+      "id": "icas-spelling-full-1-q12",
+      "file": "icas-spelling-full-1-q12.mp3",
+      "status": "generated",
+      "bytes": 134400
+    },
+    {
+      "id": "icas-spelling-full-1-q13",
+      "file": "icas-spelling-full-1-q13.mp3",
+      "status": "generated",
+      "bytes": 147456
+    },
+    {
+      "id": "icas-spelling-full-1-q14",
+      "file": "icas-spelling-full-1-q14.mp3",
+      "status": "generated",
+      "bytes": 122496
+    },
+    {
+      "id": "icas-spelling-sounds-sight-q01",
+      "file": "icas-spelling-sounds-sight-q01.mp3",
+      "status": "generated",
+      "bytes": 148224
+    },
+    {
+      "id": "icas-spelling-sounds-sight-q02",
+      "file": "icas-spelling-sounds-sight-q02.mp3",
+      "status": "generated",
+      "bytes": 124032
+    },
+    {
+      "id": "icas-spelling-sounds-sight-q03",
+      "file": "icas-spelling-sounds-sight-q03.mp3",
+      "status": "generated",
+      "bytes": 148224
+    },
+    {
+      "id": "icas-spelling-sounds-sight-q04",
+      "file": "icas-spelling-sounds-sight-q04.mp3",
+      "status": "generated",
+      "bytes": 132096
+    },
+    {
+      "id": "icas-spelling-word-building-q01",
+      "file": "icas-spelling-word-building-q01.mp3",
+      "status": "generated",
+      "bytes": 132864
+    },
+    {
+      "id": "icas-spelling-word-building-q02",
+      "file": "icas-spelling-word-building-q02.mp3",
+      "status": "generated",
+      "bytes": 121728
+    },
+    {
+      "id": "icas-spelling-word-building-q03",
+      "file": "icas-spelling-word-building-q03.mp3",
+      "status": "generated",
+      "bytes": 117888
+    },
+    {
+      "id": "icas-spelling-word-building-q04",
+      "file": "icas-spelling-word-building-q04.mp3",
+      "status": "generated",
+      "bytes": 121728
+    },
+    {
+      "id": "volume-check",
+      "file": "volume-check.mp3",
+      "status": "generated",
+      "bytes": 142464
+    }
+  ]
+}

@@ -311,6 +311,11 @@
               <strong>Physics 101: Advanced Grade 4</strong>
               <span>Chapter 1 live pilot</span>
             </button>
+            <button type="button" class="bq-module-card icas" data-bq-action="icas-prep">
+              ${art("clipboard")}
+              <strong>ICAS Challenge Lab</strong>
+              <span>Grade 3 maths + spelling</span>
+            </button>
           </div>
         </article>
 
@@ -475,6 +480,10 @@
       window.location.href = physics101Url(state.profile);
       return;
     }
+    if (action === "icas-prep") {
+      window.location.href = icasPrepUrl(state.profile);
+      return;
+    }
     if (action === "games") {
       openGamesList();
       return;
@@ -554,6 +563,13 @@
   function physics101Url(profile = null) {
     const profileId = profile?.id || state.profileId || localStorage.getItem("brightQuestActiveProfile") || "";
     const url = new URL(PHYSICS_COURSE_URL, window.location.href);
+    if (profileId) url.searchParams.set("profileId", profileId);
+    return `${url.pathname.replace(/^\//, "")}${url.search}`;
+  }
+
+  function icasPrepUrl(profile = null) {
+    const profileId = profile?.id || state.profileId || localStorage.getItem("brightQuestActiveProfile") || "";
+    const url = new URL("icas-prep/", window.location.href);
     if (profileId) url.searchParams.set("profileId", profileId);
     return `${url.pathname.replace(/^\//, "")}${url.search}`;
   }
@@ -898,7 +914,7 @@
   }
 
   function parentNavButton(route, label, activeRoute) {
-    const active = route === activeRoute || (route === "learning" && ["exam-results", "focus", "training", "chemistry", "physics", "winter-2026"].includes(activeRoute)) || (route === "evidence" && ["writing", "records"].includes(activeRoute));
+    const active = route === activeRoute || (route === "learning" && ["exam-results", "focus", "training", "chemistry", "physics", "icas", "winter-2026"].includes(activeRoute)) || (route === "evidence" && ["writing", "records"].includes(activeRoute));
     return `<button type="button" class="${active ? "active" : ""}" data-parent-route="${route}" ${active ? 'aria-current="page"' : ""}>${label}</button>`;
   }
 
@@ -944,6 +960,7 @@
       games: () => renderGamesPage(metrics),
       chemistry: () => renderChemistryPage(metrics),
       physics: () => renderPhysicsPage(metrics),
+      icas: () => renderIcasPage(metrics),
       "winter-2026": () => renderWinterPage(metrics),
       records: () => renderRecordsPage(metrics)
     };
@@ -971,7 +988,8 @@
         <article><p class="eyebrow">Next action</p><h3>${focus ? `Practise ${escapeHtml(focus.skill)}` : "Keep the routine moving"}</h3><p>${focus ? "Open the evidence first, then choose one short practice activity." : "Choose a learning area and complete one focused activity."}</p></article>
       </section>
       <section class="bq-parent-subject-rows" aria-label="Learning summary">
-        ${parentHubRow("learning", "Learning", `${metrics.attempts.length} exam attempts`, metrics.attempts.length ? `${metrics.average}% average` : "No baseline", "chart")}
+        ${parentHubRow("learning", "Learning", `${metrics.attempts.length + metrics.icasAttempts.length} saved attempts`, metrics.attempts.length ? `${metrics.average}% exam average` : "No exam baseline", "chart")}
+        ${parentHubRow("icas", "ICAS Challenge Lab", `${metrics.icasAttempts.length} attempts`, metrics.icasAttempts.length ? `${metrics.icasAttempts.at(-1).percent}% latest` : "No result yet", "clipboard")}
         ${parentHubRow("chemistry", "Chemistry", `${chemistryProgress(metrics.profile).completed} of 11 chapters`, "Chapter tests and wrong answers", "chemistry")}
         ${parentHubRow("physics", "Physics", `${physicsProgress(metrics.profile).completed ? 1 : 0} of 1 pilot chapter`, "Cockpit Check and evidence reasoning", "focus")}
         ${parentHubRow("evidence", "Evidence", `${metrics.questionStats.length} saved question records`, `${metrics.writing.length} writing samples`, "database")}
@@ -984,6 +1002,7 @@
     return parentPageShell("learning", `
       <section class="bq-parent-hub-list" aria-label="Learning areas">
         ${parentHubRow("exam-results", "Exam Expedition", `${metrics.attempts.length} attempts`, metrics.latest ? `${metrics.latest.percent}% latest` : "No result yet", "school")}
+        ${parentHubRow("icas", "ICAS Challenge Lab", `${metrics.icasAttempts.length} attempts`, metrics.icasAttempts.length ? `${metrics.icasAttempts.at(-1).percent}% latest` : "Maths and spelling practice", "clipboard")}
         ${parentHubRow("focus", "Focus Areas", `${metrics.focus.length} signals`, metrics.focus[0]?.skill || "No focus flagged", "focus")}
         ${parentHubRow("training", "Bright Quest Training", `${metrics.training.completed.length} complete`, `${metrics.training.untouched.length} available`, "book")}
         ${parentHubRow("chemistry", "Chemistry 101", `${chemistry.completed} of ${chemistry.total} chapters`, `${chemistry.tested} tests submitted`, "chemistry")}
@@ -995,14 +1014,16 @@
 
   function renderParentEvidenceHub(metrics) {
     const missed = metrics.choices.filter((question) => question.correct === false).length;
+    const icasMissed = metrics.icasQuestions.filter((question) => question.correct === false).length;
     return parentPageShell("evidence", `
       <section class="bq-parent-evidence-summary">
-        ${metric("Saved attempts", metrics.attempts.length)}
-        ${metric("Missed answers", missed)}
+        ${metric("Saved attempts", metrics.attempts.length + metrics.icasAttempts.length)}
+        ${metric("Missed answers", missed + icasMissed)}
         ${metric("Writing samples", metrics.writing.length)}
       </section>
       <section class="bq-parent-hub-list" aria-label="Evidence areas">
         ${parentHubRow("exam-results", "Attempts and answers", "Wrong answers first in each review", `${metrics.questionStats.length} question records`, "clipboard")}
+        ${parentHubRow("icas", "ICAS answer evidence", "Wrong answers first in a popup", `${metrics.icasQuestions.length} question records`, "clipboard")}
         ${parentHubRow("writing", "Writing evidence", "Saved responses and writing signals", `${metrics.writing.length} samples`, "writing")}
         ${parentHubRow("records", "All records", "Complete audit view", "Profiles, attempts, questions and training", "database")}
       </section>
@@ -1109,11 +1130,13 @@
 
   function buildParentMetrics(profile) {
     const attempts = (profile.attempts || []).map(normalizeParentAttempt);
+    const icasAttempts = (profile.icasAttempts || []).map(normalizeParentAttempt);
     const questionStats = attempts.flatMap((attempt) =>
       (attempt.questionStats || []).map((question) => ({ ...question, attempt }))
     );
     const choices = questionStats.filter((question) => question.format !== "writing");
     const writing = questionStats.filter((question) => question.format === "writing").reverse();
+    const icasQuestions = icasAttempts.flatMap((attempt) => (attempt.questionStats || []).map((question) => ({ ...question, attempt })));
     const latest = attempts.at(-1);
     const previous = attempts.at(-2);
     const average = attempts.length ? Math.round(attempts.reduce((sum, item) => sum + (item.percent || 0), 0) / attempts.length) : 0;
@@ -1121,7 +1144,7 @@
     const focus = focusGroups(choices);
     const training = getTrainingCoverage(profile);
     const completedLevels = new Set(attempts.map((attempt) => attempt.level));
-    return { profile, attempts, questionStats, choices, writing, latest, previous, average, best, focus, training, completedLevels };
+    return { profile, attempts, icasAttempts, questionStats, icasQuestions, choices, writing, latest, previous, average, best, focus, training, completedLevels };
   }
 
   function focusGroups(questions) {
@@ -1181,6 +1204,7 @@
       <section class="bq-parent-groups" aria-label="Detailed cockpit areas">
         ${queryGroup("Learning", "Exam prep, weak spots, training coverage, and Winter 2026.", [
           queryCard("exam-results", "City School Exam Prep", "Attempts, scores, and answer records.", "school"),
+          queryCard("icas", "ICAS Challenge Lab", "Grade 3 maths, spelling, scores, and wrong-answer review.", "clipboard"),
           queryCard("focus", "Focus Areas", "Recurring missed or slow skills with evidence.", "focus"),
           queryCard("training", "Training Coverage", "Completed, untouched, and recommended Bright Quest training.", "book"),
           queryCard("chemistry", "Chemistry 101 Winter 2026", "Video chapters, tests, and course progress.", "chemistry"),
@@ -1588,6 +1612,93 @@
     `;
   }
 
+  function renderIcasPage(metrics) {
+    const attempts = metrics.icasAttempts.slice().reverse();
+    const rows = attempts.map((attempt) => {
+      const missed = (attempt.questionStats || []).filter((question) => question.correct === false).length;
+      const subject = attempt.subject === "spelling" ? "Spelling Bee" : "Mathematics";
+      return `
+        <button class="bq-result-row" type="button" data-icas-review="${escapeAttr(attempt.id)}">
+          <span>${escapeHtml(attempt.levelName)}</span>
+          <strong>${attempt.percent}%</strong>
+          <small>${escapeHtml(subject)} / ${escapeHtml(attempt.displayDate)} / ${missed ? `${missed} missed` : "All correct"}</small>
+        </button>
+      `;
+    }).join("") || `<div class="empty-state">No ICAS Challenge Lab attempts yet.</div>`;
+    return parentPageShell("icas", `
+      <section class="bq-chemistry-review-panel">
+        <div><p class="eyebrow">Grade 3 targeted preparation</p><h3>Maths and spelling evidence</h3><p>Open an attempt to review missed questions first, followed by the correct answers.</p></div>
+        <div class="bq-chemistry-review-actions"><button class="button button-primary" type="button" data-open-game-url="${icasPrepUrl(metrics.profile)}">Open ICAS Challenge Lab</button></div>
+      </section>
+      <section class="bq-page-list" aria-label="ICAS Challenge Lab attempts">${rows}</section>
+    `);
+  }
+
+  function currentParentIcasAttempt(attemptId) {
+    const profile = getParentProfile(Object.values(state.profiles || {}));
+    const attempts = (profile?.icasAttempts || []).map(normalizeParentAttempt);
+    return attempts.find((attempt) => attempt.id === attemptId) || null;
+  }
+
+  function ensureIcasReviewPopup() {
+    let popup = document.querySelector("#bqIcasReviewPopup");
+    if (!popup) {
+      popup = document.createElement("div");
+      popup.id = "bqIcasReviewPopup";
+      popup.className = "bq-chem-review-overlay hidden";
+      popup.setAttribute("role", "dialog");
+      popup.setAttribute("aria-modal", "true");
+      document.body.append(popup);
+    }
+    return popup;
+  }
+
+  function openIcasReviewPopup(attemptId) {
+    const attempt = currentParentIcasAttempt(attemptId);
+    if (!attempt) return;
+    const items = [...(attempt.questionStats || [])].sort((a, b) => Number(a.correct) - Number(b.correct) || Number(a.number) - Number(b.number));
+    const missed = items.filter((item) => item.correct === false);
+    const correct = items.filter((item) => item.correct === true);
+    const subject = attempt.subject === "spelling" ? "Spelling Bee" : "Mathematics";
+    const popup = ensureIcasReviewPopup();
+    popup.innerHTML = `
+      <div class="bq-chem-review-scrim" data-icas-review-close></div>
+      <section class="bq-chem-review-modal" aria-labelledby="bqIcasReviewTitle">
+        <header class="bq-chem-review-head">
+          <div><p class="eyebrow">ICAS Challenge Lab / ${escapeHtml(subject)}</p><h3 id="bqIcasReviewTitle">${escapeHtml(attempt.levelName)}</h3><p>${attempt.correct}/${attempt.total} correct. Missed answers are shown first.</p></div>
+          <button class="button button-soft" type="button" data-icas-review-close>Close</button>
+        </header>
+        <section class="bq-chem-review-section">
+          <div class="bq-chem-review-section-head"><p class="eyebrow">Wrong answers first</p><strong>${missed.length} missed</strong></div>
+          <div class="bq-chem-review-list">${missed.length ? missed.map((item) => icasAnswerCard(item, true)).join("") : `<div class="empty-state">No missed questions in this attempt.</div>`}</div>
+        </section>
+        ${correct.length ? `<details class="bq-chem-review-correct"><summary>Show correct answers too (${correct.length})</summary><div class="bq-chem-review-list">${correct.map((item) => icasAnswerCard(item, false)).join("")}</div></details>` : ""}
+      </section>
+    `;
+    popup.classList.remove("hidden");
+    popup.querySelector("[data-icas-review-close]")?.focus();
+  }
+
+  function closeIcasReviewPopup() {
+    const popup = document.querySelector("#bqIcasReviewPopup");
+    if (!popup) return;
+    popup.classList.add("hidden");
+    popup.innerHTML = "";
+  }
+
+  function icasAnswerCard(item, missed) {
+    return `
+      <article class="bq-question-card bq-chem-answer-card ${missed ? "missed" : "correct"}">
+        <p class="eyebrow">${missed ? "Review first" : "Correct"} / Q${escapeHtml(String(item.number))}</p>
+        <h4>${escapeHtml(shorten(item.prompt, 220))}</h4>
+        <p>${escapeHtml(item.domain || item.skill || "Saved question")}</p>
+        <p><strong>Your answer:</strong> ${escapeHtml(item.selectedText || "No answer")}</p>
+        <p><strong>Correct answer:</strong> ${escapeHtml(item.correctText || "Not captured")}</p>
+        <p>${escapeHtml(item.explanation || "")}</p>
+      </article>
+    `;
+  }
+
   function renderRecordsPage(metrics) {
     return parentPageShell("records", `
       <section class="bq-two-column records">
@@ -1628,6 +1739,7 @@
       games: ["Rewards", "Games & Rewards", "Unlocked and recommended Bright Quest game experiences."],
       chemistry: ["Bright Quest module", "Chemistry 101 Winter 2026", "Video chapter progress and chapter-test results."],
       physics: ["Bright Quest live pilot", "Physics 101: Advanced Grade 4", "Animated force lesson, Cockpit Check and saved evidence reasoning."],
+      icas: ["Bright Quest module", "ICAS Challenge Lab", "Grade 3 maths and spelling attempts with wrong-answer-first evidence."],
       "winter-2026": ["Linked module", "Winter 2026 Training 1", "Open AGMaths without moving its data."],
       records: ["Audit", "All Records", "Complete saved Bright Quest records remain accessible here."]
     }[route] || ["Parent cockpit", "Parent Cockpit", "Review saved progress."]);
@@ -1644,6 +1756,9 @@
     });
     parentRecommendation.querySelectorAll("[data-chemistry-review]").forEach((button) => {
       button.addEventListener("click", () => openChemistryReviewPopup(button.dataset.chemistryReview));
+    });
+    parentRecommendation.querySelectorAll("[data-icas-review]").forEach((button) => {
+      button.addEventListener("click", () => openIcasReviewPopup(button.dataset.icasReview));
     });
   }
 
@@ -1779,6 +1894,10 @@
       closeChemistryReviewPopup();
       return;
     }
+    if (event.target.closest("[data-icas-review-close]")) {
+      closeIcasReviewPopup();
+      return;
+    }
     const options = event.target.closest("[data-parent-options]");
     if (options) {
       const menu = document.querySelector(".parent-options-menu");
@@ -1799,6 +1918,9 @@
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closeChemistryReviewPopup();
+    if (event.key === "Escape") {
+      closeChemistryReviewPopup();
+      closeIcasReviewPopup();
+    }
   });
 })();

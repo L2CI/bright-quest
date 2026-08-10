@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f6f8fb" />
+  <title>ICAS Challenge Lab | Bright Quest</title>
+  <link rel="stylesheet" href="icas-prep.css?v=icas-001" />
+</head>
+<body>
+  <div class="icas-app" id="icasApp">
+    <header class="icas-topbar">
+      <button class="icon-button" id="appBackButton" type="button" aria-label="Back" title="Back">
+        <span aria-hidden="true">&#8592;</span>
+      </button>
+      <a class="icas-brand" href="../" aria-label="Bright Quest dashboard">
+        <span class="icas-brand-mark" aria-hidden="true">BQ</span>
+        <span><strong>Bright Quest</strong><small>ICAS Challenge Lab</small></span>
+      </a>
+      <div class="icas-profile" id="profileBadge" aria-live="polite">Practice profile</div>
+    </header>
+
+    <main id="icasMain" tabindex="-1"></main>
+    <div class="icas-toast" id="icasToast" role="status" aria-live="polite"></div>
+  </div>
+
+  <div class="icas-modal hidden" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <button class="icas-modal-scrim" type="button" data-modal-cancel aria-label="Close dialog"></button>
+    <section class="icas-modal-panel">
+      <p class="eyebrow" id="confirmEyebrow">Confirm</p>
+      <h2 id="confirmTitle">Leave this set?</h2>
+      <p id="confirmMessage">Your answers will be saved so you can resume.</p>
+      <div class="icas-modal-actions">
+        <button class="button button-soft" type="button" data-modal-cancel>Keep working</button>
+        <button class="button button-primary" id="confirmAction" type="button">Save and leave</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="data/icas-question-bank.js?v=icas-001"></script>
+  <script src="icas-prep.js?v=icas-001"></script>
+</body>
+</html>

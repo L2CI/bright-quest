@@ -259,6 +259,7 @@ body {
 .academy-zone.english { background: linear-gradient(160deg, #25bf67, #0a8843) !important; }
 .academy-zone.reasoning { background: linear-gradient(160deg, #18c8d8, #06718d) !important; }
 .academy-zone.world { background: linear-gradient(160deg, #1666f2, #1521a2) !important; }
+.academy-zone.icas { background: linear-gradient(160deg, #0e8792, #075f69) !important; }
 .academy-zone.arcade { background: linear-gradient(160deg, #f45f8c, #c01f62) !important; }
 
 .academy-zone-icon {
