@@ -21,6 +21,7 @@ const chrome = spawn(browserPath, [
   "--disable-gpu",
   "--hide-scrollbars",
   "--no-first-run",
+  "--autoplay-policy=no-user-gesture-required",
   `--remote-debugging-port=${port}`,
   "--remote-allow-origins=*",
   `--user-data-dir=${profileDir}`,
@@ -28,15 +29,19 @@ const chrome = spawn(browserPath, [
 ], { stdio: "ignore" });
 
 try {
+  console.log("[qa] waiting for browser");
   await waitForChrome();
+  console.log("[qa] creating tab");
   const tab = await createTab(baseUrl);
   const ws = new WebSocket(tab.webSocketDebuggerUrl);
-  await new Promise((resolve, reject) => {
+  await Promise.race([new Promise((resolve, reject) => {
     ws.addEventListener("open", resolve, { once: true });
     ws.addEventListener("error", reject, { once: true });
-  });
+  }), timeoutAfter(10000, "Browser WebSocket did not open.")]);
+  console.log("[qa] browser connected");
   ws.addEventListener("message", (event) => {
-    const message = JSON.parse(event.data);
+    const raw = typeof event.data === "string" ? event.data : Buffer.from(event.data).toString("utf8");
+    const message = JSON.parse(raw);
     if (message.id && pending.has(message.id)) {
       const { resolve, reject } = pending.get(message.id);
       pending.delete(message.id);
@@ -49,7 +54,14 @@ try {
 
   const send = (method, params = {}) => new Promise((resolve, reject) => {
     const id = nextId++;
-    pending.set(id, { resolve, reject });
+    const timer = setTimeout(() => {
+      pending.delete(id);
+      reject(new Error(`Browser command timed out: ${method}`));
+    }, 60000);
+    pending.set(id, {
+      resolve: (value) => { clearTimeout(timer); resolve(value); },
+      reject: (error) => { clearTimeout(timer); reject(error); },
+    });
     ws.send(JSON.stringify({ id, method, params }));
   });
   const evaluate = async (expression) => {
@@ -59,26 +71,64 @@ try {
   };
 
   await Promise.all([send("Page.enable"), send("Runtime.enable"), send("Log.enable"), send("Network.enable")]);
+  console.log("[qa] browser domains enabled");
 
   const results = [];
+  const buttonChecks = [];
   await setViewport(send, 1440, 900, 1, false);
   await navigate(send, baseUrl);
+  console.log("[qa] desktop landing loaded");
   await waitFor(() => evaluate("(() => { const landing=document.querySelector('.course-landing'); return Boolean(landing && window.getComputedStyle(landing).display !== 'none' && document.querySelectorAll('.chapter-card').length === 11); })()"));
-  const deployedMarker = await evaluate("Boolean(document.querySelector('script[src*=\"physics-101-kinetic-lab-006\"]'))");
-  if (!deployedMarker) throw new Error("The expected physics-101-kinetic-lab-006 release marker is not live.");
+  const deployedMarker = await evaluate("Boolean(document.querySelector('script[src*=\"physics-101-force-lab-007\"]'))");
+  if (!deployedMarker) throw new Error("The expected physics-101-force-lab-007 release marker is not live.");
   results.push(await inspect(evaluate, "desktop landing"));
   await screenshot(send, path.join(evidenceDir, "desktop-landing.png"));
 
+  await evaluate("document.querySelector('#courseMapButton').click(); true");
+  if (!await waitFor(() => evaluate("document.querySelector('.physics-app').classList.contains('landing-view') && !location.search.includes('chapter=1')"))) throw new Error("Course map button did not preserve the landing view.");
+  buttonChecks.push("course map header button");
+
+  await evaluate("document.querySelector('[data-open-chapter]').click(); true");
+  if (!await waitFor(() => evaluate("document.querySelector('.physics-app').classList.contains('player-view')"))) throw new Error("Available chapter card did not open the lesson.");
+  buttonChecks.push("available chapter card");
+
+  await evaluate("document.querySelector('#backToMapButton').click(); true");
+  if (!await waitFor(() => evaluate("document.querySelector('.physics-app').classList.contains('landing-view') && !location.search.includes('chapter=1')"))) throw new Error("Lesson back button did not return to the course map.");
+  buttonChecks.push("lesson back to course map button");
+
   await evaluate("document.querySelector('#courseStartButton').click(); true");
   await waitFor(() => evaluate("document.querySelector('.physics-app').classList.contains('player-view')"));
+  buttonChecks.push("start chapter button");
   results.push(await inspect(evaluate, "desktop lesson"));
   await screenshot(send, path.join(evidenceDir, "desktop-lesson.png"));
+  console.log("[qa] navigation controls passed");
 
-  await evaluate("document.querySelector('#ccButton').click(); document.querySelector('#rewindButton').click(); document.querySelector('#stopButton').click(); true");
+  await evaluate("document.querySelector('#ccButton').click(); true");
   await waitFor(() => evaluate("document.querySelector('#ccButton').getAttribute('aria-pressed') === 'true'"));
+  buttonChecks.push("captions button");
   await evaluate("document.querySelector('#lessonVideo').load(); true");
   const videoReady = await waitFor(() => evaluate("Number.isFinite(document.querySelector('#lessonVideo').duration) && document.querySelector('#lessonVideo').duration > 190"), 15000);
   if (!videoReady) throw new Error("Video metadata did not load within 15 seconds.");
+  await seekVideo(evaluate, 30);
+  await evaluate("document.querySelector('#rewindButton').click(); true");
+  if (!await waitFor(() => evaluate("document.querySelector('#lessonVideo').currentTime <= 15.5"))) throw new Error("Rewind button did not move the lesson back 15 seconds.");
+  buttonChecks.push("rewind 15 seconds button");
+  const timelineSeek = await evaluate("(async () => { const video=document.querySelector('#lessonVideo'); const timeline=document.querySelector('#timeline'); video.pause(); timeline.value='50'; timeline.dispatchEvent(new Event('input', { bubbles: true })); if (video.seeking) await new Promise((resolve) => video.addEventListener('seeked', resolve, { once: true })); return { currentTime: video.currentTime, expected: video.duration / 2 }; })()" );
+  if (Math.abs(timelineSeek.currentTime - timelineSeek.expected) >= 1) throw new Error(`Timeline input seek mismatch: ${JSON.stringify(timelineSeek)}`);
+  buttonChecks.push("timeline input");
+  await evaluate("document.querySelector('#stopButton').click(); true");
+  if (!await waitFor(() => evaluate("document.querySelector('#lessonVideo').currentTime < 0.5 && !document.querySelector('#videoStartButton').hidden"))) throw new Error("Stop button did not reset the lesson.");
+  buttonChecks.push("stop button");
+  await evaluate("document.querySelector('#videoStartButton').click(); true");
+  if (!await waitFor(() => evaluate("document.querySelector('#videoStartButton').hidden"))) throw new Error("Video start button did not begin the lesson.");
+  buttonChecks.push("video start button");
+  await evaluate("document.querySelector('#playButton').click(); true");
+  if (!await waitFor(() => evaluate("document.querySelector('#lessonVideo').paused"))) throw new Error("Play control did not pause the playing lesson.");
+  await evaluate("document.querySelector('#playButton').click(); true");
+  if (!await waitFor(() => evaluate("!document.querySelector('#lessonVideo').paused"))) throw new Error("Play control did not resume the paused lesson.");
+  await evaluate("document.querySelector('#stopButton').click(); true");
+  buttonChecks.push("play pause resume button");
+  console.log("[qa] player controls passed");
   await seekVideo(evaluate, 9999);
   await evaluate("(() => { const video=document.querySelector('#lessonVideo'); video.dispatchEvent(new Event('timeupdate')); video.dispatchEvent(new Event('ended')); return true; })()");
   if (!await waitFor(() => evaluate("/Ready|Best/.test(document.querySelector('#testStatus')?.textContent || '')"))) throw new Error("Cockpit Check did not unlock after lesson completion.");
@@ -93,19 +143,36 @@ try {
   await waitFor(() => evaluate("Boolean(document.querySelector('.result-score'))"));
   results.push(await inspect(evaluate, "desktop test result"));
   await screenshot(send, path.join(evidenceDir, "desktop-test-result.png"));
+  buttonChecks.push("all ten answer and next-question buttons");
+  await evaluate("document.querySelector('#retakeTestButton').click(); true");
+  if (!await waitFor(() => evaluate("Boolean(document.querySelector('[data-answer]'))"))) throw new Error("Retake button did not start a fresh test.");
+  buttonChecks.push("retake test button");
+  console.log("[qa] cockpit check passed");
+
+  const returnLinks = await evaluate("[...document.querySelectorAll('a[href=\"../../\"]')].map((link) => link.href)");
+  if (returnLinks.length !== 2 || returnLinks.some((href) => new URL(href).pathname !== '/')) throw new Error("Bright Quest return links do not resolve to the portal root.");
+  for (const href of returnLinks) {
+    const response = await fetch(href);
+    if (!response.ok) throw new Error(`Bright Quest return link failed with ${response.status}.`);
+  }
+  buttonChecks.push("brand and Back to Bright Quest return links");
+  console.log("[qa] return links passed");
 
   await setViewport(send, 834, 1194, 1, true);
   const tabletUrl = new URL(baseUrl);
   tabletUrl.searchParams.set("chapter", "1");
   await navigate(send, tabletUrl.toString());
+  console.log("[qa] tablet lesson loaded");
   await waitFor(() => evaluate("document.querySelector('.physics-app').classList.contains('player-view')"));
   results.push(await inspect(evaluate, "tablet lesson"));
   await screenshot(send, path.join(evidenceDir, "tablet-lesson.png"));
   await seekVideo(evaluate, 145);
   await screenshot(send, path.join(evidenceDir, "tablet-lesson-145s.png"));
+  console.log("[qa] tablet timestamp captured");
 
   await setViewport(send, 390, 844, 2, true);
   await navigate(send, baseUrl);
+  console.log("[qa] mobile landing loaded");
   await waitFor(() => evaluate("Boolean(document.querySelector('.course-landing'))"));
   results.push(await inspect(evaluate, "mobile landing"));
   await screenshot(send, path.join(evidenceDir, "mobile-landing.png"));
@@ -115,8 +182,10 @@ try {
   await screenshot(send, path.join(evidenceDir, "mobile-lesson.png"));
   await seekVideo(evaluate, 145);
   await screenshot(send, path.join(evidenceDir, "mobile-lesson-145s.png"));
+  console.log("[qa] mobile first timestamp captured");
   await seekVideo(evaluate, 183);
   await screenshot(send, path.join(evidenceDir, "mobile-lesson-183s.png"));
+  console.log("[qa] responsive views passed");
 
   const browserErrors = events.filter((event) =>
     event.method === "Runtime.exceptionThrown" ||
@@ -126,10 +195,11 @@ try {
   ).map((event) => ({ method: event.method, params: event.params }));
 
   const report = {
-    release: "physics-101-kinetic-lab-006",
+    release: "physics-101-force-lab-007",
     browser: browserName,
     route: baseUrl,
     deployedMarker,
+    buttonChecks,
     results,
     browserErrors,
     passed: results.every((result) => result.horizontalOverflow === 0 && result.brokenImages === 0 && result.smallPrimaryControls === 0) && browserErrors.length === 0,
@@ -180,14 +250,17 @@ async function seekVideo(evaluate, seconds) {
   return evaluate(`(async () => {
     const video = document.querySelector('#lessonVideo');
     if (!video) throw new Error('Lesson video not found.');
-    const source = video.currentSrc || video.querySelector('source')?.src;
-    const response = await fetch(source);
-    if (!response.ok) throw new Error('Could not load lesson video for timestamp QA.');
-    const blobUrl = URL.createObjectURL(await response.blob());
-    video.src = blobUrl;
     video.preload = 'auto';
-    video.load();
+    if (!video.dataset.qaSeekable) {
+      const source = video.currentSrc || video.querySelector('source')?.src;
+      const response = await fetch(source);
+      if (!response.ok) throw new Error('Could not load lesson video for timestamp QA.');
+      video.src = URL.createObjectURL(await response.blob());
+      video.dataset.qaSeekable = 'true';
+      video.load();
+    }
     if (!(Number.isFinite(video.duration) && video.duration > 0)) {
+      video.load();
       await new Promise((resolve, reject) => {
         video.addEventListener('loadedmetadata', resolve, { once: true });
         video.addEventListener('error', () => reject(new Error('Video metadata failed.')), { once: true });
@@ -238,4 +311,8 @@ async function createTab(url) {
   const response = await fetch(`http://127.0.0.1:${port}/json/new?${encodeURIComponent(url)}`, { method: "PUT" });
   if (!response.ok) throw new Error(`Could not open Chrome tab (${response.status}).`);
   return response.json();
+}
+
+function timeoutAfter(milliseconds, message) {
+  return new Promise((_, reject) => setTimeout(() => reject(new Error(message)), milliseconds));
 }

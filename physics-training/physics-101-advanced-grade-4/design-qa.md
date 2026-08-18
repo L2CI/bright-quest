@@ -1,47 +1,47 @@
-# Physics 101 Chapter 1 — Design QA
+# Physics 101 Chapter 1 - Design QA
 
-Release: `physics-101-kinetic-lab-006`
+Release: `physics-101-force-lab-007`
 
 Visual target: `assets/source/kinetic-lab-v3/selected-visual-target.png`
 
 Final media: `assets/videos/chapter-01.mp4`
 
-Duration: 206.71 seconds at 1280 × 720, 24 fps
+Duration: 206.71 seconds at 1280 x 720, 24 fps
 
-## Selected direction parity
+## Animation direction
 
-- Preserves the selected bright white robotics laboratory, cobalt/orange team identity, clean cinematic depth and premium stylised-3D finish.
-- Keeps both child pilots and the opposing blue/orange energy language consistent across the chapter.
-- Uses original characters and world design; the team-hero energy is not a copy of an existing franchise.
-- Adds a restrained laboratory scan beam behind the teaching layer so narration holds remain visually alive without moving or washing out text.
+- Preserves the selected bright robotics laboratory, cobalt/orange team identity, cinematic depth, and stylised 3D finish.
+- Rebuilds the chapter as 12 distinct mission scenes with 173 timed animations.
+- Maps all 73 caption cues to a named visual event, instructional purpose, and on-screen target.
+- Keeps borders, arrows, labels, and evidence callouts visible until the narration moves to the next idea.
+- Uses persistent object-pair labels, equal-and-opposite force arrows, like-pole magnet labels, motion trails, fair-test locks, prediction reveals, and a final three-step physicist routine.
 
-Comparison evidence: `outputs/physics-101-kinetic-lab-qa-v4/selected-target-vs-final.jpg`.
+## Three-pass animation QA
 
-## Visual QA
+- Pass 1: deterministic scanner found zero freeze, blank-frame, static-board, visual-silence, or missing timeline-action flags.
+- Pass 2: all 103 frames in the two-second contact sheet were reviewed for composition, clipping, readability, scientific accuracy, and narration alignment.
+- Pass 3: confirmed that the canonical folder contains one delivery MP4, every caption has a visual contract, and no prototype video is referenced by the module.
+- One refinement defect was found and fixed: classification question labels became solid colour blocks after an emphasis animation. The final render uses persistent outline emphasis and retains readable text.
+- Prediction evidence now appears in narration order: gap visible, both carts move, then no hand contact.
 
-- Reviewed all 103 sampled frames at two-second intervals in six contact sheets.
-- Fixed a release-blocking scene-cleanup defect that allowed prior labels to remain on later scenes.
-- Rebuilt and reviewed the full sequence again after the fix.
-- No stale labels, text spill, box overflow, clipped headings, subject cropping, blank frames or low-contrast instructional arrows remain.
-- Text stays inside black-backed white/cyan/orange/green chips; the scene retains one clear instructional focus.
-- Desktop, tablet and mobile player layouts preserve the 16:9 video ratio with zero horizontal overflow.
+Evidence: `outputs/physics-animation-review-final/20260818-111943-chapter-01/` and `outputs/physics-animation-review-final/dense-review/`.
 
-Evidence: `outputs/physics-101-kinetic-lab-qa-v4/` and `outputs/physics-101-qa/report.json`.
+## Media QA
 
-## Motion and media QA
-
-- The deterministic scanner reported no high-severity findings. Its ten medium visual-silence heuristics remain conservative flags for deliberate evidence-reading holds; each flagged interval was covered by the two-second human review and contains either subject motion, a lab scan, a focus change or an intentional thinking pause.
-- Narration transcription matched all 12 required teaching beats.
-- Chapter video contains H.264 1280 × 720 video plus stereo AAC audio.
-- Captions and the 12-cue timeline share the same 206.71-second master duration.
+- Final video contains H.264 1280 x 720 video and stereo AAC audio.
+- Narration and captions retain the 206.71-second master duration.
+- The timeline contains 73 caption cues and 73 visual beats across 12 narration scenes.
+- Release cache keys were advanced to `physics-101-force-lab-007` so browsers request the new MP4, poster, captions, and course card.
 
 ## Browser and interaction QA
 
-- Google Chrome headless: desktop 1440 × 900, tablet 834 × 1194 and mobile 390 × 844.
-- Landing, lesson, captions, rewind, stop, completion unlock and ten-question Cockpit Check completed.
-- Zero broken images, browser/network errors, undersized primary controls or horizontal overflow.
-- Desktop/tablet/mobile video ratios: 1.78.
+- Google Chrome headless: desktop 1440 x 900, tablet 834 x 1194, and mobile 390 x 844.
+- Exercised the course-map button, available chapter card, lesson back button, start button, captions, rewind, timeline, stop, play/pause/resume, all ten test questions, retake, and both Bright Quest return links.
+- Zero broken images, console/network errors, undersized controls, or horizontal overflow.
+- Desktop/tablet/mobile video ratios remain 1.78.
+
+Evidence: `outputs/physics-101-qa/report.json` and the responsive screenshots in `outputs/physics-101-qa/`.
 
 ## Final result
 
-Passed. The chapter is visually aligned to selected Option 2, readable at target sizes, free of cross-scene label leakage and ready for scoped production deployment.
+Passed. The upgraded Chapter 1 animation is scientifically accurate, tightly narration-directed, visually engaging for a Grade 4 learner, and ready for scoped production deployment.

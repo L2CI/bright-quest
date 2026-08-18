@@ -9,7 +9,7 @@ const ffmpeg = path.join(userHome, ".codex", "skills", "animation-qa-scanner", "
 const ffprobe = path.join(userHome, ".codex", "skills", "animation-qa-scanner", "assets", "bin", "ffprobe.exe");
 const courseDir = path.join(root, "physics-training", "physics-101-advanced-grade-4");
 const dataFile = path.join(courseDir, "data", "physics-101-course.json");
-const renderScript = path.join(root, "tools", "render_physics_chapter_01_motion.py");
+const renderScript = path.join(root, "tools", "render_physics_chapter_01_voice_directed.py");
 const workDir = path.join(root, "outputs", "physics-101-pilot-media");
 const segmentsDir = path.join(workDir, "voice-sections-v4");
 const voiceWavDir = path.join(workDir, "voice-wav-v4");
@@ -118,6 +118,7 @@ async function main() {
     timeline[timeline.length - 1].beatEnd = round(cursor);
   });
 
+  const captionPackage = buildVtt(timeline);
   const timelinePath = path.join(courseDir, "assets", "timelines", "chapter-01.json");
   const actions = timeline.map((cue) => ({
     id: cue.id,
@@ -127,8 +128,25 @@ async function main() {
     expected_action: cue.visual,
     board_region: "demonstration-stage",
   }));
-  await fs.writeFile(timelinePath, `${JSON.stringify({ release: course.release, duration: round(audioDuration), cues: timeline, actions }, null, 2)}\n`, "utf8");
-  await fs.writeFile(path.join(courseDir, "assets", "captions", "chapter-01.vtt"), buildVtt(timeline), "utf8");
+  await fs.writeFile(timelinePath, `${JSON.stringify({
+    release: course.release,
+    duration: round(audioDuration),
+    cues: timeline,
+    captionCues: captionPackage.cues,
+    visualBeats: captionPackage.cues.map(({ index, start, end, sourceCueId, event, cueFunction, targets, intentionalHold }) => ({
+      index,
+      start,
+      end,
+      sourceCueId,
+      event,
+      cueFunction,
+      targets,
+      holdUntil: end,
+      intentionalHold,
+    })),
+    actions,
+  }, null, 2)}\n`, "utf8");
+  await fs.writeFile(path.join(courseDir, "assets", "captions", "chapter-01.vtt"), captionPackage.vtt, "utf8");
 
   const silentName = "physics-chapter-01-silent";
   await run(python, [
@@ -139,7 +157,7 @@ async function main() {
     "--fps", "24",
     "-o", silentName,
     renderScript,
-    "PhysicsChapter01Motion",
+    "PhysicsChapter01VoiceDirected",
   ], {
     BQ_TIMELINE_PATH: timelinePath,
     BQ_PHYSICS_COURSE_DIR: courseDir,
@@ -149,9 +167,8 @@ async function main() {
   const silentVideo = await findFile(path.join(workDir, "videos", renderFolder), `${silentName}.mp4`);
   const videoPath = path.join(courseDir, "assets", "videos", "chapter-01.mp4");
   await run(ffmpeg, [
-    "-y", "-ss", "0.5", "-i", silentVideo, "-i", audioWavPath,
+    "-y", "-i", silentVideo, "-i", audioWavPath,
     "-map", "0:v:0", "-map", "1:a:0",
-    "-vf", "tpad=stop_mode=clone:stop_duration=0.5",
     "-c:v", "libx264", "-preset", "slow", "-crf", "21", "-pix_fmt", "yuv420p",
     "-c:a", "aac", "-b:a", "160k",
     "-shortest", "-movflags", "+faststart", videoPath,
@@ -203,6 +220,7 @@ async function reusableSpeechDuration(outputPath) {
 
 function buildVtt(cues) {
   const lines = ["WEBVTT", ""];
+  const captionCues = [];
   let captionIndex = 1;
   cues.forEach((cue) => {
     const chunks = captionChunks(cue.text);
@@ -217,11 +235,132 @@ function buildVtt(cues) {
       lines.push(`${vttTime(cursor)} --> ${vttTime(end)}`);
       lines.push(chunk);
       lines.push("");
+      const contract = visualContract(cue.id, index, captionIndex);
+      captionCues.push({
+        index: captionIndex,
+        start: round(cursor),
+        end: round(end),
+        text: chunk.replaceAll("\n", " "),
+        sourceCueId: cue.id,
+        ...contract,
+      });
       captionIndex += 1;
       cursor = end;
     });
   });
-  return `${lines.join("\n")}\n`;
+  return { vtt: `${lines.join("\n")}\n`, cues: captionCues };
+}
+
+const visualEvents = {
+  mystery: [
+    ["orient-pilots", "selection", ["blue-pilot", "orange-pilot"]],
+    ["hold-still-state", "organisation", ["platforms", "still-chip"]],
+    ["focus-hands", "selection", ["hands", "contact-point"]],
+    ["contact-then-separate", "integration", ["hands", "platforms", "motion-trails"]],
+    ["stamp-motion-clue", "organisation", ["before-trace", "after-trace"]],
+    ["frame-object-pair", "selection", ["blue-pilot", "orange-pilot"]],
+  ],
+  interaction: [
+    ["define-interaction", "organisation", ["interaction-definition"]],
+    ["blue-on-orange", "integration", ["blue-pilot", "orange-pilot", "force-on-orange"]],
+    ["orange-on-blue", "integration", ["orange-pilot", "blue-pilot", "force-on-blue"]],
+    ["pair-two-forces", "organisation", ["interaction-node", "force-pair"]],
+    ["hold-two-receivers", "selection", ["blue-pilot", "orange-pilot", "force-pair"]],
+  ],
+  arrows: [
+    ["trace-force-paths", "integration", ["force-on-blue", "force-on-orange"]],
+    ["spotlight-orange-receiver", "selection", ["orange-pilot", "force-on-orange"]],
+    ["spotlight-blue-receiver", "selection", ["blue-pilot", "force-on-blue"]],
+    ["compare-arrow-length", "organisation", ["force-pair", "length-guide"]],
+    ["compare-arrow-direction", "organisation", ["force-pair", "direction-guide"]],
+    ["resolve-force-pair", "integration", ["interaction-node", "force-pair"]],
+  ],
+  "motion-evidence": [
+    ["open-before-after", "organisation", ["before-panel", "after-panel"]],
+    ["hold-before-still", "selection", ["before-panel", "platforms"]],
+    ["animate-after-motion", "integration", ["after-panel", "platforms", "motion-trails"]],
+    ["stamp-change-motion", "organisation", ["motion-evidence"]],
+    ["reject-floating-force", "selection", ["crossed-floating-force"]],
+    ["measure-visible-change", "integration", ["interaction-node", "measurement-track"]],
+  ],
+  "force-does-not-ride": [
+    ["present-stored-push-idea", "selection", ["misconception-card"]],
+    ["hold-misconception", "organisation", ["misconception-card", "pilots"]],
+    ["open-contact-sequence", "organisation", ["sequence-rail"]],
+    ["show-contact-arrows", "integration", ["hands", "contact-point", "force-pair"]],
+    ["separate-remove-arrows", "integration", ["hands", "force-pair", "platforms"]],
+    ["hold-motion-contact-ended", "organisation", ["motion-trails", "contact-ended"]],
+  ],
+  "push-or-pull": [
+    ["compare-push-pull", "organisation", ["push-card", "pull-card"]],
+    ["show-hand-cart-push", "integration", ["robot-hand", "cart", "contact-point"]],
+    ["show-cable-trolley-pull", "integration", ["robot", "taut-cable", "trolley"]],
+    ["hold-taut-cable", "selection", ["taut-cable", "trolley"]],
+    ["name-both-pairs", "organisation", ["hand-cart-pair", "cable-trolley-pair"]],
+    ["reject-single-object", "integration", ["interaction-pair-rule"]],
+  ],
+  "non-contact": [
+    ["spotlight-magnet-gap", "selection", ["magnet-gap", "like-poles"]],
+    ["repel-without-touch", "integration", ["magnet-carts", "force-pair", "motion-trails"]],
+    ["stamp-non-contact-evidence", "organisation", ["gap-check", "motion-check"]],
+    ["show-earth-object", "integration", ["earth", "object", "gravity-arrow"]],
+    ["hold-gravity-gap", "selection", ["earth", "object", "gravity-arrow"]],
+  ],
+  classification: [
+    ["open-decision-path", "organisation", ["decision-question-one", "decision-question-two"]],
+    ["highlight-question-one", "selection", ["interaction-pair"]],
+    ["highlight-question-two", "selection", ["contact-gap"]],
+    ["classify-hand-cart", "integration", ["robot-hand", "cart", "contact-label"]],
+    ["classify-magnets", "integration", ["magnet-pair", "non-contact-label"]],
+    ["classify-earth-object", "integration", ["earth", "object", "non-contact-label"]],
+    ["cross-strength-highlight-touch", "organisation", ["strength-gauge", "touch-rule"]],
+  ],
+  "fair-evidence": [
+    ["lock-same-controls", "organisation", ["cart-lock", "track-lock", "start-lock"]],
+    ["hold-same-controls", "selection", ["cart-lock", "track-lock", "start-lock"]],
+    ["change-push-size", "integration", ["small-push", "large-push"]],
+    ["measure-same-time-distance", "integration", ["timer", "distance-traces"]],
+    ["show-confounded-trial", "organisation", ["changed-cart", "changed-track", "changed-start"]],
+    ["stamp-ambiguous-evidence", "integration", ["warning-card", "question-mark"]],
+  ],
+  transfer: [
+    ["return-moving-pilots", "selection", ["pilots", "motion-trails"]],
+    ["hold-motion-after-contact", "organisation", ["motion-trails", "no-contact-gap"]],
+    ["ask-stored-push", "selection", ["misconception-card"]],
+    ["reject-stored-push", "organisation", ["no-stamp", "misconception-card"]],
+    ["show-interaction-first", "integration", ["contact-event", "timeline-rail"]],
+    ["show-motion-afterwards", "integration", ["motion-event", "timeline-rail"]],
+    ["show-motion-continuing", "organisation", ["platforms", "motion-trails"]],
+    ["show-other-forces", "integration", ["support-force", "gravity-force"]],
+  ],
+  challenge: [
+    ["open-prediction", "organisation", ["magnet-setup", "prediction-cover"]],
+    ["ask-supporting-observations", "selection", ["prediction-question"]],
+    ["run-thinking-countdown", "organisation", ["countdown-ring"]],
+    ["reveal-gap-and-motion", "integration", ["gap-check", "motion-check"]],
+    ["reveal-no-hand", "selection", ["no-hand-check"]],
+    ["stamp-claim-supported", "integration", ["evidence-checks", "claim-stamp"]],
+  ],
+  exit: [
+    ["open-physicist-routine", "organisation", ["routine-rail"]],
+    ["highlight-name-pair", "selection", ["routine-step-one"]],
+    ["highlight-touch", "selection", ["routine-step-two"]],
+    ["highlight-motion-evidence", "selection", ["routine-step-three"]],
+    ["reject-hidden-material", "organisation", ["crossed-hidden-force"]],
+    ["resolve-interaction-model", "integration", ["object-pair", "interaction-link", "force-pair"]],
+  ],
+};
+
+function visualContract(sourceCueId, localIndex, globalIndex) {
+  const sequence = visualEvents[sourceCueId];
+  const entry = sequence?.[localIndex];
+  if (!entry) throw new Error(`Missing visual contract for caption ${globalIndex} (${sourceCueId}:${localIndex}).`);
+  return {
+    event: entry[0],
+    cueFunction: entry[1],
+    targets: entry[2],
+    intentionalHold: entry[0].startsWith("hold-") ? "inspect" : null,
+  };
 }
 
 function captionChunks(text) {

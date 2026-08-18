@@ -1,5 +1,5 @@
 {
-  "release": "physics-101-kinetic-lab-006",
+  "release": "physics-101-force-lab-007",
   "duration": 206.714,
   "cues": [
     {
@@ -121,6 +121,2056 @@
       "end": 205.464,
       "beatEnd": 206.714,
       "voiceSection": "reason-conclude"
+    }
+  ],
+  "captionCues": [
+    {
+      "index": 1,
+      "start": 0,
+      "end": 2.811,
+      "text": "Watch the two pilots on the glide track.",
+      "sourceCueId": "mystery",
+      "event": "orient-pilots",
+      "cueFunction": "selection",
+      "targets": [
+        "blue-pilot",
+        "orange-pilot"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 2,
+      "start": 2.811,
+      "end": 4.567,
+      "text": "At first, both are still.",
+      "sourceCueId": "mystery",
+      "event": "hold-still-state",
+      "cueFunction": "organisation",
+      "targets": [
+        "platforms",
+        "still-chip"
+      ],
+      "intentionalHold": "inspect"
+    },
+    {
+      "index": 3,
+      "start": 4.567,
+      "end": 6.113,
+      "text": "Now watch their hands.",
+      "sourceCueId": "mystery",
+      "event": "focus-hands",
+      "cueFunction": "selection",
+      "targets": [
+        "hands",
+        "contact-point"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 4,
+      "start": 6.113,
+      "end": 10.188,
+      "text": "Their palms press, and both platforms begin to move apart.",
+      "sourceCueId": "mystery",
+      "event": "contact-then-separate",
+      "cueFunction": "integration",
+      "targets": [
+        "hands",
+        "platforms",
+        "motion-trails"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 5,
+      "start": 10.188,
+      "end": 12.226,
+      "text": "The motion is our first clue.",
+      "sourceCueId": "mystery",
+      "event": "stamp-motion-clue",
+      "cueFunction": "organisation",
+      "targets": [
+        "before-trace",
+        "after-trace"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 6,
+      "start": 12.226,
+      "end": 14.615,
+      "text": "Which two objects are interacting?",
+      "sourceCueId": "mystery",
+      "event": "frame-object-pair",
+      "cueFunction": "selection",
+      "targets": [
+        "blue-pilot",
+        "orange-pilot"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 7,
+      "start": 14.615,
+      "end": 17.972,
+      "text": "A force is a push or pull during an interaction.",
+      "sourceCueId": "interaction",
+      "event": "define-interaction",
+      "cueFunction": "organisation",
+      "targets": [
+        "interaction-definition"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 8,
+      "start": 17.972,
+      "end": 20.908,
+      "text": "The blue pilot pushes on the orange pilot.",
+      "sourceCueId": "interaction",
+      "event": "blue-on-orange",
+      "cueFunction": "integration",
+      "targets": [
+        "blue-pilot",
+        "orange-pilot",
+        "force-on-orange"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 9,
+      "start": 20.908,
+      "end": 25.244,
+      "text": "At the same moment, the orange pilot pushes on the blue pilot.",
+      "sourceCueId": "interaction",
+      "event": "orange-on-blue",
+      "cueFunction": "integration",
+      "targets": [
+        "orange-pilot",
+        "blue-pilot",
+        "force-on-blue"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 10,
+      "start": 25.244,
+      "end": 29.44,
+      "text": "One interaction produces two forces, acting on two different",
+      "sourceCueId": "interaction",
+      "event": "pair-two-forces",
+      "cueFunction": "organisation",
+      "targets": [
+        "interaction-node",
+        "force-pair"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 11,
+      "start": 29.44,
+      "end": 29.999,
+      "text": "objects.",
+      "sourceCueId": "interaction",
+      "event": "hold-two-receivers",
+      "cueFunction": "selection",
+      "targets": [
+        "blue-pilot",
+        "orange-pilot",
+        "force-pair"
+      ],
+      "intentionalHold": "inspect"
+    },
+    {
+      "index": 12,
+      "start": 29.999,
+      "end": 33.407,
+      "text": "Follow each arrow to the object receiving the push.",
+      "sourceCueId": "arrows",
+      "event": "trace-force-paths",
+      "cueFunction": "integration",
+      "targets": [
+        "force-on-blue",
+        "force-on-orange"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 13,
+      "start": 33.407,
+      "end": 36.414,
+      "text": "Blue on orange belongs with the orange pilot.",
+      "sourceCueId": "arrows",
+      "event": "spotlight-orange-receiver",
+      "cueFunction": "selection",
+      "targets": [
+        "orange-pilot",
+        "force-on-orange"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 14,
+      "start": 36.414,
+      "end": 39.287,
+      "text": "Orange on blue belongs with the blue pilot.",
+      "sourceCueId": "arrows",
+      "event": "spotlight-blue-receiver",
+      "cueFunction": "selection",
+      "targets": [
+        "blue-pilot",
+        "force-on-blue"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 15,
+      "start": 39.287,
+      "end": 42.761,
+      "text": "The arrows are equal in length and point in opposite",
+      "sourceCueId": "arrows",
+      "event": "compare-arrow-length",
+      "cueFunction": "organisation",
+      "targets": [
+        "force-pair",
+        "length-guide"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 16,
+      "start": 42.761,
+      "end": 43.496,
+      "text": "directions.",
+      "sourceCueId": "arrows",
+      "event": "compare-arrow-direction",
+      "cueFunction": "organisation",
+      "targets": [
+        "force-pair",
+        "direction-guide"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 17,
+      "start": 43.496,
+      "end": 45.768,
+      "text": "One interaction; two force arrows.",
+      "sourceCueId": "arrows",
+      "event": "resolve-force-pair",
+      "cueFunction": "integration",
+      "targets": [
+        "interaction-node",
+        "force-pair"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 18,
+      "start": 48.768,
+      "end": 51.834,
+      "text": "Compare the evidence before and after contact.",
+      "sourceCueId": "motion-evidence",
+      "event": "open-before-after",
+      "cueFunction": "organisation",
+      "targets": [
+        "before-panel",
+        "after-panel"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 19,
+      "start": 51.834,
+      "end": 54.632,
+      "text": "Before the push, both platforms are still.",
+      "sourceCueId": "motion-evidence",
+      "event": "hold-before-still",
+      "cueFunction": "selection",
+      "targets": [
+        "before-panel",
+        "platforms"
+      ],
+      "intentionalHold": "inspect"
+    },
+    {
+      "index": 20,
+      "start": 54.632,
+      "end": 56.498,
+      "text": "Afterwards, they move apart.",
+      "sourceCueId": "motion-evidence",
+      "event": "animate-after-motion",
+      "cueFunction": "integration",
+      "targets": [
+        "after-panel",
+        "platforms",
+        "motion-trails"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 21,
+      "start": 56.498,
+      "end": 57.898,
+      "text": "The change is motion.",
+      "sourceCueId": "motion-evidence",
+      "event": "stamp-change-motion",
+      "cueFunction": "organisation",
+      "targets": [
+        "motion-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 22,
+      "start": 57.898,
+      "end": 61.83,
+      "text": "We do not see a force floating through the air; we identify",
+      "sourceCueId": "motion-evidence",
+      "event": "reject-floating-force",
+      "cueFunction": "selection",
+      "targets": [
+        "crossed-floating-force"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 23,
+      "start": 61.83,
+      "end": 64.562,
+      "text": "the interaction and measure what changes.",
+      "sourceCueId": "motion-evidence",
+      "event": "measure-visible-change",
+      "cueFunction": "integration",
+      "targets": [
+        "interaction-node",
+        "measurement-track"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 24,
+      "start": 64.562,
+      "end": 68.456,
+      "text": "Here is an idea worth testing: perhaps the push travels inside",
+      "sourceCueId": "force-does-not-ride",
+      "event": "present-stored-push-idea",
+      "cueFunction": "selection",
+      "targets": [
+        "misconception-card"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 25,
+      "start": 68.456,
+      "end": 69.147,
+      "text": "each pilot.",
+      "sourceCueId": "force-does-not-ride",
+      "event": "hold-misconception",
+      "cueFunction": "organisation",
+      "targets": [
+        "misconception-card",
+        "pilots"
+      ],
+      "intentionalHold": "inspect"
+    },
+    {
+      "index": 26,
+      "start": 69.147,
+      "end": 70.341,
+      "text": "Check the sequence.",
+      "sourceCueId": "force-does-not-ride",
+      "event": "open-contact-sequence",
+      "cueFunction": "organisation",
+      "targets": [
+        "sequence-rail"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 27,
+      "start": 70.341,
+      "end": 74.235,
+      "text": "While their palms touch, the contact-force arrows are present.",
+      "sourceCueId": "force-does-not-ride",
+      "event": "show-contact-arrows",
+      "cueFunction": "integration",
+      "targets": [
+        "hands",
+        "contact-point",
+        "force-pair"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 28,
+      "start": 74.235,
+      "end": 77.376,
+      "text": "When their hands separate, those arrows disappear.",
+      "sourceCueId": "force-does-not-ride",
+      "event": "separate-remove-arrows",
+      "cueFunction": "integration",
+      "targets": [
+        "hands",
+        "force-pair",
+        "platforms"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 29,
+      "start": 77.376,
+      "end": 81.145,
+      "text": "The platforms keep gliding, but that contact push has ended.",
+      "sourceCueId": "force-does-not-ride",
+      "event": "hold-motion-contact-ended",
+      "cueFunction": "organisation",
+      "targets": [
+        "motion-trails",
+        "contact-ended"
+      ],
+      "intentionalHold": "inspect"
+    },
+    {
+      "index": 30,
+      "start": 81.145,
+      "end": 83.452,
+      "text": "Contact forces can push or pull.",
+      "sourceCueId": "push-or-pull",
+      "event": "compare-push-pull",
+      "cueFunction": "organisation",
+      "targets": [
+        "push-card",
+        "pull-card"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 31,
+      "start": 83.452,
+      "end": 87.634,
+      "text": "In the first bay, the robot's padded hand pushes the cart.",
+      "sourceCueId": "push-or-pull",
+      "event": "show-hand-cart-push",
+      "cueFunction": "integration",
+      "targets": [
+        "robot-hand",
+        "cart",
+        "contact-point"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 32,
+      "start": 87.634,
+      "end": 91.744,
+      "text": "In the second, the robot pulls the trolley through a taut",
+      "sourceCueId": "push-or-pull",
+      "event": "show-cable-trolley-pull",
+      "cueFunction": "integration",
+      "targets": [
+        "robot",
+        "taut-cable",
+        "trolley"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 33,
+      "start": 91.744,
+      "end": 92.176,
+      "text": "cable.",
+      "sourceCueId": "push-or-pull",
+      "event": "hold-taut-cable",
+      "cueFunction": "selection",
+      "targets": [
+        "taut-cable",
+        "trolley"
+      ],
+      "intentionalHold": "inspect"
+    },
+    {
+      "index": 34,
+      "start": 92.176,
+      "end": 94.267,
+      "text": "In both cases, name the pair.",
+      "sourceCueId": "push-or-pull",
+      "event": "name-both-pairs",
+      "cueFunction": "organisation",
+      "targets": [
+        "hand-cart-pair",
+        "cable-trolley-pair"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 35,
+      "start": 94.267,
+      "end": 97.728,
+      "text": "One object alone cannot describe an interaction.",
+      "sourceCueId": "push-or-pull",
+      "event": "reject-single-object",
+      "cueFunction": "integration",
+      "targets": [
+        "interaction-pair-rule"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 36,
+      "start": 100.728,
+      "end": 103.562,
+      "text": "Now focus on the gap between the magnets.",
+      "sourceCueId": "non-contact",
+      "event": "spotlight-magnet-gap",
+      "cueFunction": "selection",
+      "targets": [
+        "magnet-gap",
+        "like-poles"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 37,
+      "start": 103.562,
+      "end": 107.157,
+      "text": "They do not touch, yet both carts can begin to move.",
+      "sourceCueId": "non-contact",
+      "event": "repel-without-touch",
+      "cueFunction": "integration",
+      "targets": [
+        "magnet-carts",
+        "force-pair",
+        "motion-trails"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 38,
+      "start": 107.157,
+      "end": 110.337,
+      "text": "That is evidence of a non-contact interaction.",
+      "sourceCueId": "non-contact",
+      "event": "stamp-non-contact-evidence",
+      "cueFunction": "organisation",
+      "targets": [
+        "gap-check",
+        "motion-check"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 39,
+      "start": 110.337,
+      "end": 114.347,
+      "text": "Gravity is another example: Earth pulls objects towards it",
+      "sourceCueId": "non-contact",
+      "event": "show-earth-object",
+      "cueFunction": "integration",
+      "targets": [
+        "earth",
+        "object",
+        "gravity-arrow"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 40,
+      "start": 114.347,
+      "end": 116.49,
+      "text": "without making surface contact.",
+      "sourceCueId": "non-contact",
+      "event": "hold-gravity-gap",
+      "cueFunction": "selection",
+      "targets": [
+        "earth",
+        "object",
+        "gravity-arrow"
+      ],
+      "intentionalHold": "inspect"
+    },
+    {
+      "index": 41,
+      "start": 116.49,
+      "end": 119.568,
+      "text": "Use two questions to classify an interaction.",
+      "sourceCueId": "classification",
+      "event": "open-decision-path",
+      "cueFunction": "organisation",
+      "targets": [
+        "decision-question-one",
+        "decision-question-two"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 42,
+      "start": 119.568,
+      "end": 122.167,
+      "text": "First: which two objects are involved?",
+      "sourceCueId": "classification",
+      "event": "highlight-question-one",
+      "cueFunction": "selection",
+      "targets": [
+        "interaction-pair"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 43,
+      "start": 122.167,
+      "end": 123.672,
+      "text": "Second: do they touch?",
+      "sourceCueId": "classification",
+      "event": "highlight-question-two",
+      "cueFunction": "selection",
+      "targets": [
+        "contact-gap"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 44,
+      "start": 123.672,
+      "end": 125.997,
+      "text": "A robot hand on a cart is contact.",
+      "sourceCueId": "classification",
+      "event": "classify-hand-cart",
+      "cueFunction": "integration",
+      "targets": [
+        "robot-hand",
+        "cart",
+        "contact-label"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 45,
+      "start": 125.997,
+      "end": 128.186,
+      "text": "Magnet on magnet is non-contact.",
+      "sourceCueId": "classification",
+      "event": "classify-magnets",
+      "cueFunction": "integration",
+      "targets": [
+        "magnet-pair",
+        "non-contact-label"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 46,
+      "start": 128.186,
+      "end": 130.853,
+      "text": "Earth pulling an object is non-contact.",
+      "sourceCueId": "classification",
+      "event": "classify-earth-object",
+      "cueFunction": "integration",
+      "targets": [
+        "earth",
+        "object",
+        "non-contact-label"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 47,
+      "start": 130.853,
+      "end": 134.273,
+      "text": "Strength does not choose the label; touching does.",
+      "sourceCueId": "classification",
+      "event": "cross-strength-highlight-touch",
+      "cueFunction": "organisation",
+      "targets": [
+        "strength-gauge",
+        "touch-rule"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 48,
+      "start": 134.273,
+      "end": 138.569,
+      "text": "For a fair comparison, keep the cart, track, and starting line",
+      "sourceCueId": "fair-evidence",
+      "event": "lock-same-controls",
+      "cueFunction": "organisation",
+      "targets": [
+        "cart-lock",
+        "track-lock",
+        "start-lock"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 49,
+      "start": 138.569,
+      "end": 139.192,
+      "text": "the same.",
+      "sourceCueId": "fair-evidence",
+      "event": "hold-same-controls",
+      "cueFunction": "selection",
+      "targets": [
+        "cart-lock",
+        "track-lock",
+        "start-lock"
+      ],
+      "intentionalHold": "inspect"
+    },
+    {
+      "index": 50,
+      "start": 139.192,
+      "end": 143.28,
+      "text": "Change only the size of the push, then measure the distance",
+      "sourceCueId": "fair-evidence",
+      "event": "change-push-size",
+      "cueFunction": "integration",
+      "targets": [
+        "small-push",
+        "large-push"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 51,
+      "start": 143.28,
+      "end": 145.151,
+      "text": "travelled in the same time.",
+      "sourceCueId": "fair-evidence",
+      "event": "measure-same-time-distance",
+      "cueFunction": "integration",
+      "targets": [
+        "timer",
+        "distance-traces"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 52,
+      "start": 145.151,
+      "end": 149.169,
+      "text": "If several conditions change together, the evidence cannot",
+      "sourceCueId": "fair-evidence",
+      "event": "show-confounded-trial",
+      "cueFunction": "organisation",
+      "targets": [
+        "changed-cart",
+        "changed-track",
+        "changed-start"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 53,
+      "start": 149.169,
+      "end": 151.248,
+      "text": "tell us which change mattered.",
+      "sourceCueId": "fair-evidence",
+      "event": "stamp-ambiguous-evidence",
+      "cueFunction": "integration",
+      "targets": [
+        "warning-card",
+        "question-mark"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 54,
+      "start": 154.248,
+      "end": 155.653,
+      "text": "Return to the pilots.",
+      "sourceCueId": "transfer",
+      "event": "return-moving-pilots",
+      "cueFunction": "selection",
+      "targets": [
+        "pilots",
+        "motion-trails"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 55,
+      "start": 155.653,
+      "end": 159.668,
+      "text": "Their platforms are still moving after their hands separate.",
+      "sourceCueId": "transfer",
+      "event": "hold-motion-after-contact",
+      "cueFunction": "organisation",
+      "targets": [
+        "motion-trails",
+        "no-contact-gap"
+      ],
+      "intentionalHold": "inspect"
+    },
+    {
+      "index": 56,
+      "start": 159.668,
+      "end": 162.612,
+      "text": "Does that mean a push is stored inside them?",
+      "sourceCueId": "transfer",
+      "event": "ask-stored-push",
+      "cueFunction": "selection",
+      "targets": [
+        "misconception-card"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 57,
+      "start": 162.612,
+      "end": 162.813,
+      "text": "No.",
+      "sourceCueId": "transfer",
+      "event": "reject-stored-push",
+      "cueFunction": "organisation",
+      "targets": [
+        "no-stamp",
+        "misconception-card"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 58,
+      "start": 162.813,
+      "end": 166.56,
+      "text": "The contact interaction happened first and changed their",
+      "sourceCueId": "transfer",
+      "event": "show-interaction-first",
+      "cueFunction": "integration",
+      "targets": [
+        "contact-event",
+        "timeline-rail"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 59,
+      "start": 166.56,
+      "end": 167.029,
+      "text": "motion.",
+      "sourceCueId": "transfer",
+      "event": "show-motion-afterwards",
+      "cueFunction": "integration",
+      "targets": [
+        "motion-event",
+        "timeline-rail"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 60,
+      "start": 167.029,
+      "end": 170.976,
+      "text": "After contact ends, the new motion can continue while other",
+      "sourceCueId": "transfer",
+      "event": "show-motion-continuing",
+      "cueFunction": "organisation",
+      "targets": [
+        "platforms",
+        "motion-trails"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 61,
+      "start": 170.976,
+      "end": 172.114,
+      "text": "forces still act.",
+      "sourceCueId": "transfer",
+      "event": "show-other-forces",
+      "cueFunction": "integration",
+      "targets": [
+        "support-force",
+        "gravity-force"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 62,
+      "start": 172.114,
+      "end": 175.006,
+      "text": "Make a prediction before the magnet trial runs.",
+      "sourceCueId": "challenge",
+      "event": "open-prediction",
+      "cueFunction": "organisation",
+      "targets": [
+        "magnet-setup",
+        "prediction-cover"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 63,
+      "start": 175.006,
+      "end": 178.636,
+      "text": "Which observations would support a non-contact interaction?",
+      "sourceCueId": "challenge",
+      "event": "ask-supporting-observations",
+      "cueFunction": "selection",
+      "targets": [
+        "prediction-question"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 64,
+      "start": 178.636,
+      "end": 180.79,
+      "text": "Take three quiet seconds to decide.",
+      "sourceCueId": "challenge",
+      "event": "run-thinking-countdown",
+      "cueFunction": "organisation",
+      "targets": [
+        "countdown-ring"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 65,
+      "start": 180.79,
+      "end": 184.543,
+      "text": "Now check: the gap remains visible, both carts change motion,",
+      "sourceCueId": "challenge",
+      "event": "reveal-gap-and-motion",
+      "cueFunction": "integration",
+      "targets": [
+        "gap-check",
+        "motion-check"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 66,
+      "start": 184.543,
+      "end": 186.512,
+      "text": "and no hand touches either cart.",
+      "sourceCueId": "challenge",
+      "event": "reveal-no-hand",
+      "cueFunction": "selection",
+      "targets": [
+        "no-hand-check"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 67,
+      "start": 186.512,
+      "end": 188.789,
+      "text": "Those observations support the claim.",
+      "sourceCueId": "challenge",
+      "event": "stamp-claim-supported",
+      "cueFunction": "integration",
+      "targets": [
+        "evidence-checks",
+        "claim-stamp"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 68,
+      "start": 188.789,
+      "end": 192.941,
+      "text": "Use this physicist's routine whenever you investigate a force.",
+      "sourceCueId": "exit",
+      "event": "open-physicist-routine",
+      "cueFunction": "organisation",
+      "targets": [
+        "routine-rail"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 69,
+      "start": 192.941,
+      "end": 194.146,
+      "text": "Name both objects.",
+      "sourceCueId": "exit",
+      "event": "highlight-name-pair",
+      "cueFunction": "selection",
+      "targets": [
+        "routine-step-one"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 70,
+      "start": 194.146,
+      "end": 195.888,
+      "text": "Decide whether they touch.",
+      "sourceCueId": "exit",
+      "event": "highlight-touch",
+      "cueFunction": "selection",
+      "targets": [
+        "routine-step-two"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 71,
+      "start": 195.888,
+      "end": 198.566,
+      "text": "Then use a change in motion as evidence.",
+      "sourceCueId": "exit",
+      "event": "highlight-motion-evidence",
+      "cueFunction": "selection",
+      "targets": [
+        "routine-step-three"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 72,
+      "start": 198.566,
+      "end": 202.116,
+      "text": "A force is not hidden material carried by one object.",
+      "sourceCueId": "exit",
+      "event": "reject-hidden-material",
+      "cueFunction": "organisation",
+      "targets": [
+        "crossed-hidden-force"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 73,
+      "start": 202.116,
+      "end": 205.464,
+      "text": "A force belongs to an interaction between objects.",
+      "sourceCueId": "exit",
+      "event": "resolve-interaction-model",
+      "cueFunction": "integration",
+      "targets": [
+        "object-pair",
+        "interaction-link",
+        "force-pair"
+      ],
+      "intentionalHold": null
+    }
+  ],
+  "visualBeats": [
+    {
+      "index": 1,
+      "start": 0,
+      "end": 2.811,
+      "sourceCueId": "mystery",
+      "event": "orient-pilots",
+      "cueFunction": "selection",
+      "targets": [
+        "blue-pilot",
+        "orange-pilot"
+      ],
+      "holdUntil": 2.811,
+      "intentionalHold": null
+    },
+    {
+      "index": 2,
+      "start": 2.811,
+      "end": 4.567,
+      "sourceCueId": "mystery",
+      "event": "hold-still-state",
+      "cueFunction": "organisation",
+      "targets": [
+        "platforms",
+        "still-chip"
+      ],
+      "holdUntil": 4.567,
+      "intentionalHold": "inspect"
+    },
+    {
+      "index": 3,
+      "start": 4.567,
+      "end": 6.113,
+      "sourceCueId": "mystery",
+      "event": "focus-hands",
+      "cueFunction": "selection",
+      "targets": [
+        "hands",
+        "contact-point"
+      ],
+      "holdUntil": 6.113,
+      "intentionalHold": null
+    },
+    {
+      "index": 4,
+      "start": 6.113,
+      "end": 10.188,
+      "sourceCueId": "mystery",
+      "event": "contact-then-separate",
+      "cueFunction": "integration",
+      "targets": [
+        "hands",
+        "platforms",
+        "motion-trails"
+      ],
+      "holdUntil": 10.188,
+      "intentionalHold": null
+    },
+    {
+      "index": 5,
+      "start": 10.188,
+      "end": 12.226,
+      "sourceCueId": "mystery",
+      "event": "stamp-motion-clue",
+      "cueFunction": "organisation",
+      "targets": [
+        "before-trace",
+        "after-trace"
+      ],
+      "holdUntil": 12.226,
+      "intentionalHold": null
+    },
+    {
+      "index": 6,
+      "start": 12.226,
+      "end": 14.615,
+      "sourceCueId": "mystery",
+      "event": "frame-object-pair",
+      "cueFunction": "selection",
+      "targets": [
+        "blue-pilot",
+        "orange-pilot"
+      ],
+      "holdUntil": 14.615,
+      "intentionalHold": null
+    },
+    {
+      "index": 7,
+      "start": 14.615,
+      "end": 17.972,
+      "sourceCueId": "interaction",
+      "event": "define-interaction",
+      "cueFunction": "organisation",
+      "targets": [
+        "interaction-definition"
+      ],
+      "holdUntil": 17.972,
+      "intentionalHold": null
+    },
+    {
+      "index": 8,
+      "start": 17.972,
+      "end": 20.908,
+      "sourceCueId": "interaction",
+      "event": "blue-on-orange",
+      "cueFunction": "integration",
+      "targets": [
+        "blue-pilot",
+        "orange-pilot",
+        "force-on-orange"
+      ],
+      "holdUntil": 20.908,
+      "intentionalHold": null
+    },
+    {
+      "index": 9,
+      "start": 20.908,
+      "end": 25.244,
+      "sourceCueId": "interaction",
+      "event": "orange-on-blue",
+      "cueFunction": "integration",
+      "targets": [
+        "orange-pilot",
+        "blue-pilot",
+        "force-on-blue"
+      ],
+      "holdUntil": 25.244,
+      "intentionalHold": null
+    },
+    {
+      "index": 10,
+      "start": 25.244,
+      "end": 29.44,
+      "sourceCueId": "interaction",
+      "event": "pair-two-forces",
+      "cueFunction": "organisation",
+      "targets": [
+        "interaction-node",
+        "force-pair"
+      ],
+      "holdUntil": 29.44,
+      "intentionalHold": null
+    },
+    {
+      "index": 11,
+      "start": 29.44,
+      "end": 29.999,
+      "sourceCueId": "interaction",
+      "event": "hold-two-receivers",
+      "cueFunction": "selection",
+      "targets": [
+        "blue-pilot",
+        "orange-pilot",
+        "force-pair"
+      ],
+      "holdUntil": 29.999,
+      "intentionalHold": "inspect"
+    },
+    {
+      "index": 12,
+      "start": 29.999,
+      "end": 33.407,
+      "sourceCueId": "arrows",
+      "event": "trace-force-paths",
+      "cueFunction": "integration",
+      "targets": [
+        "force-on-blue",
+        "force-on-orange"
+      ],
+      "holdUntil": 33.407,
+      "intentionalHold": null
+    },
+    {
+      "index": 13,
+      "start": 33.407,
+      "end": 36.414,
+      "sourceCueId": "arrows",
+      "event": "spotlight-orange-receiver",
+      "cueFunction": "selection",
+      "targets": [
+        "orange-pilot",
+        "force-on-orange"
+      ],
+      "holdUntil": 36.414,
+      "intentionalHold": null
+    },
+    {
+      "index": 14,
+      "start": 36.414,
+      "end": 39.287,
+      "sourceCueId": "arrows",
+      "event": "spotlight-blue-receiver",
+      "cueFunction": "selection",
+      "targets": [
+        "blue-pilot",
+        "force-on-blue"
+      ],
+      "holdUntil": 39.287,
+      "intentionalHold": null
+    },
+    {
+      "index": 15,
+      "start": 39.287,
+      "end": 42.761,
+      "sourceCueId": "arrows",
+      "event": "compare-arrow-length",
+      "cueFunction": "organisation",
+      "targets": [
+        "force-pair",
+        "length-guide"
+      ],
+      "holdUntil": 42.761,
+      "intentionalHold": null
+    },
+    {
+      "index": 16,
+      "start": 42.761,
+      "end": 43.496,
+      "sourceCueId": "arrows",
+      "event": "compare-arrow-direction",
+      "cueFunction": "organisation",
+      "targets": [
+        "force-pair",
+        "direction-guide"
+      ],
+      "holdUntil": 43.496,
+      "intentionalHold": null
+    },
+    {
+      "index": 17,
+      "start": 43.496,
+      "end": 45.768,
+      "sourceCueId": "arrows",
+      "event": "resolve-force-pair",
+      "cueFunction": "integration",
+      "targets": [
+        "interaction-node",
+        "force-pair"
+      ],
+      "holdUntil": 45.768,
+      "intentionalHold": null
+    },
+    {
+      "index": 18,
+      "start": 48.768,
+      "end": 51.834,
+      "sourceCueId": "motion-evidence",
+      "event": "open-before-after",
+      "cueFunction": "organisation",
+      "targets": [
+        "before-panel",
+        "after-panel"
+      ],
+      "holdUntil": 51.834,
+      "intentionalHold": null
+    },
+    {
+      "index": 19,
+      "start": 51.834,
+      "end": 54.632,
+      "sourceCueId": "motion-evidence",
+      "event": "hold-before-still",
+      "cueFunction": "selection",
+      "targets": [
+        "before-panel",
+        "platforms"
+      ],
+      "holdUntil": 54.632,
+      "intentionalHold": "inspect"
+    },
+    {
+      "index": 20,
+      "start": 54.632,
+      "end": 56.498,
+      "sourceCueId": "motion-evidence",
+      "event": "animate-after-motion",
+      "cueFunction": "integration",
+      "targets": [
+        "after-panel",
+        "platforms",
+        "motion-trails"
+      ],
+      "holdUntil": 56.498,
+      "intentionalHold": null
+    },
+    {
+      "index": 21,
+      "start": 56.498,
+      "end": 57.898,
+      "sourceCueId": "motion-evidence",
+      "event": "stamp-change-motion",
+      "cueFunction": "organisation",
+      "targets": [
+        "motion-evidence"
+      ],
+      "holdUntil": 57.898,
+      "intentionalHold": null
+    },
+    {
+      "index": 22,
+      "start": 57.898,
+      "end": 61.83,
+      "sourceCueId": "motion-evidence",
+      "event": "reject-floating-force",
+      "cueFunction": "selection",
+      "targets": [
+        "crossed-floating-force"
+      ],
+      "holdUntil": 61.83,
+      "intentionalHold": null
+    },
+    {
+      "index": 23,
+      "start": 61.83,
+      "end": 64.562,
+      "sourceCueId": "motion-evidence",
+      "event": "measure-visible-change",
+      "cueFunction": "integration",
+      "targets": [
+        "interaction-node",
+        "measurement-track"
+      ],
+      "holdUntil": 64.562,
+      "intentionalHold": null
+    },
+    {
+      "index": 24,
+      "start": 64.562,
+      "end": 68.456,
+      "sourceCueId": "force-does-not-ride",
+      "event": "present-stored-push-idea",
+      "cueFunction": "selection",
+      "targets": [
+        "misconception-card"
+      ],
+      "holdUntil": 68.456,
+      "intentionalHold": null
+    },
+    {
+      "index": 25,
+      "start": 68.456,
+      "end": 69.147,
+      "sourceCueId": "force-does-not-ride",
+      "event": "hold-misconception",
+      "cueFunction": "organisation",
+      "targets": [
+        "misconception-card",
+        "pilots"
+      ],
+      "holdUntil": 69.147,
+      "intentionalHold": "inspect"
+    },
+    {
+      "index": 26,
+      "start": 69.147,
+      "end": 70.341,
+      "sourceCueId": "force-does-not-ride",
+      "event": "open-contact-sequence",
+      "cueFunction": "organisation",
+      "targets": [
+        "sequence-rail"
+      ],
+      "holdUntil": 70.341,
+      "intentionalHold": null
+    },
+    {
+      "index": 27,
+      "start": 70.341,
+      "end": 74.235,
+      "sourceCueId": "force-does-not-ride",
+      "event": "show-contact-arrows",
+      "cueFunction": "integration",
+      "targets": [
+        "hands",
+        "contact-point",
+        "force-pair"
+      ],
+      "holdUntil": 74.235,
+      "intentionalHold": null
+    },
+    {
+      "index": 28,
+      "start": 74.235,
+      "end": 77.376,
+      "sourceCueId": "force-does-not-ride",
+      "event": "separate-remove-arrows",
+      "cueFunction": "integration",
+      "targets": [
+        "hands",
+        "force-pair",
+        "platforms"
+      ],
+      "holdUntil": 77.376,
+      "intentionalHold": null
+    },
+    {
+      "index": 29,
+      "start": 77.376,
+      "end": 81.145,
+      "sourceCueId": "force-does-not-ride",
+      "event": "hold-motion-contact-ended",
+      "cueFunction": "organisation",
+      "targets": [
+        "motion-trails",
+        "contact-ended"
+      ],
+      "holdUntil": 81.145,
+      "intentionalHold": "inspect"
+    },
+    {
+      "index": 30,
+      "start": 81.145,
+      "end": 83.452,
+      "sourceCueId": "push-or-pull",
+      "event": "compare-push-pull",
+      "cueFunction": "organisation",
+      "targets": [
+        "push-card",
+        "pull-card"
+      ],
+      "holdUntil": 83.452,
+      "intentionalHold": null
+    },
+    {
+      "index": 31,
+      "start": 83.452,
+      "end": 87.634,
+      "sourceCueId": "push-or-pull",
+      "event": "show-hand-cart-push",
+      "cueFunction": "integration",
+      "targets": [
+        "robot-hand",
+        "cart",
+        "contact-point"
+      ],
+      "holdUntil": 87.634,
+      "intentionalHold": null
+    },
+    {
+      "index": 32,
+      "start": 87.634,
+      "end": 91.744,
+      "sourceCueId": "push-or-pull",
+      "event": "show-cable-trolley-pull",
+      "cueFunction": "integration",
+      "targets": [
+        "robot",
+        "taut-cable",
+        "trolley"
+      ],
+      "holdUntil": 91.744,
+      "intentionalHold": null
+    },
+    {
+      "index": 33,
+      "start": 91.744,
+      "end": 92.176,
+      "sourceCueId": "push-or-pull",
+      "event": "hold-taut-cable",
+      "cueFunction": "selection",
+      "targets": [
+        "taut-cable",
+        "trolley"
+      ],
+      "holdUntil": 92.176,
+      "intentionalHold": "inspect"
+    },
+    {
+      "index": 34,
+      "start": 92.176,
+      "end": 94.267,
+      "sourceCueId": "push-or-pull",
+      "event": "name-both-pairs",
+      "cueFunction": "organisation",
+      "targets": [
+        "hand-cart-pair",
+        "cable-trolley-pair"
+      ],
+      "holdUntil": 94.267,
+      "intentionalHold": null
+    },
+    {
+      "index": 35,
+      "start": 94.267,
+      "end": 97.728,
+      "sourceCueId": "push-or-pull",
+      "event": "reject-single-object",
+      "cueFunction": "integration",
+      "targets": [
+        "interaction-pair-rule"
+      ],
+      "holdUntil": 97.728,
+      "intentionalHold": null
+    },
+    {
+      "index": 36,
+      "start": 100.728,
+      "end": 103.562,
+      "sourceCueId": "non-contact",
+      "event": "spotlight-magnet-gap",
+      "cueFunction": "selection",
+      "targets": [
+        "magnet-gap",
+        "like-poles"
+      ],
+      "holdUntil": 103.562,
+      "intentionalHold": null
+    },
+    {
+      "index": 37,
+      "start": 103.562,
+      "end": 107.157,
+      "sourceCueId": "non-contact",
+      "event": "repel-without-touch",
+      "cueFunction": "integration",
+      "targets": [
+        "magnet-carts",
+        "force-pair",
+        "motion-trails"
+      ],
+      "holdUntil": 107.157,
+      "intentionalHold": null
+    },
+    {
+      "index": 38,
+      "start": 107.157,
+      "end": 110.337,
+      "sourceCueId": "non-contact",
+      "event": "stamp-non-contact-evidence",
+      "cueFunction": "organisation",
+      "targets": [
+        "gap-check",
+        "motion-check"
+      ],
+      "holdUntil": 110.337,
+      "intentionalHold": null
+    },
+    {
+      "index": 39,
+      "start": 110.337,
+      "end": 114.347,
+      "sourceCueId": "non-contact",
+      "event": "show-earth-object",
+      "cueFunction": "integration",
+      "targets": [
+        "earth",
+        "object",
+        "gravity-arrow"
+      ],
+      "holdUntil": 114.347,
+      "intentionalHold": null
+    },
+    {
+      "index": 40,
+      "start": 114.347,
+      "end": 116.49,
+      "sourceCueId": "non-contact",
+      "event": "hold-gravity-gap",
+      "cueFunction": "selection",
+      "targets": [
+        "earth",
+        "object",
+        "gravity-arrow"
+      ],
+      "holdUntil": 116.49,
+      "intentionalHold": "inspect"
+    },
+    {
+      "index": 41,
+      "start": 116.49,
+      "end": 119.568,
+      "sourceCueId": "classification",
+      "event": "open-decision-path",
+      "cueFunction": "organisation",
+      "targets": [
+        "decision-question-one",
+        "decision-question-two"
+      ],
+      "holdUntil": 119.568,
+      "intentionalHold": null
+    },
+    {
+      "index": 42,
+      "start": 119.568,
+      "end": 122.167,
+      "sourceCueId": "classification",
+      "event": "highlight-question-one",
+      "cueFunction": "selection",
+      "targets": [
+        "interaction-pair"
+      ],
+      "holdUntil": 122.167,
+      "intentionalHold": null
+    },
+    {
+      "index": 43,
+      "start": 122.167,
+      "end": 123.672,
+      "sourceCueId": "classification",
+      "event": "highlight-question-two",
+      "cueFunction": "selection",
+      "targets": [
+        "contact-gap"
+      ],
+      "holdUntil": 123.672,
+      "intentionalHold": null
+    },
+    {
+      "index": 44,
+      "start": 123.672,
+      "end": 125.997,
+      "sourceCueId": "classification",
+      "event": "classify-hand-cart",
+      "cueFunction": "integration",
+      "targets": [
+        "robot-hand",
+        "cart",
+        "contact-label"
+      ],
+      "holdUntil": 125.997,
+      "intentionalHold": null
+    },
+    {
+      "index": 45,
+      "start": 125.997,
+      "end": 128.186,
+      "sourceCueId": "classification",
+      "event": "classify-magnets",
+      "cueFunction": "integration",
+      "targets": [
+        "magnet-pair",
+        "non-contact-label"
+      ],
+      "holdUntil": 128.186,
+      "intentionalHold": null
+    },
+    {
+      "index": 46,
+      "start": 128.186,
+      "end": 130.853,
+      "sourceCueId": "classification",
+      "event": "classify-earth-object",
+      "cueFunction": "integration",
+      "targets": [
+        "earth",
+        "object",
+        "non-contact-label"
+      ],
+      "holdUntil": 130.853,
+      "intentionalHold": null
+    },
+    {
+      "index": 47,
+      "start": 130.853,
+      "end": 134.273,
+      "sourceCueId": "classification",
+      "event": "cross-strength-highlight-touch",
+      "cueFunction": "organisation",
+      "targets": [
+        "strength-gauge",
+        "touch-rule"
+      ],
+      "holdUntil": 134.273,
+      "intentionalHold": null
+    },
+    {
+      "index": 48,
+      "start": 134.273,
+      "end": 138.569,
+      "sourceCueId": "fair-evidence",
+      "event": "lock-same-controls",
+      "cueFunction": "organisation",
+      "targets": [
+        "cart-lock",
+        "track-lock",
+        "start-lock"
+      ],
+      "holdUntil": 138.569,
+      "intentionalHold": null
+    },
+    {
+      "index": 49,
+      "start": 138.569,
+      "end": 139.192,
+      "sourceCueId": "fair-evidence",
+      "event": "hold-same-controls",
+      "cueFunction": "selection",
+      "targets": [
+        "cart-lock",
+        "track-lock",
+        "start-lock"
+      ],
+      "holdUntil": 139.192,
+      "intentionalHold": "inspect"
+    },
+    {
+      "index": 50,
+      "start": 139.192,
+      "end": 143.28,
+      "sourceCueId": "fair-evidence",
+      "event": "change-push-size",
+      "cueFunction": "integration",
+      "targets": [
+        "small-push",
+        "large-push"
+      ],
+      "holdUntil": 143.28,
+      "intentionalHold": null
+    },
+    {
+      "index": 51,
+      "start": 143.28,
+      "end": 145.151,
+      "sourceCueId": "fair-evidence",
+      "event": "measure-same-time-distance",
+      "cueFunction": "integration",
+      "targets": [
+        "timer",
+        "distance-traces"
+      ],
+      "holdUntil": 145.151,
+      "intentionalHold": null
+    },
+    {
+      "index": 52,
+      "start": 145.151,
+      "end": 149.169,
+      "sourceCueId": "fair-evidence",
+      "event": "show-confounded-trial",
+      "cueFunction": "organisation",
+      "targets": [
+        "changed-cart",
+        "changed-track",
+        "changed-start"
+      ],
+      "holdUntil": 149.169,
+      "intentionalHold": null
+    },
+    {
+      "index": 53,
+      "start": 149.169,
+      "end": 151.248,
+      "sourceCueId": "fair-evidence",
+      "event": "stamp-ambiguous-evidence",
+      "cueFunction": "integration",
+      "targets": [
+        "warning-card",
+        "question-mark"
+      ],
+      "holdUntil": 151.248,
+      "intentionalHold": null
+    },
+    {
+      "index": 54,
+      "start": 154.248,
+      "end": 155.653,
+      "sourceCueId": "transfer",
+      "event": "return-moving-pilots",
+      "cueFunction": "selection",
+      "targets": [
+        "pilots",
+        "motion-trails"
+      ],
+      "holdUntil": 155.653,
+      "intentionalHold": null
+    },
+    {
+      "index": 55,
+      "start": 155.653,
+      "end": 159.668,
+      "sourceCueId": "transfer",
+      "event": "hold-motion-after-contact",
+      "cueFunction": "organisation",
+      "targets": [
+        "motion-trails",
+        "no-contact-gap"
+      ],
+      "holdUntil": 159.668,
+      "intentionalHold": "inspect"
+    },
+    {
+      "index": 56,
+      "start": 159.668,
+      "end": 162.612,
+      "sourceCueId": "transfer",
+      "event": "ask-stored-push",
+      "cueFunction": "selection",
+      "targets": [
+        "misconception-card"
+      ],
+      "holdUntil": 162.612,
+      "intentionalHold": null
+    },
+    {
+      "index": 57,
+      "start": 162.612,
+      "end": 162.813,
+      "sourceCueId": "transfer",
+      "event": "reject-stored-push",
+      "cueFunction": "organisation",
+      "targets": [
+        "no-stamp",
+        "misconception-card"
+      ],
+      "holdUntil": 162.813,
+      "intentionalHold": null
+    },
+    {
+      "index": 58,
+      "start": 162.813,
+      "end": 166.56,
+      "sourceCueId": "transfer",
+      "event": "show-interaction-first",
+      "cueFunction": "integration",
+      "targets": [
+        "contact-event",
+        "timeline-rail"
+      ],
+      "holdUntil": 166.56,
+      "intentionalHold": null
+    },
+    {
+      "index": 59,
+      "start": 166.56,
+      "end": 167.029,
+      "sourceCueId": "transfer",
+      "event": "show-motion-afterwards",
+      "cueFunction": "integration",
+      "targets": [
+        "motion-event",
+        "timeline-rail"
+      ],
+      "holdUntil": 167.029,
+      "intentionalHold": null
+    },
+    {
+      "index": 60,
+      "start": 167.029,
+      "end": 170.976,
+      "sourceCueId": "transfer",
+      "event": "show-motion-continuing",
+      "cueFunction": "organisation",
+      "targets": [
+        "platforms",
+        "motion-trails"
+      ],
+      "holdUntil": 170.976,
+      "intentionalHold": null
+    },
+    {
+      "index": 61,
+      "start": 170.976,
+      "end": 172.114,
+      "sourceCueId": "transfer",
+      "event": "show-other-forces",
+      "cueFunction": "integration",
+      "targets": [
+        "support-force",
+        "gravity-force"
+      ],
+      "holdUntil": 172.114,
+      "intentionalHold": null
+    },
+    {
+      "index": 62,
+      "start": 172.114,
+      "end": 175.006,
+      "sourceCueId": "challenge",
+      "event": "open-prediction",
+      "cueFunction": "organisation",
+      "targets": [
+        "magnet-setup",
+        "prediction-cover"
+      ],
+      "holdUntil": 175.006,
+      "intentionalHold": null
+    },
+    {
+      "index": 63,
+      "start": 175.006,
+      "end": 178.636,
+      "sourceCueId": "challenge",
+      "event": "ask-supporting-observations",
+      "cueFunction": "selection",
+      "targets": [
+        "prediction-question"
+      ],
+      "holdUntil": 178.636,
+      "intentionalHold": null
+    },
+    {
+      "index": 64,
+      "start": 178.636,
+      "end": 180.79,
+      "sourceCueId": "challenge",
+      "event": "run-thinking-countdown",
+      "cueFunction": "organisation",
+      "targets": [
+        "countdown-ring"
+      ],
+      "holdUntil": 180.79,
+      "intentionalHold": null
+    },
+    {
+      "index": 65,
+      "start": 180.79,
+      "end": 184.543,
+      "sourceCueId": "challenge",
+      "event": "reveal-gap-and-motion",
+      "cueFunction": "integration",
+      "targets": [
+        "gap-check",
+        "motion-check"
+      ],
+      "holdUntil": 184.543,
+      "intentionalHold": null
+    },
+    {
+      "index": 66,
+      "start": 184.543,
+      "end": 186.512,
+      "sourceCueId": "challenge",
+      "event": "reveal-no-hand",
+      "cueFunction": "selection",
+      "targets": [
+        "no-hand-check"
+      ],
+      "holdUntil": 186.512,
+      "intentionalHold": null
+    },
+    {
+      "index": 67,
+      "start": 186.512,
+      "end": 188.789,
+      "sourceCueId": "challenge",
+      "event": "stamp-claim-supported",
+      "cueFunction": "integration",
+      "targets": [
+        "evidence-checks",
+        "claim-stamp"
+      ],
+      "holdUntil": 188.789,
+      "intentionalHold": null
+    },
+    {
+      "index": 68,
+      "start": 188.789,
+      "end": 192.941,
+      "sourceCueId": "exit",
+      "event": "open-physicist-routine",
+      "cueFunction": "organisation",
+      "targets": [
+        "routine-rail"
+      ],
+      "holdUntil": 192.941,
+      "intentionalHold": null
+    },
+    {
+      "index": 69,
+      "start": 192.941,
+      "end": 194.146,
+      "sourceCueId": "exit",
+      "event": "highlight-name-pair",
+      "cueFunction": "selection",
+      "targets": [
+        "routine-step-one"
+      ],
+      "holdUntil": 194.146,
+      "intentionalHold": null
+    },
+    {
+      "index": 70,
+      "start": 194.146,
+      "end": 195.888,
+      "sourceCueId": "exit",
+      "event": "highlight-touch",
+      "cueFunction": "selection",
+      "targets": [
+        "routine-step-two"
+      ],
+      "holdUntil": 195.888,
+      "intentionalHold": null
+    },
+    {
+      "index": 71,
+      "start": 195.888,
+      "end": 198.566,
+      "sourceCueId": "exit",
+      "event": "highlight-motion-evidence",
+      "cueFunction": "selection",
+      "targets": [
+        "routine-step-three"
+      ],
+      "holdUntil": 198.566,
+      "intentionalHold": null
+    },
+    {
+      "index": 72,
+      "start": 198.566,
+      "end": 202.116,
+      "sourceCueId": "exit",
+      "event": "reject-hidden-material",
+      "cueFunction": "organisation",
+      "targets": [
+        "crossed-hidden-force"
+      ],
+      "holdUntil": 202.116,
+      "intentionalHold": null
+    },
+    {
+      "index": 73,
+      "start": 202.116,
+      "end": 205.464,
+      "sourceCueId": "exit",
+      "event": "resolve-interaction-model",
+      "cueFunction": "integration",
+      "targets": [
+        "object-pair",
+        "interaction-link",
+        "force-pair"
+      ],
+      "holdUntil": 205.464,
+      "intentionalHold": null
     }
   ],
   "actions": [
