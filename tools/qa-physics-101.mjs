@@ -21,6 +21,7 @@ const chrome = spawn(browserPath, [
   "--disable-gpu",
   "--hide-scrollbars",
   "--no-first-run",
+  "--mute-audio",
   "--autoplay-policy=no-user-gesture-required",
   `--remote-debugging-port=${port}`,
   "--remote-allow-origins=*",
@@ -77,6 +78,7 @@ try {
   const buttonChecks = [];
   await setViewport(send, 1440, 900, 1, false);
   await navigate(send, baseUrl);
+  await muteMedia(evaluate);
   console.log("[qa] desktop landing loaded");
   await waitFor(() => evaluate("(() => { const landing=document.querySelector('.course-landing'); return Boolean(landing && window.getComputedStyle(landing).display !== 'none' && document.querySelectorAll('.chapter-card').length === 11); })()"));
   const deployedMarker = await evaluate("Boolean(document.querySelector('script[src*=\"physics-101-force-lab-008\"]'))");
@@ -98,6 +100,7 @@ try {
 
   await evaluate("document.querySelector('#courseStartButton').click(); true");
   await waitFor(() => evaluate("document.querySelector('.physics-app').classList.contains('player-view')"));
+  await muteMedia(evaluate);
   buttonChecks.push("start chapter button");
   results.push(await inspect(evaluate, "desktop lesson"));
   await screenshot(send, path.join(evidenceDir, "desktop-lesson.png"));
@@ -162,6 +165,7 @@ try {
   const tabletUrl = new URL(baseUrl);
   tabletUrl.searchParams.set("chapter", "1");
   await navigate(send, tabletUrl.toString());
+  await muteMedia(evaluate);
   console.log("[qa] tablet lesson loaded");
   await waitFor(() => evaluate("document.querySelector('.physics-app').classList.contains('player-view')"));
   results.push(await inspect(evaluate, "tablet lesson"));
@@ -172,12 +176,14 @@ try {
 
   await setViewport(send, 390, 844, 2, true);
   await navigate(send, baseUrl);
+  await muteMedia(evaluate);
   console.log("[qa] mobile landing loaded");
   await waitFor(() => evaluate("Boolean(document.querySelector('.course-landing'))"));
   results.push(await inspect(evaluate, "mobile landing"));
   await screenshot(send, path.join(evidenceDir, "mobile-landing.png"));
   await evaluate("document.querySelector('#courseStartButton').click(); true");
   await waitFor(() => evaluate("document.querySelector('.physics-app').classList.contains('player-view')"));
+  await muteMedia(evaluate);
   results.push(await inspect(evaluate, "mobile lesson"));
   await screenshot(send, path.join(evidenceDir, "mobile-lesson.png"));
   await seekVideo(evaluate, 145);
@@ -194,6 +200,7 @@ try {
     event.method === "Network.responseReceived" && event.params?.response?.status >= 400
   ).map((event) => ({ method: event.method, params: event.params }));
 
+  const audioMuted = await evaluate("[...document.querySelectorAll('audio,video')].every((media) => media.muted && media.volume === 0)");
   const report = {
     release: "physics-101-force-lab-008",
     browser: browserName,
@@ -202,7 +209,8 @@ try {
     buttonChecks,
     results,
     browserErrors,
-    passed: results.every((result) => result.horizontalOverflow === 0 && result.brokenImages === 0 && result.smallPrimaryControls === 0) && browserErrors.length === 0,
+    audioMuted,
+    passed: audioMuted && results.every((result) => result.horizontalOverflow === 0 && result.brokenImages === 0 && result.smallPrimaryControls === 0) && browserErrors.length === 0,
   };
   await fs.writeFile(path.join(evidenceDir, "report.json"), `${JSON.stringify(report, null, 2)}\n`, "utf8");
   console.log(JSON.stringify(report, null, 2));
@@ -282,6 +290,11 @@ async function seekVideo(evaluate, seconds) {
     });
     return { currentTime: video.currentTime, duration: video.duration };
   })()`);
+}
+
+async function muteMedia(evaluate) {
+  const muted = await evaluate("(() => { const media=[...document.querySelectorAll('audio,video')]; media.forEach((element) => { element.muted=true; element.volume=0; }); return media.every((element) => element.muted && element.volume === 0); })()");
+  if (!muted) throw new Error("QA media could not be muted.");
 }
 
 async function waitFor(predicate, timeout = 10000) {
