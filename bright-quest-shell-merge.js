@@ -438,7 +438,7 @@
               <small>Animated lessons and tests</small>
             </button>
             <button type="button" class="bq-world-tile chemistry" data-bq-action="physics-training">
-              <img src="physics-training/physics-101-advanced-grade-4/assets/ui/chapter-01-card.png?v=physics-101-force-lab-008" alt="" />
+              <img src="physics-training/physics-101-advanced-grade-4/assets/ui/chapter-01-card.png?v=physics-101-force-lab-010" alt="" />
               <span class="bq-world-status">${physicsStatus.completed ? "Chapter complete" : "Pilot ready"}</span>
               <strong>Physics Workshop</strong>
               <small>Forces, evidence and a cockpit check</small>
@@ -998,7 +998,7 @@
         ${parentHubRow("learning", "Learning", `${metrics.attempts.length + metrics.icasAttempts.length} saved attempts`, metrics.attempts.length ? `${metrics.average}% exam average` : "No exam baseline", "chart")}
         ${parentHubRow("icas", "ICAS Challenge Lab", `${metrics.icasAttempts.length} attempts`, metrics.icasAttempts.length ? `${metrics.icasAttempts.at(-1).percent}% latest` : "No result yet", "clipboard")}
         ${parentHubRow("chemistry", "Chemistry", `${chemistryProgress(metrics.profile).completed} of 11 chapters`, "Chapter tests and wrong answers", "chemistry")}
-        ${parentHubRow("physics", "Physics", `${physicsProgress(metrics.profile).completed ? 1 : 0} of 1 pilot chapter`, "Cockpit Check and evidence reasoning", "focus")}
+        ${parentHubRow("physics", "Physics", `${physicsProgress(metrics.profile).completed} of 3 chapters`, "Cockpit Checks and wrong answers", "focus")}
         ${parentHubRow("evidence", "Evidence", `${metrics.questionStats.length} saved question records`, `${metrics.writing.length} writing samples`, "database")}
       </section>
     `, true);
@@ -1013,7 +1013,7 @@
         ${parentHubRow("focus", "Focus Areas", `${metrics.focus.length} signals`, metrics.focus[0]?.skill || "No focus flagged", "focus")}
         ${parentHubRow("training", "Bright Quest Training", `${metrics.training.completed.length} complete`, `${metrics.training.untouched.length} available`, "book")}
         ${parentHubRow("chemistry", "Chemistry 101", `${chemistry.completed} of ${chemistry.total} chapters`, `${chemistry.tested} tests submitted`, "chemistry")}
-        ${parentHubRow("physics", "Physics 101", `${physicsProgress(metrics.profile).completed ? 1 : 0} of 1 pilot chapter`, physicsProgress(metrics.profile).test ? `Cockpit Check ${physicsProgress(metrics.profile).test.score}/10` : "Test not submitted", "focus")}
+        ${parentHubRow("physics", "Physics 101", `${physicsProgress(metrics.profile).completed} of 3 chapters`, `${physicsProgress(metrics.profile).tests} Cockpit Checks submitted`, "focus")}
         ${parentHubLink(agmathsUrl("cockpit", metrics.profile, "parent/learning"), "Winter Maths", "Open linked AGMaths progress", "External course", "snow")}
       </section>
     `);
@@ -1358,34 +1358,39 @@
 
   function renderPhysicsPage(metrics) {
     const status = physicsProgress(metrics.profile);
-    const answerRows = Array.isArray(status.test?.answers) ? status.test.answers.map((answer, index) => ({
-      label: `Q${index + 1} ${String(answer.concept || "evidence").replaceAll("-", " ")}`,
-      value: answer.correct ? "Correct" : `Review: ${answer.correctAnswer || answer.feedback || "Check the interaction evidence"}`
-    })) : [];
+    const rows = status.chapters.map((chapter) => ({
+      label: chapter.title,
+      value: chapter.test ? `${chapter.test.score}/${chapter.test.total || 10}` : chapter.completed ? "Test ready" : "Pending"
+    }));
     return parentPageShell("physics", `
       <section class="bq-cockpit-status winter">
         <div>
-          <p class="eyebrow">Bright Quest live pilot</p>
-          <h3>Force Is An Interaction</h3>
-          <p>${status.completed ? "The animated lesson is complete." : "The animated lesson has not yet been completed."} ${status.test ? `Latest Cockpit Check: ${status.test.score}/${status.test.total || 10}; best ${status.bestScore || status.test.score}/10.` : "The Cockpit Check has not yet been submitted."}</p>
+          <p class="eyebrow">Bright Quest module</p>
+          <h3>Physics 101 course progress</h3>
+          <p>${status.completed}/3 chapters watched and ${status.tests}/3 Cockpit Checks submitted.</p>
         </div>
         <div class="bq-linked-actions">
           <button class="button button-primary" type="button" data-open-game-url="${physics101Url(metrics.profile)}">Open Physics 101</button>
         </div>
       </section>
+      ${physicsReviewPanel(status)}
       <section class="bq-two-column records">
-        <article>${recordBlock("Pilot progress", [
-          { label: "Animated lesson", value: status.completed ? "Complete" : "Pending" },
-          { label: "Watched", value: `${Math.round(status.watchedSeconds || 0)} seconds` },
-          { label: "Cockpit Check", value: status.test ? `${status.test.score}/${status.test.total || 10}` : "Pending" },
-          { label: "Attempts", value: String(status.attempts || 0) }
+        <article>${recordBlock("Physics chapters", rows)}</article>
+        <article>${recordBlock("Course summary", [
+          { label: "Animated chapters", value: `${status.completed}/3 complete` },
+          { label: "Cockpit Checks", value: `${status.tests}/3 submitted` },
+          { label: "Question bank", value: "60 questions" }
         ])}</article>
-        <article>${recordBlock("Question evidence", answerRows.length ? answerRows : [{ label: "No result yet", value: "Complete the lesson, then submit the Cockpit Check." }])}</article>
       </section>
     `);
   }
 
   function physicsProgress(profile) {
+    const chapterDefinitions = [
+      ["force-is-an-interaction", "Force Is An Interaction"],
+      ["motion-tells-the-story", "Motion Tells The Story"],
+      ["push-pull-and-support", "Push, Pull And Support"]
+    ];
     let saved = {};
     try {
       saved = JSON.parse(localStorage.getItem("brightQuestPhysics101ProgressV1")) || {};
@@ -1393,17 +1398,78 @@
       saved = {};
     }
     const profileId = profile?.id || "demo-student";
-    const id = "force-is-an-interaction";
-    const local = saved[profileId]?.chapters?.[id] || saved["demo-student"]?.chapters?.[id] || {};
-    const profileChapter = profile?.physics101Progress?.chapters?.[id] || {};
-    const chapter = { ...local, ...profileChapter };
+    const localChapters = saved[profileId]?.chapters || {};
+    const legacyChapters = saved["demo-student"]?.chapters || {};
+    const profileChapters = profile?.physics101Progress?.chapters || {};
+    const chapters = chapterDefinitions.map(([id, title]) => {
+      const local = { ...(legacyChapters[id] || {}), ...(localChapters[id] || {}) };
+      const remote = profileChapters[id] || {};
+      const chapter = { ...local, ...remote };
+      return {
+        id,
+        title,
+        completed: Boolean(chapter.completed || profile?.trainingCompleted?.[`physics-101-advanced-grade-4:${id}`]),
+        watchedSeconds: Math.max(Number(local.watchedSeconds) || 0, Number(remote.watchedSeconds) || 0),
+        test: chapter.test || null,
+        bestScore: Math.max(Number(local.bestScore) || 0, Number(remote.bestScore) || 0, Number(chapter.test?.score) || 0),
+        attempts: Math.max(Number(local.attempts) || 0, Number(remote.attempts) || 0)
+      };
+    });
     return {
-      completed: Boolean(chapter.completed || profile?.trainingCompleted?.[`physics-101-advanced-grade-4:${id}`]),
-      watchedSeconds: Math.max(Number(local.watchedSeconds) || 0, Number(profileChapter.watchedSeconds) || 0),
-      test: chapter.test || null,
-      bestScore: Math.max(Number(local.bestScore) || 0, Number(profileChapter.bestScore) || 0, Number(chapter.test?.score) || 0),
-      attempts: Math.max(Number(local.attempts) || 0, Number(profileChapter.attempts) || 0)
+      chapters,
+      completed: chapters.filter((chapter) => chapter.completed).length,
+      tests: chapters.filter((chapter) => chapter.test).length
     };
+  }
+
+  function physicsReviewPanel(status) {
+    const tested = status.chapters.filter((chapter) => chapter.test);
+    if (!tested.length) {
+      return `<section class="bq-chemistry-review-panel"><p class="eyebrow">Cockpit Check review</p><h3>No Physics tests submitted yet.</h3><p>Once a chapter test is submitted, the parent review popup will show missed answers first.</p></section>`;
+    }
+    return `
+      <section class="bq-chemistry-review-panel" aria-label="Physics 101 test review">
+        <div><p class="eyebrow">Cockpit Check review</p><h3>Review missed answers first</h3><p>Open a submitted chapter to see the selected answer, correct answer, and teaching feedback.</p></div>
+        <div class="bq-chemistry-review-actions">
+          ${tested.map((chapter) => {
+            const missed = (chapter.test?.answers || []).filter((answer) => answer.correct === false).length;
+            return `<button class="button ${missed ? "button-primary" : "button-soft"}" type="button" data-physics-review="${escapeAttr(chapter.id)}">${escapeHtml(chapter.title)}: ${missed ? `${missed} missed` : "All correct"}</button>`;
+          }).join("")}
+        </div>
+      </section>
+    `;
+  }
+
+  function openPhysicsReviewPopup(chapterId) {
+    const profile = getParentProfile(Object.values(state.profiles || {}));
+    const chapter = physicsProgress(profile).chapters.find((item) => item.id === chapterId);
+    if (!chapter?.test) return;
+    const items = (chapter.test.answers || []).map((answer, index) => ({
+      number: index + 1,
+      correct: answer.correct === true,
+      prompt: answer.prompt || `Question ${index + 1}`,
+      concept: String(answer.concept || "Physics evidence").replaceAll("-", " "),
+      selectedText: answer.selected || "Not captured",
+      correctText: answer.correctAnswer || "See the chapter question bank",
+      feedback: answer.feedback || "Review the force interaction and the visible evidence."
+    }));
+    const missed = items.filter((item) => !item.correct);
+    const correct = items.filter((item) => item.correct);
+    const answerCards = (list, isMissed) => list.map((item) => chemistryAnswerCard(item, isMissed)).join("");
+    const body = `
+      <section class="bq-chem-review-section">
+        <div class="bq-chem-review-section-head"><p class="eyebrow">Wrong answers first</p><strong>${missed.length} missed</strong></div>
+        <div class="bq-chem-review-list">${missed.length ? answerCards(missed, true) : `<div class="empty-state">No missed questions in this Cockpit Check.</div>`}</div>
+      </section>
+      ${correct.length ? `<details class="bq-chem-review-correct"><summary>Show correct answers too (${correct.length})</summary><div class="bq-chem-review-list">${answerCards(correct, false)}</div></details>` : ""}
+    `;
+    showChemistryReviewPopup(`
+      <div class="bq-chem-review-scrim" data-chemistry-review-close></div>
+      <section class="bq-chem-review-modal" aria-labelledby="bqPhysicsReviewTitle">
+        <header class="bq-chem-review-head"><div><p class="eyebrow">Physics Cockpit Check</p><h3 id="bqPhysicsReviewTitle">${escapeHtml(chapter.title)}</h3><p>${chapter.test.score}/${chapter.test.total || 10} correct. Missed answers are shown first.</p></div><button class="button button-soft" type="button" data-chemistry-review-close>Close</button></header>
+        ${body}
+      </section>
+    `);
   }
 
   function chemistryReviewPanel(status) {
@@ -1745,7 +1811,7 @@
       writing: ["English and writing", "Writing Signals", "Saved writing responses and parent review signals."],
       games: ["Rewards", "Games & Rewards", "Unlocked and recommended Bright Quest game experiences."],
       chemistry: ["Bright Quest module", "Chemistry 101 Winter 2026", "Video chapter progress and chapter-test results."],
-      physics: ["Bright Quest live pilot", "Physics 101: Advanced Grade 4", "Animated force lesson, Cockpit Check and saved evidence reasoning."],
+      physics: ["Bright Quest module", "Physics 101: Advanced Grade 4", "Three animated force chapters, Cockpit Checks and saved evidence reasoning."],
       icas: ["Bright Quest module", "ICAS Challenge Lab", "Grade 3 maths and spelling attempts with wrong-answer-first evidence."],
       "winter-2026": ["Linked module", "Winter 2026 Training 1", "Open AGMaths without moving its data."],
       records: ["Audit", "All Records", "Complete saved Bright Quest records remain accessible here."]
@@ -1763,6 +1829,9 @@
     });
     parentRecommendation.querySelectorAll("[data-chemistry-review]").forEach((button) => {
       button.addEventListener("click", () => openChemistryReviewPopup(button.dataset.chemistryReview));
+    });
+    parentRecommendation.querySelectorAll("[data-physics-review]").forEach((button) => {
+      button.addEventListener("click", () => openPhysicsReviewPopup(button.dataset.physicsReview));
     });
     parentRecommendation.querySelectorAll("[data-icas-review]").forEach((button) => {
       button.addEventListener("click", () => openIcasReviewPopup(button.dataset.icasReview));

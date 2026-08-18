@@ -1,14 +1,12 @@
 (() => {
   "use strict";
 
-  const RELEASE = "physics-101-force-lab-008";
-  const ASSET_VERSION = "20260818b";
+  const RELEASE = "physics-101-force-lab-010";
+  const ASSET_VERSION = "20260818d";
   const COURSE_URL = `./data/physics-101-course.json?v=${ASSET_VERSION}`;
-  const TIMELINE_URL = `./assets/timelines/chapter-01.json?v=${ASSET_VERSION}`;
   const PROGRESS_KEY = "brightQuestPhysics101ProgressV1";
   const PROFILES_KEY = "brightQuestProfilesV2";
   const COURSE_ID = "physics-101-advanced-grade-4";
-  const CHAPTER_ID = "force-is-an-interaction";
 
   const elements = {
     app: document.querySelector(".physics-app"),
@@ -19,7 +17,11 @@
     courseStart: document.querySelector("#courseStartButton"),
     courseMapButton: document.querySelector("#courseMapButton"),
     backToMap: document.querySelector("#backToMapButton"),
+    chapterCount: document.querySelector("#chapterCount"),
+    chapterTitle: document.querySelector("#chapterTitle"),
     video: document.querySelector("#lessonVideo"),
+    videoSource: document.querySelector("#videoSource"),
+    captionTrack: document.querySelector("#captionTrack"),
     videoStart: document.querySelector("#videoStartButton"),
     play: document.querySelector("#playButton"),
     playIcon: document.querySelector("#playIcon"),
@@ -41,6 +43,9 @@
   const state = {
     course: null,
     timeline: null,
+    activeChapterId: null,
+    chapterLoadToken: 0,
+    boundTextTrack: null,
     captionsOn: false,
     progress: loadJson(PROGRESS_KEY),
     testQuestions: [],
@@ -56,27 +61,23 @@
   });
 
   async function init() {
-    const [courseResponse, timelineResponse] = await Promise.all([
-      fetch(COURSE_URL, { headers: { accept: "application/json" } }),
-      fetch(TIMELINE_URL, { headers: { accept: "application/json" } }),
-    ]);
-    if (!courseResponse.ok || !timelineResponse.ok) throw new Error("Physics course data was unavailable.");
+    const courseResponse = await fetch(COURSE_URL, { headers: { accept: "application/json" } });
+    if (!courseResponse.ok) throw new Error("Physics course data was unavailable.");
     state.course = await courseResponse.json();
-    state.timeline = await timelineResponse.json();
     mergeProfileProgress();
-    renderCourseMap();
-    renderProgress();
     wireControls();
-    updateLessonCue(0);
-    renderTest();
 
     const params = new URLSearchParams(location.search);
-    if (params.get("chapter") === "1" || params.get("view") === "lesson") showPlayer(false);
+    const requestedChapter = findChapter(params.get("chapter"));
+    const initialChapter = requestedChapter?.available ? requestedChapter : availableChapters()[0];
+    if (!initialChapter) throw new Error("Physics course has no available chapters.");
+    await activateChapter(initialChapter.id);
+    if (requestedChapter?.available || params.get("view") === "lesson") showPlayer(false);
     console.info(`Physics 101 loaded: ${RELEASE}`);
   }
 
   function wireControls() {
-    elements.courseStart.addEventListener("click", () => showPlayer(true));
+    elements.courseStart.addEventListener("click", () => openChapter(availableChapters()[0]?.id, true));
     elements.courseMapButton.addEventListener("click", showMap);
     elements.backToMap.addEventListener("click", showMap);
     elements.videoStart.addEventListener("click", playVideo);
@@ -98,7 +99,10 @@
         elements.videoStart.hidden = true;
       }
     });
-    elements.video.addEventListener("loadedmetadata", updateTimeline);
+    elements.video.addEventListener("loadedmetadata", () => {
+      updateTimeline();
+      bindCaptionTrack();
+    });
     elements.video.addEventListener("timeupdate", onTimeUpdate);
     elements.video.addEventListener("play", () => {
       elements.videoStart.hidden = true;
@@ -112,13 +116,14 @@
       markChapterComplete();
       setPlayState("replay");
     });
-    elements.video.textTracks?.[0]?.addEventListener?.("cuechange", updateCaptionReadout);
   }
 
   function showPlayer(shouldPlay) {
+    const chapter = activeChapter();
+    if (!chapter) return;
     elements.app.classList.remove("landing-view");
     elements.app.classList.add("player-view");
-    history.replaceState(null, "", buildUrl({ chapter: "1" }));
+    history.replaceState(null, "", buildUrl({ chapter: String(chapter.number) }));
     requestAnimationFrame(() => elements.lessonStage.scrollIntoView({ block: "start" }));
     if (shouldPlay) playVideo();
   }
@@ -138,6 +143,79 @@
     if (profileId) url.searchParams.set("profileId", profileId);
     Object.entries(extra).forEach(([key, value]) => url.searchParams.set(key, value));
     return `${url.pathname}${url.search}`;
+  }
+
+  function availableChapters() {
+    return state.course?.chapters?.filter((chapter) => chapter.available) || [];
+  }
+
+  function findChapter(value) {
+    if (value === null || value === undefined || !state.course?.chapters) return null;
+    return state.course.chapters.find((chapter) => chapter.id === value || String(chapter.number) === String(value)) || null;
+  }
+
+  function activeChapter() {
+    return findChapter(state.activeChapterId);
+  }
+
+  function chapterAssetPath(folder, extension, chapter = activeChapter()) {
+    const number = String(chapter?.number || 1).padStart(2, "0");
+    return `./assets/${folder}/chapter-${number}.${extension}?v=${ASSET_VERSION}`;
+  }
+
+  async function activateChapter(chapterId) {
+    const chapter = findChapter(chapterId);
+    if (!chapter?.available) return false;
+
+    if (state.activeChapterId && state.activeChapterId !== chapter.id) saveProgress(false);
+    const loadToken = ++state.chapterLoadToken;
+    state.activeChapterId = chapter.id;
+    state.timeline = null;
+    state.testQuestions = [];
+    state.testIndex = 0;
+    state.testAnswers = [];
+    state.answerLocked = false;
+    state.lastSavedSecond = -1;
+
+    elements.video.pause();
+    elements.video.poster = chapterAssetPath("posters", "jpg", chapter);
+    elements.videoSource.src = chapterAssetPath("videos", "mp4", chapter);
+    elements.captionTrack.src = chapterAssetPath("captions", "vtt", chapter);
+    elements.video.load();
+    elements.videoStart.hidden = false;
+    elements.videoStart.setAttribute("aria-label", `Play ${chapter.title}`);
+    setPlayState("play");
+    elements.timeline.value = "0";
+    elements.elapsed.textContent = "0:00 elapsed";
+    elements.total.textContent = `${formatTime(chapter.durationTarget)} total`;
+    elements.chapterCount.textContent = `Chapter ${chapter.number} of ${state.course.chapters.length}`;
+    elements.chapterTitle.textContent = chapter.title;
+    delete elements.lessonPoint.dataset.cue;
+    elements.lessonPoint.textContent = chapter.narration?.[0]?.title || chapter.title;
+    elements.lessonPrompt.textContent = cuePrompt(chapter.narration?.[0]?.id);
+    elements.captionReadout.textContent = state.captionsOn ? "Captions are on." : "";
+
+    const timelineResponse = await fetch(chapterAssetPath("timelines", "json", chapter), { headers: { accept: "application/json" } });
+    if (!timelineResponse.ok) throw new Error(`Timeline unavailable for chapter ${chapter.number}.`);
+    const timeline = await timelineResponse.json();
+    if (loadToken !== state.chapterLoadToken) return false;
+    state.timeline = timeline;
+    updateLessonCue(0);
+    updateTimeline();
+    renderCourseMap();
+    renderProgress();
+    renderTest();
+    return true;
+  }
+
+  async function openChapter(chapterId, shouldPlay = false) {
+    try {
+      const activated = await activateChapter(chapterId);
+      if (activated) showPlayer(shouldPlay);
+    } catch (error) {
+      console.error(error);
+      elements.testBody.innerHTML = `<p class="test-lock">This Physics chapter could not load. Please refresh and try again.</p>`;
+    }
   }
 
   function playVideo() {
@@ -163,6 +241,17 @@
     [...elements.video.textTracks].forEach((track) => { track.mode = state.captionsOn ? "hidden" : "disabled"; });
     elements.captionReadout.hidden = !state.captionsOn;
     updateCaptionReadout();
+  }
+
+  function bindCaptionTrack() {
+    const track = elements.video.textTracks?.[0];
+    if (!track) return;
+    if (state.boundTextTrack !== track) {
+      state.boundTextTrack?.removeEventListener?.("cuechange", updateCaptionReadout);
+      track.addEventListener?.("cuechange", updateCaptionReadout);
+      state.boundTextTrack = track;
+    }
+    track.mode = state.captionsOn ? "hidden" : "disabled";
   }
 
   function updateCaptionReadout() {
@@ -216,6 +305,30 @@
       transfer: "Replace stored-force language with an exact interaction.",
       challenge: "Build a claim from the gap and the change in motion.",
       exit: "Pair. Touch. Motion evidence. You are ready.",
+      "track-mystery": "Predict which surface lets the ball travel furthest.",
+      "run-comparison": "Compare how each ball moves after the same launch.",
+      "motion-changes": "Look for starting, speeding up, slowing, stopping or turning.",
+      "before-after": "Use position changes over equal times as evidence.",
+      "kick-ended": "Separate the earlier launch from the forces acting now.",
+      "surface-friction": "Name the touching pair and the direction of the slowing force.",
+      "fair-surface-test": "Change only the surface, then repeat and measure.",
+      "distance-data": "Use stopping distance to compare the three runs.",
+      "stored-kick": "A completed kick does not travel inside the ball.",
+      "direction-change": "Compare the path before and after the bumper contact.",
+      "surface-prediction": "Make a prediction that a fair test could check.",
+      "motion-routine": "Before. After. Interaction. Evidence.",
+      "support-mystery": "The compressed foam is evidence of a contact interaction.",
+      "support-pair": "Name the book on foam and foam on book forces.",
+      "still-forces": "Stillness does not mean that no forces act.",
+      "support-load": "Compare the foam compression and force-arrow lengths.",
+      "applied-push": "Anchor the applied-force arrow on the receiving cart.",
+      "applied-pull": "Follow the stretched band towards the pulling object.",
+      "comparison-meter": "Treat stretch as a relative comparison, not Newtons.",
+      "fair-pull-test": "Keep cart, surface, start and pull time unchanged.",
+      "pull-data": "Connect the stretch reading to the measured distance.",
+      "silent-table": "Use contact evidence to reveal the table's support force.",
+      "choose-model": "Choose the model that names both objects and directions.",
+      "force-routine": "Pair. Contact. Receiver. Direction. Evidence.",
     }[id] || "Follow the evidence in the workshop.";
   }
 
@@ -233,12 +346,12 @@
   }
 
   function renderCourseMap() {
-    const completed = chapterProgress().completed;
     elements.chapterGrid.innerHTML = state.course.chapters.map((chapter) => {
       const available = Boolean(chapter.available);
+      const completed = available && chapterProgress(chapter.id).completed;
       const stateCopy = available ? (completed ? "Lesson complete · test ready" : "Ready now") : "In production";
       return `
-        <button class="chapter-card ${available ? "available" : "locked"}" type="button" ${available ? "data-open-chapter=\"1\"" : "disabled"}>
+        <button class="chapter-card ${available ? "available" : "locked"}" type="button" ${available ? `data-open-chapter="${escapeHtml(chapter.id)}"` : "disabled"}>
           <span class="chapter-number">${String(chapter.number).padStart(2, "0")}</span>
           <strong>${escapeHtml(chapter.title)}</strong>
           <p>${escapeHtml(chapter.learningOutcome)}</p>
@@ -246,15 +359,20 @@
         </button>
       `;
     }).join("");
-    elements.chapterGrid.querySelector("[data-open-chapter]")?.addEventListener("click", () => showPlayer(false));
+    elements.chapterGrid.querySelectorAll("[data-open-chapter]").forEach((button) => {
+      button.addEventListener("click", () => openChapter(button.dataset.openChapter));
+    });
   }
 
   function renderProgress() {
-    elements.progress.textContent = chapterProgress().completed ? "1/1" : "0/1";
+    const chapters = availableChapters();
+    const completed = chapters.filter((chapter) => chapterProgress(chapter.id).completed).length;
+    elements.progress.textContent = `${completed}/${chapters.length}`;
   }
 
   function renderTest() {
     const progress = chapterProgress();
+    const total = testQuestionTotal();
     if (!progress.completed) {
       elements.testStatus.className = "status-pill";
       elements.testStatus.textContent = "Locked";
@@ -263,11 +381,11 @@
     }
 
     elements.testStatus.className = "status-pill ready";
-    elements.testStatus.textContent = progress.test ? `Best ${progress.bestScore || progress.test.score}/10` : "Ready";
+    elements.testStatus.textContent = progress.test ? `Best ${progress.bestScore || progress.test.score}/${total}` : "Ready";
     if (!state.testQuestions.length) {
       const previous = progress.test;
       elements.testBody.innerHTML = `
-        ${previous ? `<p class="result-score">${previous.score}/10</p><p class="result-copy">Latest attempt saved ${formatDate(previous.submittedAt)}. Your best score is ${progress.bestScore || previous.score}/10.</p>` : `<p class="test-lock">Ten questions, one at a time. Each answer asks you to identify the interaction and use evidence—not just recall a label.</p>`}
+        ${previous ? `<p class="result-score">${previous.score}/${previous.total || total}</p><p class="result-copy">Latest attempt saved ${formatDate(previous.submittedAt)}. Your best score is ${progress.bestScore || previous.score}/${total}.</p>` : `<p class="test-lock">Ten questions, one at a time. Each answer asks you to identify the interaction and use evidence—not just recall a label.</p>`}
         <button class="primary-button test-action" id="beginTestButton" type="button"><span>${previous ? "Try a fresh version" : "Begin Cockpit Check"}</span><span aria-hidden="true">→</span></button>
       `;
       document.querySelector("#beginTestButton")?.addEventListener("click", beginTest);
@@ -283,9 +401,9 @@
 
   function beginTest() {
     const attempts = Number(chapterProgress().attempts) || 0;
-    const chapter = state.course.chapters[0];
-    state.testQuestions = Array.from({ length: 10 }, (_, offset) => {
-      const slot = offset + 1;
+    const chapter = activeChapter();
+    const slots = [...new Set((chapter.tests || []).map((question) => question.slot))].sort((a, b) => a - b).slice(0, 10);
+    state.testQuestions = slots.map((slot) => {
       const candidates = chapter.tests.filter((question) => question.slot === slot);
       const selected = candidates[(attempts + slot) % candidates.length];
       const shift = (attempts + slot) % selected.options.length;
@@ -336,7 +454,7 @@
       if (answer === selected && !correct) button.style.borderColor = "#c53d3d";
     });
     const feedback = document.querySelector("#questionFeedback");
-    feedback.innerHTML = `<p class="test-feedback ${correct ? "" : "wrong"}"><strong>${correct ? "Evidence matched." : "Not quite."}</strong> ${escapeHtml(question.feedback)}</p><button class="primary-button test-action" id="nextQuestionButton" type="button"><span>${state.testIndex === 9 ? "See result" : "Next question"}</span><span aria-hidden="true">→</span></button>`;
+    feedback.innerHTML = `<p class="test-feedback ${correct ? "" : "wrong"}"><strong>${correct ? "Evidence matched." : "Not quite."}</strong> ${escapeHtml(question.feedback)}</p><button class="primary-button test-action" id="nextQuestionButton" type="button"><span>${state.testIndex === state.testQuestions.length - 1 ? "See result" : "Next question"}</span><span aria-hidden="true">→</span></button>`;
     document.querySelector("#nextQuestionButton")?.addEventListener("click", () => {
       state.testIndex += 1;
       state.answerLocked = false;
@@ -365,9 +483,9 @@
   function renderResult() {
     const result = chapterProgress().test;
     const missed = result.answers.filter((answer) => !answer.correct);
-    elements.testStatus.textContent = `Best ${chapterProgress().bestScore}/10`;
+    elements.testStatus.textContent = `Best ${chapterProgress().bestScore}/${result.total}`;
     elements.testBody.innerHTML = `
-      <p class="result-score">${result.score}/10</p>
+      <p class="result-score">${result.score}/${result.total}</p>
       <p class="result-copy">${result.score >= 8 ? "Strong evidence reasoning." : "Good investigation—review the evidence and try a fresh version."}</p>
       ${missed.length ? `<ul class="missed-list">${missed.map((answer) => `<li><strong>${escapeHtml(answer.concept.replaceAll("-", " "))}:</strong> ${escapeHtml(answer.feedback)}</li>`).join("")}</ul>` : `<p class="test-feedback"><strong>Complete result.</strong> Every explanation matched the evidence.</p>`}
       <button class="primary-button test-action" id="retakeTestButton" type="button"><span>Try a fresh version</span><span aria-hidden="true">↻</span></button>
@@ -378,29 +496,38 @@
     });
   }
 
-  function chapterProgress() {
+  function testQuestionTotal() {
+    const slots = new Set((activeChapter()?.tests || []).map((question) => question.slot));
+    return Math.min(10, slots.size) || 10;
+  }
+
+  function chapterProgress(chapterId = state.activeChapterId) {
+    const chapter = findChapter(chapterId) || availableChapters()[0];
+    if (!chapter) return { watchedSeconds: 0, completed: false, test: null, bestScore: 0, attempts: 0 };
     const profileId = currentProfileId();
     state.progress[profileId] ||= { courseId: COURSE_ID, chapters: {} };
     state.progress[profileId].chapters ||= {};
-    state.progress[profileId].chapters[CHAPTER_ID] ||= { watchedSeconds: 0, completed: false, test: null, bestScore: 0, attempts: 0 };
-    return state.progress[profileId].chapters[CHAPTER_ID];
+    state.progress[profileId].chapters[chapter.id] ||= { watchedSeconds: 0, completed: false, test: null, bestScore: 0, attempts: 0 };
+    return state.progress[profileId].chapters[chapter.id];
   }
 
   function mergeProfileProgress() {
     const profileId = currentProfileId();
     const profile = loadJson(PROFILES_KEY)[profileId];
-    const remote = profile?.physics101Progress?.chapters?.[CHAPTER_ID];
-    if (!remote) return;
-    const local = chapterProgress();
-    const localTestAt = Date.parse(local.test?.submittedAt || "") || 0;
-    const remoteTestAt = Date.parse(remote.test?.submittedAt || "") || 0;
-    Object.assign(local, {
-      watchedSeconds: Math.max(Number(local.watchedSeconds) || 0, Number(remote.watchedSeconds) || 0),
-      completed: Boolean(local.completed || remote.completed),
-      completedAt: latestIso(local.completedAt, remote.completedAt),
-      bestScore: Math.max(Number(local.bestScore) || 0, Number(remote.bestScore) || 0, Number(remote.test?.score) || 0),
-      attempts: Math.max(Number(local.attempts) || 0, Number(remote.attempts) || 0),
-      test: remoteTestAt > localTestAt ? remote.test : local.test,
+    state.course.chapters.forEach((chapter) => {
+      const remote = profile?.physics101Progress?.chapters?.[chapter.id];
+      if (!remote) return;
+      const local = chapterProgress(chapter.id);
+      const localTestAt = Date.parse(local.test?.submittedAt || "") || 0;
+      const remoteTestAt = Date.parse(remote.test?.submittedAt || "") || 0;
+      Object.assign(local, {
+        watchedSeconds: Math.max(Number(local.watchedSeconds) || 0, Number(remote.watchedSeconds) || 0),
+        completed: Boolean(local.completed || remote.completed),
+        completedAt: latestIso(local.completedAt, remote.completedAt),
+        bestScore: Math.max(Number(local.bestScore) || 0, Number(remote.bestScore) || 0, Number(remote.test?.score) || 0),
+        attempts: Math.max(Number(local.attempts) || 0, Number(remote.attempts) || 0),
+        test: remoteTestAt > localTestAt ? remote.test : local.test,
+      });
     });
     localStorage.setItem(PROGRESS_KEY, JSON.stringify(state.progress));
   }
@@ -411,15 +538,17 @@
     const profiles = loadJson(PROFILES_KEY);
     const profile = profiles[profileId];
     if (!profile) return;
+    const chapter = activeChapter();
+    if (!chapter) return;
     profile.physics101Progress ||= { courseId: COURSE_ID, chapters: {} };
     profile.physics101Progress.chapters ||= {};
-    profile.physics101Progress.chapters[CHAPTER_ID] = JSON.parse(JSON.stringify(chapterProgress()));
+    profile.physics101Progress.chapters[chapter.id] = JSON.parse(JSON.stringify(chapterProgress(chapter.id)));
     profile.trainingCompleted ||= {};
-    if (chapterProgress().completed) {
-      profile.trainingCompleted[`${COURSE_ID}:${CHAPTER_ID}`] = {
-        date: chapterProgress().completedAt || new Date().toISOString(),
+    if (chapterProgress(chapter.id).completed) {
+      profile.trainingCompleted[`${COURSE_ID}:${chapter.id}`] = {
+        date: chapterProgress(chapter.id).completedAt || new Date().toISOString(),
         count: 1,
-        title: "Force Is An Interaction",
+        title: chapter.title,
         source: "Physics 101: Advanced Grade 4",
       };
     }

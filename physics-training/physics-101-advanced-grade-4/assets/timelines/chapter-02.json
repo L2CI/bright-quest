@@ -1,0 +1,2637 @@
+{
+  "release": "physics-101-force-lab-010",
+  "chapter": 2,
+  "duration": 205.01,
+  "cues": [
+    {
+      "id": "track-mystery",
+      "title": "Three tracks, one mystery",
+      "visual": "three-surface-tracks",
+      "text": "Three identical balls. Three different tracks. Each ball gets the same launch. Tile, short grass, or thick carpet: which ball will travel furthest before it stops? Make your prediction, then watch for evidence.",
+      "start": 0,
+      "end": 13.912,
+      "beatEnd": 13.912,
+      "voiceSection": "part-1"
+    },
+    {
+      "id": "run-comparison",
+      "title": "Run the comparison",
+      "visual": "surface-race",
+      "text": "All three begin still. The same launcher setting sends each ball across a smooth launch strip. A timing gate confirms the same entry speed before each test surface. Now the launcher is clear. Tile gives the longest stopping distance. Grass is shorter. Carpet is shortest.",
+      "start": 13.912,
+      "end": 32.882,
+      "beatEnd": 32.882,
+      "voiceSection": "part-1"
+    },
+    {
+      "id": "motion-changes",
+      "title": "Name the motion changes",
+      "visual": "motion-strips",
+      "text": "Motion can tell several stories. Still to moving means start. More distance in the same time means speed up. Less distance each moment means slow down. No new distance means stop. A new path means change direction.",
+      "start": 32.882,
+      "end": 48.48,
+      "beatEnd": 50.68,
+      "voiceSection": "part-1"
+    },
+    {
+      "id": "before-after",
+      "title": "Before and after evidence",
+      "visual": "timed-snapshots",
+      "text": "A physicist compares before and after. Before the launch, the carpet ball is still. Just after contact, it is moving. Later, its gaps become smaller. Finally, its position no longer changes. That sequence is measurable evidence.",
+      "start": 50.68,
+      "end": 65.994,
+      "beatEnd": 65.994,
+      "voiceSection": "part-2"
+    },
+    {
+      "id": "kick-ended",
+      "title": "The kick has ended",
+      "visual": "contact-timeline",
+      "text": "Look closely at the contact. While the launcher touches the ball, launcher on ball is a forward push. Once the launcher separates, that contact force ends. The ball can still be moving even though the kick is over.",
+      "start": 65.994,
+      "end": 82.159,
+      "beatEnd": 82.159,
+      "voiceSection": "part-2"
+    },
+    {
+      "id": "surface-friction",
+      "title": "What slows the ball?",
+      "visual": "friction-closeup",
+      "text": "The moving ball still interacts with its surroundings. The surface touches the ball. In this carpet model, friction and carpet deformation produce a backward surface resistance. The greater slowing effect gives a shorter stopping distance.",
+      "start": 82.159,
+      "end": 97.048,
+      "beatEnd": 99.248,
+      "voiceSection": "part-2"
+    },
+    {
+      "id": "fair-surface-test",
+      "title": "Build a fair test",
+      "visual": "fair-test-locks",
+      "text": "To compare surfaces fairly, keep the ball, entry speed, and start line the same. Change only the surface. Measure from the surface start to the resting ball. Repeat each run, because one surprising run may not represent the pattern.",
+      "start": 99.248,
+      "end": 112.774,
+      "beatEnd": 112.774,
+      "voiceSection": "part-3"
+    },
+    {
+      "id": "distance-data",
+      "title": "Read the data",
+      "visual": "table-and-graph",
+      "text": "Check all three runs before the averages. Tile measures three hundred and thirty-five, three hundred and forty-five, and three hundred and forty centimetres: average three hundred and forty. Grass averages two hundred and twenty. Carpet averages one hundred and ten. The graph and tracks show the same pattern.",
+      "start": 112.774,
+      "end": 129.42,
+      "beatEnd": 129.42,
+      "voiceSection": "part-3"
+    },
+    {
+      "id": "stored-kick",
+      "title": "Test the tempting idea",
+      "visual": "misconception-repair",
+      "text": "A tempting explanation says the kick force rides inside the ball and slowly runs out. But the contact arrow ended when the launcher separated. The remaining evidence shows a ball moving while surface friction acts against that motion. The kick is not stored inside.",
+      "start": 129.42,
+      "end": 144.68,
+      "beatEnd": 146.88,
+      "voiceSection": "part-3"
+    },
+    {
+      "id": "direction-change",
+      "title": "Direction is evidence too",
+      "visual": "bumper-turn",
+      "text": "A force can change direction as well as speed. A rolling ball meets an angled bumper. The bumper-on-ball force points away from the bumper surface. That force changes the ball's motion into a new path: straight in, diagonal out.",
+      "start": 146.88,
+      "end": 163.312,
+      "beatEnd": 163.312,
+      "voiceSection": "part-4"
+    },
+    {
+      "id": "surface-prediction",
+      "title": "Make a prediction",
+      "visual": "prediction-rails",
+      "text": "Suppose we replace thick carpet with a more deformable, higher-resistance rubber mat while everything else stays the same. Predict the stopping distance. Would it be longer than tile, between tile and carpet, or shorter than carpet? Use the model, then test it. Our testable prediction is shorter than carpet.",
+      "start": 163.312,
+      "end": 183.957,
+      "beatEnd": 183.957,
+      "voiceSection": "part-4"
+    },
+    {
+      "id": "motion-routine",
+      "title": "Your evidence routine",
+      "visual": "evidence-routine",
+      "text": "Use this motion routine. Compare before and after. Name the motion change. Name the interacting objects. Then connect the force to visible evidence. The ball does not carry a used-up kick. Motion changes because objects are interacting now, or interacted earlier while other forces continue to act.",
+      "start": 183.957,
+      "end": 203.76,
+      "beatEnd": 205.01,
+      "voiceSection": "part-4"
+    }
+  ],
+  "captionCues": [
+    {
+      "index": 1,
+      "start": 0,
+      "end": 1.493,
+      "text": "Three identical balls.",
+      "sourceCueId": "track-mystery",
+      "event": "track-mystery-1",
+      "cueFunction": "selection",
+      "targets": [
+        "tile-lane",
+        "grass-lane",
+        "carpet-lane",
+        "prediction-cover"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 2,
+      "start": 1.493,
+      "end": 3.054,
+      "text": "Three different tracks.",
+      "sourceCueId": "track-mystery",
+      "event": "track-mystery-2",
+      "cueFunction": "integration",
+      "targets": [
+        "tile-lane",
+        "grass-lane",
+        "carpet-lane",
+        "prediction-cover"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 3,
+      "start": 3.054,
+      "end": 5.158,
+      "text": "Each ball gets the same launch.",
+      "sourceCueId": "track-mystery",
+      "event": "track-mystery-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "tile-lane",
+        "grass-lane",
+        "carpet-lane",
+        "prediction-cover"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 4,
+      "start": 5.158,
+      "end": 9.094,
+      "text": "Tile, short grass, or thick carpet: which ball will travel",
+      "sourceCueId": "track-mystery",
+      "event": "track-mystery-4",
+      "cueFunction": "selection",
+      "targets": [
+        "tile-lane",
+        "grass-lane",
+        "carpet-lane",
+        "prediction-cover"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 5,
+      "start": 9.094,
+      "end": 10.79,
+      "text": "furthest before it stops?",
+      "sourceCueId": "track-mystery",
+      "event": "track-mystery-5",
+      "cueFunction": "integration",
+      "targets": [
+        "tile-lane",
+        "grass-lane",
+        "carpet-lane",
+        "prediction-cover"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 6,
+      "start": 10.79,
+      "end": 13.912,
+      "text": "Make your prediction, then watch for evidence.",
+      "sourceCueId": "track-mystery",
+      "event": "track-mystery-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "tile-lane",
+        "grass-lane",
+        "carpet-lane",
+        "prediction-cover"
+      ],
+      "intentionalHold": "predict"
+    },
+    {
+      "index": 7,
+      "start": 13.912,
+      "end": 15.499,
+      "text": "All three begin still.",
+      "sourceCueId": "run-comparison",
+      "event": "run-comparison-1",
+      "cueFunction": "selection",
+      "targets": [
+        "launchers",
+        "balls",
+        "stopping-traces"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 8,
+      "start": 15.499,
+      "end": 19.61,
+      "text": "The same launcher setting sends each ball across a smooth",
+      "sourceCueId": "run-comparison",
+      "event": "run-comparison-2",
+      "cueFunction": "integration",
+      "targets": [
+        "launchers",
+        "balls",
+        "stopping-traces"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 9,
+      "start": 19.61,
+      "end": 20.548,
+      "text": "launch strip.",
+      "sourceCueId": "run-comparison",
+      "event": "run-comparison-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "launchers",
+        "balls",
+        "stopping-traces"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 10,
+      "start": 20.548,
+      "end": 24.876,
+      "text": "A timing gate confirms the same entry speed before each test",
+      "sourceCueId": "run-comparison",
+      "event": "run-comparison-4",
+      "cueFunction": "selection",
+      "targets": [
+        "launchers",
+        "balls",
+        "stopping-traces"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 11,
+      "start": 24.876,
+      "end": 25.453,
+      "text": "surface.",
+      "sourceCueId": "run-comparison",
+      "event": "run-comparison-5",
+      "cueFunction": "integration",
+      "targets": [
+        "launchers",
+        "balls",
+        "stopping-traces"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 12,
+      "start": 25.453,
+      "end": 27.328,
+      "text": "Now the launcher is clear.",
+      "sourceCueId": "run-comparison",
+      "event": "run-comparison-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "launchers",
+        "balls",
+        "stopping-traces"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 13,
+      "start": 27.328,
+      "end": 30.285,
+      "text": "Tile gives the longest stopping distance.",
+      "sourceCueId": "run-comparison",
+      "event": "run-comparison-7",
+      "cueFunction": "selection",
+      "targets": [
+        "launchers",
+        "balls",
+        "stopping-traces"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 14,
+      "start": 30.285,
+      "end": 31.512,
+      "text": "Grass is shorter.",
+      "sourceCueId": "run-comparison",
+      "event": "run-comparison-8",
+      "cueFunction": "integration",
+      "targets": [
+        "launchers",
+        "balls",
+        "stopping-traces"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 15,
+      "start": 31.512,
+      "end": 32.882,
+      "text": "Carpet is shortest.",
+      "sourceCueId": "run-comparison",
+      "event": "run-comparison-9",
+      "cueFunction": "organisation",
+      "targets": [
+        "launchers",
+        "balls",
+        "stopping-traces"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 16,
+      "start": 32.882,
+      "end": 35.27,
+      "text": "Motion can tell several stories.",
+      "sourceCueId": "motion-changes",
+      "event": "motion-changes-1",
+      "cueFunction": "selection",
+      "targets": [
+        "start-strip",
+        "speed-up-strip",
+        "slow-down-strip",
+        "stop-strip",
+        "turn-strip"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 17,
+      "start": 35.27,
+      "end": 37.36,
+      "text": "Still to moving means start.",
+      "sourceCueId": "motion-changes",
+      "event": "motion-changes-2",
+      "cueFunction": "integration",
+      "targets": [
+        "start-strip",
+        "speed-up-strip",
+        "slow-down-strip",
+        "stop-strip",
+        "turn-strip"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 18,
+      "start": 37.36,
+      "end": 40.793,
+      "text": "More distance in the same time means speed up.",
+      "sourceCueId": "motion-changes",
+      "event": "motion-changes-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "start-strip",
+        "speed-up-strip",
+        "slow-down-strip",
+        "stop-strip",
+        "turn-strip"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 19,
+      "start": 40.793,
+      "end": 43.927,
+      "text": "Less distance each moment means slow down.",
+      "sourceCueId": "motion-changes",
+      "event": "motion-changes-4",
+      "cueFunction": "selection",
+      "targets": [
+        "start-strip",
+        "speed-up-strip",
+        "slow-down-strip",
+        "stop-strip",
+        "turn-strip"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 20,
+      "start": 43.927,
+      "end": 45.943,
+      "text": "No new distance means stop.",
+      "sourceCueId": "motion-changes",
+      "event": "motion-changes-5",
+      "cueFunction": "integration",
+      "targets": [
+        "start-strip",
+        "speed-up-strip",
+        "slow-down-strip",
+        "stop-strip",
+        "turn-strip"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 21,
+      "start": 45.943,
+      "end": 48.48,
+      "text": "A new path means change direction.",
+      "sourceCueId": "motion-changes",
+      "event": "motion-changes-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "start-strip",
+        "speed-up-strip",
+        "slow-down-strip",
+        "stop-strip",
+        "turn-strip"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 22,
+      "start": 50.68,
+      "end": 53.29,
+      "text": "A physicist compares before and after.",
+      "sourceCueId": "before-after",
+      "event": "before-after-1",
+      "cueFunction": "selection",
+      "targets": [
+        "time-markers",
+        "position-gaps",
+        "stop-marker"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 23,
+      "start": 53.29,
+      "end": 56.311,
+      "text": "Before the launch, the carpet ball is still.",
+      "sourceCueId": "before-after",
+      "event": "before-after-2",
+      "cueFunction": "integration",
+      "targets": [
+        "time-markers",
+        "position-gaps",
+        "stop-marker"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 24,
+      "start": 56.311,
+      "end": 58.577,
+      "text": "Just after contact, it is moving.",
+      "sourceCueId": "before-after",
+      "event": "before-after-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "time-markers",
+        "position-gaps",
+        "stop-marker"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 25,
+      "start": 58.577,
+      "end": 60.706,
+      "text": "Later, its gaps become smaller.",
+      "sourceCueId": "before-after",
+      "event": "before-after-4",
+      "cueFunction": "selection",
+      "targets": [
+        "time-markers",
+        "position-gaps",
+        "stop-marker"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 26,
+      "start": 60.706,
+      "end": 63.453,
+      "text": "Finally, its position no longer changes.",
+      "sourceCueId": "before-after",
+      "event": "before-after-5",
+      "cueFunction": "integration",
+      "targets": [
+        "time-markers",
+        "position-gaps",
+        "stop-marker"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 27,
+      "start": 63.453,
+      "end": 65.994,
+      "text": "That sequence is measurable evidence.",
+      "sourceCueId": "before-after",
+      "event": "before-after-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "time-markers",
+        "position-gaps",
+        "stop-marker"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 28,
+      "start": 65.994,
+      "end": 68.149,
+      "text": "Look closely at the contact.",
+      "sourceCueId": "kick-ended",
+      "event": "kick-ended-1",
+      "cueFunction": "selection",
+      "targets": [
+        "launcher",
+        "ball",
+        "contact-arrow",
+        "motion-trail"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 29,
+      "start": 68.149,
+      "end": 72.614,
+      "text": "While the launcher touches the ball, launcher on ball is a",
+      "sourceCueId": "kick-ended",
+      "event": "kick-ended-2",
+      "cueFunction": "integration",
+      "targets": [
+        "launcher",
+        "ball",
+        "contact-arrow",
+        "motion-trail"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 30,
+      "start": 72.614,
+      "end": 73.615,
+      "text": "forward push.",
+      "sourceCueId": "kick-ended",
+      "event": "kick-ended-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "launcher",
+        "ball",
+        "contact-arrow",
+        "motion-trail"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 31,
+      "start": 73.615,
+      "end": 77.694,
+      "text": "Once the launcher separates, that contact force ends.",
+      "sourceCueId": "kick-ended",
+      "event": "kick-ended-4",
+      "cueFunction": "selection",
+      "targets": [
+        "launcher",
+        "ball",
+        "contact-arrow",
+        "motion-trail"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 32,
+      "start": 77.694,
+      "end": 82.159,
+      "text": "The ball can still be moving even though the kick is over.",
+      "sourceCueId": "kick-ended",
+      "event": "kick-ended-5",
+      "cueFunction": "integration",
+      "targets": [
+        "launcher",
+        "ball",
+        "contact-arrow",
+        "motion-trail"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 33,
+      "start": 82.159,
+      "end": 85.58,
+      "text": "The moving ball still interacts with its surroundings.",
+      "sourceCueId": "surface-friction",
+      "event": "surface-friction-1",
+      "cueFunction": "selection",
+      "targets": [
+        "ball-surface-contact",
+        "friction-arrow",
+        "distance-rails"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 34,
+      "start": 85.58,
+      "end": 87.418,
+      "text": "The surface touches the ball.",
+      "sourceCueId": "surface-friction",
+      "event": "surface-friction-2",
+      "cueFunction": "integration",
+      "targets": [
+        "ball-surface-contact",
+        "friction-arrow",
+        "distance-rails"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 35,
+      "start": 87.418,
+      "end": 91.282,
+      "text": "In this carpet model, friction and carpet deformation produce",
+      "sourceCueId": "surface-friction",
+      "event": "surface-friction-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "ball-surface-contact",
+        "friction-arrow",
+        "distance-rails"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 36,
+      "start": 91.282,
+      "end": 93.183,
+      "text": "a backward surface resistance.",
+      "sourceCueId": "surface-friction",
+      "event": "surface-friction-4",
+      "cueFunction": "selection",
+      "targets": [
+        "ball-surface-contact",
+        "friction-arrow",
+        "distance-rails"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 37,
+      "start": 93.183,
+      "end": 97.048,
+      "text": "The greater slowing effect gives a shorter stopping distance.",
+      "sourceCueId": "surface-friction",
+      "event": "surface-friction-5",
+      "cueFunction": "integration",
+      "targets": [
+        "ball-surface-contact",
+        "friction-arrow",
+        "distance-rails"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 38,
+      "start": 99.248,
+      "end": 102.764,
+      "text": "To compare surfaces fairly, keep the ball, entry speed, and",
+      "sourceCueId": "fair-surface-test",
+      "event": "fair-surface-test-1",
+      "cueFunction": "selection",
+      "targets": [
+        "ball-lock",
+        "launch-lock",
+        "start-lock",
+        "surface-card",
+        "repeat-dots"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 39,
+      "start": 102.764,
+      "end": 103.955,
+      "text": "start line the same.",
+      "sourceCueId": "fair-surface-test",
+      "event": "fair-surface-test-2",
+      "cueFunction": "integration",
+      "targets": [
+        "ball-lock",
+        "launch-lock",
+        "start-lock",
+        "surface-card",
+        "repeat-dots"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 40,
+      "start": 103.955,
+      "end": 105.385,
+      "text": "Change only the surface.",
+      "sourceCueId": "fair-surface-test",
+      "event": "fair-surface-test-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "ball-lock",
+        "launch-lock",
+        "start-lock",
+        "surface-card",
+        "repeat-dots"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 41,
+      "start": 105.385,
+      "end": 108.424,
+      "text": "Measure from the surface start to the resting ball.",
+      "sourceCueId": "fair-surface-test",
+      "event": "fair-surface-test-4",
+      "cueFunction": "selection",
+      "targets": [
+        "ball-lock",
+        "launch-lock",
+        "start-lock",
+        "surface-card",
+        "repeat-dots"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 42,
+      "start": 108.424,
+      "end": 112.059,
+      "text": "Repeat each run, because one surprising run may not represent",
+      "sourceCueId": "fair-surface-test",
+      "event": "fair-surface-test-5",
+      "cueFunction": "integration",
+      "targets": [
+        "ball-lock",
+        "launch-lock",
+        "start-lock",
+        "surface-card",
+        "repeat-dots"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 43,
+      "start": 112.059,
+      "end": 112.774,
+      "text": "the pattern.",
+      "sourceCueId": "fair-surface-test",
+      "event": "fair-surface-test-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "ball-lock",
+        "launch-lock",
+        "start-lock",
+        "surface-card",
+        "repeat-dots"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 44,
+      "start": 112.774,
+      "end": 115.019,
+      "text": "Check all three runs before the averages.",
+      "sourceCueId": "distance-data",
+      "event": "distance-data-1",
+      "cueFunction": "selection",
+      "targets": [
+        "distance-table",
+        "column-graph",
+        "surface-lanes"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 45,
+      "start": 115.019,
+      "end": 118.414,
+      "text": "Tile measures three hundred and thirty-five, three hundred and",
+      "sourceCueId": "distance-data",
+      "event": "distance-data-2",
+      "cueFunction": "integration",
+      "targets": [
+        "distance-table",
+        "column-graph",
+        "surface-lanes"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 46,
+      "start": 118.414,
+      "end": 121.699,
+      "text": "forty-five, and three hundred and forty centimetres: average",
+      "sourceCueId": "distance-data",
+      "event": "distance-data-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "distance-table",
+        "column-graph",
+        "surface-lanes"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 47,
+      "start": 121.699,
+      "end": 123.013,
+      "text": "three hundred and forty.",
+      "sourceCueId": "distance-data",
+      "event": "distance-data-4",
+      "cueFunction": "selection",
+      "targets": [
+        "distance-table",
+        "column-graph",
+        "surface-lanes"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 48,
+      "start": 123.013,
+      "end": 125.094,
+      "text": "Grass averages two hundred and twenty.",
+      "sourceCueId": "distance-data",
+      "event": "distance-data-5",
+      "cueFunction": "integration",
+      "targets": [
+        "distance-table",
+        "column-graph",
+        "surface-lanes"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 49,
+      "start": 125.094,
+      "end": 127.065,
+      "text": "Carpet averages one hundred and ten.",
+      "sourceCueId": "distance-data",
+      "event": "distance-data-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "distance-table",
+        "column-graph",
+        "surface-lanes"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 50,
+      "start": 127.065,
+      "end": 129.42,
+      "text": "The graph and tracks show the same pattern.",
+      "sourceCueId": "distance-data",
+      "event": "distance-data-7",
+      "cueFunction": "selection",
+      "targets": [
+        "distance-table",
+        "column-graph",
+        "surface-lanes"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 51,
+      "start": 129.42,
+      "end": 132.883,
+      "text": "A tempting explanation says the kick force rides inside the",
+      "sourceCueId": "stored-kick",
+      "event": "stored-kick-1",
+      "cueFunction": "selection",
+      "targets": [
+        "stored-kick-capsule",
+        "contact-timeline",
+        "friction-arrow",
+        "corrected-claim"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 52,
+      "start": 132.883,
+      "end": 134.35,
+      "text": "ball and slowly runs out.",
+      "sourceCueId": "stored-kick",
+      "event": "stored-kick-2",
+      "cueFunction": "integration",
+      "targets": [
+        "stored-kick-capsule",
+        "contact-timeline",
+        "friction-arrow",
+        "corrected-claim"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 53,
+      "start": 134.35,
+      "end": 137.637,
+      "text": "But the contact arrow ended when the launcher separated.",
+      "sourceCueId": "stored-kick",
+      "event": "stored-kick-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "stored-kick-capsule",
+        "contact-timeline",
+        "friction-arrow",
+        "corrected-claim"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 54,
+      "start": 137.637,
+      "end": 140.924,
+      "text": "The remaining evidence shows a ball moving while surface",
+      "sourceCueId": "stored-kick",
+      "event": "stored-kick-4",
+      "cueFunction": "selection",
+      "targets": [
+        "stored-kick-capsule",
+        "contact-timeline",
+        "friction-arrow",
+        "corrected-claim"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 55,
+      "start": 140.924,
+      "end": 142.919,
+      "text": "friction acts against that motion.",
+      "sourceCueId": "stored-kick",
+      "event": "stored-kick-5",
+      "cueFunction": "integration",
+      "targets": [
+        "stored-kick-capsule",
+        "contact-timeline",
+        "friction-arrow",
+        "corrected-claim"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 56,
+      "start": 142.919,
+      "end": 144.68,
+      "text": "The kick is not stored inside.",
+      "sourceCueId": "stored-kick",
+      "event": "stored-kick-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "stored-kick-capsule",
+        "contact-timeline",
+        "friction-arrow",
+        "corrected-claim"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 57,
+      "start": 146.88,
+      "end": 150.254,
+      "text": "A force can change direction as well as speed.",
+      "sourceCueId": "direction-change",
+      "event": "direction-change-1",
+      "cueFunction": "selection",
+      "targets": [
+        "incoming-path",
+        "bumper-contact",
+        "outgoing-path"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 58,
+      "start": 150.254,
+      "end": 153.042,
+      "text": "A rolling ball meets an angled bumper.",
+      "sourceCueId": "direction-change",
+      "event": "direction-change-2",
+      "cueFunction": "integration",
+      "targets": [
+        "incoming-path",
+        "bumper-contact",
+        "outgoing-path"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 59,
+      "start": 153.042,
+      "end": 157.517,
+      "text": "The bumper-on-ball force points away from the bumper surface.",
+      "sourceCueId": "direction-change",
+      "event": "direction-change-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "incoming-path",
+        "bumper-contact",
+        "outgoing-path"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 60,
+      "start": 157.517,
+      "end": 162.065,
+      "text": "That force changes the ball's motion into a new path: straight",
+      "sourceCueId": "direction-change",
+      "event": "direction-change-4",
+      "cueFunction": "selection",
+      "targets": [
+        "incoming-path",
+        "bumper-contact",
+        "outgoing-path"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 61,
+      "start": 162.065,
+      "end": 163.312,
+      "text": "in, diagonal out.",
+      "sourceCueId": "direction-change",
+      "event": "direction-change-5",
+      "cueFunction": "integration",
+      "targets": [
+        "incoming-path",
+        "bumper-contact",
+        "outgoing-path"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 62,
+      "start": 163.312,
+      "end": 167.072,
+      "text": "Suppose we replace thick carpet with a more deformable,",
+      "sourceCueId": "surface-prediction",
+      "event": "surface-prediction-1",
+      "cueFunction": "selection",
+      "targets": [
+        "prediction-rails",
+        "rubber-mat",
+        "test-next-stamp"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 63,
+      "start": 167.072,
+      "end": 171.174,
+      "text": "higher-resistance rubber mat while everything else stays the",
+      "sourceCueId": "surface-prediction",
+      "event": "surface-prediction-2",
+      "cueFunction": "integration",
+      "targets": [
+        "prediction-rails",
+        "rubber-mat",
+        "test-next-stamp"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 64,
+      "start": 171.174,
+      "end": 171.515,
+      "text": "same.",
+      "sourceCueId": "surface-prediction",
+      "event": "surface-prediction-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "prediction-rails",
+        "rubber-mat",
+        "test-next-stamp"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 65,
+      "start": 171.515,
+      "end": 173.566,
+      "text": "Predict the stopping distance.",
+      "sourceCueId": "surface-prediction",
+      "event": "surface-prediction-4",
+      "cueFunction": "selection",
+      "targets": [
+        "prediction-rails",
+        "rubber-mat",
+        "test-next-stamp"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 66,
+      "start": 173.566,
+      "end": 177.463,
+      "text": "Would it be longer than tile, between tile and carpet, or",
+      "sourceCueId": "surface-prediction",
+      "event": "surface-prediction-5",
+      "cueFunction": "integration",
+      "targets": [
+        "prediction-rails",
+        "rubber-mat",
+        "test-next-stamp"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 67,
+      "start": 177.463,
+      "end": 178.83,
+      "text": "shorter than carpet?",
+      "sourceCueId": "surface-prediction",
+      "event": "surface-prediction-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "prediction-rails",
+        "rubber-mat",
+        "test-next-stamp"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 68,
+      "start": 178.83,
+      "end": 180.744,
+      "text": "Use the model, then test it.",
+      "sourceCueId": "surface-prediction",
+      "event": "surface-prediction-7",
+      "cueFunction": "selection",
+      "targets": [
+        "prediction-rails",
+        "rubber-mat",
+        "test-next-stamp"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 69,
+      "start": 180.744,
+      "end": 183.957,
+      "text": "Our testable prediction is shorter than carpet.",
+      "sourceCueId": "surface-prediction",
+      "event": "surface-prediction-8",
+      "cueFunction": "integration",
+      "targets": [
+        "prediction-rails",
+        "rubber-mat",
+        "test-next-stamp"
+      ],
+      "intentionalHold": "predict"
+    },
+    {
+      "index": 70,
+      "start": 183.957,
+      "end": 185.59,
+      "text": "Use this motion routine.",
+      "sourceCueId": "motion-routine",
+      "event": "motion-routine-1",
+      "cueFunction": "selection",
+      "targets": [
+        "compare-step",
+        "change-step",
+        "pair-step",
+        "evidence-step"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 71,
+      "start": 185.59,
+      "end": 187.292,
+      "text": "Compare before and after.",
+      "sourceCueId": "motion-routine",
+      "event": "motion-routine-2",
+      "cueFunction": "integration",
+      "targets": [
+        "compare-step",
+        "change-step",
+        "pair-step",
+        "evidence-step"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 72,
+      "start": 187.292,
+      "end": 188.857,
+      "text": "Name the motion change.",
+      "sourceCueId": "motion-routine",
+      "event": "motion-routine-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "compare-step",
+        "change-step",
+        "pair-step",
+        "evidence-step"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 73,
+      "start": 188.857,
+      "end": 190.83,
+      "text": "Name the interacting objects.",
+      "sourceCueId": "motion-routine",
+      "event": "motion-routine-4",
+      "cueFunction": "selection",
+      "targets": [
+        "compare-step",
+        "change-step",
+        "pair-step",
+        "evidence-step"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 74,
+      "start": 190.83,
+      "end": 193.756,
+      "text": "Then connect the force to visible evidence.",
+      "sourceCueId": "motion-routine",
+      "event": "motion-routine-5",
+      "cueFunction": "integration",
+      "targets": [
+        "compare-step",
+        "change-step",
+        "pair-step",
+        "evidence-step"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 75,
+      "start": 193.756,
+      "end": 196.41,
+      "text": "The ball does not carry a used-up kick.",
+      "sourceCueId": "motion-routine",
+      "event": "motion-routine-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "compare-step",
+        "change-step",
+        "pair-step",
+        "evidence-step"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 76,
+      "start": 196.41,
+      "end": 200.085,
+      "text": "Motion changes because objects are interacting now, or",
+      "sourceCueId": "motion-routine",
+      "event": "motion-routine-7",
+      "cueFunction": "selection",
+      "targets": [
+        "compare-step",
+        "change-step",
+        "pair-step",
+        "evidence-step"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 77,
+      "start": 200.085,
+      "end": 203.76,
+      "text": "interacted earlier while other forces continue to act.",
+      "sourceCueId": "motion-routine",
+      "event": "motion-routine-8",
+      "cueFunction": "integration",
+      "targets": [
+        "compare-step",
+        "change-step",
+        "pair-step",
+        "evidence-step"
+      ],
+      "intentionalHold": null
+    }
+  ],
+  "visualBeats": [
+    {
+      "index": 1,
+      "start": 0,
+      "end": 1.493,
+      "sourceCueId": "track-mystery",
+      "event": "track-mystery-1",
+      "cueFunction": "selection",
+      "targets": [
+        "tile-lane",
+        "grass-lane",
+        "carpet-lane",
+        "prediction-cover"
+      ],
+      "holdUntil": 1.493,
+      "intentionalHold": null
+    },
+    {
+      "index": 2,
+      "start": 1.493,
+      "end": 3.054,
+      "sourceCueId": "track-mystery",
+      "event": "track-mystery-2",
+      "cueFunction": "integration",
+      "targets": [
+        "tile-lane",
+        "grass-lane",
+        "carpet-lane",
+        "prediction-cover"
+      ],
+      "holdUntil": 3.054,
+      "intentionalHold": null
+    },
+    {
+      "index": 3,
+      "start": 3.054,
+      "end": 5.158,
+      "sourceCueId": "track-mystery",
+      "event": "track-mystery-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "tile-lane",
+        "grass-lane",
+        "carpet-lane",
+        "prediction-cover"
+      ],
+      "holdUntil": 5.158,
+      "intentionalHold": null
+    },
+    {
+      "index": 4,
+      "start": 5.158,
+      "end": 9.094,
+      "sourceCueId": "track-mystery",
+      "event": "track-mystery-4",
+      "cueFunction": "selection",
+      "targets": [
+        "tile-lane",
+        "grass-lane",
+        "carpet-lane",
+        "prediction-cover"
+      ],
+      "holdUntil": 9.094,
+      "intentionalHold": null
+    },
+    {
+      "index": 5,
+      "start": 9.094,
+      "end": 10.79,
+      "sourceCueId": "track-mystery",
+      "event": "track-mystery-5",
+      "cueFunction": "integration",
+      "targets": [
+        "tile-lane",
+        "grass-lane",
+        "carpet-lane",
+        "prediction-cover"
+      ],
+      "holdUntil": 10.79,
+      "intentionalHold": null
+    },
+    {
+      "index": 6,
+      "start": 10.79,
+      "end": 13.912,
+      "sourceCueId": "track-mystery",
+      "event": "track-mystery-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "tile-lane",
+        "grass-lane",
+        "carpet-lane",
+        "prediction-cover"
+      ],
+      "holdUntil": 13.912,
+      "intentionalHold": "predict"
+    },
+    {
+      "index": 7,
+      "start": 13.912,
+      "end": 15.499,
+      "sourceCueId": "run-comparison",
+      "event": "run-comparison-1",
+      "cueFunction": "selection",
+      "targets": [
+        "launchers",
+        "balls",
+        "stopping-traces"
+      ],
+      "holdUntil": 15.499,
+      "intentionalHold": null
+    },
+    {
+      "index": 8,
+      "start": 15.499,
+      "end": 19.61,
+      "sourceCueId": "run-comparison",
+      "event": "run-comparison-2",
+      "cueFunction": "integration",
+      "targets": [
+        "launchers",
+        "balls",
+        "stopping-traces"
+      ],
+      "holdUntil": 19.61,
+      "intentionalHold": null
+    },
+    {
+      "index": 9,
+      "start": 19.61,
+      "end": 20.548,
+      "sourceCueId": "run-comparison",
+      "event": "run-comparison-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "launchers",
+        "balls",
+        "stopping-traces"
+      ],
+      "holdUntil": 20.548,
+      "intentionalHold": null
+    },
+    {
+      "index": 10,
+      "start": 20.548,
+      "end": 24.876,
+      "sourceCueId": "run-comparison",
+      "event": "run-comparison-4",
+      "cueFunction": "selection",
+      "targets": [
+        "launchers",
+        "balls",
+        "stopping-traces"
+      ],
+      "holdUntil": 24.876,
+      "intentionalHold": null
+    },
+    {
+      "index": 11,
+      "start": 24.876,
+      "end": 25.453,
+      "sourceCueId": "run-comparison",
+      "event": "run-comparison-5",
+      "cueFunction": "integration",
+      "targets": [
+        "launchers",
+        "balls",
+        "stopping-traces"
+      ],
+      "holdUntil": 25.453,
+      "intentionalHold": null
+    },
+    {
+      "index": 12,
+      "start": 25.453,
+      "end": 27.328,
+      "sourceCueId": "run-comparison",
+      "event": "run-comparison-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "launchers",
+        "balls",
+        "stopping-traces"
+      ],
+      "holdUntil": 27.328,
+      "intentionalHold": null
+    },
+    {
+      "index": 13,
+      "start": 27.328,
+      "end": 30.285,
+      "sourceCueId": "run-comparison",
+      "event": "run-comparison-7",
+      "cueFunction": "selection",
+      "targets": [
+        "launchers",
+        "balls",
+        "stopping-traces"
+      ],
+      "holdUntil": 30.285,
+      "intentionalHold": null
+    },
+    {
+      "index": 14,
+      "start": 30.285,
+      "end": 31.512,
+      "sourceCueId": "run-comparison",
+      "event": "run-comparison-8",
+      "cueFunction": "integration",
+      "targets": [
+        "launchers",
+        "balls",
+        "stopping-traces"
+      ],
+      "holdUntil": 31.512,
+      "intentionalHold": null
+    },
+    {
+      "index": 15,
+      "start": 31.512,
+      "end": 32.882,
+      "sourceCueId": "run-comparison",
+      "event": "run-comparison-9",
+      "cueFunction": "organisation",
+      "targets": [
+        "launchers",
+        "balls",
+        "stopping-traces"
+      ],
+      "holdUntil": 32.882,
+      "intentionalHold": null
+    },
+    {
+      "index": 16,
+      "start": 32.882,
+      "end": 35.27,
+      "sourceCueId": "motion-changes",
+      "event": "motion-changes-1",
+      "cueFunction": "selection",
+      "targets": [
+        "start-strip",
+        "speed-up-strip",
+        "slow-down-strip",
+        "stop-strip",
+        "turn-strip"
+      ],
+      "holdUntil": 35.27,
+      "intentionalHold": null
+    },
+    {
+      "index": 17,
+      "start": 35.27,
+      "end": 37.36,
+      "sourceCueId": "motion-changes",
+      "event": "motion-changes-2",
+      "cueFunction": "integration",
+      "targets": [
+        "start-strip",
+        "speed-up-strip",
+        "slow-down-strip",
+        "stop-strip",
+        "turn-strip"
+      ],
+      "holdUntil": 37.36,
+      "intentionalHold": null
+    },
+    {
+      "index": 18,
+      "start": 37.36,
+      "end": 40.793,
+      "sourceCueId": "motion-changes",
+      "event": "motion-changes-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "start-strip",
+        "speed-up-strip",
+        "slow-down-strip",
+        "stop-strip",
+        "turn-strip"
+      ],
+      "holdUntil": 40.793,
+      "intentionalHold": null
+    },
+    {
+      "index": 19,
+      "start": 40.793,
+      "end": 43.927,
+      "sourceCueId": "motion-changes",
+      "event": "motion-changes-4",
+      "cueFunction": "selection",
+      "targets": [
+        "start-strip",
+        "speed-up-strip",
+        "slow-down-strip",
+        "stop-strip",
+        "turn-strip"
+      ],
+      "holdUntil": 43.927,
+      "intentionalHold": null
+    },
+    {
+      "index": 20,
+      "start": 43.927,
+      "end": 45.943,
+      "sourceCueId": "motion-changes",
+      "event": "motion-changes-5",
+      "cueFunction": "integration",
+      "targets": [
+        "start-strip",
+        "speed-up-strip",
+        "slow-down-strip",
+        "stop-strip",
+        "turn-strip"
+      ],
+      "holdUntil": 45.943,
+      "intentionalHold": null
+    },
+    {
+      "index": 21,
+      "start": 45.943,
+      "end": 48.48,
+      "sourceCueId": "motion-changes",
+      "event": "motion-changes-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "start-strip",
+        "speed-up-strip",
+        "slow-down-strip",
+        "stop-strip",
+        "turn-strip"
+      ],
+      "holdUntil": 48.48,
+      "intentionalHold": null
+    },
+    {
+      "index": 22,
+      "start": 50.68,
+      "end": 53.29,
+      "sourceCueId": "before-after",
+      "event": "before-after-1",
+      "cueFunction": "selection",
+      "targets": [
+        "time-markers",
+        "position-gaps",
+        "stop-marker"
+      ],
+      "holdUntil": 53.29,
+      "intentionalHold": null
+    },
+    {
+      "index": 23,
+      "start": 53.29,
+      "end": 56.311,
+      "sourceCueId": "before-after",
+      "event": "before-after-2",
+      "cueFunction": "integration",
+      "targets": [
+        "time-markers",
+        "position-gaps",
+        "stop-marker"
+      ],
+      "holdUntil": 56.311,
+      "intentionalHold": null
+    },
+    {
+      "index": 24,
+      "start": 56.311,
+      "end": 58.577,
+      "sourceCueId": "before-after",
+      "event": "before-after-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "time-markers",
+        "position-gaps",
+        "stop-marker"
+      ],
+      "holdUntil": 58.577,
+      "intentionalHold": null
+    },
+    {
+      "index": 25,
+      "start": 58.577,
+      "end": 60.706,
+      "sourceCueId": "before-after",
+      "event": "before-after-4",
+      "cueFunction": "selection",
+      "targets": [
+        "time-markers",
+        "position-gaps",
+        "stop-marker"
+      ],
+      "holdUntil": 60.706,
+      "intentionalHold": null
+    },
+    {
+      "index": 26,
+      "start": 60.706,
+      "end": 63.453,
+      "sourceCueId": "before-after",
+      "event": "before-after-5",
+      "cueFunction": "integration",
+      "targets": [
+        "time-markers",
+        "position-gaps",
+        "stop-marker"
+      ],
+      "holdUntil": 63.453,
+      "intentionalHold": null
+    },
+    {
+      "index": 27,
+      "start": 63.453,
+      "end": 65.994,
+      "sourceCueId": "before-after",
+      "event": "before-after-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "time-markers",
+        "position-gaps",
+        "stop-marker"
+      ],
+      "holdUntil": 65.994,
+      "intentionalHold": null
+    },
+    {
+      "index": 28,
+      "start": 65.994,
+      "end": 68.149,
+      "sourceCueId": "kick-ended",
+      "event": "kick-ended-1",
+      "cueFunction": "selection",
+      "targets": [
+        "launcher",
+        "ball",
+        "contact-arrow",
+        "motion-trail"
+      ],
+      "holdUntil": 68.149,
+      "intentionalHold": null
+    },
+    {
+      "index": 29,
+      "start": 68.149,
+      "end": 72.614,
+      "sourceCueId": "kick-ended",
+      "event": "kick-ended-2",
+      "cueFunction": "integration",
+      "targets": [
+        "launcher",
+        "ball",
+        "contact-arrow",
+        "motion-trail"
+      ],
+      "holdUntil": 72.614,
+      "intentionalHold": null
+    },
+    {
+      "index": 30,
+      "start": 72.614,
+      "end": 73.615,
+      "sourceCueId": "kick-ended",
+      "event": "kick-ended-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "launcher",
+        "ball",
+        "contact-arrow",
+        "motion-trail"
+      ],
+      "holdUntil": 73.615,
+      "intentionalHold": null
+    },
+    {
+      "index": 31,
+      "start": 73.615,
+      "end": 77.694,
+      "sourceCueId": "kick-ended",
+      "event": "kick-ended-4",
+      "cueFunction": "selection",
+      "targets": [
+        "launcher",
+        "ball",
+        "contact-arrow",
+        "motion-trail"
+      ],
+      "holdUntil": 77.694,
+      "intentionalHold": null
+    },
+    {
+      "index": 32,
+      "start": 77.694,
+      "end": 82.159,
+      "sourceCueId": "kick-ended",
+      "event": "kick-ended-5",
+      "cueFunction": "integration",
+      "targets": [
+        "launcher",
+        "ball",
+        "contact-arrow",
+        "motion-trail"
+      ],
+      "holdUntil": 82.159,
+      "intentionalHold": null
+    },
+    {
+      "index": 33,
+      "start": 82.159,
+      "end": 85.58,
+      "sourceCueId": "surface-friction",
+      "event": "surface-friction-1",
+      "cueFunction": "selection",
+      "targets": [
+        "ball-surface-contact",
+        "friction-arrow",
+        "distance-rails"
+      ],
+      "holdUntil": 85.58,
+      "intentionalHold": null
+    },
+    {
+      "index": 34,
+      "start": 85.58,
+      "end": 87.418,
+      "sourceCueId": "surface-friction",
+      "event": "surface-friction-2",
+      "cueFunction": "integration",
+      "targets": [
+        "ball-surface-contact",
+        "friction-arrow",
+        "distance-rails"
+      ],
+      "holdUntil": 87.418,
+      "intentionalHold": null
+    },
+    {
+      "index": 35,
+      "start": 87.418,
+      "end": 91.282,
+      "sourceCueId": "surface-friction",
+      "event": "surface-friction-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "ball-surface-contact",
+        "friction-arrow",
+        "distance-rails"
+      ],
+      "holdUntil": 91.282,
+      "intentionalHold": null
+    },
+    {
+      "index": 36,
+      "start": 91.282,
+      "end": 93.183,
+      "sourceCueId": "surface-friction",
+      "event": "surface-friction-4",
+      "cueFunction": "selection",
+      "targets": [
+        "ball-surface-contact",
+        "friction-arrow",
+        "distance-rails"
+      ],
+      "holdUntil": 93.183,
+      "intentionalHold": null
+    },
+    {
+      "index": 37,
+      "start": 93.183,
+      "end": 97.048,
+      "sourceCueId": "surface-friction",
+      "event": "surface-friction-5",
+      "cueFunction": "integration",
+      "targets": [
+        "ball-surface-contact",
+        "friction-arrow",
+        "distance-rails"
+      ],
+      "holdUntil": 97.048,
+      "intentionalHold": null
+    },
+    {
+      "index": 38,
+      "start": 99.248,
+      "end": 102.764,
+      "sourceCueId": "fair-surface-test",
+      "event": "fair-surface-test-1",
+      "cueFunction": "selection",
+      "targets": [
+        "ball-lock",
+        "launch-lock",
+        "start-lock",
+        "surface-card",
+        "repeat-dots"
+      ],
+      "holdUntil": 102.764,
+      "intentionalHold": null
+    },
+    {
+      "index": 39,
+      "start": 102.764,
+      "end": 103.955,
+      "sourceCueId": "fair-surface-test",
+      "event": "fair-surface-test-2",
+      "cueFunction": "integration",
+      "targets": [
+        "ball-lock",
+        "launch-lock",
+        "start-lock",
+        "surface-card",
+        "repeat-dots"
+      ],
+      "holdUntil": 103.955,
+      "intentionalHold": null
+    },
+    {
+      "index": 40,
+      "start": 103.955,
+      "end": 105.385,
+      "sourceCueId": "fair-surface-test",
+      "event": "fair-surface-test-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "ball-lock",
+        "launch-lock",
+        "start-lock",
+        "surface-card",
+        "repeat-dots"
+      ],
+      "holdUntil": 105.385,
+      "intentionalHold": null
+    },
+    {
+      "index": 41,
+      "start": 105.385,
+      "end": 108.424,
+      "sourceCueId": "fair-surface-test",
+      "event": "fair-surface-test-4",
+      "cueFunction": "selection",
+      "targets": [
+        "ball-lock",
+        "launch-lock",
+        "start-lock",
+        "surface-card",
+        "repeat-dots"
+      ],
+      "holdUntil": 108.424,
+      "intentionalHold": null
+    },
+    {
+      "index": 42,
+      "start": 108.424,
+      "end": 112.059,
+      "sourceCueId": "fair-surface-test",
+      "event": "fair-surface-test-5",
+      "cueFunction": "integration",
+      "targets": [
+        "ball-lock",
+        "launch-lock",
+        "start-lock",
+        "surface-card",
+        "repeat-dots"
+      ],
+      "holdUntil": 112.059,
+      "intentionalHold": null
+    },
+    {
+      "index": 43,
+      "start": 112.059,
+      "end": 112.774,
+      "sourceCueId": "fair-surface-test",
+      "event": "fair-surface-test-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "ball-lock",
+        "launch-lock",
+        "start-lock",
+        "surface-card",
+        "repeat-dots"
+      ],
+      "holdUntil": 112.774,
+      "intentionalHold": null
+    },
+    {
+      "index": 44,
+      "start": 112.774,
+      "end": 115.019,
+      "sourceCueId": "distance-data",
+      "event": "distance-data-1",
+      "cueFunction": "selection",
+      "targets": [
+        "distance-table",
+        "column-graph",
+        "surface-lanes"
+      ],
+      "holdUntil": 115.019,
+      "intentionalHold": null
+    },
+    {
+      "index": 45,
+      "start": 115.019,
+      "end": 118.414,
+      "sourceCueId": "distance-data",
+      "event": "distance-data-2",
+      "cueFunction": "integration",
+      "targets": [
+        "distance-table",
+        "column-graph",
+        "surface-lanes"
+      ],
+      "holdUntil": 118.414,
+      "intentionalHold": null
+    },
+    {
+      "index": 46,
+      "start": 118.414,
+      "end": 121.699,
+      "sourceCueId": "distance-data",
+      "event": "distance-data-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "distance-table",
+        "column-graph",
+        "surface-lanes"
+      ],
+      "holdUntil": 121.699,
+      "intentionalHold": null
+    },
+    {
+      "index": 47,
+      "start": 121.699,
+      "end": 123.013,
+      "sourceCueId": "distance-data",
+      "event": "distance-data-4",
+      "cueFunction": "selection",
+      "targets": [
+        "distance-table",
+        "column-graph",
+        "surface-lanes"
+      ],
+      "holdUntil": 123.013,
+      "intentionalHold": null
+    },
+    {
+      "index": 48,
+      "start": 123.013,
+      "end": 125.094,
+      "sourceCueId": "distance-data",
+      "event": "distance-data-5",
+      "cueFunction": "integration",
+      "targets": [
+        "distance-table",
+        "column-graph",
+        "surface-lanes"
+      ],
+      "holdUntil": 125.094,
+      "intentionalHold": null
+    },
+    {
+      "index": 49,
+      "start": 125.094,
+      "end": 127.065,
+      "sourceCueId": "distance-data",
+      "event": "distance-data-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "distance-table",
+        "column-graph",
+        "surface-lanes"
+      ],
+      "holdUntil": 127.065,
+      "intentionalHold": null
+    },
+    {
+      "index": 50,
+      "start": 127.065,
+      "end": 129.42,
+      "sourceCueId": "distance-data",
+      "event": "distance-data-7",
+      "cueFunction": "selection",
+      "targets": [
+        "distance-table",
+        "column-graph",
+        "surface-lanes"
+      ],
+      "holdUntil": 129.42,
+      "intentionalHold": null
+    },
+    {
+      "index": 51,
+      "start": 129.42,
+      "end": 132.883,
+      "sourceCueId": "stored-kick",
+      "event": "stored-kick-1",
+      "cueFunction": "selection",
+      "targets": [
+        "stored-kick-capsule",
+        "contact-timeline",
+        "friction-arrow",
+        "corrected-claim"
+      ],
+      "holdUntil": 132.883,
+      "intentionalHold": null
+    },
+    {
+      "index": 52,
+      "start": 132.883,
+      "end": 134.35,
+      "sourceCueId": "stored-kick",
+      "event": "stored-kick-2",
+      "cueFunction": "integration",
+      "targets": [
+        "stored-kick-capsule",
+        "contact-timeline",
+        "friction-arrow",
+        "corrected-claim"
+      ],
+      "holdUntil": 134.35,
+      "intentionalHold": null
+    },
+    {
+      "index": 53,
+      "start": 134.35,
+      "end": 137.637,
+      "sourceCueId": "stored-kick",
+      "event": "stored-kick-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "stored-kick-capsule",
+        "contact-timeline",
+        "friction-arrow",
+        "corrected-claim"
+      ],
+      "holdUntil": 137.637,
+      "intentionalHold": null
+    },
+    {
+      "index": 54,
+      "start": 137.637,
+      "end": 140.924,
+      "sourceCueId": "stored-kick",
+      "event": "stored-kick-4",
+      "cueFunction": "selection",
+      "targets": [
+        "stored-kick-capsule",
+        "contact-timeline",
+        "friction-arrow",
+        "corrected-claim"
+      ],
+      "holdUntil": 140.924,
+      "intentionalHold": null
+    },
+    {
+      "index": 55,
+      "start": 140.924,
+      "end": 142.919,
+      "sourceCueId": "stored-kick",
+      "event": "stored-kick-5",
+      "cueFunction": "integration",
+      "targets": [
+        "stored-kick-capsule",
+        "contact-timeline",
+        "friction-arrow",
+        "corrected-claim"
+      ],
+      "holdUntil": 142.919,
+      "intentionalHold": null
+    },
+    {
+      "index": 56,
+      "start": 142.919,
+      "end": 144.68,
+      "sourceCueId": "stored-kick",
+      "event": "stored-kick-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "stored-kick-capsule",
+        "contact-timeline",
+        "friction-arrow",
+        "corrected-claim"
+      ],
+      "holdUntil": 144.68,
+      "intentionalHold": null
+    },
+    {
+      "index": 57,
+      "start": 146.88,
+      "end": 150.254,
+      "sourceCueId": "direction-change",
+      "event": "direction-change-1",
+      "cueFunction": "selection",
+      "targets": [
+        "incoming-path",
+        "bumper-contact",
+        "outgoing-path"
+      ],
+      "holdUntil": 150.254,
+      "intentionalHold": null
+    },
+    {
+      "index": 58,
+      "start": 150.254,
+      "end": 153.042,
+      "sourceCueId": "direction-change",
+      "event": "direction-change-2",
+      "cueFunction": "integration",
+      "targets": [
+        "incoming-path",
+        "bumper-contact",
+        "outgoing-path"
+      ],
+      "holdUntil": 153.042,
+      "intentionalHold": null
+    },
+    {
+      "index": 59,
+      "start": 153.042,
+      "end": 157.517,
+      "sourceCueId": "direction-change",
+      "event": "direction-change-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "incoming-path",
+        "bumper-contact",
+        "outgoing-path"
+      ],
+      "holdUntil": 157.517,
+      "intentionalHold": null
+    },
+    {
+      "index": 60,
+      "start": 157.517,
+      "end": 162.065,
+      "sourceCueId": "direction-change",
+      "event": "direction-change-4",
+      "cueFunction": "selection",
+      "targets": [
+        "incoming-path",
+        "bumper-contact",
+        "outgoing-path"
+      ],
+      "holdUntil": 162.065,
+      "intentionalHold": null
+    },
+    {
+      "index": 61,
+      "start": 162.065,
+      "end": 163.312,
+      "sourceCueId": "direction-change",
+      "event": "direction-change-5",
+      "cueFunction": "integration",
+      "targets": [
+        "incoming-path",
+        "bumper-contact",
+        "outgoing-path"
+      ],
+      "holdUntil": 163.312,
+      "intentionalHold": null
+    },
+    {
+      "index": 62,
+      "start": 163.312,
+      "end": 167.072,
+      "sourceCueId": "surface-prediction",
+      "event": "surface-prediction-1",
+      "cueFunction": "selection",
+      "targets": [
+        "prediction-rails",
+        "rubber-mat",
+        "test-next-stamp"
+      ],
+      "holdUntil": 167.072,
+      "intentionalHold": null
+    },
+    {
+      "index": 63,
+      "start": 167.072,
+      "end": 171.174,
+      "sourceCueId": "surface-prediction",
+      "event": "surface-prediction-2",
+      "cueFunction": "integration",
+      "targets": [
+        "prediction-rails",
+        "rubber-mat",
+        "test-next-stamp"
+      ],
+      "holdUntil": 171.174,
+      "intentionalHold": null
+    },
+    {
+      "index": 64,
+      "start": 171.174,
+      "end": 171.515,
+      "sourceCueId": "surface-prediction",
+      "event": "surface-prediction-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "prediction-rails",
+        "rubber-mat",
+        "test-next-stamp"
+      ],
+      "holdUntil": 171.515,
+      "intentionalHold": null
+    },
+    {
+      "index": 65,
+      "start": 171.515,
+      "end": 173.566,
+      "sourceCueId": "surface-prediction",
+      "event": "surface-prediction-4",
+      "cueFunction": "selection",
+      "targets": [
+        "prediction-rails",
+        "rubber-mat",
+        "test-next-stamp"
+      ],
+      "holdUntil": 173.566,
+      "intentionalHold": null
+    },
+    {
+      "index": 66,
+      "start": 173.566,
+      "end": 177.463,
+      "sourceCueId": "surface-prediction",
+      "event": "surface-prediction-5",
+      "cueFunction": "integration",
+      "targets": [
+        "prediction-rails",
+        "rubber-mat",
+        "test-next-stamp"
+      ],
+      "holdUntil": 177.463,
+      "intentionalHold": null
+    },
+    {
+      "index": 67,
+      "start": 177.463,
+      "end": 178.83,
+      "sourceCueId": "surface-prediction",
+      "event": "surface-prediction-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "prediction-rails",
+        "rubber-mat",
+        "test-next-stamp"
+      ],
+      "holdUntil": 178.83,
+      "intentionalHold": null
+    },
+    {
+      "index": 68,
+      "start": 178.83,
+      "end": 180.744,
+      "sourceCueId": "surface-prediction",
+      "event": "surface-prediction-7",
+      "cueFunction": "selection",
+      "targets": [
+        "prediction-rails",
+        "rubber-mat",
+        "test-next-stamp"
+      ],
+      "holdUntil": 180.744,
+      "intentionalHold": null
+    },
+    {
+      "index": 69,
+      "start": 180.744,
+      "end": 183.957,
+      "sourceCueId": "surface-prediction",
+      "event": "surface-prediction-8",
+      "cueFunction": "integration",
+      "targets": [
+        "prediction-rails",
+        "rubber-mat",
+        "test-next-stamp"
+      ],
+      "holdUntil": 183.957,
+      "intentionalHold": "predict"
+    },
+    {
+      "index": 70,
+      "start": 183.957,
+      "end": 185.59,
+      "sourceCueId": "motion-routine",
+      "event": "motion-routine-1",
+      "cueFunction": "selection",
+      "targets": [
+        "compare-step",
+        "change-step",
+        "pair-step",
+        "evidence-step"
+      ],
+      "holdUntil": 185.59,
+      "intentionalHold": null
+    },
+    {
+      "index": 71,
+      "start": 185.59,
+      "end": 187.292,
+      "sourceCueId": "motion-routine",
+      "event": "motion-routine-2",
+      "cueFunction": "integration",
+      "targets": [
+        "compare-step",
+        "change-step",
+        "pair-step",
+        "evidence-step"
+      ],
+      "holdUntil": 187.292,
+      "intentionalHold": null
+    },
+    {
+      "index": 72,
+      "start": 187.292,
+      "end": 188.857,
+      "sourceCueId": "motion-routine",
+      "event": "motion-routine-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "compare-step",
+        "change-step",
+        "pair-step",
+        "evidence-step"
+      ],
+      "holdUntil": 188.857,
+      "intentionalHold": null
+    },
+    {
+      "index": 73,
+      "start": 188.857,
+      "end": 190.83,
+      "sourceCueId": "motion-routine",
+      "event": "motion-routine-4",
+      "cueFunction": "selection",
+      "targets": [
+        "compare-step",
+        "change-step",
+        "pair-step",
+        "evidence-step"
+      ],
+      "holdUntil": 190.83,
+      "intentionalHold": null
+    },
+    {
+      "index": 74,
+      "start": 190.83,
+      "end": 193.756,
+      "sourceCueId": "motion-routine",
+      "event": "motion-routine-5",
+      "cueFunction": "integration",
+      "targets": [
+        "compare-step",
+        "change-step",
+        "pair-step",
+        "evidence-step"
+      ],
+      "holdUntil": 193.756,
+      "intentionalHold": null
+    },
+    {
+      "index": 75,
+      "start": 193.756,
+      "end": 196.41,
+      "sourceCueId": "motion-routine",
+      "event": "motion-routine-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "compare-step",
+        "change-step",
+        "pair-step",
+        "evidence-step"
+      ],
+      "holdUntil": 196.41,
+      "intentionalHold": null
+    },
+    {
+      "index": 76,
+      "start": 196.41,
+      "end": 200.085,
+      "sourceCueId": "motion-routine",
+      "event": "motion-routine-7",
+      "cueFunction": "selection",
+      "targets": [
+        "compare-step",
+        "change-step",
+        "pair-step",
+        "evidence-step"
+      ],
+      "holdUntil": 200.085,
+      "intentionalHold": null
+    },
+    {
+      "index": 77,
+      "start": 200.085,
+      "end": 203.76,
+      "sourceCueId": "motion-routine",
+      "event": "motion-routine-8",
+      "cueFunction": "integration",
+      "targets": [
+        "compare-step",
+        "change-step",
+        "pair-step",
+        "evidence-step"
+      ],
+      "holdUntil": 203.76,
+      "intentionalHold": null
+    }
+  ],
+  "actions": [
+    {
+      "id": "track-mystery",
+      "start": 0,
+      "end": 13.912,
+      "narration": "Three identical balls. Three different tracks. Each ball gets the same launch. Tile, short grass, or thick carpet: which ball will travel furthest before it stops? Make your prediction, then watch for evidence.",
+      "expected_action": "three-surface-tracks",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "run-comparison",
+      "start": 13.912,
+      "end": 32.882,
+      "narration": "All three begin still. The same launcher setting sends each ball across a smooth launch strip. A timing gate confirms the same entry speed before each test surface. Now the launcher is clear. Tile gives the longest stopping distance. Grass is shorter. Carpet is shortest.",
+      "expected_action": "surface-race",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "motion-changes",
+      "start": 32.882,
+      "end": 50.68,
+      "narration": "Motion can tell several stories. Still to moving means start. More distance in the same time means speed up. Less distance each moment means slow down. No new distance means stop. A new path means change direction.",
+      "expected_action": "motion-strips",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "before-after",
+      "start": 50.68,
+      "end": 65.994,
+      "narration": "A physicist compares before and after. Before the launch, the carpet ball is still. Just after contact, it is moving. Later, its gaps become smaller. Finally, its position no longer changes. That sequence is measurable evidence.",
+      "expected_action": "timed-snapshots",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "kick-ended",
+      "start": 65.994,
+      "end": 82.159,
+      "narration": "Look closely at the contact. While the launcher touches the ball, launcher on ball is a forward push. Once the launcher separates, that contact force ends. The ball can still be moving even though the kick is over.",
+      "expected_action": "contact-timeline",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "surface-friction",
+      "start": 82.159,
+      "end": 99.248,
+      "narration": "The moving ball still interacts with its surroundings. The surface touches the ball. In this carpet model, friction and carpet deformation produce a backward surface resistance. The greater slowing effect gives a shorter stopping distance.",
+      "expected_action": "friction-closeup",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "fair-surface-test",
+      "start": 99.248,
+      "end": 112.774,
+      "narration": "To compare surfaces fairly, keep the ball, entry speed, and start line the same. Change only the surface. Measure from the surface start to the resting ball. Repeat each run, because one surprising run may not represent the pattern.",
+      "expected_action": "fair-test-locks",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "distance-data",
+      "start": 112.774,
+      "end": 129.42,
+      "narration": "Check all three runs before the averages. Tile measures three hundred and thirty-five, three hundred and forty-five, and three hundred and forty centimetres: average three hundred and forty. Grass averages two hundred and twenty. Carpet averages one hundred and ten. The graph and tracks show the same pattern.",
+      "expected_action": "table-and-graph",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "stored-kick",
+      "start": 129.42,
+      "end": 146.88,
+      "narration": "A tempting explanation says the kick force rides inside the ball and slowly runs out. But the contact arrow ended when the launcher separated. The remaining evidence shows a ball moving while surface friction acts against that motion. The kick is not stored inside.",
+      "expected_action": "misconception-repair",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "direction-change",
+      "start": 146.88,
+      "end": 163.312,
+      "narration": "A force can change direction as well as speed. A rolling ball meets an angled bumper. The bumper-on-ball force points away from the bumper surface. That force changes the ball's motion into a new path: straight in, diagonal out.",
+      "expected_action": "bumper-turn",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "surface-prediction",
+      "start": 163.312,
+      "end": 183.957,
+      "narration": "Suppose we replace thick carpet with a more deformable, higher-resistance rubber mat while everything else stays the same. Predict the stopping distance. Would it be longer than tile, between tile and carpet, or shorter than carpet? Use the model, then test it. Our testable prediction is shorter than carpet.",
+      "expected_action": "prediction-rails",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "motion-routine",
+      "start": 183.957,
+      "end": 205.01,
+      "narration": "Use this motion routine. Compare before and after. Name the motion change. Name the interacting objects. Then connect the force to visible evidence. The ball does not carry a used-up kick. Motion changes because objects are interacting now, or interacted earlier while other forces continue to act.",
+      "expected_action": "evidence-routine",
+      "board_region": "demonstration-stage"
+    }
+  ]
+}

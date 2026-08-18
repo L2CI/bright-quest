@@ -1,0 +1,2373 @@
+{
+  "release": "physics-101-force-lab-010",
+  "chapter": 3,
+  "duration": 205,
+  "cues": [
+    {
+      "id": "support-mystery",
+      "title": "The quiet force mystery",
+      "visual": "book-on-foam",
+      "text": "This book is not moving, but the foam beneath it is squashed. Is the foam doing nothing? Watch the contact patch. The book presses down, and the foam changes shape. What might the foam be doing to the book?",
+      "start": 0,
+      "end": 14.512,
+      "beatEnd": 14.512,
+      "voiceSection": "part-1"
+    },
+    {
+      "id": "support-pair",
+      "title": "Name both objects",
+      "visual": "support-pair-arrows",
+      "text": "The book and foam interact through contact. Book on foam pushes down; foam on book pushes up. Those arrows act on different objects. To explain the resting book, follow forces on the book: Earth on book points down, while foam on book support points up.",
+      "start": 14.512,
+      "end": 31.256,
+      "beatEnd": 31.256,
+      "voiceSection": "part-1"
+    },
+    {
+      "id": "still-forces",
+      "title": "Still can have forces",
+      "visual": "support-timeline",
+      "text": "The book remains still while the foam is supporting it. Remove the foam, and the book begins to fall. Put the support back, and the book can rest again. Stillness is not proof that no forces act.",
+      "start": 31.256,
+      "end": 45.024,
+      "beatEnd": 53.245,
+      "voiceSection": "part-1"
+    },
+    {
+      "id": "support-load",
+      "title": "Change the load",
+      "visual": "double-book-compression",
+      "text": "Add a second identical book. The foam squashes further. To support the resting stack, the foam's upward push is greater than it was for one book. A longer arrow shows greater force within this comparison.",
+      "start": 53.245,
+      "end": 65.747,
+      "beatEnd": 65.747,
+      "voiceSection": "part-2"
+    },
+    {
+      "id": "applied-push",
+      "title": "Applied pushes",
+      "visual": "robot-push-cart",
+      "text": "Now move to the cart. A robot hand touches the cart and pushes to the right. Hand on cart is an applied force. The arrow begins on the cart and points in the direction of the push.",
+      "start": 65.747,
+      "end": 78.964,
+      "beatEnd": 78.964,
+      "voiceSection": "part-2"
+    },
+    {
+      "id": "applied-pull",
+      "title": "Applied pulls",
+      "visual": "band-pull-cart",
+      "text": "A rubber band can pull the same cart. The band stretches towards the robot. Rubber band on cart points towards the robot too. Push and pull describe the direction of the applied interaction; neither is material stored in the cart.",
+      "start": 78.964,
+      "end": 93.253,
+      "beatEnd": 101.473,
+      "voiceSection": "part-2"
+    },
+    {
+      "id": "comparison-meter",
+      "title": "Build a comparison meter",
+      "visual": "stretch-ruler",
+      "text": "We can use band stretch as a comparison meter. Mark the resting length as zero centimetres. Then read how many centimetres the band stretches while pulling. More stretch means a greater pull in this investigation. These are relative readings, not Newtons.",
+      "start": 101.473,
+      "end": 117.693,
+      "beatEnd": 117.693,
+      "voiceSection": "part-3"
+    },
+    {
+      "id": "fair-pull-test",
+      "title": "Run a fair pull test",
+      "visual": "two-pull-trials",
+      "text": "Keep the cart, surface, and start line the same. First, hold a two-centimetre stretch for one second. Reset. Then hold a four-centimetre stretch for one second. Change only the stretch reading and measure the distance after the same time.",
+      "start": 117.693,
+      "end": 133.121,
+      "beatEnd": 133.121,
+      "voiceSection": "part-3"
+    },
+    {
+      "id": "pull-data",
+      "title": "Read the result",
+      "visual": "pull-table-graph",
+      "text": "At two centimetres, the cart travels eighty centimetres. At four centimetres, it travels one hundred and fifty centimetres. The larger stretch reading goes with the larger change in motion in this test. The data supports a stronger-pull explanation.",
+      "start": 133.121,
+      "end": 148.153,
+      "beatEnd": 156.374,
+      "voiceSection": "part-3"
+    },
+    {
+      "id": "silent-table",
+      "title": "Repair the silent-table idea",
+      "visual": "table-support-evidence",
+      "text": "Now test the claim: a table does nothing because it does not move. Place the foam and book on the table. The contact patch changes shape, and the book rests instead of passing through. The surface is part of the interaction.",
+      "start": 156.374,
+      "end": 171.549,
+      "beatEnd": 171.549,
+      "voiceSection": "part-4"
+    },
+    {
+      "id": "choose-model",
+      "title": "Choose the correct model",
+      "visual": "support-model-choice",
+      "text": "Which model fits the forces acting on a book resting on foam? One downward Earth-on-book arrow only? No arrows because it is still? Or Earth on book down paired with foam on book support up? Choose, then check the contact evidence.",
+      "start": 171.549,
+      "end": 186.724,
+      "beatEnd": 186.724,
+      "voiceSection": "part-4"
+    },
+    {
+      "id": "force-routine",
+      "title": "Your force-model routine",
+      "visual": "force-model-routine",
+      "text": "Use this routine. Name both objects. Mark the contact. Draw the force on the receiving object. Point the arrow in the force direction. When comparing pulls, use the same meter and a fair test. Even a still surface can push. Evidence makes that invisible interaction understandable.",
+      "start": 186.724,
+      "end": 203.75,
+      "beatEnd": 205,
+      "voiceSection": "part-4"
+    }
+  ],
+  "captionCues": [
+    {
+      "index": 1,
+      "start": 0,
+      "end": 4.382,
+      "text": "This book is not moving, but the foam beneath it is squashed.",
+      "sourceCueId": "support-mystery",
+      "event": "support-mystery-1",
+      "cueFunction": "selection",
+      "targets": [
+        "book",
+        "foam",
+        "contact-patch",
+        "prediction-marker"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 2,
+      "start": 4.382,
+      "end": 6.25,
+      "text": "Is the foam doing nothing?",
+      "sourceCueId": "support-mystery",
+      "event": "support-mystery-2",
+      "cueFunction": "integration",
+      "targets": [
+        "book",
+        "foam",
+        "contact-patch",
+        "prediction-marker"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 3,
+      "start": 6.25,
+      "end": 7.974,
+      "text": "Watch the contact patch.",
+      "sourceCueId": "support-mystery",
+      "event": "support-mystery-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "book",
+        "foam",
+        "contact-patch",
+        "prediction-marker"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 4,
+      "start": 7.974,
+      "end": 11.566,
+      "text": "The book presses down, and the foam changes shape.",
+      "sourceCueId": "support-mystery",
+      "event": "support-mystery-4",
+      "cueFunction": "selection",
+      "targets": [
+        "book",
+        "foam",
+        "contact-patch",
+        "prediction-marker"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 5,
+      "start": 11.566,
+      "end": 14.512,
+      "text": "What might the foam be doing to the book?",
+      "sourceCueId": "support-mystery",
+      "event": "support-mystery-5",
+      "cueFunction": "integration",
+      "targets": [
+        "book",
+        "foam",
+        "contact-patch",
+        "prediction-marker"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 6,
+      "start": 14.512,
+      "end": 17.404,
+      "text": "The book and foam interact through contact.",
+      "sourceCueId": "support-pair",
+      "event": "support-pair-1",
+      "cueFunction": "selection",
+      "targets": [
+        "book-on-foam-arrow",
+        "foam-on-book-arrow",
+        "support-label"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 7,
+      "start": 17.404,
+      "end": 20.699,
+      "text": "Book on foam pushes down; foam on book pushes up.",
+      "sourceCueId": "support-pair",
+      "event": "support-pair-2",
+      "cueFunction": "integration",
+      "targets": [
+        "book-on-foam-arrow",
+        "foam-on-book-arrow",
+        "support-label"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 8,
+      "start": 20.699,
+      "end": 23.254,
+      "text": "Those arrows act on different objects.",
+      "sourceCueId": "support-pair",
+      "event": "support-pair-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "book-on-foam-arrow",
+        "foam-on-book-arrow",
+        "support-label"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 9,
+      "start": 23.254,
+      "end": 27.356,
+      "text": "To explain the resting book, follow forces on the book: Earth",
+      "sourceCueId": "support-pair",
+      "event": "support-pair-4",
+      "cueFunction": "selection",
+      "targets": [
+        "book-on-foam-arrow",
+        "foam-on-book-arrow",
+        "support-label"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 10,
+      "start": 27.356,
+      "end": 31.256,
+      "text": "on book points down, while foam on book support points up.",
+      "sourceCueId": "support-pair",
+      "event": "support-pair-5",
+      "cueFunction": "integration",
+      "targets": [
+        "book-on-foam-arrow",
+        "foam-on-book-arrow",
+        "support-label"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 11,
+      "start": 31.256,
+      "end": 35.2,
+      "text": "The book remains still while the foam is supporting it.",
+      "sourceCueId": "still-forces",
+      "event": "still-forces-1",
+      "cueFunction": "selection",
+      "targets": [
+        "supported-state",
+        "falling-state",
+        "restored-state",
+        "misconception-cross"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 12,
+      "start": 35.2,
+      "end": 38.427,
+      "text": "Remove the foam, and the book begins to fall.",
+      "sourceCueId": "still-forces",
+      "event": "still-forces-2",
+      "cueFunction": "integration",
+      "targets": [
+        "supported-state",
+        "falling-state",
+        "restored-state",
+        "misconception-cross"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 13,
+      "start": 38.427,
+      "end": 42.012,
+      "text": "Put the support back, and the book can rest again.",
+      "sourceCueId": "still-forces",
+      "event": "still-forces-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "supported-state",
+        "falling-state",
+        "restored-state",
+        "misconception-cross"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 14,
+      "start": 42.012,
+      "end": 45.024,
+      "text": "Stillness is not proof that no forces act.",
+      "sourceCueId": "still-forces",
+      "event": "still-forces-4",
+      "cueFunction": "selection",
+      "targets": [
+        "supported-state",
+        "falling-state",
+        "restored-state",
+        "misconception-cross"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 15,
+      "start": 53.245,
+      "end": 54.995,
+      "text": "Add a second identical book.",
+      "sourceCueId": "support-load",
+      "event": "support-load-1",
+      "cueFunction": "selection",
+      "targets": [
+        "second-book",
+        "compression-ruler",
+        "support-arrow"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 16,
+      "start": 54.995,
+      "end": 56.621,
+      "text": "The foam squashes further.",
+      "sourceCueId": "support-load",
+      "event": "support-load-2",
+      "cueFunction": "integration",
+      "targets": [
+        "second-book",
+        "compression-ruler",
+        "support-arrow"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 17,
+      "start": 56.621,
+      "end": 60.059,
+      "text": "To support the resting stack, the foam's upward push is",
+      "sourceCueId": "support-load",
+      "event": "support-load-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "second-book",
+        "compression-ruler",
+        "support-arrow"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 18,
+      "start": 60.059,
+      "end": 62.121,
+      "text": "greater than it was for one book.",
+      "sourceCueId": "support-load",
+      "event": "support-load-4",
+      "cueFunction": "selection",
+      "targets": [
+        "second-book",
+        "compression-ruler",
+        "support-arrow"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 19,
+      "start": 62.121,
+      "end": 65.747,
+      "text": "A longer arrow shows greater force within this comparison.",
+      "sourceCueId": "support-load",
+      "event": "support-load-5",
+      "cueFunction": "integration",
+      "targets": [
+        "second-book",
+        "compression-ruler",
+        "support-arrow"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 20,
+      "start": 65.747,
+      "end": 67.324,
+      "text": "Now move to the cart.",
+      "sourceCueId": "applied-push",
+      "event": "applied-push-1",
+      "cueFunction": "selection",
+      "targets": [
+        "robot-hand",
+        "cart",
+        "contact-ring",
+        "push-arrow"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 21,
+      "start": 67.324,
+      "end": 71.379,
+      "text": "A robot hand touches the cart and pushes to the right.",
+      "sourceCueId": "applied-push",
+      "event": "applied-push-2",
+      "cueFunction": "integration",
+      "targets": [
+        "robot-hand",
+        "cart",
+        "contact-ring",
+        "push-arrow"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 22,
+      "start": 71.379,
+      "end": 73.857,
+      "text": "Hand on cart is an applied force.",
+      "sourceCueId": "applied-push",
+      "event": "applied-push-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "robot-hand",
+        "cart",
+        "contact-ring",
+        "push-arrow"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 23,
+      "start": 73.857,
+      "end": 78.288,
+      "text": "The arrow begins on the cart and points in the direction of",
+      "sourceCueId": "applied-push",
+      "event": "applied-push-4",
+      "cueFunction": "selection",
+      "targets": [
+        "robot-hand",
+        "cart",
+        "contact-ring",
+        "push-arrow"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 24,
+      "start": 78.288,
+      "end": 78.964,
+      "text": "the push.",
+      "sourceCueId": "applied-push",
+      "event": "applied-push-5",
+      "cueFunction": "integration",
+      "targets": [
+        "robot-hand",
+        "cart",
+        "contact-ring",
+        "push-arrow"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 25,
+      "start": 78.964,
+      "end": 81.303,
+      "text": "A rubber band can pull the same cart.",
+      "sourceCueId": "applied-pull",
+      "event": "applied-pull-1",
+      "cueFunction": "selection",
+      "targets": [
+        "rubber-band",
+        "cart",
+        "pull-arrow",
+        "stored-force-cross"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 26,
+      "start": 81.303,
+      "end": 83.643,
+      "text": "The band stretches towards the robot.",
+      "sourceCueId": "applied-pull",
+      "event": "applied-pull-2",
+      "cueFunction": "integration",
+      "targets": [
+        "rubber-band",
+        "cart",
+        "pull-arrow",
+        "stored-force-cross"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 27,
+      "start": 83.643,
+      "end": 86.741,
+      "text": "Rubber band on cart points towards the robot too.",
+      "sourceCueId": "applied-pull",
+      "event": "applied-pull-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "rubber-band",
+        "cart",
+        "pull-arrow",
+        "stored-force-cross"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 28,
+      "start": 86.741,
+      "end": 89.965,
+      "text": "Push and pull describe the direction of the applied",
+      "sourceCueId": "applied-pull",
+      "event": "applied-pull-4",
+      "cueFunction": "selection",
+      "targets": [
+        "rubber-band",
+        "cart",
+        "pull-arrow",
+        "stored-force-cross"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 29,
+      "start": 89.965,
+      "end": 93.253,
+      "text": "interaction; neither is material stored in the cart.",
+      "sourceCueId": "applied-pull",
+      "event": "applied-pull-5",
+      "cueFunction": "integration",
+      "targets": [
+        "rubber-band",
+        "cart",
+        "pull-arrow",
+        "stored-force-cross"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 30,
+      "start": 101.473,
+      "end": 104.457,
+      "text": "We can use band stretch as a comparison meter.",
+      "sourceCueId": "comparison-meter",
+      "event": "comparison-meter-1",
+      "cueFunction": "selection",
+      "targets": [
+        "resting-length",
+        "stretch-ruler",
+        "two-centimetres",
+        "four-centimetres",
+        "scope-note"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 31,
+      "start": 104.457,
+      "end": 107.312,
+      "text": "Mark the resting length as zero centimetres.",
+      "sourceCueId": "comparison-meter",
+      "event": "comparison-meter-2",
+      "cueFunction": "integration",
+      "targets": [
+        "resting-length",
+        "stretch-ruler",
+        "two-centimetres",
+        "four-centimetres",
+        "scope-note"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 32,
+      "start": 107.312,
+      "end": 110.881,
+      "text": "Then read how many centimetres the band stretches while",
+      "sourceCueId": "comparison-meter",
+      "event": "comparison-meter-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "resting-length",
+        "stretch-ruler",
+        "two-centimetres",
+        "four-centimetres",
+        "scope-note"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 33,
+      "start": 110.881,
+      "end": 111.4,
+      "text": "pulling.",
+      "sourceCueId": "comparison-meter",
+      "event": "comparison-meter-4",
+      "cueFunction": "selection",
+      "targets": [
+        "resting-length",
+        "stretch-ruler",
+        "two-centimetres",
+        "four-centimetres",
+        "scope-note"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 34,
+      "start": 111.4,
+      "end": 115.033,
+      "text": "More stretch means a greater pull in this investigation.",
+      "sourceCueId": "comparison-meter",
+      "event": "comparison-meter-5",
+      "cueFunction": "integration",
+      "targets": [
+        "resting-length",
+        "stretch-ruler",
+        "two-centimetres",
+        "four-centimetres",
+        "scope-note"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 35,
+      "start": 115.033,
+      "end": 117.693,
+      "text": "These are relative readings, not Newtons.",
+      "sourceCueId": "comparison-meter",
+      "event": "comparison-meter-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "resting-length",
+        "stretch-ruler",
+        "two-centimetres",
+        "four-centimetres",
+        "scope-note"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 36,
+      "start": 117.693,
+      "end": 120.871,
+      "text": "Keep the cart, surface, and start line the same.",
+      "sourceCueId": "fair-pull-test",
+      "event": "fair-pull-test-1",
+      "cueFunction": "selection",
+      "targets": [
+        "cart-lock",
+        "surface-lock",
+        "start-lock",
+        "time-lock",
+        "two-trials"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 37,
+      "start": 120.871,
+      "end": 124.314,
+      "text": "First, hold a two-centimetre stretch for one second.",
+      "sourceCueId": "fair-pull-test",
+      "event": "fair-pull-test-2",
+      "cueFunction": "integration",
+      "targets": [
+        "cart-lock",
+        "surface-lock",
+        "start-lock",
+        "time-lock",
+        "two-trials"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 38,
+      "start": 124.314,
+      "end": 124.712,
+      "text": "Reset.",
+      "sourceCueId": "fair-pull-test",
+      "event": "fair-pull-test-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "cart-lock",
+        "surface-lock",
+        "start-lock",
+        "time-lock",
+        "two-trials"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 39,
+      "start": 124.712,
+      "end": 128.089,
+      "text": "Then hold a four-centimetre stretch for one second.",
+      "sourceCueId": "fair-pull-test",
+      "event": "fair-pull-test-4",
+      "cueFunction": "selection",
+      "targets": [
+        "cart-lock",
+        "surface-lock",
+        "start-lock",
+        "time-lock",
+        "two-trials"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 40,
+      "start": 128.089,
+      "end": 132.194,
+      "text": "Change only the stretch reading and measure the distance after",
+      "sourceCueId": "fair-pull-test",
+      "event": "fair-pull-test-5",
+      "cueFunction": "integration",
+      "targets": [
+        "cart-lock",
+        "surface-lock",
+        "start-lock",
+        "time-lock",
+        "two-trials"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 41,
+      "start": 132.194,
+      "end": 133.121,
+      "text": "the same time.",
+      "sourceCueId": "fair-pull-test",
+      "event": "fair-pull-test-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "cart-lock",
+        "surface-lock",
+        "start-lock",
+        "time-lock",
+        "two-trials"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 42,
+      "start": 133.121,
+      "end": 136.571,
+      "text": "At two centimetres, the cart travels eighty centimetres.",
+      "sourceCueId": "pull-data",
+      "event": "pull-data-1",
+      "cueFunction": "selection",
+      "targets": [
+        "result-table",
+        "column-graph",
+        "relative-arrows",
+        "evidence-stamp"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 43,
+      "start": 136.571,
+      "end": 139.836,
+      "text": "At four centimetres, it travels one hundred and fifty",
+      "sourceCueId": "pull-data",
+      "event": "pull-data-2",
+      "cueFunction": "integration",
+      "targets": [
+        "result-table",
+        "column-graph",
+        "relative-arrows",
+        "evidence-stamp"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 44,
+      "start": 139.836,
+      "end": 140.575,
+      "text": "centimetres.",
+      "sourceCueId": "pull-data",
+      "event": "pull-data-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "result-table",
+        "column-graph",
+        "relative-arrows",
+        "evidence-stamp"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 45,
+      "start": 140.575,
+      "end": 144.087,
+      "text": "The larger stretch reading goes with the larger change in",
+      "sourceCueId": "pull-data",
+      "event": "pull-data-4",
+      "cueFunction": "selection",
+      "targets": [
+        "result-table",
+        "column-graph",
+        "relative-arrows",
+        "evidence-stamp"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 46,
+      "start": 144.087,
+      "end": 145.319,
+      "text": "motion in this test.",
+      "sourceCueId": "pull-data",
+      "event": "pull-data-5",
+      "cueFunction": "integration",
+      "targets": [
+        "result-table",
+        "column-graph",
+        "relative-arrows",
+        "evidence-stamp"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 47,
+      "start": 145.319,
+      "end": 148.153,
+      "text": "The data supports a stronger-pull explanation.",
+      "sourceCueId": "pull-data",
+      "event": "pull-data-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "result-table",
+        "column-graph",
+        "relative-arrows",
+        "evidence-stamp"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 48,
+      "start": 156.374,
+      "end": 160.532,
+      "text": "Now test the claim: a table does nothing because it does not",
+      "sourceCueId": "silent-table",
+      "event": "silent-table-1",
+      "cueFunction": "selection",
+      "targets": [
+        "claim-card",
+        "table",
+        "foam",
+        "book",
+        "contact-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 49,
+      "start": 160.532,
+      "end": 160.878,
+      "text": "move.",
+      "sourceCueId": "silent-table",
+      "event": "silent-table-2",
+      "cueFunction": "integration",
+      "targets": [
+        "claim-card",
+        "table",
+        "foam",
+        "book",
+        "contact-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 50,
+      "start": 160.878,
+      "end": 163.442,
+      "text": "Place the foam and book on the table.",
+      "sourceCueId": "silent-table",
+      "event": "silent-table-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "claim-card",
+        "table",
+        "foam",
+        "book",
+        "contact-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 51,
+      "start": 163.442,
+      "end": 167.738,
+      "text": "The contact patch changes shape, and the book rests instead of",
+      "sourceCueId": "silent-table",
+      "event": "silent-table-4",
+      "cueFunction": "selection",
+      "targets": [
+        "claim-card",
+        "table",
+        "foam",
+        "book",
+        "contact-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 52,
+      "start": 167.738,
+      "end": 168.847,
+      "text": "passing through.",
+      "sourceCueId": "silent-table",
+      "event": "silent-table-5",
+      "cueFunction": "integration",
+      "targets": [
+        "claim-card",
+        "table",
+        "foam",
+        "book",
+        "contact-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 53,
+      "start": 168.847,
+      "end": 171.549,
+      "text": "The surface is part of the interaction.",
+      "sourceCueId": "silent-table",
+      "event": "silent-table-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "claim-card",
+        "table",
+        "foam",
+        "book",
+        "contact-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 54,
+      "start": 171.549,
+      "end": 175.627,
+      "text": "Which model fits the forces acting on a book resting on foam?",
+      "sourceCueId": "choose-model",
+      "event": "choose-model-1",
+      "cueFunction": "selection",
+      "targets": [
+        "one-arrow-model",
+        "no-arrow-model",
+        "paired-arrow-model",
+        "contact-patch"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 55,
+      "start": 175.627,
+      "end": 178.167,
+      "text": "One downward Earth-on-book arrow only?",
+      "sourceCueId": "choose-model",
+      "event": "choose-model-2",
+      "cueFunction": "integration",
+      "targets": [
+        "one-arrow-model",
+        "no-arrow-model",
+        "paired-arrow-model",
+        "contact-patch"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 56,
+      "start": 178.167,
+      "end": 180.173,
+      "text": "No arrows because it is still?",
+      "sourceCueId": "choose-model",
+      "event": "choose-model-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "one-arrow-model",
+        "no-arrow-model",
+        "paired-arrow-model",
+        "contact-patch"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 57,
+      "start": 180.173,
+      "end": 184.05,
+      "text": "Or Earth on book down paired with foam on book support up?",
+      "sourceCueId": "choose-model",
+      "event": "choose-model-4",
+      "cueFunction": "selection",
+      "targets": [
+        "one-arrow-model",
+        "no-arrow-model",
+        "paired-arrow-model",
+        "contact-patch"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 58,
+      "start": 184.05,
+      "end": 186.724,
+      "text": "Choose, then check the contact evidence.",
+      "sourceCueId": "choose-model",
+      "event": "choose-model-5",
+      "cueFunction": "integration",
+      "targets": [
+        "one-arrow-model",
+        "no-arrow-model",
+        "paired-arrow-model",
+        "contact-patch"
+      ],
+      "intentionalHold": "predict"
+    },
+    {
+      "index": 59,
+      "start": 186.724,
+      "end": 187.78,
+      "text": "Use this routine.",
+      "sourceCueId": "force-routine",
+      "event": "force-routine-1",
+      "cueFunction": "selection",
+      "targets": [
+        "pair-step",
+        "contact-step",
+        "receiver-step",
+        "direction-step",
+        "fair-test-step"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 60,
+      "start": 187.78,
+      "end": 188.899,
+      "text": "Name both objects.",
+      "sourceCueId": "force-routine",
+      "event": "force-routine-2",
+      "cueFunction": "integration",
+      "targets": [
+        "pair-step",
+        "contact-step",
+        "receiver-step",
+        "direction-step",
+        "fair-test-step"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 61,
+      "start": 188.899,
+      "end": 189.955,
+      "text": "Mark the contact.",
+      "sourceCueId": "force-routine",
+      "event": "force-routine-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "pair-step",
+        "contact-step",
+        "receiver-step",
+        "direction-step",
+        "fair-test-step"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 62,
+      "start": 189.955,
+      "end": 192.379,
+      "text": "Draw the force on the receiving object.",
+      "sourceCueId": "force-routine",
+      "event": "force-routine-4",
+      "cueFunction": "selection",
+      "targets": [
+        "pair-step",
+        "contact-step",
+        "receiver-step",
+        "direction-step",
+        "fair-test-step"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 63,
+      "start": 192.379,
+      "end": 194.802,
+      "text": "Point the arrow in the force direction.",
+      "sourceCueId": "force-routine",
+      "event": "force-routine-5",
+      "cueFunction": "integration",
+      "targets": [
+        "pair-step",
+        "contact-step",
+        "receiver-step",
+        "direction-step",
+        "fair-test-step"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 64,
+      "start": 194.802,
+      "end": 198.344,
+      "text": "When comparing pulls, use the same meter and a fair test.",
+      "sourceCueId": "force-routine",
+      "event": "force-routine-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "pair-step",
+        "contact-step",
+        "receiver-step",
+        "direction-step",
+        "fair-test-step"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 65,
+      "start": 198.344,
+      "end": 200.208,
+      "text": "Even a still surface can push.",
+      "sourceCueId": "force-routine",
+      "event": "force-routine-7",
+      "cueFunction": "selection",
+      "targets": [
+        "pair-step",
+        "contact-step",
+        "receiver-step",
+        "direction-step",
+        "fair-test-step"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 66,
+      "start": 200.208,
+      "end": 203.75,
+      "text": "Evidence makes that invisible interaction understandable.",
+      "sourceCueId": "force-routine",
+      "event": "force-routine-8",
+      "cueFunction": "integration",
+      "targets": [
+        "pair-step",
+        "contact-step",
+        "receiver-step",
+        "direction-step",
+        "fair-test-step"
+      ],
+      "intentionalHold": null
+    }
+  ],
+  "visualBeats": [
+    {
+      "index": 1,
+      "start": 0,
+      "end": 4.382,
+      "sourceCueId": "support-mystery",
+      "event": "support-mystery-1",
+      "cueFunction": "selection",
+      "targets": [
+        "book",
+        "foam",
+        "contact-patch",
+        "prediction-marker"
+      ],
+      "holdUntil": 4.382,
+      "intentionalHold": null
+    },
+    {
+      "index": 2,
+      "start": 4.382,
+      "end": 6.25,
+      "sourceCueId": "support-mystery",
+      "event": "support-mystery-2",
+      "cueFunction": "integration",
+      "targets": [
+        "book",
+        "foam",
+        "contact-patch",
+        "prediction-marker"
+      ],
+      "holdUntil": 6.25,
+      "intentionalHold": null
+    },
+    {
+      "index": 3,
+      "start": 6.25,
+      "end": 7.974,
+      "sourceCueId": "support-mystery",
+      "event": "support-mystery-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "book",
+        "foam",
+        "contact-patch",
+        "prediction-marker"
+      ],
+      "holdUntil": 7.974,
+      "intentionalHold": null
+    },
+    {
+      "index": 4,
+      "start": 7.974,
+      "end": 11.566,
+      "sourceCueId": "support-mystery",
+      "event": "support-mystery-4",
+      "cueFunction": "selection",
+      "targets": [
+        "book",
+        "foam",
+        "contact-patch",
+        "prediction-marker"
+      ],
+      "holdUntil": 11.566,
+      "intentionalHold": null
+    },
+    {
+      "index": 5,
+      "start": 11.566,
+      "end": 14.512,
+      "sourceCueId": "support-mystery",
+      "event": "support-mystery-5",
+      "cueFunction": "integration",
+      "targets": [
+        "book",
+        "foam",
+        "contact-patch",
+        "prediction-marker"
+      ],
+      "holdUntil": 14.512,
+      "intentionalHold": null
+    },
+    {
+      "index": 6,
+      "start": 14.512,
+      "end": 17.404,
+      "sourceCueId": "support-pair",
+      "event": "support-pair-1",
+      "cueFunction": "selection",
+      "targets": [
+        "book-on-foam-arrow",
+        "foam-on-book-arrow",
+        "support-label"
+      ],
+      "holdUntil": 17.404,
+      "intentionalHold": null
+    },
+    {
+      "index": 7,
+      "start": 17.404,
+      "end": 20.699,
+      "sourceCueId": "support-pair",
+      "event": "support-pair-2",
+      "cueFunction": "integration",
+      "targets": [
+        "book-on-foam-arrow",
+        "foam-on-book-arrow",
+        "support-label"
+      ],
+      "holdUntil": 20.699,
+      "intentionalHold": null
+    },
+    {
+      "index": 8,
+      "start": 20.699,
+      "end": 23.254,
+      "sourceCueId": "support-pair",
+      "event": "support-pair-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "book-on-foam-arrow",
+        "foam-on-book-arrow",
+        "support-label"
+      ],
+      "holdUntil": 23.254,
+      "intentionalHold": null
+    },
+    {
+      "index": 9,
+      "start": 23.254,
+      "end": 27.356,
+      "sourceCueId": "support-pair",
+      "event": "support-pair-4",
+      "cueFunction": "selection",
+      "targets": [
+        "book-on-foam-arrow",
+        "foam-on-book-arrow",
+        "support-label"
+      ],
+      "holdUntil": 27.356,
+      "intentionalHold": null
+    },
+    {
+      "index": 10,
+      "start": 27.356,
+      "end": 31.256,
+      "sourceCueId": "support-pair",
+      "event": "support-pair-5",
+      "cueFunction": "integration",
+      "targets": [
+        "book-on-foam-arrow",
+        "foam-on-book-arrow",
+        "support-label"
+      ],
+      "holdUntil": 31.256,
+      "intentionalHold": null
+    },
+    {
+      "index": 11,
+      "start": 31.256,
+      "end": 35.2,
+      "sourceCueId": "still-forces",
+      "event": "still-forces-1",
+      "cueFunction": "selection",
+      "targets": [
+        "supported-state",
+        "falling-state",
+        "restored-state",
+        "misconception-cross"
+      ],
+      "holdUntil": 35.2,
+      "intentionalHold": null
+    },
+    {
+      "index": 12,
+      "start": 35.2,
+      "end": 38.427,
+      "sourceCueId": "still-forces",
+      "event": "still-forces-2",
+      "cueFunction": "integration",
+      "targets": [
+        "supported-state",
+        "falling-state",
+        "restored-state",
+        "misconception-cross"
+      ],
+      "holdUntil": 38.427,
+      "intentionalHold": null
+    },
+    {
+      "index": 13,
+      "start": 38.427,
+      "end": 42.012,
+      "sourceCueId": "still-forces",
+      "event": "still-forces-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "supported-state",
+        "falling-state",
+        "restored-state",
+        "misconception-cross"
+      ],
+      "holdUntil": 42.012,
+      "intentionalHold": null
+    },
+    {
+      "index": 14,
+      "start": 42.012,
+      "end": 45.024,
+      "sourceCueId": "still-forces",
+      "event": "still-forces-4",
+      "cueFunction": "selection",
+      "targets": [
+        "supported-state",
+        "falling-state",
+        "restored-state",
+        "misconception-cross"
+      ],
+      "holdUntil": 45.024,
+      "intentionalHold": null
+    },
+    {
+      "index": 15,
+      "start": 53.245,
+      "end": 54.995,
+      "sourceCueId": "support-load",
+      "event": "support-load-1",
+      "cueFunction": "selection",
+      "targets": [
+        "second-book",
+        "compression-ruler",
+        "support-arrow"
+      ],
+      "holdUntil": 54.995,
+      "intentionalHold": null
+    },
+    {
+      "index": 16,
+      "start": 54.995,
+      "end": 56.621,
+      "sourceCueId": "support-load",
+      "event": "support-load-2",
+      "cueFunction": "integration",
+      "targets": [
+        "second-book",
+        "compression-ruler",
+        "support-arrow"
+      ],
+      "holdUntil": 56.621,
+      "intentionalHold": null
+    },
+    {
+      "index": 17,
+      "start": 56.621,
+      "end": 60.059,
+      "sourceCueId": "support-load",
+      "event": "support-load-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "second-book",
+        "compression-ruler",
+        "support-arrow"
+      ],
+      "holdUntil": 60.059,
+      "intentionalHold": null
+    },
+    {
+      "index": 18,
+      "start": 60.059,
+      "end": 62.121,
+      "sourceCueId": "support-load",
+      "event": "support-load-4",
+      "cueFunction": "selection",
+      "targets": [
+        "second-book",
+        "compression-ruler",
+        "support-arrow"
+      ],
+      "holdUntil": 62.121,
+      "intentionalHold": null
+    },
+    {
+      "index": 19,
+      "start": 62.121,
+      "end": 65.747,
+      "sourceCueId": "support-load",
+      "event": "support-load-5",
+      "cueFunction": "integration",
+      "targets": [
+        "second-book",
+        "compression-ruler",
+        "support-arrow"
+      ],
+      "holdUntil": 65.747,
+      "intentionalHold": null
+    },
+    {
+      "index": 20,
+      "start": 65.747,
+      "end": 67.324,
+      "sourceCueId": "applied-push",
+      "event": "applied-push-1",
+      "cueFunction": "selection",
+      "targets": [
+        "robot-hand",
+        "cart",
+        "contact-ring",
+        "push-arrow"
+      ],
+      "holdUntil": 67.324,
+      "intentionalHold": null
+    },
+    {
+      "index": 21,
+      "start": 67.324,
+      "end": 71.379,
+      "sourceCueId": "applied-push",
+      "event": "applied-push-2",
+      "cueFunction": "integration",
+      "targets": [
+        "robot-hand",
+        "cart",
+        "contact-ring",
+        "push-arrow"
+      ],
+      "holdUntil": 71.379,
+      "intentionalHold": null
+    },
+    {
+      "index": 22,
+      "start": 71.379,
+      "end": 73.857,
+      "sourceCueId": "applied-push",
+      "event": "applied-push-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "robot-hand",
+        "cart",
+        "contact-ring",
+        "push-arrow"
+      ],
+      "holdUntil": 73.857,
+      "intentionalHold": null
+    },
+    {
+      "index": 23,
+      "start": 73.857,
+      "end": 78.288,
+      "sourceCueId": "applied-push",
+      "event": "applied-push-4",
+      "cueFunction": "selection",
+      "targets": [
+        "robot-hand",
+        "cart",
+        "contact-ring",
+        "push-arrow"
+      ],
+      "holdUntil": 78.288,
+      "intentionalHold": null
+    },
+    {
+      "index": 24,
+      "start": 78.288,
+      "end": 78.964,
+      "sourceCueId": "applied-push",
+      "event": "applied-push-5",
+      "cueFunction": "integration",
+      "targets": [
+        "robot-hand",
+        "cart",
+        "contact-ring",
+        "push-arrow"
+      ],
+      "holdUntil": 78.964,
+      "intentionalHold": null
+    },
+    {
+      "index": 25,
+      "start": 78.964,
+      "end": 81.303,
+      "sourceCueId": "applied-pull",
+      "event": "applied-pull-1",
+      "cueFunction": "selection",
+      "targets": [
+        "rubber-band",
+        "cart",
+        "pull-arrow",
+        "stored-force-cross"
+      ],
+      "holdUntil": 81.303,
+      "intentionalHold": null
+    },
+    {
+      "index": 26,
+      "start": 81.303,
+      "end": 83.643,
+      "sourceCueId": "applied-pull",
+      "event": "applied-pull-2",
+      "cueFunction": "integration",
+      "targets": [
+        "rubber-band",
+        "cart",
+        "pull-arrow",
+        "stored-force-cross"
+      ],
+      "holdUntil": 83.643,
+      "intentionalHold": null
+    },
+    {
+      "index": 27,
+      "start": 83.643,
+      "end": 86.741,
+      "sourceCueId": "applied-pull",
+      "event": "applied-pull-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "rubber-band",
+        "cart",
+        "pull-arrow",
+        "stored-force-cross"
+      ],
+      "holdUntil": 86.741,
+      "intentionalHold": null
+    },
+    {
+      "index": 28,
+      "start": 86.741,
+      "end": 89.965,
+      "sourceCueId": "applied-pull",
+      "event": "applied-pull-4",
+      "cueFunction": "selection",
+      "targets": [
+        "rubber-band",
+        "cart",
+        "pull-arrow",
+        "stored-force-cross"
+      ],
+      "holdUntil": 89.965,
+      "intentionalHold": null
+    },
+    {
+      "index": 29,
+      "start": 89.965,
+      "end": 93.253,
+      "sourceCueId": "applied-pull",
+      "event": "applied-pull-5",
+      "cueFunction": "integration",
+      "targets": [
+        "rubber-band",
+        "cart",
+        "pull-arrow",
+        "stored-force-cross"
+      ],
+      "holdUntil": 93.253,
+      "intentionalHold": null
+    },
+    {
+      "index": 30,
+      "start": 101.473,
+      "end": 104.457,
+      "sourceCueId": "comparison-meter",
+      "event": "comparison-meter-1",
+      "cueFunction": "selection",
+      "targets": [
+        "resting-length",
+        "stretch-ruler",
+        "two-centimetres",
+        "four-centimetres",
+        "scope-note"
+      ],
+      "holdUntil": 104.457,
+      "intentionalHold": null
+    },
+    {
+      "index": 31,
+      "start": 104.457,
+      "end": 107.312,
+      "sourceCueId": "comparison-meter",
+      "event": "comparison-meter-2",
+      "cueFunction": "integration",
+      "targets": [
+        "resting-length",
+        "stretch-ruler",
+        "two-centimetres",
+        "four-centimetres",
+        "scope-note"
+      ],
+      "holdUntil": 107.312,
+      "intentionalHold": null
+    },
+    {
+      "index": 32,
+      "start": 107.312,
+      "end": 110.881,
+      "sourceCueId": "comparison-meter",
+      "event": "comparison-meter-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "resting-length",
+        "stretch-ruler",
+        "two-centimetres",
+        "four-centimetres",
+        "scope-note"
+      ],
+      "holdUntil": 110.881,
+      "intentionalHold": null
+    },
+    {
+      "index": 33,
+      "start": 110.881,
+      "end": 111.4,
+      "sourceCueId": "comparison-meter",
+      "event": "comparison-meter-4",
+      "cueFunction": "selection",
+      "targets": [
+        "resting-length",
+        "stretch-ruler",
+        "two-centimetres",
+        "four-centimetres",
+        "scope-note"
+      ],
+      "holdUntil": 111.4,
+      "intentionalHold": null
+    },
+    {
+      "index": 34,
+      "start": 111.4,
+      "end": 115.033,
+      "sourceCueId": "comparison-meter",
+      "event": "comparison-meter-5",
+      "cueFunction": "integration",
+      "targets": [
+        "resting-length",
+        "stretch-ruler",
+        "two-centimetres",
+        "four-centimetres",
+        "scope-note"
+      ],
+      "holdUntil": 115.033,
+      "intentionalHold": null
+    },
+    {
+      "index": 35,
+      "start": 115.033,
+      "end": 117.693,
+      "sourceCueId": "comparison-meter",
+      "event": "comparison-meter-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "resting-length",
+        "stretch-ruler",
+        "two-centimetres",
+        "four-centimetres",
+        "scope-note"
+      ],
+      "holdUntil": 117.693,
+      "intentionalHold": null
+    },
+    {
+      "index": 36,
+      "start": 117.693,
+      "end": 120.871,
+      "sourceCueId": "fair-pull-test",
+      "event": "fair-pull-test-1",
+      "cueFunction": "selection",
+      "targets": [
+        "cart-lock",
+        "surface-lock",
+        "start-lock",
+        "time-lock",
+        "two-trials"
+      ],
+      "holdUntil": 120.871,
+      "intentionalHold": null
+    },
+    {
+      "index": 37,
+      "start": 120.871,
+      "end": 124.314,
+      "sourceCueId": "fair-pull-test",
+      "event": "fair-pull-test-2",
+      "cueFunction": "integration",
+      "targets": [
+        "cart-lock",
+        "surface-lock",
+        "start-lock",
+        "time-lock",
+        "two-trials"
+      ],
+      "holdUntil": 124.314,
+      "intentionalHold": null
+    },
+    {
+      "index": 38,
+      "start": 124.314,
+      "end": 124.712,
+      "sourceCueId": "fair-pull-test",
+      "event": "fair-pull-test-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "cart-lock",
+        "surface-lock",
+        "start-lock",
+        "time-lock",
+        "two-trials"
+      ],
+      "holdUntil": 124.712,
+      "intentionalHold": null
+    },
+    {
+      "index": 39,
+      "start": 124.712,
+      "end": 128.089,
+      "sourceCueId": "fair-pull-test",
+      "event": "fair-pull-test-4",
+      "cueFunction": "selection",
+      "targets": [
+        "cart-lock",
+        "surface-lock",
+        "start-lock",
+        "time-lock",
+        "two-trials"
+      ],
+      "holdUntil": 128.089,
+      "intentionalHold": null
+    },
+    {
+      "index": 40,
+      "start": 128.089,
+      "end": 132.194,
+      "sourceCueId": "fair-pull-test",
+      "event": "fair-pull-test-5",
+      "cueFunction": "integration",
+      "targets": [
+        "cart-lock",
+        "surface-lock",
+        "start-lock",
+        "time-lock",
+        "two-trials"
+      ],
+      "holdUntil": 132.194,
+      "intentionalHold": null
+    },
+    {
+      "index": 41,
+      "start": 132.194,
+      "end": 133.121,
+      "sourceCueId": "fair-pull-test",
+      "event": "fair-pull-test-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "cart-lock",
+        "surface-lock",
+        "start-lock",
+        "time-lock",
+        "two-trials"
+      ],
+      "holdUntil": 133.121,
+      "intentionalHold": null
+    },
+    {
+      "index": 42,
+      "start": 133.121,
+      "end": 136.571,
+      "sourceCueId": "pull-data",
+      "event": "pull-data-1",
+      "cueFunction": "selection",
+      "targets": [
+        "result-table",
+        "column-graph",
+        "relative-arrows",
+        "evidence-stamp"
+      ],
+      "holdUntil": 136.571,
+      "intentionalHold": null
+    },
+    {
+      "index": 43,
+      "start": 136.571,
+      "end": 139.836,
+      "sourceCueId": "pull-data",
+      "event": "pull-data-2",
+      "cueFunction": "integration",
+      "targets": [
+        "result-table",
+        "column-graph",
+        "relative-arrows",
+        "evidence-stamp"
+      ],
+      "holdUntil": 139.836,
+      "intentionalHold": null
+    },
+    {
+      "index": 44,
+      "start": 139.836,
+      "end": 140.575,
+      "sourceCueId": "pull-data",
+      "event": "pull-data-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "result-table",
+        "column-graph",
+        "relative-arrows",
+        "evidence-stamp"
+      ],
+      "holdUntil": 140.575,
+      "intentionalHold": null
+    },
+    {
+      "index": 45,
+      "start": 140.575,
+      "end": 144.087,
+      "sourceCueId": "pull-data",
+      "event": "pull-data-4",
+      "cueFunction": "selection",
+      "targets": [
+        "result-table",
+        "column-graph",
+        "relative-arrows",
+        "evidence-stamp"
+      ],
+      "holdUntil": 144.087,
+      "intentionalHold": null
+    },
+    {
+      "index": 46,
+      "start": 144.087,
+      "end": 145.319,
+      "sourceCueId": "pull-data",
+      "event": "pull-data-5",
+      "cueFunction": "integration",
+      "targets": [
+        "result-table",
+        "column-graph",
+        "relative-arrows",
+        "evidence-stamp"
+      ],
+      "holdUntil": 145.319,
+      "intentionalHold": null
+    },
+    {
+      "index": 47,
+      "start": 145.319,
+      "end": 148.153,
+      "sourceCueId": "pull-data",
+      "event": "pull-data-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "result-table",
+        "column-graph",
+        "relative-arrows",
+        "evidence-stamp"
+      ],
+      "holdUntil": 148.153,
+      "intentionalHold": null
+    },
+    {
+      "index": 48,
+      "start": 156.374,
+      "end": 160.532,
+      "sourceCueId": "silent-table",
+      "event": "silent-table-1",
+      "cueFunction": "selection",
+      "targets": [
+        "claim-card",
+        "table",
+        "foam",
+        "book",
+        "contact-evidence"
+      ],
+      "holdUntil": 160.532,
+      "intentionalHold": null
+    },
+    {
+      "index": 49,
+      "start": 160.532,
+      "end": 160.878,
+      "sourceCueId": "silent-table",
+      "event": "silent-table-2",
+      "cueFunction": "integration",
+      "targets": [
+        "claim-card",
+        "table",
+        "foam",
+        "book",
+        "contact-evidence"
+      ],
+      "holdUntil": 160.878,
+      "intentionalHold": null
+    },
+    {
+      "index": 50,
+      "start": 160.878,
+      "end": 163.442,
+      "sourceCueId": "silent-table",
+      "event": "silent-table-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "claim-card",
+        "table",
+        "foam",
+        "book",
+        "contact-evidence"
+      ],
+      "holdUntil": 163.442,
+      "intentionalHold": null
+    },
+    {
+      "index": 51,
+      "start": 163.442,
+      "end": 167.738,
+      "sourceCueId": "silent-table",
+      "event": "silent-table-4",
+      "cueFunction": "selection",
+      "targets": [
+        "claim-card",
+        "table",
+        "foam",
+        "book",
+        "contact-evidence"
+      ],
+      "holdUntil": 167.738,
+      "intentionalHold": null
+    },
+    {
+      "index": 52,
+      "start": 167.738,
+      "end": 168.847,
+      "sourceCueId": "silent-table",
+      "event": "silent-table-5",
+      "cueFunction": "integration",
+      "targets": [
+        "claim-card",
+        "table",
+        "foam",
+        "book",
+        "contact-evidence"
+      ],
+      "holdUntil": 168.847,
+      "intentionalHold": null
+    },
+    {
+      "index": 53,
+      "start": 168.847,
+      "end": 171.549,
+      "sourceCueId": "silent-table",
+      "event": "silent-table-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "claim-card",
+        "table",
+        "foam",
+        "book",
+        "contact-evidence"
+      ],
+      "holdUntil": 171.549,
+      "intentionalHold": null
+    },
+    {
+      "index": 54,
+      "start": 171.549,
+      "end": 175.627,
+      "sourceCueId": "choose-model",
+      "event": "choose-model-1",
+      "cueFunction": "selection",
+      "targets": [
+        "one-arrow-model",
+        "no-arrow-model",
+        "paired-arrow-model",
+        "contact-patch"
+      ],
+      "holdUntil": 175.627,
+      "intentionalHold": null
+    },
+    {
+      "index": 55,
+      "start": 175.627,
+      "end": 178.167,
+      "sourceCueId": "choose-model",
+      "event": "choose-model-2",
+      "cueFunction": "integration",
+      "targets": [
+        "one-arrow-model",
+        "no-arrow-model",
+        "paired-arrow-model",
+        "contact-patch"
+      ],
+      "holdUntil": 178.167,
+      "intentionalHold": null
+    },
+    {
+      "index": 56,
+      "start": 178.167,
+      "end": 180.173,
+      "sourceCueId": "choose-model",
+      "event": "choose-model-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "one-arrow-model",
+        "no-arrow-model",
+        "paired-arrow-model",
+        "contact-patch"
+      ],
+      "holdUntil": 180.173,
+      "intentionalHold": null
+    },
+    {
+      "index": 57,
+      "start": 180.173,
+      "end": 184.05,
+      "sourceCueId": "choose-model",
+      "event": "choose-model-4",
+      "cueFunction": "selection",
+      "targets": [
+        "one-arrow-model",
+        "no-arrow-model",
+        "paired-arrow-model",
+        "contact-patch"
+      ],
+      "holdUntil": 184.05,
+      "intentionalHold": null
+    },
+    {
+      "index": 58,
+      "start": 184.05,
+      "end": 186.724,
+      "sourceCueId": "choose-model",
+      "event": "choose-model-5",
+      "cueFunction": "integration",
+      "targets": [
+        "one-arrow-model",
+        "no-arrow-model",
+        "paired-arrow-model",
+        "contact-patch"
+      ],
+      "holdUntil": 186.724,
+      "intentionalHold": "predict"
+    },
+    {
+      "index": 59,
+      "start": 186.724,
+      "end": 187.78,
+      "sourceCueId": "force-routine",
+      "event": "force-routine-1",
+      "cueFunction": "selection",
+      "targets": [
+        "pair-step",
+        "contact-step",
+        "receiver-step",
+        "direction-step",
+        "fair-test-step"
+      ],
+      "holdUntil": 187.78,
+      "intentionalHold": null
+    },
+    {
+      "index": 60,
+      "start": 187.78,
+      "end": 188.899,
+      "sourceCueId": "force-routine",
+      "event": "force-routine-2",
+      "cueFunction": "integration",
+      "targets": [
+        "pair-step",
+        "contact-step",
+        "receiver-step",
+        "direction-step",
+        "fair-test-step"
+      ],
+      "holdUntil": 188.899,
+      "intentionalHold": null
+    },
+    {
+      "index": 61,
+      "start": 188.899,
+      "end": 189.955,
+      "sourceCueId": "force-routine",
+      "event": "force-routine-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "pair-step",
+        "contact-step",
+        "receiver-step",
+        "direction-step",
+        "fair-test-step"
+      ],
+      "holdUntil": 189.955,
+      "intentionalHold": null
+    },
+    {
+      "index": 62,
+      "start": 189.955,
+      "end": 192.379,
+      "sourceCueId": "force-routine",
+      "event": "force-routine-4",
+      "cueFunction": "selection",
+      "targets": [
+        "pair-step",
+        "contact-step",
+        "receiver-step",
+        "direction-step",
+        "fair-test-step"
+      ],
+      "holdUntil": 192.379,
+      "intentionalHold": null
+    },
+    {
+      "index": 63,
+      "start": 192.379,
+      "end": 194.802,
+      "sourceCueId": "force-routine",
+      "event": "force-routine-5",
+      "cueFunction": "integration",
+      "targets": [
+        "pair-step",
+        "contact-step",
+        "receiver-step",
+        "direction-step",
+        "fair-test-step"
+      ],
+      "holdUntil": 194.802,
+      "intentionalHold": null
+    },
+    {
+      "index": 64,
+      "start": 194.802,
+      "end": 198.344,
+      "sourceCueId": "force-routine",
+      "event": "force-routine-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "pair-step",
+        "contact-step",
+        "receiver-step",
+        "direction-step",
+        "fair-test-step"
+      ],
+      "holdUntil": 198.344,
+      "intentionalHold": null
+    },
+    {
+      "index": 65,
+      "start": 198.344,
+      "end": 200.208,
+      "sourceCueId": "force-routine",
+      "event": "force-routine-7",
+      "cueFunction": "selection",
+      "targets": [
+        "pair-step",
+        "contact-step",
+        "receiver-step",
+        "direction-step",
+        "fair-test-step"
+      ],
+      "holdUntil": 200.208,
+      "intentionalHold": null
+    },
+    {
+      "index": 66,
+      "start": 200.208,
+      "end": 203.75,
+      "sourceCueId": "force-routine",
+      "event": "force-routine-8",
+      "cueFunction": "integration",
+      "targets": [
+        "pair-step",
+        "contact-step",
+        "receiver-step",
+        "direction-step",
+        "fair-test-step"
+      ],
+      "holdUntil": 203.75,
+      "intentionalHold": null
+    }
+  ],
+  "actions": [
+    {
+      "id": "support-mystery",
+      "start": 0,
+      "end": 14.512,
+      "narration": "This book is not moving, but the foam beneath it is squashed. Is the foam doing nothing? Watch the contact patch. The book presses down, and the foam changes shape. What might the foam be doing to the book?",
+      "expected_action": "book-on-foam",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "support-pair",
+      "start": 14.512,
+      "end": 31.256,
+      "narration": "The book and foam interact through contact. Book on foam pushes down; foam on book pushes up. Those arrows act on different objects. To explain the resting book, follow forces on the book: Earth on book points down, while foam on book support points up.",
+      "expected_action": "support-pair-arrows",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "still-forces",
+      "start": 31.256,
+      "end": 53.245,
+      "narration": "The book remains still while the foam is supporting it. Remove the foam, and the book begins to fall. Put the support back, and the book can rest again. Stillness is not proof that no forces act.",
+      "expected_action": "support-timeline",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "support-load",
+      "start": 53.245,
+      "end": 65.747,
+      "narration": "Add a second identical book. The foam squashes further. To support the resting stack, the foam's upward push is greater than it was for one book. A longer arrow shows greater force within this comparison.",
+      "expected_action": "double-book-compression",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "applied-push",
+      "start": 65.747,
+      "end": 78.964,
+      "narration": "Now move to the cart. A robot hand touches the cart and pushes to the right. Hand on cart is an applied force. The arrow begins on the cart and points in the direction of the push.",
+      "expected_action": "robot-push-cart",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "applied-pull",
+      "start": 78.964,
+      "end": 101.473,
+      "narration": "A rubber band can pull the same cart. The band stretches towards the robot. Rubber band on cart points towards the robot too. Push and pull describe the direction of the applied interaction; neither is material stored in the cart.",
+      "expected_action": "band-pull-cart",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "comparison-meter",
+      "start": 101.473,
+      "end": 117.693,
+      "narration": "We can use band stretch as a comparison meter. Mark the resting length as zero centimetres. Then read how many centimetres the band stretches while pulling. More stretch means a greater pull in this investigation. These are relative readings, not Newtons.",
+      "expected_action": "stretch-ruler",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "fair-pull-test",
+      "start": 117.693,
+      "end": 133.121,
+      "narration": "Keep the cart, surface, and start line the same. First, hold a two-centimetre stretch for one second. Reset. Then hold a four-centimetre stretch for one second. Change only the stretch reading and measure the distance after the same time.",
+      "expected_action": "two-pull-trials",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "pull-data",
+      "start": 133.121,
+      "end": 156.374,
+      "narration": "At two centimetres, the cart travels eighty centimetres. At four centimetres, it travels one hundred and fifty centimetres. The larger stretch reading goes with the larger change in motion in this test. The data supports a stronger-pull explanation.",
+      "expected_action": "pull-table-graph",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "silent-table",
+      "start": 156.374,
+      "end": 171.549,
+      "narration": "Now test the claim: a table does nothing because it does not move. Place the foam and book on the table. The contact patch changes shape, and the book rests instead of passing through. The surface is part of the interaction.",
+      "expected_action": "table-support-evidence",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "choose-model",
+      "start": 171.549,
+      "end": 186.724,
+      "narration": "Which model fits the forces acting on a book resting on foam? One downward Earth-on-book arrow only? No arrows because it is still? Or Earth on book down paired with foam on book support up? Choose, then check the contact evidence.",
+      "expected_action": "support-model-choice",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "force-routine",
+      "start": 186.724,
+      "end": 205,
+      "narration": "Use this routine. Name both objects. Mark the contact. Draw the force on the receiving object. Point the arrow in the force direction. When comparing pulls, use the same meter and a fair test. Even a still surface can push. Evidence makes that invisible interaction understandable.",
+      "expected_action": "force-model-routine",
+      "board_region": "demonstration-stage"
+    }
+  ]
+}
