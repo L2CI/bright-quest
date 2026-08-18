@@ -79,8 +79,8 @@ try {
   await navigate(send, baseUrl);
   console.log("[qa] desktop landing loaded");
   await waitFor(() => evaluate("(() => { const landing=document.querySelector('.course-landing'); return Boolean(landing && window.getComputedStyle(landing).display !== 'none' && document.querySelectorAll('.chapter-card').length === 11); })()"));
-  const deployedMarker = await evaluate("Boolean(document.querySelector('script[src*=\"physics-101-force-lab-007\"]'))");
-  if (!deployedMarker) throw new Error("The expected physics-101-force-lab-007 release marker is not live.");
+  const deployedMarker = await evaluate("Boolean(document.querySelector('script[src*=\"physics-101-force-lab-008\"]'))");
+  if (!deployedMarker) throw new Error("The expected physics-101-force-lab-008 release marker is not live.");
   results.push(await inspect(evaluate, "desktop landing"));
   await screenshot(send, path.join(evidenceDir, "desktop-landing.png"));
 
@@ -195,7 +195,7 @@ try {
   ).map((event) => ({ method: event.method, params: event.params }));
 
   const report = {
-    release: "physics-101-force-lab-007",
+    release: "physics-101-force-lab-008",
     browser: browserName,
     route: baseUrl,
     deployedMarker,

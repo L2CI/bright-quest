@@ -196,6 +196,19 @@ class PhysicsChapter01VoiceDirected(Scene):
             self.image("pilot-orange-contact.png", height=height, point=[right_x, y, 0], z=15),
         )
 
+    def contact_pair(self, shade_opacity=0.16):
+        hero = self.image("selected-visual-target.png", width=config.frame_width * 1.01, point=[0, -0.03, 0], z=-20)
+        shade = Rectangle(
+            width=config.frame_width,
+            height=config.frame_height,
+            stroke_width=0,
+            fill_color=INK,
+            fill_opacity=shade_opacity,
+        ).set_z_index(-10)
+        left_focus = RoundedRectangle(width=3.65, height=4.48, corner_radius=0.18, color=BLUE, stroke_width=4).move_to([-2.72, -0.20, 0]).set_z_index(48)
+        right_focus = RoundedRectangle(width=3.65, height=4.48, corner_radius=0.18, color=ORANGE, stroke_width=4).move_to([2.72, -0.20, 0]).set_z_index(48)
+        return hero, shade, left_focus, right_focus
+
     def magnets(self, left_x=-2.18, right_x=2.12, y=-0.52, height=2.55):
         return (
             self.image("magnet-cart-orange.png", height=height, point=[left_x, y, 0], z=15),
@@ -236,34 +249,34 @@ class PhysicsChapter01VoiceDirected(Scene):
 
     def mystery(self):
         heading = self.start_scene(1, 1, "Watch the motion")
-        left, right = self.pilots(-2.82, 2.78)
+        hero, hero_shade, left_focus, right_focus = self.contact_pair(0.10)
         still = self.chip("Both platforms still", BLUE, width=3.25, point=[0, -2.77, 0], size=18)
-        self.play_at(self.cstart(1) + 0.30, FadeIn(Group(left, right), shift=UP * 0.08), run_time=0.62)
-        boxes = VGroup(self.target_box(left, BLUE), self.target_box(right, ORANGE))
+        self.play_at(self.cstart(1) + 0.30, FadeIn(Group(hero, hero_shade)), run_time=0.62)
+        boxes = VGroup(left_focus, right_focus)
         self.play_at(self.cstart(2), FadeIn(still), Create(boxes), run_time=0.55)
-        hands = self.contact_ring([0.02, 0.55, 0])
+        hands = self.contact_ring([0, 0.88, 0], radius=0.20)
         hand_tag = self.chip("Watch the hands", GOLD, width=2.55, point=[0, 1.62, 0], size=18)
         self.play_at(self.cstart(3), FadeIn(hand_tag), Create(hands), run_time=0.52)
-        trails = VGroup(self.trail([-1.66, -1.45, 0], LEFT, BLUE), self.trail([1.65, -1.45, 0], RIGHT, ORANGE))
-        self.play_at(self.cstart(4) + 0.25, FadeOut(boxes), left.animate.shift(LEFT * 1.00), right.animate.shift(RIGHT * 1.00), FadeIn(trails), run_time=2.65, rate_func=rate_functions.ease_out_cubic)
+        self.play_at(self.cstart(4), Flash([0, 0.88, 0], color=GOLD, flash_radius=0.48, line_length=0.18, num_lines=12), run_time=0.42)
+        left, right = self.pilots(-3.82, 3.78)
+        trails = VGroup(self.trail([-2.62, -1.45, 0], LEFT, BLUE), self.trail([2.60, -1.45, 0], RIGHT, ORANGE))
+        self.play_at(self.cstart(4) + 0.48, FadeOut(Group(hero, hero_shade)), FadeOut(boxes), FadeOut(hands), FadeOut(hand_tag), FadeIn(left, shift=RIGHT * 2.52), FadeIn(right, shift=LEFT * 2.52), FadeIn(trails), run_time=2.55, rate_func=rate_functions.ease_out_cubic)
         clue = self.evidence_stamp("Motion changed", [0, -2.74, 0], GREEN, 2.48)
-        ghosts = Group(left.copy().set_opacity(0.18).shift(RIGHT * 1.00), right.copy().set_opacity(0.18).shift(LEFT * 1.00))
+        ghosts = Group(left.copy().set_opacity(0.18).shift(RIGHT * 2.52), right.copy().set_opacity(0.18).shift(LEFT * 2.52))
         self.play_at(self.cstart(5), FadeOut(still), FadeIn(ghosts), FadeIn(clue), run_time=0.52)
         question = self.chip("Which two objects interact?", GOLD, width=4.25, point=[0, 1.84, 0], size=19)
         pair_boxes = VGroup(self.target_box(left, BLUE), self.target_box(right, ORANGE))
-        self.play_at(self.cstart(6), FadeOut(hand_tag), FadeOut(hands), FadeIn(question), Create(pair_boxes), run_time=0.58)
+        self.play_at(self.cstart(6), FadeIn(question), Create(pair_boxes), run_time=0.58)
         self.dynamic = [heading, left, right, trails, clue, ghosts, question, pair_boxes]
 
     def interaction(self):
         heading = self.start_scene(2, 7, "A force needs two")
-        left, right = self.pilots(-2.78, 2.73)
+        hero, hero_shade, blue_box, orange_box = self.contact_pair(0.22)
         definition = self.chip("Force = push or pull in an interaction", GOLD, width=5.25, point=[0, 1.78, 0], size=18)
-        self.play_at(self.cstart(7) + 0.28, FadeIn(Group(left, right)), FadeIn(definition), run_time=0.60)
-        contact = self.contact_ring([0, 0.56, 0])
-        right_force = self.force_arrow([0.22, 0.34, 0], [2.15, 0.34, 0], "BLUE ON ORANGE", ORANGE)
-        left_force = self.force_arrow([-0.22, 0.34, 0], [-2.15, 0.34, 0], "ORANGE ON BLUE", BLUE)
-        orange_box = self.target_box(right, ORANGE)
-        blue_box = self.target_box(left, BLUE)
+        self.play_at(self.cstart(7) + 0.28, FadeIn(Group(hero, hero_shade)), FadeIn(definition), run_time=0.60)
+        contact = self.contact_ring([0, 0.88, 0], radius=0.20)
+        right_force = self.force_arrow([0.20, 0.80, 0], [2.28, 0.55, 0], "BLUE ON ORANGE", ORANGE)
+        left_force = self.force_arrow([-0.20, 0.80, 0], [-2.28, 0.55, 0], "ORANGE ON BLUE", BLUE)
         self.play_at(self.cstart(8), Create(contact), GrowArrow(right_force[1]), FadeIn(right_force[0]), FadeIn(right_force[2]), Create(orange_box), run_time=0.72)
         self.play_at(self.cstart(9), GrowArrow(left_force[1]), FadeIn(left_force[0]), FadeIn(left_force[2]), Create(blue_box), run_time=0.72)
         hub = Circle(radius=0.34, stroke_color=GOLD, stroke_width=4, fill_color=INK, fill_opacity=0.90).move_to([0, -1.48, 0])
@@ -272,20 +285,20 @@ class PhysicsChapter01VoiceDirected(Scene):
         connectors = VGroup(Line(hub.get_center(), [-1.0, -0.72, 0], color=GOLD, stroke_width=4), Line(hub.get_center(), [1.0, -0.72, 0], color=GOLD, stroke_width=4))
         self.play_at(self.cstart(10), FadeOut(definition), Create(connectors), FadeIn(VGroup(hub, hub_text)), FadeIn(two), run_time=0.72)
         receivers = self.evidence_stamp("Two receiving objects", [0, -2.62, 0], GREEN, 3.05)
-        self.play_at(self.cstart(11), FadeOut(two), FadeIn(receivers), Indicate(Group(left, right), color=GOLD, scale_factor=1.015), run_time=0.55)
-        self.dynamic = [heading, left, right, contact, right_force, left_force, orange_box, blue_box, connectors, hub, hub_text, receivers]
+        self.play_at(self.cstart(11), FadeOut(two), FadeIn(receivers), Circumscribe(VGroup(blue_box, orange_box), color=GOLD, buff=0.08, fade_out=True), run_time=0.55)
+        self.dynamic = [heading, hero, hero_shade, contact, right_force, left_force, orange_box, blue_box, connectors, hub, hub_text, receivers]
 
     def arrows(self):
         heading = self.start_scene(3, 12, "Name both objects")
-        left, right = self.pilots(-3.02, 2.98, height=5.05)
-        left_force = self.force_arrow([-0.20, 0.36, 0], [-2.28, 0.36, 0], "ORANGE ON BLUE", BLUE)
-        right_force = self.force_arrow([0.20, 0.36, 0], [2.28, 0.36, 0], "BLUE ON ORANGE", ORANGE)
-        self.play_at(self.cstart(12) + 0.24, FadeIn(Group(left, right)), FadeIn(left_force), FadeIn(right_force), run_time=0.62)
+        hero, hero_shade, blue_box, orange_box = self.contact_pair(0.24)
+        left_force = self.force_arrow([-0.20, 0.80, 0], [-2.28, 0.55, 0], "ORANGE ON BLUE", BLUE)
+        right_force = self.force_arrow([0.20, 0.80, 0], [2.28, 0.55, 0], "BLUE ON ORANGE", ORANGE)
+        self.play_at(self.cstart(12) + 0.24, FadeIn(Group(hero, hero_shade)), FadeIn(left_force), FadeIn(right_force), run_time=0.62)
         tracer = Dot(radius=0.09, color=GOLD).move_to(right_force[1].get_start()).set_z_index(58)
         self.play_at(self.cstart(12) + 1.1, FadeIn(tracer), MoveAlongPath(tracer, right_force[1]), run_time=1.15, rate_func=linear)
-        orange_focus = self.target_box(right, ORANGE)
+        orange_focus = orange_box
         self.play_at(self.cstart(13), FadeOut(tracer), Create(orange_focus), right_force.animate.set_opacity(1), left_force.animate.set_opacity(0.42), run_time=0.55)
-        blue_focus = self.target_box(left, BLUE)
+        blue_focus = blue_box
         self.play_at(self.cstart(14), FadeOut(orange_focus), Create(blue_focus), left_force.animate.set_opacity(1), right_force.animate.set_opacity(0.42), run_time=0.55)
         baseline = DoubleArrow([-2.28, -2.12, 0], [2.28, -2.12, 0], color=WHITE, stroke_width=5)
         length = self.chip("Equal length", GOLD, width=2.08, point=[-1.18, -2.70, 0], size=18)
@@ -294,20 +307,23 @@ class PhysicsChapter01VoiceDirected(Scene):
         self.play_at(self.cstart(16), FadeIn(opposite), Wiggle(Group(left_force[1], right_force[1]), scale_value=1.01), run_time=0.56)
         resolved = self.evidence_stamp("One interaction / two forces", [0, -2.73, 0], GREEN, 3.65)
         self.play_at(self.cstart(17), FadeOut(length), FadeOut(opposite), FadeOut(baseline), FadeIn(resolved), run_time=0.48)
-        self.dynamic = [heading, left, right, left_force, right_force, resolved]
+        self.dynamic = [heading, hero, hero_shade, left_force, right_force, resolved]
 
     def motion_evidence(self):
         heading = self.start_scene(4, 18, "Motion is evidence")
         before_panel = self.panel("Before", BLUE, 5.0, 4.45, [-2.70, -0.25, 0])
         after_panel = self.panel("After", ORANGE, 5.0, 4.45, [2.70, -0.25, 0])
-        before_l, before_r = self.pilots(-4.00, -1.38, y=-0.35, height=3.58)
-        after_l, after_r = self.pilots(1.38, 4.00, y=-0.35, height=3.58)
-        before_group = Group(before_l, before_r)
+        before_image = self.image("selected-visual-target.png", width=4.68, point=[-2.70, -0.26, 0], z=34)
+        before_frame = SurroundingRectangle(before_image, color=BLUE, buff=0.03, corner_radius=0.12, stroke_width=3).set_z_index(36)
+        after_l, after_r = self.pilots(1.50, 3.90, y=-0.35, height=3.42)
+        after_l.set_z_index(34)
+        after_r.set_z_index(34)
+        before_group = Group(before_image, before_frame)
         after_group = Group(after_l, after_r)
         self.play_at(self.cstart(18) + 0.25, FadeIn(VGroup(before_panel, after_panel)), FadeIn(before_group), run_time=0.62)
         still = self.chip("Still", BLUE, width=1.55, point=[-2.70, -2.26, 0], size=19)
         self.play_at(self.cstart(19), Create(self.target_box(before_group, BLUE)), FadeIn(still), run_time=0.52)
-        self.play_at(self.cstart(20), FadeIn(after_group), after_l.animate.shift(LEFT * 0.62), after_r.animate.shift(RIGHT * 0.62), run_time=1.50, rate_func=rate_functions.ease_out_cubic)
+        self.play_at(self.cstart(20), FadeIn(after_group), after_l.animate.shift(LEFT * 0.58), after_r.animate.shift(RIGHT * 0.58), run_time=1.50, rate_func=rate_functions.ease_out_cubic)
         moving = self.chip("Moving apart", ORANGE, width=2.25, point=[2.70, -2.26, 0], size=18)
         evidence = self.evidence_stamp("Change in motion", [0, -2.80, 0], GREEN, 2.65)
         self.play_at(self.cstart(21), FadeIn(moving), FadeIn(evidence), run_time=0.48)
@@ -321,7 +337,7 @@ class PhysicsChapter01VoiceDirected(Scene):
 
     def push_ended(self):
         heading = self.start_scene(5, 24, "The push has ended", RED)
-        left, right = self.pilots(-2.78, 2.73, height=5.02)
+        left, right = self.pilots(-3.80, 3.76, height=5.02)
         idea = self.chip("Is a push stored inside?", RED, width=3.55, point=[0, 1.82, 0], size=19)
         self.play_at(self.cstart(24) + 0.24, FadeIn(Group(left, right)), FadeIn(idea), run_time=0.58)
         capsule_l = Circle(radius=0.28, color=VIOLET, stroke_width=4).move_to(left.get_center() + UP * 0.45)
@@ -333,15 +349,16 @@ class PhysicsChapter01VoiceDirected(Scene):
         for label, node in zip(labels, nodes):
             label.next_to(node, UP, buff=0.10)
         self.play_at(self.cstart(26), Create(rail), FadeIn(nodes), FadeIn(labels), run_time=0.62)
-        contact = self.contact_ring([0, 0.54, 0])
+        hero, hero_shade, _, _ = self.contact_pair(0.24)
+        contact = self.contact_ring([0, 0.88, 0], radius=0.20)
         force_pair = VGroup(
-            self.force_arrow([-0.20, 0.32, 0], [-1.72, 0.32, 0], "ON BLUE", BLUE),
-            self.force_arrow([0.20, 0.32, 0], [1.72, 0.32, 0], "ON ORANGE", ORANGE),
+            self.force_arrow([-0.20, 0.80, 0], [-1.92, 0.58, 0], "ON BLUE", BLUE),
+            self.force_arrow([0.20, 0.80, 0], [1.92, 0.58, 0], "ON ORANGE", ORANGE),
         )
         present = self.chip("Contact forces present", ORANGE, width=3.25, point=[0, 1.70, 0], size=18)
-        self.play_at(self.cstart(27), FadeOut(idea), FadeOut(VGroup(capsule_l, capsule_r)), Create(contact), FadeIn(force_pair), FadeIn(present), run_time=0.65)
-        trails = VGroup(self.trail([-1.68, -1.42, 0], LEFT, BLUE), self.trail([1.67, -1.42, 0], RIGHT, ORANGE))
-        self.play_at(self.cstart(28), FadeOut(contact), FadeOut(force_pair), FadeOut(present), left.animate.shift(LEFT * 1.05), right.animate.shift(RIGHT * 1.05), FadeIn(trails), run_time=1.75, rate_func=rate_functions.ease_out_cubic)
+        self.play_at(self.cstart(27), FadeOut(idea), FadeOut(VGroup(capsule_l, capsule_r)), FadeOut(Group(left, right)), FadeIn(Group(hero, hero_shade)), Create(contact), FadeIn(force_pair), FadeIn(present), run_time=0.65)
+        trails = VGroup(self.trail([-2.62, -1.42, 0], LEFT, BLUE), self.trail([2.60, -1.42, 0], RIGHT, ORANGE))
+        self.play_at(self.cstart(28), FadeOut(Group(hero, hero_shade)), FadeOut(contact), FadeOut(force_pair), FadeOut(present), FadeIn(left, shift=RIGHT * 1.05), FadeIn(right, shift=LEFT * 1.05), FadeIn(trails), run_time=1.75, rate_func=rate_functions.ease_out_cubic)
         ended = self.evidence_stamp("Contact ended / motion continues", [0, 1.74, 0], GREEN, 4.05)
         self.play_at(self.cstart(29), FadeIn(ended), Indicate(nodes[2], color=GREEN, scale_factor=1.5), run_time=0.55)
         self.dynamic = [heading, left, right, trails, rail, nodes, labels, ended]

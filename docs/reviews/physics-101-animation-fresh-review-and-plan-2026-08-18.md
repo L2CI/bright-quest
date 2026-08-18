@@ -4,7 +4,7 @@ Date: 18 August 2026
 Scope: `physics-training/physics-101-advanced-grade-4`
 Canonical render: `assets/videos/chapter-01.mp4`
 Source: `tools/render_physics_chapter_01_voice_directed.py`
-Status: implemented and QA passed in release `physics-101-force-lab-007`
+Status: implemented and QA passed in release `physics-101-force-lab-008`
 
 ## Executive Decision
 

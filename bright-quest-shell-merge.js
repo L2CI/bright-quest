@@ -438,7 +438,7 @@
               <small>Animated lessons and tests</small>
             </button>
             <button type="button" class="bq-world-tile chemistry" data-bq-action="physics-training">
-              <img src="physics-training/physics-101-advanced-grade-4/assets/ui/chapter-01-card.png?v=physics-101-force-lab-007" alt="" />
+              <img src="physics-training/physics-101-advanced-grade-4/assets/ui/chapter-01-card.png?v=physics-101-force-lab-008" alt="" />
               <span class="bq-world-status">${physicsStatus.completed ? "Chapter complete" : "Pilot ready"}</span>
               <strong>Physics Workshop</strong>
               <small>Forces, evidence and a cockpit check</small>

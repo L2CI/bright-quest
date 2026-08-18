@@ -1,6 +1,6 @@
 # Physics 101 Chapter 1 - Design QA
 
-Release: `physics-101-force-lab-007`
+Release: `physics-101-force-lab-008`
 
 Visual target: `assets/source/kinetic-lab-v3/selected-visual-target.png`
 
@@ -23,15 +23,16 @@ Duration: 206.71 seconds at 1280 x 720, 24 fps
 - Pass 3: confirmed that the canonical folder contains one delivery MP4, every caption has a visual contract, and no prototype video is referenced by the module.
 - One refinement defect was found and fixed: classification question labels became solid colour blocks after an emphasis animation. The final render uses persistent outline emphasis and retains readable text.
 - Prediction evidence now appears in narration order: gap visible, both carts move, then no hand contact.
+- Contact is literal rather than symbolic: the shared cinematic frame keeps both palms visibly touching for every contact claim, and the separate pilot assets appear only when the narration moves to separation or post-contact motion.
 
-Evidence: `outputs/physics-animation-review-final/20260818-111943-chapter-01/` and `outputs/physics-animation-review-final/dense-review/`.
+Evidence: `outputs/physics-animation-review-contact-fix/20260818-121302-chapter-01/` and `outputs/physics-contact-correction-final/contact-sheet-2s.png`.
 
 ## Media QA
 
 - Final video contains H.264 1280 x 720 video and stereo AAC audio.
 - Narration and captions retain the 206.71-second master duration.
 - The timeline contains 73 caption cues and 73 visual beats across 12 narration scenes.
-- Release cache keys were advanced to `physics-101-force-lab-007` so browsers request the new MP4, poster, captions, and course card.
+- Release cache keys were advanced to `physics-101-force-lab-008` so browsers request the corrected MP4, poster, captions, and course card.
 
 ## Browser and interaction QA
 
