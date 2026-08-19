@@ -128,7 +128,9 @@ async function buildChapter(course, chapter) {
   const renderFolder = path.basename(renderScript, path.extname(renderScript));
   const silentVideo = await findFile(path.join(chapterWorkDir, "videos", renderFolder), `${silentName}.mp4`);
   const videoPath = path.join(courseDir, "assets", "videos", `${chapterTag}.mp4`);
-  await run(ffmpeg, ["-y", "-i", silentVideo, "-i", masterWav, "-map", "0:v:0", "-map", "1:a:0", "-c:v", "libx264", "-preset", "slow", "-crf", "18", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", videoPath]);
+  const passLog = path.join(chapterWorkDir, `${chapterTag}-delivery-pass`);
+  await run(ffmpeg, ["-y", "-i", silentVideo, "-map", "0:v:0", "-c:v", "libx264", "-preset", "slow", "-b:v", "820k", "-maxrate", "950k", "-bufsize", "1900k", "-pix_fmt", "yuv420p", "-pass", "1", "-passlogfile", passLog, "-an", "-f", "null", "NUL"]);
+  await run(ffmpeg, ["-y", "-i", silentVideo, "-i", masterWav, "-map", "0:v:0", "-map", "1:a:0", "-c:v", "libx264", "-preset", "slow", "-b:v", "820k", "-maxrate", "950k", "-bufsize", "1900k", "-pix_fmt", "yuv420p", "-pass", "2", "-passlogfile", passLog, "-c:a", "aac", "-b:a", "96k", "-shortest", "-movflags", "+faststart", videoPath]);
   const posterPath = path.join(courseDir, "assets", "posters", `${chapterTag}.jpg`);
   await run(ffmpeg, ["-y", "-ss", String(posterAt[chapter.number]), "-i", videoPath, "-frames:v", "1", "-update", "1", "-q:v", "2", posterPath]);
   await run(ffmpeg, ["-y", "-i", posterPath, "-vf", "scale=720:405", "-frames:v", "1", "-update", "1", path.join(courseDir, "assets", "ui", `${chapterTag}-card.png`)]);

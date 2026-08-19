@@ -28,6 +28,8 @@ Research basis: OpenAI speech guidance, de Koning et al.'s cueing framework, Van
 
 Medium scanner flags were human-reviewed. They correspond to information-rich prediction or evidence holds, including repeated stopping data, the vacuum landing comparison and labelled magnetic repulsion. These holds were retained deliberately.
 
+All delivery videos remain 1920x1080 H.264 at 30 fps and use a two-pass encode below Cloudflare Pages' 25 MiB per-file limit. Master/delivery comparison sheets confirmed that labels, arrows, apparatus edges and photographic detail remain sharp at the player scale.
+
 ## Browser and data QA
 
 - Muted Chrome: desktop 1440x900, tablet 834x1194 and mobile 390x844.
