@@ -1,0 +1,1993 @@
+{
+  "release": "physics-101-cinematic-lab-011",
+  "chapter": 5,
+  "duration": 205,
+  "cues": [
+    {
+      "id": "gravity-predict",
+      "title": "Ball or feather?",
+      "visual": "ball-feather-air-drop-prediction",
+      "text": "A ball and feather wait at the same height. In ordinary air, which reaches the floor first? Make a prediction, but also predict why. We will change the air without changing the objects, height or release time.",
+      "start": 0,
+      "end": 12.023,
+      "beatEnd": 12.023,
+      "voiceSection": "part-1"
+    },
+    {
+      "id": "gravity-air-demo",
+      "title": "Watch the open-air drop",
+      "visual": "synchronised-ball-feather-air-drop",
+      "text": "Release. The ball lands first while the feather drifts. That observation is real, but it does not prove gravity pulls only on the ball. Another interaction is affecting the feather. Watch the air bend and flow around it.",
+      "start": 12.023,
+      "end": 24.37,
+      "beatEnd": 24.37,
+      "voiceSection": "part-1"
+    },
+    {
+      "id": "gravity-vacuum-question",
+      "title": "Remove one interaction",
+      "visual": "vacuum-chamber-air-removal-gauge",
+      "text": "Seal both objects inside a clear chamber and remove almost all the air, creating a vacuum. The starting height and release stay the same. If gravity needs air, neither object should fall. If air caused the difference, what should happen?",
+      "start": 24.37,
+      "end": 37.368,
+      "beatEnd": 53.533,
+      "voiceSection": "part-1"
+    },
+    {
+      "id": "gravity-earth-pull",
+      "title": "Model Earth's pull",
+      "visual": "earth-on-object-violet-arrows",
+      "text": "Gravity is Earth's pull on each object without direct contact. Draw a violet Earth on ball arrow downward on the ball, and Earth on feather downward on the feather. Both arrows remain whether the chamber contains air or not.",
+      "start": 53.533,
+      "end": 65.523,
+      "beatEnd": 65.523,
+      "voiceSection": "part-2"
+    },
+    {
+      "id": "gravity-air-resistance",
+      "title": "Add the air interaction",
+      "visual": "feather-air-resistance-close-up",
+      "text": "In open air, moving air particles touch the falling objects. Air resistance acts against their downward motion. Its effect is much more noticeable on the wide, light feather, so the feather falls more slowly even while gravity still pulls it downward.",
+      "start": 65.523,
+      "end": 78.128,
+      "beatEnd": 78.128,
+      "voiceSection": "part-2"
+    },
+    {
+      "id": "gravity-vacuum-demo",
+      "title": "Run the chamber test",
+      "visual": "vacuum-ball-feather-together-slow-motion",
+      "text": "Release them in the vacuum. Ball and feather fall together and land together. Gravity did not disappear when the air was removed. Removing most air resistance removed the large difference between their motions. Hold that result and compare both landing frames.",
+      "start": 78.128,
+      "end": 90.733,
+      "beatEnd": 106.897,
+      "voiceSection": "part-2"
+    },
+    {
+      "id": "gravity-direction-model",
+      "title": "Which way does gravity pull?",
+      "visual": "earth-centre-radial-arrow-model",
+      "text": "Zoom out to Earth. Objects above Australia, Africa and the Pacific each have an Earth-on-object arrow pointing towards Earth's centre. Down means towards the ground beneath you because Earth pulls objects towards its centre from every side.",
+      "start": 106.897,
+      "end": 119.432,
+      "beatEnd": 119.432,
+      "voiceSection": "part-3"
+    },
+    {
+      "id": "gravity-fair-comparison",
+      "title": "Protect the comparison",
+      "visual": "air-vacuum-control-checklist",
+      "text": "A strong comparison uses the same ball, feather, chamber, starting heights and release time. The air condition is the planned change. Compare landing times, repeat the drops, and do not secretly change the feather's shape between trials.",
+      "start": 119.432,
+      "end": 131.967,
+      "beatEnd": 131.967,
+      "voiceSection": "part-3"
+    },
+    {
+      "id": "gravity-transfer",
+      "title": "What if something floats?",
+      "visual": "helium-balloon-two-force-model",
+      "text": "A helium balloon can rise, yet Earth still pulls it downward. The surrounding air pushes upward strongly enough for the motion to be upward. Rising or floating describes the motion; it does not mean gravity has switched off.",
+      "start": 131.967,
+      "end": 144.841,
+      "beatEnd": 161.006,
+      "voiceSection": "part-3"
+    },
+    {
+      "id": "gravity-misconception",
+      "title": "Test gravity needs air",
+      "visual": "gravity-needs-air-claim-versus-vacuum",
+      "text": "Someone claims gravity needs air to work. The vacuum result rejects that idea: with almost no air resistance, both objects still speed downward and land. The changed air condition affected their difference, not the existence of Earth's pull.",
+      "start": 161.006,
+      "end": 174.889,
+      "beatEnd": 174.889,
+      "voiceSection": "part-4"
+    },
+    {
+      "id": "gravity-correction",
+      "title": "Separate the two forces",
+      "visual": "air-versus-vacuum-force-layer-comparison",
+      "text": "Use two questions. Is Earth pulling the object? Yes, near Earth's surface. Is air resistance affecting its fall? Only when air touches the moving object. Keeping these interactions separate explains both the open-air result and the vacuum result.",
+      "start": 174.889,
+      "end": 188.771,
+      "beatEnd": 188.771,
+      "voiceSection": "part-4"
+    },
+    {
+      "id": "gravity-exit",
+      "title": "Predict a paper test",
+      "visual": "flat-crumpled-paper-air-vacuum-exit",
+      "text": "A flat sheet and a tightly crumpled sheet use the same paper. In air, the flat sheet falls more slowly. In a vacuum, what should change, and which force remains on both sheets? Use the two-force model to justify your answer.",
+      "start": 188.771,
+      "end": 203.75,
+      "beatEnd": 205,
+      "voiceSection": "part-4"
+    }
+  ],
+  "captionCues": [
+    {
+      "index": 1,
+      "start": 0,
+      "end": 2.522,
+      "text": "A ball and feather wait at the same height.",
+      "sourceCueId": "gravity-predict",
+      "event": "gravity-predict-1",
+      "cueFunction": "selection",
+      "targets": [
+        "ball-feather-air-drop-prediction",
+        "gravity-predict-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 2,
+      "start": 2.522,
+      "end": 5.278,
+      "text": "In ordinary air, which reaches the floor first?",
+      "sourceCueId": "gravity-predict",
+      "event": "gravity-predict-2",
+      "cueFunction": "integration",
+      "targets": [
+        "ball-feather-air-drop-prediction",
+        "gravity-predict-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 3,
+      "start": 5.278,
+      "end": 7.624,
+      "text": "Make a prediction, but also predict why.",
+      "sourceCueId": "gravity-predict",
+      "event": "gravity-predict-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "ball-feather-air-drop-prediction",
+        "gravity-predict-evidence"
+      ],
+      "intentionalHold": "predict"
+    },
+    {
+      "index": 4,
+      "start": 7.624,
+      "end": 11.261,
+      "text": "We will change the air without changing the objects, height or",
+      "sourceCueId": "gravity-predict",
+      "event": "gravity-predict-4",
+      "cueFunction": "selection",
+      "targets": [
+        "ball-feather-air-drop-prediction",
+        "gravity-predict-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 5,
+      "start": 11.261,
+      "end": 12.023,
+      "text": "release time.",
+      "sourceCueId": "gravity-predict",
+      "event": "gravity-predict-5",
+      "cueFunction": "integration",
+      "targets": [
+        "ball-feather-air-drop-prediction",
+        "gravity-predict-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 6,
+      "start": 12.023,
+      "end": 12.482,
+      "text": "Release.",
+      "sourceCueId": "gravity-air-demo",
+      "event": "gravity-air-demo-1",
+      "cueFunction": "selection",
+      "targets": [
+        "synchronised-ball-feather-air-drop",
+        "gravity-air-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 7,
+      "start": 12.482,
+      "end": 15.124,
+      "text": "The ball lands first while the feather drifts.",
+      "sourceCueId": "gravity-air-demo",
+      "event": "gravity-air-demo-2",
+      "cueFunction": "integration",
+      "targets": [
+        "synchronised-ball-feather-air-drop",
+        "gravity-air-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 8,
+      "start": 15.124,
+      "end": 18.627,
+      "text": "That observation is real, but it does not prove gravity pulls",
+      "sourceCueId": "gravity-air-demo",
+      "event": "gravity-air-demo-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "synchronised-ball-feather-air-drop",
+        "gravity-air-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 9,
+      "start": 18.627,
+      "end": 19.603,
+      "text": "only on the ball.",
+      "sourceCueId": "gravity-air-demo",
+      "event": "gravity-air-demo-4",
+      "cueFunction": "selection",
+      "targets": [
+        "synchronised-ball-feather-air-drop",
+        "gravity-air-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 10,
+      "start": 19.603,
+      "end": 22.188,
+      "text": "Another interaction is affecting the feather.",
+      "sourceCueId": "gravity-air-demo",
+      "event": "gravity-air-demo-5",
+      "cueFunction": "integration",
+      "targets": [
+        "synchronised-ball-feather-air-drop",
+        "gravity-air-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 11,
+      "start": 22.188,
+      "end": 24.37,
+      "text": "Watch the air bend and flow around it.",
+      "sourceCueId": "gravity-air-demo",
+      "event": "gravity-air-demo-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "synchronised-ball-feather-air-drop",
+        "gravity-air-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 12,
+      "start": 24.37,
+      "end": 27.829,
+      "text": "Seal both objects inside a clear chamber and remove almost all",
+      "sourceCueId": "gravity-vacuum-question",
+      "event": "gravity-vacuum-question-1",
+      "cueFunction": "selection",
+      "targets": [
+        "vacuum-chamber-air-removal-gauge",
+        "gravity-vacuum-question-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 13,
+      "start": 27.829,
+      "end": 29.335,
+      "text": "the air, creating a vacuum.",
+      "sourceCueId": "gravity-vacuum-question",
+      "event": "gravity-vacuum-question-2",
+      "cueFunction": "integration",
+      "targets": [
+        "vacuum-chamber-air-removal-gauge",
+        "gravity-vacuum-question-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 14,
+      "start": 29.335,
+      "end": 31.901,
+      "text": "The starting height and release stay the same.",
+      "sourceCueId": "gravity-vacuum-question",
+      "event": "gravity-vacuum-question-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "vacuum-chamber-air-removal-gauge",
+        "gravity-vacuum-question-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 15,
+      "start": 31.901,
+      "end": 34.635,
+      "text": "If gravity needs air, neither object should fall.",
+      "sourceCueId": "gravity-vacuum-question",
+      "event": "gravity-vacuum-question-4",
+      "cueFunction": "selection",
+      "targets": [
+        "vacuum-chamber-air-removal-gauge",
+        "gravity-vacuum-question-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 16,
+      "start": 34.635,
+      "end": 37.368,
+      "text": "If air caused the difference, what should happen?",
+      "sourceCueId": "gravity-vacuum-question",
+      "event": "gravity-vacuum-question-5",
+      "cueFunction": "integration",
+      "targets": [
+        "vacuum-chamber-air-removal-gauge",
+        "gravity-vacuum-question-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 17,
+      "start": 53.533,
+      "end": 56.897,
+      "text": "Gravity is Earth's pull on each object without direct contact.",
+      "sourceCueId": "gravity-earth-pull",
+      "event": "gravity-earth-pull-1",
+      "cueFunction": "selection",
+      "targets": [
+        "earth-on-object-violet-arrows",
+        "gravity-earth-pull-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 18,
+      "start": 56.897,
+      "end": 60.098,
+      "text": "Draw a violet Earth on ball arrow downward on the ball, and",
+      "sourceCueId": "gravity-earth-pull",
+      "event": "gravity-earth-pull-2",
+      "cueFunction": "integration",
+      "targets": [
+        "earth-on-object-violet-arrows",
+        "gravity-earth-pull-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 19,
+      "start": 60.098,
+      "end": 62.322,
+      "text": "Earth on feather downward on the feather.",
+      "sourceCueId": "gravity-earth-pull",
+      "event": "gravity-earth-pull-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "earth-on-object-violet-arrows",
+        "gravity-earth-pull-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 20,
+      "start": 62.322,
+      "end": 65.523,
+      "text": "Both arrows remain whether the chamber contains air or not.",
+      "sourceCueId": "gravity-earth-pull",
+      "event": "gravity-earth-pull-4",
+      "cueFunction": "selection",
+      "targets": [
+        "earth-on-object-violet-arrows",
+        "gravity-earth-pull-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 21,
+      "start": 65.523,
+      "end": 68.585,
+      "text": "In open air, moving air particles touch the falling objects.",
+      "sourceCueId": "gravity-air-resistance",
+      "event": "gravity-air-resistance-1",
+      "cueFunction": "selection",
+      "targets": [
+        "feather-air-resistance-close-up",
+        "gravity-air-resistance-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 22,
+      "start": 68.585,
+      "end": 71.137,
+      "text": "Air resistance acts against their downward motion.",
+      "sourceCueId": "gravity-air-resistance",
+      "event": "gravity-air-resistance-2",
+      "cueFunction": "integration",
+      "targets": [
+        "feather-air-resistance-close-up",
+        "gravity-air-resistance-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 23,
+      "start": 71.137,
+      "end": 74.301,
+      "text": "Its effect is much more noticeable on the wide, light feather,",
+      "sourceCueId": "gravity-air-resistance",
+      "event": "gravity-air-resistance-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "feather-air-resistance-close-up",
+        "gravity-air-resistance-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 24,
+      "start": 74.301,
+      "end": 77.209,
+      "text": "so the feather falls more slowly even while gravity still",
+      "sourceCueId": "gravity-air-resistance",
+      "event": "gravity-air-resistance-4",
+      "cueFunction": "selection",
+      "targets": [
+        "feather-air-resistance-close-up",
+        "gravity-air-resistance-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 25,
+      "start": 77.209,
+      "end": 78.128,
+      "text": "pulls it downward.",
+      "sourceCueId": "gravity-air-resistance",
+      "event": "gravity-air-resistance-5",
+      "cueFunction": "integration",
+      "targets": [
+        "feather-air-resistance-close-up",
+        "gravity-air-resistance-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 26,
+      "start": 78.128,
+      "end": 79.463,
+      "text": "Release them in the vacuum.",
+      "sourceCueId": "gravity-vacuum-demo",
+      "event": "gravity-vacuum-demo-1",
+      "cueFunction": "selection",
+      "targets": [
+        "vacuum-ball-feather-together-slow-motion",
+        "gravity-vacuum-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 27,
+      "start": 79.463,
+      "end": 81.885,
+      "text": "Ball and feather fall together and land together.",
+      "sourceCueId": "gravity-vacuum-demo",
+      "event": "gravity-vacuum-demo-2",
+      "cueFunction": "integration",
+      "targets": [
+        "vacuum-ball-feather-together-slow-motion",
+        "gravity-vacuum-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 28,
+      "start": 81.885,
+      "end": 84.406,
+      "text": "Gravity did not disappear when the air was removed.",
+      "sourceCueId": "gravity-vacuum-demo",
+      "event": "gravity-vacuum-demo-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "vacuum-ball-feather-together-slow-motion",
+        "gravity-vacuum-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 29,
+      "start": 84.406,
+      "end": 87.223,
+      "text": "Removing most air resistance removed the large difference",
+      "sourceCueId": "gravity-vacuum-demo",
+      "event": "gravity-vacuum-demo-4",
+      "cueFunction": "selection",
+      "targets": [
+        "vacuum-ball-feather-together-slow-motion",
+        "gravity-vacuum-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 30,
+      "start": 87.223,
+      "end": 88.311,
+      "text": "between their motions.",
+      "sourceCueId": "gravity-vacuum-demo",
+      "event": "gravity-vacuum-demo-5",
+      "cueFunction": "integration",
+      "targets": [
+        "vacuum-ball-feather-together-slow-motion",
+        "gravity-vacuum-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 31,
+      "start": 88.311,
+      "end": 90.733,
+      "text": "Hold that result and compare both landing frames.",
+      "sourceCueId": "gravity-vacuum-demo",
+      "event": "gravity-vacuum-demo-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "vacuum-ball-feather-together-slow-motion",
+        "gravity-vacuum-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 32,
+      "start": 106.897,
+      "end": 107.853,
+      "text": "Zoom out to Earth.",
+      "sourceCueId": "gravity-direction-model",
+      "event": "gravity-direction-model-1",
+      "cueFunction": "selection",
+      "targets": [
+        "earth-centre-radial-arrow-model",
+        "gravity-direction-model-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 33,
+      "start": 107.853,
+      "end": 111.04,
+      "text": "Objects above Australia, Africa and the Pacific each have an",
+      "sourceCueId": "gravity-direction-model",
+      "event": "gravity-direction-model-2",
+      "cueFunction": "integration",
+      "targets": [
+        "earth-centre-radial-arrow-model",
+        "gravity-direction-model-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 34,
+      "start": 111.04,
+      "end": 113.908,
+      "text": "Earth-on-object arrow pointing towards Earth's centre.",
+      "sourceCueId": "gravity-direction-model",
+      "event": "gravity-direction-model-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "earth-centre-radial-arrow-model",
+        "gravity-direction-model-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 35,
+      "start": 113.908,
+      "end": 117.148,
+      "text": "Down means towards the ground beneath you because Earth pulls",
+      "sourceCueId": "gravity-direction-model",
+      "event": "gravity-direction-model-4",
+      "cueFunction": "selection",
+      "targets": [
+        "earth-centre-radial-arrow-model",
+        "gravity-direction-model-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 36,
+      "start": 117.148,
+      "end": 119.432,
+      "text": "objects towards its centre from every side.",
+      "sourceCueId": "gravity-direction-model",
+      "event": "gravity-direction-model-5",
+      "cueFunction": "integration",
+      "targets": [
+        "earth-centre-radial-arrow-model",
+        "gravity-direction-model-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 37,
+      "start": 119.432,
+      "end": 122.499,
+      "text": "A strong comparison uses the same ball, feather, chamber,",
+      "sourceCueId": "gravity-fair-comparison",
+      "event": "gravity-fair-comparison-1",
+      "cueFunction": "selection",
+      "targets": [
+        "air-vacuum-control-checklist",
+        "gravity-fair-comparison-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 38,
+      "start": 122.499,
+      "end": 124.328,
+      "text": "starting heights and release time.",
+      "sourceCueId": "gravity-fair-comparison",
+      "event": "gravity-fair-comparison-2",
+      "cueFunction": "integration",
+      "targets": [
+        "air-vacuum-control-checklist",
+        "gravity-fair-comparison-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 39,
+      "start": 124.328,
+      "end": 126.48,
+      "text": "The air condition is the planned change.",
+      "sourceCueId": "gravity-fair-comparison",
+      "event": "gravity-fair-comparison-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "air-vacuum-control-checklist",
+        "gravity-fair-comparison-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 40,
+      "start": 126.48,
+      "end": 129.707,
+      "text": "Compare landing times, repeat the drops, and do not secretly",
+      "sourceCueId": "gravity-fair-comparison",
+      "event": "gravity-fair-comparison-4",
+      "cueFunction": "selection",
+      "targets": [
+        "air-vacuum-control-checklist",
+        "gravity-fair-comparison-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 41,
+      "start": 129.707,
+      "end": 131.967,
+      "text": "change the feather's shape between trials.",
+      "sourceCueId": "gravity-fair-comparison",
+      "event": "gravity-fair-comparison-5",
+      "cueFunction": "integration",
+      "targets": [
+        "air-vacuum-control-checklist",
+        "gravity-fair-comparison-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 42,
+      "start": 131.967,
+      "end": 135.537,
+      "text": "A helium balloon can rise, yet Earth still pulls it downward.",
+      "sourceCueId": "gravity-transfer",
+      "event": "gravity-transfer-1",
+      "cueFunction": "selection",
+      "targets": [
+        "helium-balloon-two-force-model",
+        "gravity-transfer-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 43,
+      "start": 135.537,
+      "end": 138.872,
+      "text": "The surrounding air pushes upward strongly enough for the",
+      "sourceCueId": "gravity-transfer",
+      "event": "gravity-transfer-2",
+      "cueFunction": "integration",
+      "targets": [
+        "helium-balloon-two-force-model",
+        "gravity-transfer-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 44,
+      "start": 138.872,
+      "end": 140.043,
+      "text": "motion to be upward.",
+      "sourceCueId": "gravity-transfer",
+      "event": "gravity-transfer-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "helium-balloon-two-force-model",
+        "gravity-transfer-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 45,
+      "start": 140.043,
+      "end": 143.378,
+      "text": "Rising or floating describes the motion; it does not mean",
+      "sourceCueId": "gravity-transfer",
+      "event": "gravity-transfer-4",
+      "cueFunction": "selection",
+      "targets": [
+        "helium-balloon-two-force-model",
+        "gravity-transfer-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 46,
+      "start": 143.378,
+      "end": 144.841,
+      "text": "gravity has switched off.",
+      "sourceCueId": "gravity-transfer",
+      "event": "gravity-transfer-5",
+      "cueFunction": "integration",
+      "targets": [
+        "helium-balloon-two-force-model",
+        "gravity-transfer-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 47,
+      "start": 161.006,
+      "end": 163.408,
+      "text": "Someone claims gravity needs air to work.",
+      "sourceCueId": "gravity-misconception",
+      "event": "gravity-misconception-1",
+      "cueFunction": "selection",
+      "targets": [
+        "gravity-needs-air-claim-versus-vacuum",
+        "gravity-misconception-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 48,
+      "start": 163.408,
+      "end": 166.629,
+      "text": "The vacuum result rejects that idea: with almost no air",
+      "sourceCueId": "gravity-misconception",
+      "event": "gravity-misconception-2",
+      "cueFunction": "integration",
+      "targets": [
+        "gravity-needs-air-claim-versus-vacuum",
+        "gravity-misconception-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 49,
+      "start": 166.629,
+      "end": 169.851,
+      "text": "resistance, both objects still speed downward and land.",
+      "sourceCueId": "gravity-misconception",
+      "event": "gravity-misconception-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "gravity-needs-air-claim-versus-vacuum",
+        "gravity-misconception-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 50,
+      "start": 169.851,
+      "end": 173.366,
+      "text": "The changed air condition affected their difference, not the",
+      "sourceCueId": "gravity-misconception",
+      "event": "gravity-misconception-4",
+      "cueFunction": "selection",
+      "targets": [
+        "gravity-needs-air-claim-versus-vacuum",
+        "gravity-misconception-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 51,
+      "start": 173.366,
+      "end": 174.889,
+      "text": "existence of Earth's pull.",
+      "sourceCueId": "gravity-misconception",
+      "event": "gravity-misconception-5",
+      "cueFunction": "integration",
+      "targets": [
+        "gravity-needs-air-claim-versus-vacuum",
+        "gravity-misconception-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 52,
+      "start": 174.889,
+      "end": 175.93,
+      "text": "Use two questions.",
+      "sourceCueId": "gravity-correction",
+      "event": "gravity-correction-1",
+      "cueFunction": "selection",
+      "targets": [
+        "air-versus-vacuum-force-layer-comparison",
+        "gravity-correction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 53,
+      "start": 175.93,
+      "end": 177.55,
+      "text": "Is Earth pulling the object?",
+      "sourceCueId": "gravity-correction",
+      "event": "gravity-correction-2",
+      "cueFunction": "integration",
+      "targets": [
+        "air-versus-vacuum-force-layer-comparison",
+        "gravity-correction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 54,
+      "start": 177.55,
+      "end": 179.054,
+      "text": "Yes, near Earth's surface.",
+      "sourceCueId": "gravity-correction",
+      "event": "gravity-correction-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "air-versus-vacuum-force-layer-comparison",
+        "gravity-correction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 55,
+      "start": 179.054,
+      "end": 181.194,
+      "text": "Is air resistance affecting its fall?",
+      "sourceCueId": "gravity-correction",
+      "event": "gravity-correction-4",
+      "cueFunction": "selection",
+      "targets": [
+        "air-versus-vacuum-force-layer-comparison",
+        "gravity-correction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 56,
+      "start": 181.194,
+      "end": 183.507,
+      "text": "Only when air touches the moving object.",
+      "sourceCueId": "gravity-correction",
+      "event": "gravity-correction-5",
+      "cueFunction": "integration",
+      "targets": [
+        "air-versus-vacuum-force-layer-comparison",
+        "gravity-correction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 57,
+      "start": 183.507,
+      "end": 187.094,
+      "text": "Keeping these interactions separate explains both the open-air",
+      "sourceCueId": "gravity-correction",
+      "event": "gravity-correction-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "air-versus-vacuum-force-layer-comparison",
+        "gravity-correction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 58,
+      "start": 187.094,
+      "end": 188.771,
+      "text": "result and the vacuum result.",
+      "sourceCueId": "gravity-correction",
+      "event": "gravity-correction-7",
+      "cueFunction": "selection",
+      "targets": [
+        "air-versus-vacuum-force-layer-comparison",
+        "gravity-correction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 59,
+      "start": 188.771,
+      "end": 192.924,
+      "text": "A flat sheet and a tightly crumpled sheet use the same paper.",
+      "sourceCueId": "gravity-exit",
+      "event": "gravity-exit-1",
+      "cueFunction": "selection",
+      "targets": [
+        "flat-crumpled-paper-air-vacuum-exit",
+        "gravity-exit-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 60,
+      "start": 192.924,
+      "end": 195.716,
+      "text": "In air, the flat sheet falls more slowly.",
+      "sourceCueId": "gravity-exit",
+      "event": "gravity-exit-2",
+      "cueFunction": "integration",
+      "targets": [
+        "flat-crumpled-paper-air-vacuum-exit",
+        "gravity-exit-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 61,
+      "start": 195.716,
+      "end": 199.733,
+      "text": "In a vacuum, what should change, and which force remains on",
+      "sourceCueId": "gravity-exit",
+      "event": "gravity-exit-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "flat-crumpled-paper-air-vacuum-exit",
+        "gravity-exit-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 62,
+      "start": 199.733,
+      "end": 200.55,
+      "text": "both sheets?",
+      "sourceCueId": "gravity-exit",
+      "event": "gravity-exit-4",
+      "cueFunction": "selection",
+      "targets": [
+        "flat-crumpled-paper-air-vacuum-exit",
+        "gravity-exit-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 63,
+      "start": 200.55,
+      "end": 203.75,
+      "text": "Use the two-force model to justify your answer.",
+      "sourceCueId": "gravity-exit",
+      "event": "gravity-exit-5",
+      "cueFunction": "integration",
+      "targets": [
+        "flat-crumpled-paper-air-vacuum-exit",
+        "gravity-exit-evidence"
+      ],
+      "intentionalHold": null
+    }
+  ],
+  "visualBeats": [
+    {
+      "index": 1,
+      "start": 0,
+      "end": 2.522,
+      "sourceCueId": "gravity-predict",
+      "event": "gravity-predict-1",
+      "cueFunction": "selection",
+      "targets": [
+        "ball-feather-air-drop-prediction",
+        "gravity-predict-evidence"
+      ],
+      "holdUntil": 2.522,
+      "intentionalHold": null
+    },
+    {
+      "index": 2,
+      "start": 2.522,
+      "end": 5.278,
+      "sourceCueId": "gravity-predict",
+      "event": "gravity-predict-2",
+      "cueFunction": "integration",
+      "targets": [
+        "ball-feather-air-drop-prediction",
+        "gravity-predict-evidence"
+      ],
+      "holdUntil": 5.278,
+      "intentionalHold": null
+    },
+    {
+      "index": 3,
+      "start": 5.278,
+      "end": 7.624,
+      "sourceCueId": "gravity-predict",
+      "event": "gravity-predict-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "ball-feather-air-drop-prediction",
+        "gravity-predict-evidence"
+      ],
+      "holdUntil": 7.624,
+      "intentionalHold": "predict"
+    },
+    {
+      "index": 4,
+      "start": 7.624,
+      "end": 11.261,
+      "sourceCueId": "gravity-predict",
+      "event": "gravity-predict-4",
+      "cueFunction": "selection",
+      "targets": [
+        "ball-feather-air-drop-prediction",
+        "gravity-predict-evidence"
+      ],
+      "holdUntil": 11.261,
+      "intentionalHold": null
+    },
+    {
+      "index": 5,
+      "start": 11.261,
+      "end": 12.023,
+      "sourceCueId": "gravity-predict",
+      "event": "gravity-predict-5",
+      "cueFunction": "integration",
+      "targets": [
+        "ball-feather-air-drop-prediction",
+        "gravity-predict-evidence"
+      ],
+      "holdUntil": 12.023,
+      "intentionalHold": null
+    },
+    {
+      "index": 6,
+      "start": 12.023,
+      "end": 12.482,
+      "sourceCueId": "gravity-air-demo",
+      "event": "gravity-air-demo-1",
+      "cueFunction": "selection",
+      "targets": [
+        "synchronised-ball-feather-air-drop",
+        "gravity-air-demo-evidence"
+      ],
+      "holdUntil": 12.482,
+      "intentionalHold": null
+    },
+    {
+      "index": 7,
+      "start": 12.482,
+      "end": 15.124,
+      "sourceCueId": "gravity-air-demo",
+      "event": "gravity-air-demo-2",
+      "cueFunction": "integration",
+      "targets": [
+        "synchronised-ball-feather-air-drop",
+        "gravity-air-demo-evidence"
+      ],
+      "holdUntil": 15.124,
+      "intentionalHold": null
+    },
+    {
+      "index": 8,
+      "start": 15.124,
+      "end": 18.627,
+      "sourceCueId": "gravity-air-demo",
+      "event": "gravity-air-demo-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "synchronised-ball-feather-air-drop",
+        "gravity-air-demo-evidence"
+      ],
+      "holdUntil": 18.627,
+      "intentionalHold": null
+    },
+    {
+      "index": 9,
+      "start": 18.627,
+      "end": 19.603,
+      "sourceCueId": "gravity-air-demo",
+      "event": "gravity-air-demo-4",
+      "cueFunction": "selection",
+      "targets": [
+        "synchronised-ball-feather-air-drop",
+        "gravity-air-demo-evidence"
+      ],
+      "holdUntil": 19.603,
+      "intentionalHold": null
+    },
+    {
+      "index": 10,
+      "start": 19.603,
+      "end": 22.188,
+      "sourceCueId": "gravity-air-demo",
+      "event": "gravity-air-demo-5",
+      "cueFunction": "integration",
+      "targets": [
+        "synchronised-ball-feather-air-drop",
+        "gravity-air-demo-evidence"
+      ],
+      "holdUntil": 22.188,
+      "intentionalHold": null
+    },
+    {
+      "index": 11,
+      "start": 22.188,
+      "end": 24.37,
+      "sourceCueId": "gravity-air-demo",
+      "event": "gravity-air-demo-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "synchronised-ball-feather-air-drop",
+        "gravity-air-demo-evidence"
+      ],
+      "holdUntil": 24.37,
+      "intentionalHold": null
+    },
+    {
+      "index": 12,
+      "start": 24.37,
+      "end": 27.829,
+      "sourceCueId": "gravity-vacuum-question",
+      "event": "gravity-vacuum-question-1",
+      "cueFunction": "selection",
+      "targets": [
+        "vacuum-chamber-air-removal-gauge",
+        "gravity-vacuum-question-evidence"
+      ],
+      "holdUntil": 27.829,
+      "intentionalHold": null
+    },
+    {
+      "index": 13,
+      "start": 27.829,
+      "end": 29.335,
+      "sourceCueId": "gravity-vacuum-question",
+      "event": "gravity-vacuum-question-2",
+      "cueFunction": "integration",
+      "targets": [
+        "vacuum-chamber-air-removal-gauge",
+        "gravity-vacuum-question-evidence"
+      ],
+      "holdUntil": 29.335,
+      "intentionalHold": null
+    },
+    {
+      "index": 14,
+      "start": 29.335,
+      "end": 31.901,
+      "sourceCueId": "gravity-vacuum-question",
+      "event": "gravity-vacuum-question-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "vacuum-chamber-air-removal-gauge",
+        "gravity-vacuum-question-evidence"
+      ],
+      "holdUntil": 31.901,
+      "intentionalHold": null
+    },
+    {
+      "index": 15,
+      "start": 31.901,
+      "end": 34.635,
+      "sourceCueId": "gravity-vacuum-question",
+      "event": "gravity-vacuum-question-4",
+      "cueFunction": "selection",
+      "targets": [
+        "vacuum-chamber-air-removal-gauge",
+        "gravity-vacuum-question-evidence"
+      ],
+      "holdUntil": 34.635,
+      "intentionalHold": null
+    },
+    {
+      "index": 16,
+      "start": 34.635,
+      "end": 37.368,
+      "sourceCueId": "gravity-vacuum-question",
+      "event": "gravity-vacuum-question-5",
+      "cueFunction": "integration",
+      "targets": [
+        "vacuum-chamber-air-removal-gauge",
+        "gravity-vacuum-question-evidence"
+      ],
+      "holdUntil": 37.368,
+      "intentionalHold": null
+    },
+    {
+      "index": 17,
+      "start": 53.533,
+      "end": 56.897,
+      "sourceCueId": "gravity-earth-pull",
+      "event": "gravity-earth-pull-1",
+      "cueFunction": "selection",
+      "targets": [
+        "earth-on-object-violet-arrows",
+        "gravity-earth-pull-evidence"
+      ],
+      "holdUntil": 56.897,
+      "intentionalHold": null
+    },
+    {
+      "index": 18,
+      "start": 56.897,
+      "end": 60.098,
+      "sourceCueId": "gravity-earth-pull",
+      "event": "gravity-earth-pull-2",
+      "cueFunction": "integration",
+      "targets": [
+        "earth-on-object-violet-arrows",
+        "gravity-earth-pull-evidence"
+      ],
+      "holdUntil": 60.098,
+      "intentionalHold": null
+    },
+    {
+      "index": 19,
+      "start": 60.098,
+      "end": 62.322,
+      "sourceCueId": "gravity-earth-pull",
+      "event": "gravity-earth-pull-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "earth-on-object-violet-arrows",
+        "gravity-earth-pull-evidence"
+      ],
+      "holdUntil": 62.322,
+      "intentionalHold": null
+    },
+    {
+      "index": 20,
+      "start": 62.322,
+      "end": 65.523,
+      "sourceCueId": "gravity-earth-pull",
+      "event": "gravity-earth-pull-4",
+      "cueFunction": "selection",
+      "targets": [
+        "earth-on-object-violet-arrows",
+        "gravity-earth-pull-evidence"
+      ],
+      "holdUntil": 65.523,
+      "intentionalHold": null
+    },
+    {
+      "index": 21,
+      "start": 65.523,
+      "end": 68.585,
+      "sourceCueId": "gravity-air-resistance",
+      "event": "gravity-air-resistance-1",
+      "cueFunction": "selection",
+      "targets": [
+        "feather-air-resistance-close-up",
+        "gravity-air-resistance-evidence"
+      ],
+      "holdUntil": 68.585,
+      "intentionalHold": null
+    },
+    {
+      "index": 22,
+      "start": 68.585,
+      "end": 71.137,
+      "sourceCueId": "gravity-air-resistance",
+      "event": "gravity-air-resistance-2",
+      "cueFunction": "integration",
+      "targets": [
+        "feather-air-resistance-close-up",
+        "gravity-air-resistance-evidence"
+      ],
+      "holdUntil": 71.137,
+      "intentionalHold": null
+    },
+    {
+      "index": 23,
+      "start": 71.137,
+      "end": 74.301,
+      "sourceCueId": "gravity-air-resistance",
+      "event": "gravity-air-resistance-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "feather-air-resistance-close-up",
+        "gravity-air-resistance-evidence"
+      ],
+      "holdUntil": 74.301,
+      "intentionalHold": null
+    },
+    {
+      "index": 24,
+      "start": 74.301,
+      "end": 77.209,
+      "sourceCueId": "gravity-air-resistance",
+      "event": "gravity-air-resistance-4",
+      "cueFunction": "selection",
+      "targets": [
+        "feather-air-resistance-close-up",
+        "gravity-air-resistance-evidence"
+      ],
+      "holdUntil": 77.209,
+      "intentionalHold": null
+    },
+    {
+      "index": 25,
+      "start": 77.209,
+      "end": 78.128,
+      "sourceCueId": "gravity-air-resistance",
+      "event": "gravity-air-resistance-5",
+      "cueFunction": "integration",
+      "targets": [
+        "feather-air-resistance-close-up",
+        "gravity-air-resistance-evidence"
+      ],
+      "holdUntil": 78.128,
+      "intentionalHold": null
+    },
+    {
+      "index": 26,
+      "start": 78.128,
+      "end": 79.463,
+      "sourceCueId": "gravity-vacuum-demo",
+      "event": "gravity-vacuum-demo-1",
+      "cueFunction": "selection",
+      "targets": [
+        "vacuum-ball-feather-together-slow-motion",
+        "gravity-vacuum-demo-evidence"
+      ],
+      "holdUntil": 79.463,
+      "intentionalHold": null
+    },
+    {
+      "index": 27,
+      "start": 79.463,
+      "end": 81.885,
+      "sourceCueId": "gravity-vacuum-demo",
+      "event": "gravity-vacuum-demo-2",
+      "cueFunction": "integration",
+      "targets": [
+        "vacuum-ball-feather-together-slow-motion",
+        "gravity-vacuum-demo-evidence"
+      ],
+      "holdUntil": 81.885,
+      "intentionalHold": null
+    },
+    {
+      "index": 28,
+      "start": 81.885,
+      "end": 84.406,
+      "sourceCueId": "gravity-vacuum-demo",
+      "event": "gravity-vacuum-demo-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "vacuum-ball-feather-together-slow-motion",
+        "gravity-vacuum-demo-evidence"
+      ],
+      "holdUntil": 84.406,
+      "intentionalHold": null
+    },
+    {
+      "index": 29,
+      "start": 84.406,
+      "end": 87.223,
+      "sourceCueId": "gravity-vacuum-demo",
+      "event": "gravity-vacuum-demo-4",
+      "cueFunction": "selection",
+      "targets": [
+        "vacuum-ball-feather-together-slow-motion",
+        "gravity-vacuum-demo-evidence"
+      ],
+      "holdUntil": 87.223,
+      "intentionalHold": null
+    },
+    {
+      "index": 30,
+      "start": 87.223,
+      "end": 88.311,
+      "sourceCueId": "gravity-vacuum-demo",
+      "event": "gravity-vacuum-demo-5",
+      "cueFunction": "integration",
+      "targets": [
+        "vacuum-ball-feather-together-slow-motion",
+        "gravity-vacuum-demo-evidence"
+      ],
+      "holdUntil": 88.311,
+      "intentionalHold": null
+    },
+    {
+      "index": 31,
+      "start": 88.311,
+      "end": 90.733,
+      "sourceCueId": "gravity-vacuum-demo",
+      "event": "gravity-vacuum-demo-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "vacuum-ball-feather-together-slow-motion",
+        "gravity-vacuum-demo-evidence"
+      ],
+      "holdUntil": 90.733,
+      "intentionalHold": null
+    },
+    {
+      "index": 32,
+      "start": 106.897,
+      "end": 107.853,
+      "sourceCueId": "gravity-direction-model",
+      "event": "gravity-direction-model-1",
+      "cueFunction": "selection",
+      "targets": [
+        "earth-centre-radial-arrow-model",
+        "gravity-direction-model-evidence"
+      ],
+      "holdUntil": 107.853,
+      "intentionalHold": null
+    },
+    {
+      "index": 33,
+      "start": 107.853,
+      "end": 111.04,
+      "sourceCueId": "gravity-direction-model",
+      "event": "gravity-direction-model-2",
+      "cueFunction": "integration",
+      "targets": [
+        "earth-centre-radial-arrow-model",
+        "gravity-direction-model-evidence"
+      ],
+      "holdUntil": 111.04,
+      "intentionalHold": null
+    },
+    {
+      "index": 34,
+      "start": 111.04,
+      "end": 113.908,
+      "sourceCueId": "gravity-direction-model",
+      "event": "gravity-direction-model-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "earth-centre-radial-arrow-model",
+        "gravity-direction-model-evidence"
+      ],
+      "holdUntil": 113.908,
+      "intentionalHold": null
+    },
+    {
+      "index": 35,
+      "start": 113.908,
+      "end": 117.148,
+      "sourceCueId": "gravity-direction-model",
+      "event": "gravity-direction-model-4",
+      "cueFunction": "selection",
+      "targets": [
+        "earth-centre-radial-arrow-model",
+        "gravity-direction-model-evidence"
+      ],
+      "holdUntil": 117.148,
+      "intentionalHold": null
+    },
+    {
+      "index": 36,
+      "start": 117.148,
+      "end": 119.432,
+      "sourceCueId": "gravity-direction-model",
+      "event": "gravity-direction-model-5",
+      "cueFunction": "integration",
+      "targets": [
+        "earth-centre-radial-arrow-model",
+        "gravity-direction-model-evidence"
+      ],
+      "holdUntil": 119.432,
+      "intentionalHold": null
+    },
+    {
+      "index": 37,
+      "start": 119.432,
+      "end": 122.499,
+      "sourceCueId": "gravity-fair-comparison",
+      "event": "gravity-fair-comparison-1",
+      "cueFunction": "selection",
+      "targets": [
+        "air-vacuum-control-checklist",
+        "gravity-fair-comparison-evidence"
+      ],
+      "holdUntil": 122.499,
+      "intentionalHold": null
+    },
+    {
+      "index": 38,
+      "start": 122.499,
+      "end": 124.328,
+      "sourceCueId": "gravity-fair-comparison",
+      "event": "gravity-fair-comparison-2",
+      "cueFunction": "integration",
+      "targets": [
+        "air-vacuum-control-checklist",
+        "gravity-fair-comparison-evidence"
+      ],
+      "holdUntil": 124.328,
+      "intentionalHold": null
+    },
+    {
+      "index": 39,
+      "start": 124.328,
+      "end": 126.48,
+      "sourceCueId": "gravity-fair-comparison",
+      "event": "gravity-fair-comparison-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "air-vacuum-control-checklist",
+        "gravity-fair-comparison-evidence"
+      ],
+      "holdUntil": 126.48,
+      "intentionalHold": null
+    },
+    {
+      "index": 40,
+      "start": 126.48,
+      "end": 129.707,
+      "sourceCueId": "gravity-fair-comparison",
+      "event": "gravity-fair-comparison-4",
+      "cueFunction": "selection",
+      "targets": [
+        "air-vacuum-control-checklist",
+        "gravity-fair-comparison-evidence"
+      ],
+      "holdUntil": 129.707,
+      "intentionalHold": null
+    },
+    {
+      "index": 41,
+      "start": 129.707,
+      "end": 131.967,
+      "sourceCueId": "gravity-fair-comparison",
+      "event": "gravity-fair-comparison-5",
+      "cueFunction": "integration",
+      "targets": [
+        "air-vacuum-control-checklist",
+        "gravity-fair-comparison-evidence"
+      ],
+      "holdUntil": 131.967,
+      "intentionalHold": null
+    },
+    {
+      "index": 42,
+      "start": 131.967,
+      "end": 135.537,
+      "sourceCueId": "gravity-transfer",
+      "event": "gravity-transfer-1",
+      "cueFunction": "selection",
+      "targets": [
+        "helium-balloon-two-force-model",
+        "gravity-transfer-evidence"
+      ],
+      "holdUntil": 135.537,
+      "intentionalHold": null
+    },
+    {
+      "index": 43,
+      "start": 135.537,
+      "end": 138.872,
+      "sourceCueId": "gravity-transfer",
+      "event": "gravity-transfer-2",
+      "cueFunction": "integration",
+      "targets": [
+        "helium-balloon-two-force-model",
+        "gravity-transfer-evidence"
+      ],
+      "holdUntil": 138.872,
+      "intentionalHold": null
+    },
+    {
+      "index": 44,
+      "start": 138.872,
+      "end": 140.043,
+      "sourceCueId": "gravity-transfer",
+      "event": "gravity-transfer-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "helium-balloon-two-force-model",
+        "gravity-transfer-evidence"
+      ],
+      "holdUntil": 140.043,
+      "intentionalHold": null
+    },
+    {
+      "index": 45,
+      "start": 140.043,
+      "end": 143.378,
+      "sourceCueId": "gravity-transfer",
+      "event": "gravity-transfer-4",
+      "cueFunction": "selection",
+      "targets": [
+        "helium-balloon-two-force-model",
+        "gravity-transfer-evidence"
+      ],
+      "holdUntil": 143.378,
+      "intentionalHold": null
+    },
+    {
+      "index": 46,
+      "start": 143.378,
+      "end": 144.841,
+      "sourceCueId": "gravity-transfer",
+      "event": "gravity-transfer-5",
+      "cueFunction": "integration",
+      "targets": [
+        "helium-balloon-two-force-model",
+        "gravity-transfer-evidence"
+      ],
+      "holdUntil": 144.841,
+      "intentionalHold": null
+    },
+    {
+      "index": 47,
+      "start": 161.006,
+      "end": 163.408,
+      "sourceCueId": "gravity-misconception",
+      "event": "gravity-misconception-1",
+      "cueFunction": "selection",
+      "targets": [
+        "gravity-needs-air-claim-versus-vacuum",
+        "gravity-misconception-evidence"
+      ],
+      "holdUntil": 163.408,
+      "intentionalHold": null
+    },
+    {
+      "index": 48,
+      "start": 163.408,
+      "end": 166.629,
+      "sourceCueId": "gravity-misconception",
+      "event": "gravity-misconception-2",
+      "cueFunction": "integration",
+      "targets": [
+        "gravity-needs-air-claim-versus-vacuum",
+        "gravity-misconception-evidence"
+      ],
+      "holdUntil": 166.629,
+      "intentionalHold": null
+    },
+    {
+      "index": 49,
+      "start": 166.629,
+      "end": 169.851,
+      "sourceCueId": "gravity-misconception",
+      "event": "gravity-misconception-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "gravity-needs-air-claim-versus-vacuum",
+        "gravity-misconception-evidence"
+      ],
+      "holdUntil": 169.851,
+      "intentionalHold": null
+    },
+    {
+      "index": 50,
+      "start": 169.851,
+      "end": 173.366,
+      "sourceCueId": "gravity-misconception",
+      "event": "gravity-misconception-4",
+      "cueFunction": "selection",
+      "targets": [
+        "gravity-needs-air-claim-versus-vacuum",
+        "gravity-misconception-evidence"
+      ],
+      "holdUntil": 173.366,
+      "intentionalHold": null
+    },
+    {
+      "index": 51,
+      "start": 173.366,
+      "end": 174.889,
+      "sourceCueId": "gravity-misconception",
+      "event": "gravity-misconception-5",
+      "cueFunction": "integration",
+      "targets": [
+        "gravity-needs-air-claim-versus-vacuum",
+        "gravity-misconception-evidence"
+      ],
+      "holdUntil": 174.889,
+      "intentionalHold": null
+    },
+    {
+      "index": 52,
+      "start": 174.889,
+      "end": 175.93,
+      "sourceCueId": "gravity-correction",
+      "event": "gravity-correction-1",
+      "cueFunction": "selection",
+      "targets": [
+        "air-versus-vacuum-force-layer-comparison",
+        "gravity-correction-evidence"
+      ],
+      "holdUntil": 175.93,
+      "intentionalHold": null
+    },
+    {
+      "index": 53,
+      "start": 175.93,
+      "end": 177.55,
+      "sourceCueId": "gravity-correction",
+      "event": "gravity-correction-2",
+      "cueFunction": "integration",
+      "targets": [
+        "air-versus-vacuum-force-layer-comparison",
+        "gravity-correction-evidence"
+      ],
+      "holdUntil": 177.55,
+      "intentionalHold": null
+    },
+    {
+      "index": 54,
+      "start": 177.55,
+      "end": 179.054,
+      "sourceCueId": "gravity-correction",
+      "event": "gravity-correction-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "air-versus-vacuum-force-layer-comparison",
+        "gravity-correction-evidence"
+      ],
+      "holdUntil": 179.054,
+      "intentionalHold": null
+    },
+    {
+      "index": 55,
+      "start": 179.054,
+      "end": 181.194,
+      "sourceCueId": "gravity-correction",
+      "event": "gravity-correction-4",
+      "cueFunction": "selection",
+      "targets": [
+        "air-versus-vacuum-force-layer-comparison",
+        "gravity-correction-evidence"
+      ],
+      "holdUntil": 181.194,
+      "intentionalHold": null
+    },
+    {
+      "index": 56,
+      "start": 181.194,
+      "end": 183.507,
+      "sourceCueId": "gravity-correction",
+      "event": "gravity-correction-5",
+      "cueFunction": "integration",
+      "targets": [
+        "air-versus-vacuum-force-layer-comparison",
+        "gravity-correction-evidence"
+      ],
+      "holdUntil": 183.507,
+      "intentionalHold": null
+    },
+    {
+      "index": 57,
+      "start": 183.507,
+      "end": 187.094,
+      "sourceCueId": "gravity-correction",
+      "event": "gravity-correction-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "air-versus-vacuum-force-layer-comparison",
+        "gravity-correction-evidence"
+      ],
+      "holdUntil": 187.094,
+      "intentionalHold": null
+    },
+    {
+      "index": 58,
+      "start": 187.094,
+      "end": 188.771,
+      "sourceCueId": "gravity-correction",
+      "event": "gravity-correction-7",
+      "cueFunction": "selection",
+      "targets": [
+        "air-versus-vacuum-force-layer-comparison",
+        "gravity-correction-evidence"
+      ],
+      "holdUntil": 188.771,
+      "intentionalHold": null
+    },
+    {
+      "index": 59,
+      "start": 188.771,
+      "end": 192.924,
+      "sourceCueId": "gravity-exit",
+      "event": "gravity-exit-1",
+      "cueFunction": "selection",
+      "targets": [
+        "flat-crumpled-paper-air-vacuum-exit",
+        "gravity-exit-evidence"
+      ],
+      "holdUntil": 192.924,
+      "intentionalHold": null
+    },
+    {
+      "index": 60,
+      "start": 192.924,
+      "end": 195.716,
+      "sourceCueId": "gravity-exit",
+      "event": "gravity-exit-2",
+      "cueFunction": "integration",
+      "targets": [
+        "flat-crumpled-paper-air-vacuum-exit",
+        "gravity-exit-evidence"
+      ],
+      "holdUntil": 195.716,
+      "intentionalHold": null
+    },
+    {
+      "index": 61,
+      "start": 195.716,
+      "end": 199.733,
+      "sourceCueId": "gravity-exit",
+      "event": "gravity-exit-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "flat-crumpled-paper-air-vacuum-exit",
+        "gravity-exit-evidence"
+      ],
+      "holdUntil": 199.733,
+      "intentionalHold": null
+    },
+    {
+      "index": 62,
+      "start": 199.733,
+      "end": 200.55,
+      "sourceCueId": "gravity-exit",
+      "event": "gravity-exit-4",
+      "cueFunction": "selection",
+      "targets": [
+        "flat-crumpled-paper-air-vacuum-exit",
+        "gravity-exit-evidence"
+      ],
+      "holdUntil": 200.55,
+      "intentionalHold": null
+    },
+    {
+      "index": 63,
+      "start": 200.55,
+      "end": 203.75,
+      "sourceCueId": "gravity-exit",
+      "event": "gravity-exit-5",
+      "cueFunction": "integration",
+      "targets": [
+        "flat-crumpled-paper-air-vacuum-exit",
+        "gravity-exit-evidence"
+      ],
+      "holdUntil": 203.75,
+      "intentionalHold": null
+    }
+  ],
+  "actions": [
+    {
+      "id": "gravity-predict",
+      "start": 0,
+      "end": 12.023,
+      "narration": "A ball and feather wait at the same height. In ordinary air, which reaches the floor first? Make a prediction, but also predict why. We will change the air without changing the objects, height or release time.",
+      "expected_action": "ball-feather-air-drop-prediction",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "gravity-air-demo",
+      "start": 12.023,
+      "end": 24.37,
+      "narration": "Release. The ball lands first while the feather drifts. That observation is real, but it does not prove gravity pulls only on the ball. Another interaction is affecting the feather. Watch the air bend and flow around it.",
+      "expected_action": "synchronised-ball-feather-air-drop",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "gravity-vacuum-question",
+      "start": 24.37,
+      "end": 53.533,
+      "narration": "Seal both objects inside a clear chamber and remove almost all the air, creating a vacuum. The starting height and release stay the same. If gravity needs air, neither object should fall. If air caused the difference, what should happen?",
+      "expected_action": "vacuum-chamber-air-removal-gauge",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "gravity-earth-pull",
+      "start": 53.533,
+      "end": 65.523,
+      "narration": "Gravity is Earth's pull on each object without direct contact. Draw a violet Earth on ball arrow downward on the ball, and Earth on feather downward on the feather. Both arrows remain whether the chamber contains air or not.",
+      "expected_action": "earth-on-object-violet-arrows",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "gravity-air-resistance",
+      "start": 65.523,
+      "end": 78.128,
+      "narration": "In open air, moving air particles touch the falling objects. Air resistance acts against their downward motion. Its effect is much more noticeable on the wide, light feather, so the feather falls more slowly even while gravity still pulls it downward.",
+      "expected_action": "feather-air-resistance-close-up",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "gravity-vacuum-demo",
+      "start": 78.128,
+      "end": 106.897,
+      "narration": "Release them in the vacuum. Ball and feather fall together and land together. Gravity did not disappear when the air was removed. Removing most air resistance removed the large difference between their motions. Hold that result and compare both landing frames.",
+      "expected_action": "vacuum-ball-feather-together-slow-motion",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "gravity-direction-model",
+      "start": 106.897,
+      "end": 119.432,
+      "narration": "Zoom out to Earth. Objects above Australia, Africa and the Pacific each have an Earth-on-object arrow pointing towards Earth's centre. Down means towards the ground beneath you because Earth pulls objects towards its centre from every side.",
+      "expected_action": "earth-centre-radial-arrow-model",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "gravity-fair-comparison",
+      "start": 119.432,
+      "end": 131.967,
+      "narration": "A strong comparison uses the same ball, feather, chamber, starting heights and release time. The air condition is the planned change. Compare landing times, repeat the drops, and do not secretly change the feather's shape between trials.",
+      "expected_action": "air-vacuum-control-checklist",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "gravity-transfer",
+      "start": 131.967,
+      "end": 161.006,
+      "narration": "A helium balloon can rise, yet Earth still pulls it downward. The surrounding air pushes upward strongly enough for the motion to be upward. Rising or floating describes the motion; it does not mean gravity has switched off.",
+      "expected_action": "helium-balloon-two-force-model",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "gravity-misconception",
+      "start": 161.006,
+      "end": 174.889,
+      "narration": "Someone claims gravity needs air to work. The vacuum result rejects that idea: with almost no air resistance, both objects still speed downward and land. The changed air condition affected their difference, not the existence of Earth's pull.",
+      "expected_action": "gravity-needs-air-claim-versus-vacuum",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "gravity-correction",
+      "start": 174.889,
+      "end": 188.771,
+      "narration": "Use two questions. Is Earth pulling the object? Yes, near Earth's surface. Is air resistance affecting its fall? Only when air touches the moving object. Keeping these interactions separate explains both the open-air result and the vacuum result.",
+      "expected_action": "air-versus-vacuum-force-layer-comparison",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "gravity-exit",
+      "start": 188.771,
+      "end": 205,
+      "narration": "A flat sheet and a tightly crumpled sheet use the same paper. In air, the flat sheet falls more slowly. In a vacuum, what should change, and which force remains on both sheets? Use the two-force model to justify your answer.",
+      "expected_action": "flat-crumpled-paper-air-vacuum-exit",
+      "board_region": "demonstration-stage"
+    }
+  ]
+}

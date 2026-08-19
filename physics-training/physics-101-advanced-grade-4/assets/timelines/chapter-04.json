@@ -1,0 +1,1993 @@
+{
+  "release": "physics-101-cinematic-lab-011",
+  "chapter": 4,
+  "duration": 205,
+  "cues": [
+    {
+      "id": "friction-predict",
+      "title": "Which shoe will grip?",
+      "visual": "split-shoe-ice-bitumen-prediction",
+      "text": "Two identical shoes meet two surfaces: smooth ice and rough bitumen. The same sideways push will act on each shoe. Which one will slide farther? Lock in your prediction, then watch the contact patches instead of the shoe tops.",
+      "start": 0,
+      "end": 13.282,
+      "beatEnd": 13.282,
+      "voiceSection": "part-1"
+    },
+    {
+      "id": "friction-shoe-demo",
+      "title": "Watch the contact",
+      "visual": "shoe-slip-and-grip-slow-motion",
+      "text": "The shoe on ice slips a long way. The shoe on bitumen grips and stops quickly. Between each shoe and surface, friction acts against the slipping. Here, stronger friction helps the shoe hold its position.",
+      "start": 13.282,
+      "end": 25.201,
+      "beatEnd": 25.201,
+      "voiceSection": "part-1"
+    },
+    {
+      "id": "friction-cart-demo",
+      "title": "Same cart, new job",
+      "visual": "equal-entry-cart-tile-mat",
+      "text": "Now the same cart enters tile and a textured mat at the same speed. It rolls farther on tile and stops sooner on the mat. This time friction hinders the cart's motion. The same force can help one job and hinder another.",
+      "start": 25.201,
+      "end": 39.504,
+      "beatEnd": 52.725,
+      "voiceSection": "part-1"
+    },
+    {
+      "id": "friction-model",
+      "title": "Model the surface force",
+      "visual": "macro-wheel-contact-friction-arrow",
+      "text": "Zoom into the wheel touching the mat. The orange arrow is labelled mat on cart and points opposite the cart's sliding direction. Friction is a contact force between touching surfaces; it is not a force stored inside either object.",
+      "start": 52.725,
+      "end": 67.924,
+      "beatEnd": 67.924,
+      "voiceSection": "part-2"
+    },
+    {
+      "id": "friction-two-jobs",
+      "title": "Help or hinder?",
+      "visual": "shoe-grip-cart-slow-comparison",
+      "text": "Compare the jobs. A runner needs shoe-ground friction to push without slipping. A cart designed to coast needs less friction slowing its wheels. Do not label friction good or bad. Ask whether it helps or hinders the intended motion.",
+      "start": 67.924,
+      "end": 83.124,
+      "beatEnd": 83.124,
+      "voiceSection": "part-2"
+    },
+    {
+      "id": "friction-distance-evidence",
+      "title": "Read the stopping evidence",
+      "visual": "tile-mat-stopping-distance-reveal",
+      "text": "Three tile runs stop at 338, 342 and 340 centimetres. Three mat runs stop at 118, 122 and 120 centimetres. The shorter repeated distances show a greater slowing effect on the mat in this investigation.",
+      "start": 83.124,
+      "end": 96.765,
+      "beatEnd": 109.985,
+      "voiceSection": "part-2"
+    },
+    {
+      "id": "friction-fair-plan",
+      "title": "Build a fair comparison",
+      "visual": "fair-test-controls-lock-in",
+      "text": "To compare surfaces fairly, keep the cart, wheels, start line and entry speed the same. Change only the surface. Measure stopping distance from the entry line, reset carefully, and repeat each surface three times.",
+      "start": 109.985,
+      "end": 120.797,
+      "beatEnd": 120.797,
+      "voiceSection": "part-3"
+    },
+    {
+      "id": "friction-variable-check",
+      "title": "Spot the unfair trial",
+      "visual": "two-carts-two-pushes-error-board",
+      "text": "One trial uses a heavy cart pushed hard on tile and a light cart pushed gently on carpet. That cannot isolate the surface. More than one condition changed, so either the cart, the push or the surface could explain the result.",
+      "start": 120.797,
+      "end": 133.835,
+      "beatEnd": 133.835,
+      "voiceSection": "part-3"
+    },
+    {
+      "id": "friction-transfer",
+      "title": "Design for the job",
+      "visual": "bike-brake-tyre-bearing-transfer",
+      "text": "A bicycle needs friction at the brake pads and tyres so it can slow and grip the road. It also uses smooth, well-aligned wheel parts to reduce unwanted friction. Good design increases friction where grip is needed and reduces it where motion should stay easy.",
+      "start": 133.835,
+      "end": 148.145,
+      "beatEnd": 161.366,
+      "voiceSection": "part-3"
+    },
+    {
+      "id": "friction-misconception",
+      "title": "Test the tempting claim",
+      "visual": "friction-always-bad-claim-stamped-false",
+      "text": "Someone claims, friction is always bad because it wastes motion. Test that claim with the runner. Remove most shoe-ground friction and the foot slides backward. The runner cannot push safely. The evidence does not support the claim.",
+      "start": 161.366,
+      "end": 175.244,
+      "beatEnd": 175.244,
+      "voiceSection": "part-4"
+    },
+    {
+      "id": "friction-correction",
+      "title": "Use purpose and evidence",
+      "visual": "help-hinder-evidence-balance",
+      "text": "Replace the claim with a stronger one: friction can help or hinder, depending on the job. Use evidence, not surface appearance alone. Stopping distance shows slowing; slipping shows lost grip; repeated fair trials make either conclusion more trustworthy.",
+      "start": 175.244,
+      "end": 189.497,
+      "beatEnd": 189.497,
+      "voiceSection": "part-4"
+    },
+    {
+      "id": "friction-exit",
+      "title": "Choose the better sole",
+      "visual": "wet-path-shoe-sole-exit-choice",
+      "text": "A designer tests two shoe soles on the same wet path with the same load and push. Sole A slips 70 centimetres; Sole B slips 24. Which sole gives more useful friction, and which measurements justify your choice?",
+      "start": 189.497,
+      "end": 203.75,
+      "beatEnd": 205,
+      "voiceSection": "part-4"
+    }
+  ],
+  "captionCues": [
+    {
+      "index": 1,
+      "start": 0,
+      "end": 3.546,
+      "text": "Two identical shoes meet two surfaces: smooth ice and rough",
+      "sourceCueId": "friction-predict",
+      "event": "friction-predict-1",
+      "cueFunction": "selection",
+      "targets": [
+        "split-shoe-ice-bitumen-prediction",
+        "friction-predict-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 2,
+      "start": 3.546,
+      "end": 4.027,
+      "text": "bitumen.",
+      "sourceCueId": "friction-predict",
+      "event": "friction-predict-2",
+      "cueFunction": "integration",
+      "targets": [
+        "split-shoe-ice-bitumen-prediction",
+        "friction-predict-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 3,
+      "start": 4.027,
+      "end": 6.731,
+      "text": "The same sideways push will act on each shoe.",
+      "sourceCueId": "friction-predict",
+      "event": "friction-predict-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "split-shoe-ice-bitumen-prediction",
+        "friction-predict-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 4,
+      "start": 6.731,
+      "end": 8.474,
+      "text": "Which one will slide farther?",
+      "sourceCueId": "friction-predict",
+      "event": "friction-predict-4",
+      "cueFunction": "selection",
+      "targets": [
+        "split-shoe-ice-bitumen-prediction",
+        "friction-predict-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 5,
+      "start": 8.474,
+      "end": 11.78,
+      "text": "Lock in your prediction, then watch the contact patches",
+      "sourceCueId": "friction-predict",
+      "event": "friction-predict-5",
+      "cueFunction": "integration",
+      "targets": [
+        "split-shoe-ice-bitumen-prediction",
+        "friction-predict-evidence"
+      ],
+      "intentionalHold": "predict"
+    },
+    {
+      "index": 6,
+      "start": 11.78,
+      "end": 13.282,
+      "text": "instead of the shoe tops.",
+      "sourceCueId": "friction-predict",
+      "event": "friction-predict-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "split-shoe-ice-bitumen-prediction",
+        "friction-predict-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 7,
+      "start": 13.282,
+      "end": 15.259,
+      "text": "The shoe on ice slips a long way.",
+      "sourceCueId": "friction-shoe-demo",
+      "event": "friction-shoe-demo-1",
+      "cueFunction": "selection",
+      "targets": [
+        "shoe-slip-and-grip-slow-motion",
+        "friction-shoe-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 8,
+      "start": 15.259,
+      "end": 17.894,
+      "text": "The shoe on bitumen grips and stops quickly.",
+      "sourceCueId": "friction-shoe-demo",
+      "event": "friction-shoe-demo-2",
+      "cueFunction": "integration",
+      "targets": [
+        "shoe-slip-and-grip-slow-motion",
+        "friction-shoe-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 9,
+      "start": 17.894,
+      "end": 21.248,
+      "text": "Between each shoe and surface, friction acts against the",
+      "sourceCueId": "friction-shoe-demo",
+      "event": "friction-shoe-demo-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "shoe-slip-and-grip-slow-motion",
+        "friction-shoe-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 10,
+      "start": 21.248,
+      "end": 21.787,
+      "text": "slipping.",
+      "sourceCueId": "friction-shoe-demo",
+      "event": "friction-shoe-demo-4",
+      "cueFunction": "selection",
+      "targets": [
+        "shoe-slip-and-grip-slow-motion",
+        "friction-shoe-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 11,
+      "start": 21.787,
+      "end": 25.201,
+      "text": "Here, stronger friction helps the shoe hold its position.",
+      "sourceCueId": "friction-shoe-demo",
+      "event": "friction-shoe-demo-5",
+      "cueFunction": "integration",
+      "targets": [
+        "shoe-slip-and-grip-slow-motion",
+        "friction-shoe-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 12,
+      "start": 25.201,
+      "end": 29.193,
+      "text": "Now the same cart enters tile and a textured mat at the same",
+      "sourceCueId": "friction-cart-demo",
+      "event": "friction-cart-demo-1",
+      "cueFunction": "selection",
+      "targets": [
+        "equal-entry-cart-tile-mat",
+        "friction-cart-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 13,
+      "start": 29.193,
+      "end": 29.592,
+      "text": "speed.",
+      "sourceCueId": "friction-cart-demo",
+      "event": "friction-cart-demo-2",
+      "cueFunction": "integration",
+      "targets": [
+        "equal-entry-cart-tile-mat",
+        "friction-cart-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 14,
+      "start": 29.592,
+      "end": 33.118,
+      "text": "It rolls farther on tile and stops sooner on the mat.",
+      "sourceCueId": "friction-cart-demo",
+      "event": "friction-cart-demo-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "equal-entry-cart-tile-mat",
+        "friction-cart-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 15,
+      "start": 33.118,
+      "end": 36.111,
+      "text": "This time friction hinders the cart's motion.",
+      "sourceCueId": "friction-cart-demo",
+      "event": "friction-cart-demo-4",
+      "cueFunction": "selection",
+      "targets": [
+        "equal-entry-cart-tile-mat",
+        "friction-cart-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 16,
+      "start": 36.111,
+      "end": 39.504,
+      "text": "The same force can help one job and hinder another.",
+      "sourceCueId": "friction-cart-demo",
+      "event": "friction-cart-demo-5",
+      "cueFunction": "integration",
+      "targets": [
+        "equal-entry-cart-tile-mat",
+        "friction-cart-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 17,
+      "start": 52.725,
+      "end": 55.213,
+      "text": "Zoom into the wheel touching the mat.",
+      "sourceCueId": "friction-model",
+      "event": "friction-model-1",
+      "cueFunction": "selection",
+      "targets": [
+        "macro-wheel-contact-friction-arrow",
+        "friction-model-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 18,
+      "start": 55.213,
+      "end": 59.248,
+      "text": "The orange arrow is labelled mat on cart and points opposite",
+      "sourceCueId": "friction-model",
+      "event": "friction-model-2",
+      "cueFunction": "integration",
+      "targets": [
+        "macro-wheel-contact-friction-arrow",
+        "friction-model-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 19,
+      "start": 59.248,
+      "end": 61.199,
+      "text": "the cart's sliding direction.",
+      "sourceCueId": "friction-model",
+      "event": "friction-model-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "macro-wheel-contact-friction-arrow",
+        "friction-model-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 20,
+      "start": 61.199,
+      "end": 65.234,
+      "text": "Friction is a contact force between touching surfaces; it is",
+      "sourceCueId": "friction-model",
+      "event": "friction-model-4",
+      "cueFunction": "selection",
+      "targets": [
+        "macro-wheel-contact-friction-arrow",
+        "friction-model-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 21,
+      "start": 65.234,
+      "end": 67.924,
+      "text": "not a force stored inside either object.",
+      "sourceCueId": "friction-model",
+      "event": "friction-model-5",
+      "cueFunction": "integration",
+      "targets": [
+        "macro-wheel-contact-friction-arrow",
+        "friction-model-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 22,
+      "start": 67.924,
+      "end": 69.062,
+      "text": "Compare the jobs.",
+      "sourceCueId": "friction-two-jobs",
+      "event": "friction-two-jobs-1",
+      "cueFunction": "selection",
+      "targets": [
+        "shoe-grip-cart-slow-comparison",
+        "friction-two-jobs-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 23,
+      "start": 69.062,
+      "end": 73.147,
+      "text": "A runner needs shoe-ground friction to push without slipping.",
+      "sourceCueId": "friction-two-jobs",
+      "event": "friction-two-jobs-2",
+      "cueFunction": "integration",
+      "targets": [
+        "shoe-grip-cart-slow-comparison",
+        "friction-two-jobs-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 24,
+      "start": 73.147,
+      "end": 76.897,
+      "text": "A cart designed to coast needs less friction slowing its",
+      "sourceCueId": "friction-two-jobs",
+      "event": "friction-two-jobs-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "shoe-grip-cart-slow-comparison",
+        "friction-two-jobs-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 25,
+      "start": 76.897,
+      "end": 77.365,
+      "text": "wheels.",
+      "sourceCueId": "friction-two-jobs",
+      "event": "friction-two-jobs-4",
+      "cueFunction": "selection",
+      "targets": [
+        "shoe-grip-cart-slow-comparison",
+        "friction-two-jobs-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 26,
+      "start": 77.365,
+      "end": 79.642,
+      "text": "Do not label friction good or bad.",
+      "sourceCueId": "friction-two-jobs",
+      "event": "friction-two-jobs-5",
+      "cueFunction": "integration",
+      "targets": [
+        "shoe-grip-cart-slow-comparison",
+        "friction-two-jobs-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 27,
+      "start": 79.642,
+      "end": 83.124,
+      "text": "Ask whether it helps or hinders the intended motion.",
+      "sourceCueId": "friction-two-jobs",
+      "event": "friction-two-jobs-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "shoe-grip-cart-slow-comparison",
+        "friction-two-jobs-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 28,
+      "start": 83.124,
+      "end": 86.775,
+      "text": "Three tile runs stop at 338, 342 and 340 centimetres.",
+      "sourceCueId": "friction-distance-evidence",
+      "event": "friction-distance-evidence-1",
+      "cueFunction": "selection",
+      "targets": [
+        "tile-mat-stopping-distance-reveal",
+        "friction-distance-evidence-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 29,
+      "start": 86.775,
+      "end": 90.358,
+      "text": "Three mat runs stop at 118, 122 and 120 centimetres.",
+      "sourceCueId": "friction-distance-evidence",
+      "event": "friction-distance-evidence-2",
+      "cueFunction": "integration",
+      "targets": [
+        "tile-mat-stopping-distance-reveal",
+        "friction-distance-evidence-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 30,
+      "start": 90.358,
+      "end": 94.492,
+      "text": "The shorter repeated distances show a greater slowing effect",
+      "sourceCueId": "friction-distance-evidence",
+      "event": "friction-distance-evidence-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "tile-mat-stopping-distance-reveal",
+        "friction-distance-evidence-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 31,
+      "start": 94.492,
+      "end": 96.765,
+      "text": "on the mat in this investigation.",
+      "sourceCueId": "friction-distance-evidence",
+      "event": "friction-distance-evidence-4",
+      "cueFunction": "selection",
+      "targets": [
+        "tile-mat-stopping-distance-reveal",
+        "friction-distance-evidence-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 32,
+      "start": 109.985,
+      "end": 113.141,
+      "text": "To compare surfaces fairly, keep the cart, wheels, start line",
+      "sourceCueId": "friction-fair-plan",
+      "event": "friction-fair-plan-1",
+      "cueFunction": "selection",
+      "targets": [
+        "fair-test-controls-lock-in",
+        "friction-fair-plan-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 33,
+      "start": 113.141,
+      "end": 114.434,
+      "text": "and entry speed the same.",
+      "sourceCueId": "friction-fair-plan",
+      "event": "friction-fair-plan-2",
+      "cueFunction": "integration",
+      "targets": [
+        "fair-test-controls-lock-in",
+        "friction-fair-plan-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 34,
+      "start": 114.434,
+      "end": 115.676,
+      "text": "Change only the surface.",
+      "sourceCueId": "friction-fair-plan",
+      "event": "friction-fair-plan-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "fair-test-controls-lock-in",
+        "friction-fair-plan-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 35,
+      "start": 115.676,
+      "end": 118.366,
+      "text": "Measure stopping distance from the entry line, reset",
+      "sourceCueId": "friction-fair-plan",
+      "event": "friction-fair-plan-4",
+      "cueFunction": "selection",
+      "targets": [
+        "fair-test-controls-lock-in",
+        "friction-fair-plan-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 36,
+      "start": 118.366,
+      "end": 120.797,
+      "text": "carefully, and repeat each surface three times.",
+      "sourceCueId": "friction-fair-plan",
+      "event": "friction-fair-plan-5",
+      "cueFunction": "integration",
+      "targets": [
+        "fair-test-controls-lock-in",
+        "friction-fair-plan-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 37,
+      "start": 120.797,
+      "end": 124.278,
+      "text": "One trial uses a heavy cart pushed hard on tile and a light",
+      "sourceCueId": "friction-variable-check",
+      "event": "friction-variable-check-1",
+      "cueFunction": "selection",
+      "targets": [
+        "two-carts-two-pushes-error-board",
+        "friction-variable-check-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 38,
+      "start": 124.278,
+      "end": 125.989,
+      "text": "cart pushed gently on carpet.",
+      "sourceCueId": "friction-variable-check",
+      "event": "friction-variable-check-2",
+      "cueFunction": "integration",
+      "targets": [
+        "two-carts-two-pushes-error-board",
+        "friction-variable-check-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 39,
+      "start": 125.989,
+      "end": 127.876,
+      "text": "That cannot isolate the surface.",
+      "sourceCueId": "friction-variable-check",
+      "event": "friction-variable-check-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "two-carts-two-pushes-error-board",
+        "friction-variable-check-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 40,
+      "start": 127.876,
+      "end": 131.475,
+      "text": "More than one condition changed, so either the cart, the push",
+      "sourceCueId": "friction-variable-check",
+      "event": "friction-variable-check-4",
+      "cueFunction": "selection",
+      "targets": [
+        "two-carts-two-pushes-error-board",
+        "friction-variable-check-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 41,
+      "start": 131.475,
+      "end": 133.835,
+      "text": "or the surface could explain the result.",
+      "sourceCueId": "friction-variable-check",
+      "event": "friction-variable-check-5",
+      "cueFunction": "integration",
+      "targets": [
+        "two-carts-two-pushes-error-board",
+        "friction-variable-check-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 42,
+      "start": 133.835,
+      "end": 137.328,
+      "text": "A bicycle needs friction at the brake pads and tyres so it can",
+      "sourceCueId": "friction-transfer",
+      "event": "friction-transfer-1",
+      "cueFunction": "selection",
+      "targets": [
+        "bike-brake-tyre-bearing-transfer",
+        "friction-transfer-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 43,
+      "start": 137.328,
+      "end": 138.624,
+      "text": "slow and grip the road.",
+      "sourceCueId": "friction-transfer",
+      "event": "friction-transfer-2",
+      "cueFunction": "integration",
+      "targets": [
+        "bike-brake-tyre-bearing-transfer",
+        "friction-transfer-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 44,
+      "start": 138.624,
+      "end": 141.722,
+      "text": "It also uses smooth, well-aligned wheel parts to reduce",
+      "sourceCueId": "friction-transfer",
+      "event": "friction-transfer-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "bike-brake-tyre-bearing-transfer",
+        "friction-transfer-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 45,
+      "start": 141.722,
+      "end": 142.736,
+      "text": "unwanted friction.",
+      "sourceCueId": "friction-transfer",
+      "event": "friction-transfer-4",
+      "cueFunction": "selection",
+      "targets": [
+        "bike-brake-tyre-bearing-transfer",
+        "friction-transfer-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 46,
+      "start": 142.736,
+      "end": 145.835,
+      "text": "Good design increases friction where grip is needed and",
+      "sourceCueId": "friction-transfer",
+      "event": "friction-transfer-5",
+      "cueFunction": "integration",
+      "targets": [
+        "bike-brake-tyre-bearing-transfer",
+        "friction-transfer-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 47,
+      "start": 145.835,
+      "end": 148.145,
+      "text": "reduces it where motion should stay easy.",
+      "sourceCueId": "friction-transfer",
+      "event": "friction-transfer-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "bike-brake-tyre-bearing-transfer",
+        "friction-transfer-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 48,
+      "start": 161.366,
+      "end": 164.79,
+      "text": "Someone claims, friction is always bad because it wastes",
+      "sourceCueId": "friction-misconception",
+      "event": "friction-misconception-1",
+      "cueFunction": "selection",
+      "targets": [
+        "friction-always-bad-claim-stamped-false",
+        "friction-misconception-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 49,
+      "start": 164.79,
+      "end": 165.218,
+      "text": "motion.",
+      "sourceCueId": "friction-misconception",
+      "event": "friction-misconception-2",
+      "cueFunction": "integration",
+      "targets": [
+        "friction-always-bad-claim-stamped-false",
+        "friction-misconception-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 50,
+      "start": 165.218,
+      "end": 167.174,
+      "text": "Test that claim with the runner.",
+      "sourceCueId": "friction-misconception",
+      "event": "friction-misconception-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "friction-always-bad-claim-stamped-false",
+        "friction-misconception-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 51,
+      "start": 167.174,
+      "end": 170.964,
+      "text": "Remove most shoe-ground friction and the foot slides backward.",
+      "sourceCueId": "friction-misconception",
+      "event": "friction-misconception-4",
+      "cueFunction": "selection",
+      "targets": [
+        "friction-always-bad-claim-stamped-false",
+        "friction-misconception-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 52,
+      "start": 170.964,
+      "end": 172.799,
+      "text": "The runner cannot push safely.",
+      "sourceCueId": "friction-misconception",
+      "event": "friction-misconception-5",
+      "cueFunction": "integration",
+      "targets": [
+        "friction-always-bad-claim-stamped-false",
+        "friction-misconception-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 53,
+      "start": 172.799,
+      "end": 175.244,
+      "text": "The evidence does not support the claim.",
+      "sourceCueId": "friction-misconception",
+      "event": "friction-misconception-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "friction-always-bad-claim-stamped-false",
+        "friction-misconception-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 54,
+      "start": 175.244,
+      "end": 178.608,
+      "text": "Replace the claim with a stronger one: friction can help or",
+      "sourceCueId": "friction-correction",
+      "event": "friction-correction-1",
+      "cueFunction": "selection",
+      "targets": [
+        "help-hinder-evidence-balance",
+        "friction-correction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 55,
+      "start": 178.608,
+      "end": 180.261,
+      "text": "hinder, depending on the job.",
+      "sourceCueId": "friction-correction",
+      "event": "friction-correction-2",
+      "cueFunction": "integration",
+      "targets": [
+        "help-hinder-evidence-balance",
+        "friction-correction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 56,
+      "start": 180.261,
+      "end": 182.713,
+      "text": "Use evidence, not surface appearance alone.",
+      "sourceCueId": "friction-correction",
+      "event": "friction-correction-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "help-hinder-evidence-balance",
+        "friction-correction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 57,
+      "start": 182.713,
+      "end": 186.019,
+      "text": "Stopping distance shows slowing; slipping shows lost grip;",
+      "sourceCueId": "friction-correction",
+      "event": "friction-correction-4",
+      "cueFunction": "selection",
+      "targets": [
+        "help-hinder-evidence-balance",
+        "friction-correction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 58,
+      "start": 186.019,
+      "end": 189.497,
+      "text": "repeated fair trials make either conclusion more trustworthy.",
+      "sourceCueId": "friction-correction",
+      "event": "friction-correction-5",
+      "cueFunction": "integration",
+      "targets": [
+        "help-hinder-evidence-balance",
+        "friction-correction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 59,
+      "start": 189.497,
+      "end": 193.718,
+      "text": "A designer tests two shoe soles on the same wet path with the",
+      "sourceCueId": "friction-exit",
+      "event": "friction-exit-1",
+      "cueFunction": "selection",
+      "targets": [
+        "wet-path-shoe-sole-exit-choice",
+        "friction-exit-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 60,
+      "start": 193.718,
+      "end": 195.032,
+      "text": "same load and push.",
+      "sourceCueId": "friction-exit",
+      "event": "friction-exit-2",
+      "cueFunction": "integration",
+      "targets": [
+        "wet-path-shoe-sole-exit-choice",
+        "friction-exit-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 61,
+      "start": 195.032,
+      "end": 198.146,
+      "text": "Sole A slips 70 centimetres; Sole B slips 24.",
+      "sourceCueId": "friction-exit",
+      "event": "friction-exit-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "wet-path-shoe-sole-exit-choice",
+        "friction-exit-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 62,
+      "start": 198.146,
+      "end": 202.366,
+      "text": "Which sole gives more useful friction, and which measurements",
+      "sourceCueId": "friction-exit",
+      "event": "friction-exit-4",
+      "cueFunction": "selection",
+      "targets": [
+        "wet-path-shoe-sole-exit-choice",
+        "friction-exit-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 63,
+      "start": 202.366,
+      "end": 203.75,
+      "text": "justify your choice?",
+      "sourceCueId": "friction-exit",
+      "event": "friction-exit-5",
+      "cueFunction": "integration",
+      "targets": [
+        "wet-path-shoe-sole-exit-choice",
+        "friction-exit-evidence"
+      ],
+      "intentionalHold": null
+    }
+  ],
+  "visualBeats": [
+    {
+      "index": 1,
+      "start": 0,
+      "end": 3.546,
+      "sourceCueId": "friction-predict",
+      "event": "friction-predict-1",
+      "cueFunction": "selection",
+      "targets": [
+        "split-shoe-ice-bitumen-prediction",
+        "friction-predict-evidence"
+      ],
+      "holdUntil": 3.546,
+      "intentionalHold": null
+    },
+    {
+      "index": 2,
+      "start": 3.546,
+      "end": 4.027,
+      "sourceCueId": "friction-predict",
+      "event": "friction-predict-2",
+      "cueFunction": "integration",
+      "targets": [
+        "split-shoe-ice-bitumen-prediction",
+        "friction-predict-evidence"
+      ],
+      "holdUntil": 4.027,
+      "intentionalHold": null
+    },
+    {
+      "index": 3,
+      "start": 4.027,
+      "end": 6.731,
+      "sourceCueId": "friction-predict",
+      "event": "friction-predict-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "split-shoe-ice-bitumen-prediction",
+        "friction-predict-evidence"
+      ],
+      "holdUntil": 6.731,
+      "intentionalHold": null
+    },
+    {
+      "index": 4,
+      "start": 6.731,
+      "end": 8.474,
+      "sourceCueId": "friction-predict",
+      "event": "friction-predict-4",
+      "cueFunction": "selection",
+      "targets": [
+        "split-shoe-ice-bitumen-prediction",
+        "friction-predict-evidence"
+      ],
+      "holdUntil": 8.474,
+      "intentionalHold": null
+    },
+    {
+      "index": 5,
+      "start": 8.474,
+      "end": 11.78,
+      "sourceCueId": "friction-predict",
+      "event": "friction-predict-5",
+      "cueFunction": "integration",
+      "targets": [
+        "split-shoe-ice-bitumen-prediction",
+        "friction-predict-evidence"
+      ],
+      "holdUntil": 11.78,
+      "intentionalHold": "predict"
+    },
+    {
+      "index": 6,
+      "start": 11.78,
+      "end": 13.282,
+      "sourceCueId": "friction-predict",
+      "event": "friction-predict-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "split-shoe-ice-bitumen-prediction",
+        "friction-predict-evidence"
+      ],
+      "holdUntil": 13.282,
+      "intentionalHold": null
+    },
+    {
+      "index": 7,
+      "start": 13.282,
+      "end": 15.259,
+      "sourceCueId": "friction-shoe-demo",
+      "event": "friction-shoe-demo-1",
+      "cueFunction": "selection",
+      "targets": [
+        "shoe-slip-and-grip-slow-motion",
+        "friction-shoe-demo-evidence"
+      ],
+      "holdUntil": 15.259,
+      "intentionalHold": null
+    },
+    {
+      "index": 8,
+      "start": 15.259,
+      "end": 17.894,
+      "sourceCueId": "friction-shoe-demo",
+      "event": "friction-shoe-demo-2",
+      "cueFunction": "integration",
+      "targets": [
+        "shoe-slip-and-grip-slow-motion",
+        "friction-shoe-demo-evidence"
+      ],
+      "holdUntil": 17.894,
+      "intentionalHold": null
+    },
+    {
+      "index": 9,
+      "start": 17.894,
+      "end": 21.248,
+      "sourceCueId": "friction-shoe-demo",
+      "event": "friction-shoe-demo-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "shoe-slip-and-grip-slow-motion",
+        "friction-shoe-demo-evidence"
+      ],
+      "holdUntil": 21.248,
+      "intentionalHold": null
+    },
+    {
+      "index": 10,
+      "start": 21.248,
+      "end": 21.787,
+      "sourceCueId": "friction-shoe-demo",
+      "event": "friction-shoe-demo-4",
+      "cueFunction": "selection",
+      "targets": [
+        "shoe-slip-and-grip-slow-motion",
+        "friction-shoe-demo-evidence"
+      ],
+      "holdUntil": 21.787,
+      "intentionalHold": null
+    },
+    {
+      "index": 11,
+      "start": 21.787,
+      "end": 25.201,
+      "sourceCueId": "friction-shoe-demo",
+      "event": "friction-shoe-demo-5",
+      "cueFunction": "integration",
+      "targets": [
+        "shoe-slip-and-grip-slow-motion",
+        "friction-shoe-demo-evidence"
+      ],
+      "holdUntil": 25.201,
+      "intentionalHold": null
+    },
+    {
+      "index": 12,
+      "start": 25.201,
+      "end": 29.193,
+      "sourceCueId": "friction-cart-demo",
+      "event": "friction-cart-demo-1",
+      "cueFunction": "selection",
+      "targets": [
+        "equal-entry-cart-tile-mat",
+        "friction-cart-demo-evidence"
+      ],
+      "holdUntil": 29.193,
+      "intentionalHold": null
+    },
+    {
+      "index": 13,
+      "start": 29.193,
+      "end": 29.592,
+      "sourceCueId": "friction-cart-demo",
+      "event": "friction-cart-demo-2",
+      "cueFunction": "integration",
+      "targets": [
+        "equal-entry-cart-tile-mat",
+        "friction-cart-demo-evidence"
+      ],
+      "holdUntil": 29.592,
+      "intentionalHold": null
+    },
+    {
+      "index": 14,
+      "start": 29.592,
+      "end": 33.118,
+      "sourceCueId": "friction-cart-demo",
+      "event": "friction-cart-demo-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "equal-entry-cart-tile-mat",
+        "friction-cart-demo-evidence"
+      ],
+      "holdUntil": 33.118,
+      "intentionalHold": null
+    },
+    {
+      "index": 15,
+      "start": 33.118,
+      "end": 36.111,
+      "sourceCueId": "friction-cart-demo",
+      "event": "friction-cart-demo-4",
+      "cueFunction": "selection",
+      "targets": [
+        "equal-entry-cart-tile-mat",
+        "friction-cart-demo-evidence"
+      ],
+      "holdUntil": 36.111,
+      "intentionalHold": null
+    },
+    {
+      "index": 16,
+      "start": 36.111,
+      "end": 39.504,
+      "sourceCueId": "friction-cart-demo",
+      "event": "friction-cart-demo-5",
+      "cueFunction": "integration",
+      "targets": [
+        "equal-entry-cart-tile-mat",
+        "friction-cart-demo-evidence"
+      ],
+      "holdUntil": 39.504,
+      "intentionalHold": null
+    },
+    {
+      "index": 17,
+      "start": 52.725,
+      "end": 55.213,
+      "sourceCueId": "friction-model",
+      "event": "friction-model-1",
+      "cueFunction": "selection",
+      "targets": [
+        "macro-wheel-contact-friction-arrow",
+        "friction-model-evidence"
+      ],
+      "holdUntil": 55.213,
+      "intentionalHold": null
+    },
+    {
+      "index": 18,
+      "start": 55.213,
+      "end": 59.248,
+      "sourceCueId": "friction-model",
+      "event": "friction-model-2",
+      "cueFunction": "integration",
+      "targets": [
+        "macro-wheel-contact-friction-arrow",
+        "friction-model-evidence"
+      ],
+      "holdUntil": 59.248,
+      "intentionalHold": null
+    },
+    {
+      "index": 19,
+      "start": 59.248,
+      "end": 61.199,
+      "sourceCueId": "friction-model",
+      "event": "friction-model-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "macro-wheel-contact-friction-arrow",
+        "friction-model-evidence"
+      ],
+      "holdUntil": 61.199,
+      "intentionalHold": null
+    },
+    {
+      "index": 20,
+      "start": 61.199,
+      "end": 65.234,
+      "sourceCueId": "friction-model",
+      "event": "friction-model-4",
+      "cueFunction": "selection",
+      "targets": [
+        "macro-wheel-contact-friction-arrow",
+        "friction-model-evidence"
+      ],
+      "holdUntil": 65.234,
+      "intentionalHold": null
+    },
+    {
+      "index": 21,
+      "start": 65.234,
+      "end": 67.924,
+      "sourceCueId": "friction-model",
+      "event": "friction-model-5",
+      "cueFunction": "integration",
+      "targets": [
+        "macro-wheel-contact-friction-arrow",
+        "friction-model-evidence"
+      ],
+      "holdUntil": 67.924,
+      "intentionalHold": null
+    },
+    {
+      "index": 22,
+      "start": 67.924,
+      "end": 69.062,
+      "sourceCueId": "friction-two-jobs",
+      "event": "friction-two-jobs-1",
+      "cueFunction": "selection",
+      "targets": [
+        "shoe-grip-cart-slow-comparison",
+        "friction-two-jobs-evidence"
+      ],
+      "holdUntil": 69.062,
+      "intentionalHold": null
+    },
+    {
+      "index": 23,
+      "start": 69.062,
+      "end": 73.147,
+      "sourceCueId": "friction-two-jobs",
+      "event": "friction-two-jobs-2",
+      "cueFunction": "integration",
+      "targets": [
+        "shoe-grip-cart-slow-comparison",
+        "friction-two-jobs-evidence"
+      ],
+      "holdUntil": 73.147,
+      "intentionalHold": null
+    },
+    {
+      "index": 24,
+      "start": 73.147,
+      "end": 76.897,
+      "sourceCueId": "friction-two-jobs",
+      "event": "friction-two-jobs-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "shoe-grip-cart-slow-comparison",
+        "friction-two-jobs-evidence"
+      ],
+      "holdUntil": 76.897,
+      "intentionalHold": null
+    },
+    {
+      "index": 25,
+      "start": 76.897,
+      "end": 77.365,
+      "sourceCueId": "friction-two-jobs",
+      "event": "friction-two-jobs-4",
+      "cueFunction": "selection",
+      "targets": [
+        "shoe-grip-cart-slow-comparison",
+        "friction-two-jobs-evidence"
+      ],
+      "holdUntil": 77.365,
+      "intentionalHold": null
+    },
+    {
+      "index": 26,
+      "start": 77.365,
+      "end": 79.642,
+      "sourceCueId": "friction-two-jobs",
+      "event": "friction-two-jobs-5",
+      "cueFunction": "integration",
+      "targets": [
+        "shoe-grip-cart-slow-comparison",
+        "friction-two-jobs-evidence"
+      ],
+      "holdUntil": 79.642,
+      "intentionalHold": null
+    },
+    {
+      "index": 27,
+      "start": 79.642,
+      "end": 83.124,
+      "sourceCueId": "friction-two-jobs",
+      "event": "friction-two-jobs-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "shoe-grip-cart-slow-comparison",
+        "friction-two-jobs-evidence"
+      ],
+      "holdUntil": 83.124,
+      "intentionalHold": null
+    },
+    {
+      "index": 28,
+      "start": 83.124,
+      "end": 86.775,
+      "sourceCueId": "friction-distance-evidence",
+      "event": "friction-distance-evidence-1",
+      "cueFunction": "selection",
+      "targets": [
+        "tile-mat-stopping-distance-reveal",
+        "friction-distance-evidence-evidence"
+      ],
+      "holdUntil": 86.775,
+      "intentionalHold": null
+    },
+    {
+      "index": 29,
+      "start": 86.775,
+      "end": 90.358,
+      "sourceCueId": "friction-distance-evidence",
+      "event": "friction-distance-evidence-2",
+      "cueFunction": "integration",
+      "targets": [
+        "tile-mat-stopping-distance-reveal",
+        "friction-distance-evidence-evidence"
+      ],
+      "holdUntil": 90.358,
+      "intentionalHold": null
+    },
+    {
+      "index": 30,
+      "start": 90.358,
+      "end": 94.492,
+      "sourceCueId": "friction-distance-evidence",
+      "event": "friction-distance-evidence-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "tile-mat-stopping-distance-reveal",
+        "friction-distance-evidence-evidence"
+      ],
+      "holdUntil": 94.492,
+      "intentionalHold": null
+    },
+    {
+      "index": 31,
+      "start": 94.492,
+      "end": 96.765,
+      "sourceCueId": "friction-distance-evidence",
+      "event": "friction-distance-evidence-4",
+      "cueFunction": "selection",
+      "targets": [
+        "tile-mat-stopping-distance-reveal",
+        "friction-distance-evidence-evidence"
+      ],
+      "holdUntil": 96.765,
+      "intentionalHold": null
+    },
+    {
+      "index": 32,
+      "start": 109.985,
+      "end": 113.141,
+      "sourceCueId": "friction-fair-plan",
+      "event": "friction-fair-plan-1",
+      "cueFunction": "selection",
+      "targets": [
+        "fair-test-controls-lock-in",
+        "friction-fair-plan-evidence"
+      ],
+      "holdUntil": 113.141,
+      "intentionalHold": null
+    },
+    {
+      "index": 33,
+      "start": 113.141,
+      "end": 114.434,
+      "sourceCueId": "friction-fair-plan",
+      "event": "friction-fair-plan-2",
+      "cueFunction": "integration",
+      "targets": [
+        "fair-test-controls-lock-in",
+        "friction-fair-plan-evidence"
+      ],
+      "holdUntil": 114.434,
+      "intentionalHold": null
+    },
+    {
+      "index": 34,
+      "start": 114.434,
+      "end": 115.676,
+      "sourceCueId": "friction-fair-plan",
+      "event": "friction-fair-plan-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "fair-test-controls-lock-in",
+        "friction-fair-plan-evidence"
+      ],
+      "holdUntil": 115.676,
+      "intentionalHold": null
+    },
+    {
+      "index": 35,
+      "start": 115.676,
+      "end": 118.366,
+      "sourceCueId": "friction-fair-plan",
+      "event": "friction-fair-plan-4",
+      "cueFunction": "selection",
+      "targets": [
+        "fair-test-controls-lock-in",
+        "friction-fair-plan-evidence"
+      ],
+      "holdUntil": 118.366,
+      "intentionalHold": null
+    },
+    {
+      "index": 36,
+      "start": 118.366,
+      "end": 120.797,
+      "sourceCueId": "friction-fair-plan",
+      "event": "friction-fair-plan-5",
+      "cueFunction": "integration",
+      "targets": [
+        "fair-test-controls-lock-in",
+        "friction-fair-plan-evidence"
+      ],
+      "holdUntil": 120.797,
+      "intentionalHold": null
+    },
+    {
+      "index": 37,
+      "start": 120.797,
+      "end": 124.278,
+      "sourceCueId": "friction-variable-check",
+      "event": "friction-variable-check-1",
+      "cueFunction": "selection",
+      "targets": [
+        "two-carts-two-pushes-error-board",
+        "friction-variable-check-evidence"
+      ],
+      "holdUntil": 124.278,
+      "intentionalHold": null
+    },
+    {
+      "index": 38,
+      "start": 124.278,
+      "end": 125.989,
+      "sourceCueId": "friction-variable-check",
+      "event": "friction-variable-check-2",
+      "cueFunction": "integration",
+      "targets": [
+        "two-carts-two-pushes-error-board",
+        "friction-variable-check-evidence"
+      ],
+      "holdUntil": 125.989,
+      "intentionalHold": null
+    },
+    {
+      "index": 39,
+      "start": 125.989,
+      "end": 127.876,
+      "sourceCueId": "friction-variable-check",
+      "event": "friction-variable-check-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "two-carts-two-pushes-error-board",
+        "friction-variable-check-evidence"
+      ],
+      "holdUntil": 127.876,
+      "intentionalHold": null
+    },
+    {
+      "index": 40,
+      "start": 127.876,
+      "end": 131.475,
+      "sourceCueId": "friction-variable-check",
+      "event": "friction-variable-check-4",
+      "cueFunction": "selection",
+      "targets": [
+        "two-carts-two-pushes-error-board",
+        "friction-variable-check-evidence"
+      ],
+      "holdUntil": 131.475,
+      "intentionalHold": null
+    },
+    {
+      "index": 41,
+      "start": 131.475,
+      "end": 133.835,
+      "sourceCueId": "friction-variable-check",
+      "event": "friction-variable-check-5",
+      "cueFunction": "integration",
+      "targets": [
+        "two-carts-two-pushes-error-board",
+        "friction-variable-check-evidence"
+      ],
+      "holdUntil": 133.835,
+      "intentionalHold": null
+    },
+    {
+      "index": 42,
+      "start": 133.835,
+      "end": 137.328,
+      "sourceCueId": "friction-transfer",
+      "event": "friction-transfer-1",
+      "cueFunction": "selection",
+      "targets": [
+        "bike-brake-tyre-bearing-transfer",
+        "friction-transfer-evidence"
+      ],
+      "holdUntil": 137.328,
+      "intentionalHold": null
+    },
+    {
+      "index": 43,
+      "start": 137.328,
+      "end": 138.624,
+      "sourceCueId": "friction-transfer",
+      "event": "friction-transfer-2",
+      "cueFunction": "integration",
+      "targets": [
+        "bike-brake-tyre-bearing-transfer",
+        "friction-transfer-evidence"
+      ],
+      "holdUntil": 138.624,
+      "intentionalHold": null
+    },
+    {
+      "index": 44,
+      "start": 138.624,
+      "end": 141.722,
+      "sourceCueId": "friction-transfer",
+      "event": "friction-transfer-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "bike-brake-tyre-bearing-transfer",
+        "friction-transfer-evidence"
+      ],
+      "holdUntil": 141.722,
+      "intentionalHold": null
+    },
+    {
+      "index": 45,
+      "start": 141.722,
+      "end": 142.736,
+      "sourceCueId": "friction-transfer",
+      "event": "friction-transfer-4",
+      "cueFunction": "selection",
+      "targets": [
+        "bike-brake-tyre-bearing-transfer",
+        "friction-transfer-evidence"
+      ],
+      "holdUntil": 142.736,
+      "intentionalHold": null
+    },
+    {
+      "index": 46,
+      "start": 142.736,
+      "end": 145.835,
+      "sourceCueId": "friction-transfer",
+      "event": "friction-transfer-5",
+      "cueFunction": "integration",
+      "targets": [
+        "bike-brake-tyre-bearing-transfer",
+        "friction-transfer-evidence"
+      ],
+      "holdUntil": 145.835,
+      "intentionalHold": null
+    },
+    {
+      "index": 47,
+      "start": 145.835,
+      "end": 148.145,
+      "sourceCueId": "friction-transfer",
+      "event": "friction-transfer-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "bike-brake-tyre-bearing-transfer",
+        "friction-transfer-evidence"
+      ],
+      "holdUntil": 148.145,
+      "intentionalHold": null
+    },
+    {
+      "index": 48,
+      "start": 161.366,
+      "end": 164.79,
+      "sourceCueId": "friction-misconception",
+      "event": "friction-misconception-1",
+      "cueFunction": "selection",
+      "targets": [
+        "friction-always-bad-claim-stamped-false",
+        "friction-misconception-evidence"
+      ],
+      "holdUntil": 164.79,
+      "intentionalHold": null
+    },
+    {
+      "index": 49,
+      "start": 164.79,
+      "end": 165.218,
+      "sourceCueId": "friction-misconception",
+      "event": "friction-misconception-2",
+      "cueFunction": "integration",
+      "targets": [
+        "friction-always-bad-claim-stamped-false",
+        "friction-misconception-evidence"
+      ],
+      "holdUntil": 165.218,
+      "intentionalHold": null
+    },
+    {
+      "index": 50,
+      "start": 165.218,
+      "end": 167.174,
+      "sourceCueId": "friction-misconception",
+      "event": "friction-misconception-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "friction-always-bad-claim-stamped-false",
+        "friction-misconception-evidence"
+      ],
+      "holdUntil": 167.174,
+      "intentionalHold": null
+    },
+    {
+      "index": 51,
+      "start": 167.174,
+      "end": 170.964,
+      "sourceCueId": "friction-misconception",
+      "event": "friction-misconception-4",
+      "cueFunction": "selection",
+      "targets": [
+        "friction-always-bad-claim-stamped-false",
+        "friction-misconception-evidence"
+      ],
+      "holdUntil": 170.964,
+      "intentionalHold": null
+    },
+    {
+      "index": 52,
+      "start": 170.964,
+      "end": 172.799,
+      "sourceCueId": "friction-misconception",
+      "event": "friction-misconception-5",
+      "cueFunction": "integration",
+      "targets": [
+        "friction-always-bad-claim-stamped-false",
+        "friction-misconception-evidence"
+      ],
+      "holdUntil": 172.799,
+      "intentionalHold": null
+    },
+    {
+      "index": 53,
+      "start": 172.799,
+      "end": 175.244,
+      "sourceCueId": "friction-misconception",
+      "event": "friction-misconception-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "friction-always-bad-claim-stamped-false",
+        "friction-misconception-evidence"
+      ],
+      "holdUntil": 175.244,
+      "intentionalHold": null
+    },
+    {
+      "index": 54,
+      "start": 175.244,
+      "end": 178.608,
+      "sourceCueId": "friction-correction",
+      "event": "friction-correction-1",
+      "cueFunction": "selection",
+      "targets": [
+        "help-hinder-evidence-balance",
+        "friction-correction-evidence"
+      ],
+      "holdUntil": 178.608,
+      "intentionalHold": null
+    },
+    {
+      "index": 55,
+      "start": 178.608,
+      "end": 180.261,
+      "sourceCueId": "friction-correction",
+      "event": "friction-correction-2",
+      "cueFunction": "integration",
+      "targets": [
+        "help-hinder-evidence-balance",
+        "friction-correction-evidence"
+      ],
+      "holdUntil": 180.261,
+      "intentionalHold": null
+    },
+    {
+      "index": 56,
+      "start": 180.261,
+      "end": 182.713,
+      "sourceCueId": "friction-correction",
+      "event": "friction-correction-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "help-hinder-evidence-balance",
+        "friction-correction-evidence"
+      ],
+      "holdUntil": 182.713,
+      "intentionalHold": null
+    },
+    {
+      "index": 57,
+      "start": 182.713,
+      "end": 186.019,
+      "sourceCueId": "friction-correction",
+      "event": "friction-correction-4",
+      "cueFunction": "selection",
+      "targets": [
+        "help-hinder-evidence-balance",
+        "friction-correction-evidence"
+      ],
+      "holdUntil": 186.019,
+      "intentionalHold": null
+    },
+    {
+      "index": 58,
+      "start": 186.019,
+      "end": 189.497,
+      "sourceCueId": "friction-correction",
+      "event": "friction-correction-5",
+      "cueFunction": "integration",
+      "targets": [
+        "help-hinder-evidence-balance",
+        "friction-correction-evidence"
+      ],
+      "holdUntil": 189.497,
+      "intentionalHold": null
+    },
+    {
+      "index": 59,
+      "start": 189.497,
+      "end": 193.718,
+      "sourceCueId": "friction-exit",
+      "event": "friction-exit-1",
+      "cueFunction": "selection",
+      "targets": [
+        "wet-path-shoe-sole-exit-choice",
+        "friction-exit-evidence"
+      ],
+      "holdUntil": 193.718,
+      "intentionalHold": null
+    },
+    {
+      "index": 60,
+      "start": 193.718,
+      "end": 195.032,
+      "sourceCueId": "friction-exit",
+      "event": "friction-exit-2",
+      "cueFunction": "integration",
+      "targets": [
+        "wet-path-shoe-sole-exit-choice",
+        "friction-exit-evidence"
+      ],
+      "holdUntil": 195.032,
+      "intentionalHold": null
+    },
+    {
+      "index": 61,
+      "start": 195.032,
+      "end": 198.146,
+      "sourceCueId": "friction-exit",
+      "event": "friction-exit-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "wet-path-shoe-sole-exit-choice",
+        "friction-exit-evidence"
+      ],
+      "holdUntil": 198.146,
+      "intentionalHold": null
+    },
+    {
+      "index": 62,
+      "start": 198.146,
+      "end": 202.366,
+      "sourceCueId": "friction-exit",
+      "event": "friction-exit-4",
+      "cueFunction": "selection",
+      "targets": [
+        "wet-path-shoe-sole-exit-choice",
+        "friction-exit-evidence"
+      ],
+      "holdUntil": 202.366,
+      "intentionalHold": null
+    },
+    {
+      "index": 63,
+      "start": 202.366,
+      "end": 203.75,
+      "sourceCueId": "friction-exit",
+      "event": "friction-exit-5",
+      "cueFunction": "integration",
+      "targets": [
+        "wet-path-shoe-sole-exit-choice",
+        "friction-exit-evidence"
+      ],
+      "holdUntil": 203.75,
+      "intentionalHold": null
+    }
+  ],
+  "actions": [
+    {
+      "id": "friction-predict",
+      "start": 0,
+      "end": 13.282,
+      "narration": "Two identical shoes meet two surfaces: smooth ice and rough bitumen. The same sideways push will act on each shoe. Which one will slide farther? Lock in your prediction, then watch the contact patches instead of the shoe tops.",
+      "expected_action": "split-shoe-ice-bitumen-prediction",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "friction-shoe-demo",
+      "start": 13.282,
+      "end": 25.201,
+      "narration": "The shoe on ice slips a long way. The shoe on bitumen grips and stops quickly. Between each shoe and surface, friction acts against the slipping. Here, stronger friction helps the shoe hold its position.",
+      "expected_action": "shoe-slip-and-grip-slow-motion",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "friction-cart-demo",
+      "start": 25.201,
+      "end": 52.725,
+      "narration": "Now the same cart enters tile and a textured mat at the same speed. It rolls farther on tile and stops sooner on the mat. This time friction hinders the cart's motion. The same force can help one job and hinder another.",
+      "expected_action": "equal-entry-cart-tile-mat",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "friction-model",
+      "start": 52.725,
+      "end": 67.924,
+      "narration": "Zoom into the wheel touching the mat. The orange arrow is labelled mat on cart and points opposite the cart's sliding direction. Friction is a contact force between touching surfaces; it is not a force stored inside either object.",
+      "expected_action": "macro-wheel-contact-friction-arrow",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "friction-two-jobs",
+      "start": 67.924,
+      "end": 83.124,
+      "narration": "Compare the jobs. A runner needs shoe-ground friction to push without slipping. A cart designed to coast needs less friction slowing its wheels. Do not label friction good or bad. Ask whether it helps or hinders the intended motion.",
+      "expected_action": "shoe-grip-cart-slow-comparison",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "friction-distance-evidence",
+      "start": 83.124,
+      "end": 109.985,
+      "narration": "Three tile runs stop at 338, 342 and 340 centimetres. Three mat runs stop at 118, 122 and 120 centimetres. The shorter repeated distances show a greater slowing effect on the mat in this investigation.",
+      "expected_action": "tile-mat-stopping-distance-reveal",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "friction-fair-plan",
+      "start": 109.985,
+      "end": 120.797,
+      "narration": "To compare surfaces fairly, keep the cart, wheels, start line and entry speed the same. Change only the surface. Measure stopping distance from the entry line, reset carefully, and repeat each surface three times.",
+      "expected_action": "fair-test-controls-lock-in",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "friction-variable-check",
+      "start": 120.797,
+      "end": 133.835,
+      "narration": "One trial uses a heavy cart pushed hard on tile and a light cart pushed gently on carpet. That cannot isolate the surface. More than one condition changed, so either the cart, the push or the surface could explain the result.",
+      "expected_action": "two-carts-two-pushes-error-board",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "friction-transfer",
+      "start": 133.835,
+      "end": 161.366,
+      "narration": "A bicycle needs friction at the brake pads and tyres so it can slow and grip the road. It also uses smooth, well-aligned wheel parts to reduce unwanted friction. Good design increases friction where grip is needed and reduces it where motion should stay easy.",
+      "expected_action": "bike-brake-tyre-bearing-transfer",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "friction-misconception",
+      "start": 161.366,
+      "end": 175.244,
+      "narration": "Someone claims, friction is always bad because it wastes motion. Test that claim with the runner. Remove most shoe-ground friction and the foot slides backward. The runner cannot push safely. The evidence does not support the claim.",
+      "expected_action": "friction-always-bad-claim-stamped-false",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "friction-correction",
+      "start": 175.244,
+      "end": 189.497,
+      "narration": "Replace the claim with a stronger one: friction can help or hinder, depending on the job. Use evidence, not surface appearance alone. Stopping distance shows slowing; slipping shows lost grip; repeated fair trials make either conclusion more trustworthy.",
+      "expected_action": "help-hinder-evidence-balance",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "friction-exit",
+      "start": 189.497,
+      "end": 205,
+      "narration": "A designer tests two shoe soles on the same wet path with the same load and push. Sole A slips 70 centimetres; Sole B slips 24. Which sole gives more useful friction, and which measurements justify your choice?",
+      "expected_action": "wet-path-shoe-sole-exit-choice",
+      "board_region": "demonstration-stage"
+    }
+  ]
+}

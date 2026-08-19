@@ -1,8 +1,8 @@
 (() => {
   "use strict";
 
-  const RELEASE = "physics-101-force-lab-010";
-  const ASSET_VERSION = "20260818d";
+  const RELEASE = "physics-101-cinematic-lab-011";
+  const ASSET_VERSION = "20260819a";
   const COURSE_URL = `./data/physics-101-course.json?v=${ASSET_VERSION}`;
   const PROGRESS_KEY = "brightQuestPhysics101ProgressV1";
   const PROFILES_KEY = "brightQuestProfilesV2";
@@ -53,6 +53,7 @@
     testAnswers: [],
     answerLocked: false,
     lastSavedSecond: -1,
+    profileSyncQueue: Promise.resolve(),
   };
 
   init().catch((error) => {
@@ -542,6 +543,11 @@
     if (!chapter) return;
     profile.physics101Progress ||= { courseId: COURSE_ID, chapters: {} };
     profile.physics101Progress.chapters ||= {};
+    profile.physics101Progress.releasedChapters = availableChapters().map((item) => ({
+      id: item.id,
+      number: item.number,
+      title: item.title,
+    }));
     profile.physics101Progress.chapters[chapter.id] = JSON.parse(JSON.stringify(chapterProgress(chapter.id)));
     profile.trainingCompleted ||= {};
     if (chapterProgress(chapter.id).completed) {
@@ -554,11 +560,127 @@
     }
     localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
     if (!syncProfile) return;
-    fetch("/api/profiles", {
+    state.profileSyncQueue = state.profileSyncQueue
+      .catch(() => {})
+      .then(() => syncProfileToCloud(profileId, true))
+      .catch((error) => console.warn("Physics progress cloud sync skipped", error));
+  }
+
+  async function syncProfileToCloud(profileId, canRetry) {
+    const profile = loadJson(PROFILES_KEY)[profileId];
+    if (!profile?.id) return false;
+    const response = await fetch("/api/profiles", {
       method: "POST",
       headers: capabilityHeaders({ "content-type": "application/json" }),
       body: JSON.stringify({ profile }),
-    }).catch(() => {});
+    });
+    if (response.ok) {
+      const body = await response.json();
+      const profiles = loadJson(PROFILES_KEY);
+      if (!profiles[profileId]) return true;
+      if (body.version) profiles[profileId].cloudVersion = body.version;
+      profiles[profileId].cloudSyncedAt = body.syncedAt || new Date().toISOString();
+      localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+      return true;
+    }
+    if (response.status !== 409 || !canRetry) return false;
+    const conflict = await response.json().catch(() => ({}));
+    if (conflict.code && conflict.code !== "STALE_PROFILE") return false;
+
+    const remoteResponse = await fetch("/api/profiles", {
+      headers: capabilityHeaders({ accept: "application/json" }),
+    });
+    if (!remoteResponse.ok) return false;
+    const body = await remoteResponse.json();
+    const remote = (body.profiles || []).find((item) =>
+      item?.payload?.id === profileId || item?.profileId === profileId
+    );
+    if (!remote?.payload) return false;
+
+    const profiles = loadJson(PROFILES_KEY);
+    const latestLocal = profiles[profileId] || profile;
+    const merged = mergeProfileForPhysics(remote.payload, latestLocal);
+    merged.cloudVersion = remote.version || conflict.currentVersion || merged.cloudVersion;
+    merged.cloudSyncedAt = remote.updatedAt || merged.cloudSyncedAt;
+    profiles[profileId] = merged;
+    localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+    mergeProfileProgress();
+    return syncProfileToCloud(profileId, false);
+  }
+
+  function mergeProfileForPhysics(remoteProfile, localProfile) {
+    const merged = { ...localProfile, ...remoteProfile };
+    merged.physics101Progress = mergePhysicsCourseProgress(
+      remoteProfile?.physics101Progress,
+      localProfile?.physics101Progress
+    );
+    merged.trainingCompleted = mergeTrainingRecords(
+      remoteProfile?.trainingCompleted,
+      localProfile?.trainingCompleted
+    );
+    return merged;
+  }
+
+  function mergePhysicsCourseProgress(remoteCourse = {}, localCourse = {}) {
+    const remoteChapters = remoteCourse?.chapters || {};
+    const localChapters = localCourse?.chapters || {};
+    const chapters = {};
+    new Set([...Object.keys(remoteChapters), ...Object.keys(localChapters)]).forEach((id) => {
+      chapters[id] = mergePhysicsChapter(remoteChapters[id], localChapters[id]);
+    });
+    return {
+      ...remoteCourse,
+      ...localCourse,
+      courseId: localCourse.courseId || remoteCourse.courseId || COURSE_ID,
+      releasedChapters: mergeReleasedChapters(remoteCourse?.releasedChapters, localCourse?.releasedChapters),
+      chapters,
+    };
+  }
+
+  function mergePhysicsChapter(remote = {}, local = {}) {
+    return {
+      ...remote,
+      ...local,
+      watchedSeconds: Math.max(Number(remote.watchedSeconds) || 0, Number(local.watchedSeconds) || 0),
+      completed: Boolean(remote.completed || local.completed),
+      completedAt: latestIso(remote.completedAt, local.completedAt),
+      bestScore: Math.max(Number(remote.bestScore) || 0, Number(local.bestScore) || 0, Number(remote.test?.score) || 0, Number(local.test?.score) || 0),
+      attempts: Math.max(Number(remote.attempts) || 0, Number(local.attempts) || 0),
+      test: newestPhysicsTest(remote.test, local.test),
+    };
+  }
+
+  function newestPhysicsTest(remote, local) {
+    if (!remote) return local || null;
+    if (!local) return remote;
+    const remoteAt = Date.parse(remote.submittedAt || "") || 0;
+    const localAt = Date.parse(local.submittedAt || "") || 0;
+    if (localAt !== remoteAt) return localAt > remoteAt ? local : remote;
+    const remoteDetail = (remote.answers || []).length * 100 + Number(remote.score || 0);
+    const localDetail = (local.answers || []).length * 100 + Number(local.score || 0);
+    return localDetail >= remoteDetail ? local : remote;
+  }
+
+  function mergeReleasedChapters(remote = [], local = []) {
+    const chapters = new Map();
+    [...remote, ...local].forEach((chapter) => {
+      if (chapter?.id) chapters.set(chapter.id, { ...(chapters.get(chapter.id) || {}), ...chapter });
+    });
+    return [...chapters.values()].sort((a, b) => Number(a.number || 0) - Number(b.number || 0));
+  }
+
+  function mergeTrainingRecords(remote = {}, local = {}) {
+    const merged = { ...remote, ...local };
+    Object.keys(remote).forEach((key) => {
+      if (!local[key]) return;
+      merged[key] = {
+        ...remote[key],
+        ...local[key],
+        count: Math.max(Number(remote[key].count) || 0, Number(local[key].count) || 0),
+        date: latestIso(remote[key].date, local[key].date),
+      };
+    });
+    return merged;
   }
 
   function capabilityHeaders(base) {

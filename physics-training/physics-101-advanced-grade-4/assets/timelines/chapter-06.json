@@ -1,0 +1,2217 @@
+{
+  "release": "physics-101-cinematic-lab-011",
+  "chapter": 6,
+  "duration": 205,
+  "cues": [
+    {
+      "id": "magnet-predict",
+      "title": "Which objects will move?",
+      "visual": "mixed-material-magnetic-prediction",
+      "text": "A steel paperclip, aluminium strip, copper wire and wooden bead sit behind a clear line. A bar magnet approaches without touching. Which objects will move? Choose before the magnet crosses the distance markers, and do not use shiny as your rule.",
+      "start": 0,
+      "end": 13.101,
+      "beatEnd": 13.101,
+      "voiceSection": "part-1"
+    },
+    {
+      "id": "magnet-material-demo",
+      "title": "Test across a gap",
+      "visual": "bar-magnet-sorts-materials-gap-visible",
+      "text": "The steel paperclip moves across the gap. In this test, the aluminium, copper and wood do not. Magnetic force can act without contact, but magnets do not attract every metal. Material evidence matters more than colour or shine.",
+      "start": 13.101,
+      "end": 25.243,
+      "beatEnd": 25.243,
+      "voiceSection": "part-1"
+    },
+    {
+      "id": "magnet-repeat-materials",
+      "title": "Check the material pattern",
+      "visual": "three-run-material-response-table",
+      "text": "Reset each object at the same two-centimetre gap and repeat three times. Steel responds each time; the others show no visible movement. The repeated pattern supports a careful claim about these tested materials, not every object in the world.",
+      "start": 25.243,
+      "end": 37.704,
+      "beatEnd": 51.973,
+      "voiceSection": "part-1"
+    },
+    {
+      "id": "magnet-pole-model",
+      "title": "Meet the two poles",
+      "visual": "stable-red-blue-north-south-poles",
+      "text": "A bar magnet has two poles, marked north in red and south in blue. Keep those colours and labels fixed. Bring a north pole near a south pole, leaving a visible gap so the non-contact interaction is easy to see.",
+      "start": 51.973,
+      "end": 65.806,
+      "beatEnd": 65.806,
+      "voiceSection": "part-2"
+    },
+    {
+      "id": "magnet-attraction",
+      "title": "Opposite poles attract",
+      "visual": "north-south-attraction-arrows-and-motion",
+      "text": "Release. The magnets move together. Attraction means the magnetic forces pull the magnets towards each other. Draw magenta arrows on both receiving magnets, each pointing towards the other magnet. The arrows appear before contact and remain through the spoken explanation.",
+      "start": 65.806,
+      "end": 79.64,
+      "beatEnd": 79.64,
+      "voiceSection": "part-2"
+    },
+    {
+      "id": "magnet-repulsion",
+      "title": "Matching poles repel",
+      "visual": "north-north-repulsion-matched-shot",
+      "text": "Reset the same magnets and turn one around so north faces north. Release from the same gap. They move apart. Repulsion means the magnetic forces push the magnets away from each other. The matched camera view makes the changed pole arrangement clear.",
+      "start": 79.64,
+      "end": 94.165,
+      "beatEnd": 108.433,
+      "voiceSection": "part-2"
+    },
+    {
+      "id": "magnet-distance-plan",
+      "title": "Test the effect of distance",
+      "visual": "one-four-eight-centimetre-gap-ruler",
+      "text": "Keep the magnets, pole arrangement, track and release method the same. Change only the starting gap: one, four, then eight centimetres. Measure how far the moving magnet travels in two seconds, and repeat every gap three times.",
+      "start": 108.433,
+      "end": 121.576,
+      "beatEnd": 121.576,
+      "voiceSection": "part-3"
+    },
+    {
+      "id": "magnet-distance-data",
+      "title": "Read the distance evidence",
+      "visual": "distance-response-table-and-bars",
+      "text": "At one centimetre the magnet moves 14 centimetres. At four centimetres it moves 6. At eight centimetres it moves less than 1 in the same time. Greater distance gives a smaller observed effect in this setup.",
+      "start": 121.576,
+      "end": 134.363,
+      "beatEnd": 134.363,
+      "voiceSection": "part-3"
+    },
+    {
+      "id": "magnet-transfer",
+      "title": "Design a cabinet catch",
+      "visual": "magnetic-cabinet-catch-gap-transfer",
+      "text": "A cabinet catch must pull the door closed before its magnet touches the steel plate. A wide gap gives too little visible movement; a narrow gap works reliably. The design uses attraction across a gap and distance evidence, not a hidden hook.",
+      "start": 134.363,
+      "end": 149.281,
+      "beatEnd": 163.55,
+      "voiceSection": "part-3"
+    },
+    {
+      "id": "magnet-misconception",
+      "title": "Test every metal",
+      "visual": "every-metal-claim-material-evidence",
+      "text": "Someone claims magnets attract every metal. Test that claim against the labelled samples. Steel moves, while aluminium and copper do not move in the repeated test. One clear counterexample is enough to reject the word every.",
+      "start": 163.55,
+      "end": 176.245,
+      "beatEnd": 176.245,
+      "voiceSection": "part-4"
+    },
+    {
+      "id": "magnet-correction",
+      "title": "Use the evidence precisely",
+      "visual": "material-poles-distance-evidence-board",
+      "text": "Replace the claim: magnets attract some materials, including the tested steel. Two magnets may attract or repel depending on which poles face. The observed effect also changes with distance. Keep each conclusion tied to the evidence actually collected.",
+      "start": 176.245,
+      "end": 189.645,
+      "beatEnd": 189.645,
+      "voiceSection": "part-4"
+    },
+    {
+      "id": "magnet-exit",
+      "title": "Predict before release",
+      "visual": "three-magnet-setups-exit-prediction",
+      "text": "Three setups wait at equal gaps: north facing south, north facing north, and north facing aluminium. Predict move together, move apart or no visible movement in this test. For each choice, name the pole or material evidence that supports it.",
+      "start": 189.645,
+      "end": 203.75,
+      "beatEnd": 205,
+      "voiceSection": "part-4"
+    }
+  ],
+  "captionCues": [
+    {
+      "index": 1,
+      "start": 0,
+      "end": 3.166,
+      "text": "A steel paperclip, aluminium strip, copper wire and wooden",
+      "sourceCueId": "magnet-predict",
+      "event": "magnet-predict-1",
+      "cueFunction": "selection",
+      "targets": [
+        "mixed-material-magnetic-prediction",
+        "magnet-predict-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 2,
+      "start": 3.166,
+      "end": 4.749,
+      "text": "bead sit behind a clear line.",
+      "sourceCueId": "magnet-predict",
+      "event": "magnet-predict-2",
+      "cueFunction": "integration",
+      "targets": [
+        "mixed-material-magnetic-prediction",
+        "magnet-predict-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 3,
+      "start": 4.749,
+      "end": 6.987,
+      "text": "A bar magnet approaches without touching.",
+      "sourceCueId": "magnet-predict",
+      "event": "magnet-predict-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "mixed-material-magnetic-prediction",
+        "magnet-predict-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 4,
+      "start": 6.987,
+      "end": 8.297,
+      "text": "Which objects will move?",
+      "sourceCueId": "magnet-predict",
+      "event": "magnet-predict-4",
+      "cueFunction": "selection",
+      "targets": [
+        "mixed-material-magnetic-prediction",
+        "magnet-predict-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 5,
+      "start": 8.297,
+      "end": 11.627,
+      "text": "Choose before the magnet crosses the distance markers, and do",
+      "sourceCueId": "magnet-predict",
+      "event": "magnet-predict-5",
+      "cueFunction": "integration",
+      "targets": [
+        "mixed-material-magnetic-prediction",
+        "magnet-predict-evidence"
+      ],
+      "intentionalHold": "predict"
+    },
+    {
+      "index": 6,
+      "start": 11.627,
+      "end": 13.101,
+      "text": "not use shiny as your rule.",
+      "sourceCueId": "magnet-predict",
+      "event": "magnet-predict-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "mixed-material-magnetic-prediction",
+        "magnet-predict-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 7,
+      "start": 13.101,
+      "end": 15.333,
+      "text": "The steel paperclip moves across the gap.",
+      "sourceCueId": "magnet-material-demo",
+      "event": "magnet-material-demo-1",
+      "cueFunction": "selection",
+      "targets": [
+        "bar-magnet-sorts-materials-gap-visible",
+        "magnet-material-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 8,
+      "start": 15.333,
+      "end": 18.165,
+      "text": "In this test, the aluminium, copper and wood do not.",
+      "sourceCueId": "magnet-material-demo",
+      "event": "magnet-material-demo-2",
+      "cueFunction": "integration",
+      "targets": [
+        "bar-magnet-sorts-materials-gap-visible",
+        "magnet-material-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 9,
+      "start": 18.165,
+      "end": 21.323,
+      "text": "Magnetic force can act without contact, but magnets do not",
+      "sourceCueId": "magnet-material-demo",
+      "event": "magnet-material-demo-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "bar-magnet-sorts-materials-gap-visible",
+        "magnet-material-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 10,
+      "start": 21.323,
+      "end": 22.412,
+      "text": "attract every metal.",
+      "sourceCueId": "magnet-material-demo",
+      "event": "magnet-material-demo-4",
+      "cueFunction": "selection",
+      "targets": [
+        "bar-magnet-sorts-materials-gap-visible",
+        "magnet-material-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 11,
+      "start": 22.412,
+      "end": 25.243,
+      "text": "Material evidence matters more than colour or shine.",
+      "sourceCueId": "magnet-material-demo",
+      "event": "magnet-material-demo-5",
+      "cueFunction": "integration",
+      "targets": [
+        "bar-magnet-sorts-materials-gap-visible",
+        "magnet-material-demo-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 12,
+      "start": 25.243,
+      "end": 28.332,
+      "text": "Reset each object at the same two-centimetre gap and repeat",
+      "sourceCueId": "magnet-repeat-materials",
+      "event": "magnet-repeat-materials-1",
+      "cueFunction": "selection",
+      "targets": [
+        "three-run-material-response-table",
+        "magnet-repeat-materials-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 13,
+      "start": 28.332,
+      "end": 28.96,
+      "text": "three times.",
+      "sourceCueId": "magnet-repeat-materials",
+      "event": "magnet-repeat-materials-2",
+      "cueFunction": "integration",
+      "targets": [
+        "three-run-material-response-table",
+        "magnet-repeat-materials-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 14,
+      "start": 28.96,
+      "end": 32.207,
+      "text": "Steel responds each time; the others show no visible movement.",
+      "sourceCueId": "magnet-repeat-materials",
+      "event": "magnet-repeat-materials-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "three-run-material-response-table",
+        "magnet-repeat-materials-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 15,
+      "start": 32.207,
+      "end": 35.191,
+      "text": "The repeated pattern supports a careful claim about these",
+      "sourceCueId": "magnet-repeat-materials",
+      "event": "magnet-repeat-materials-4",
+      "cueFunction": "selection",
+      "targets": [
+        "three-run-material-response-table",
+        "magnet-repeat-materials-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 16,
+      "start": 35.191,
+      "end": 37.704,
+      "text": "tested materials, not every object in the world.",
+      "sourceCueId": "magnet-repeat-materials",
+      "event": "magnet-repeat-materials-5",
+      "cueFunction": "integration",
+      "targets": [
+        "three-run-material-response-table",
+        "magnet-repeat-materials-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 17,
+      "start": 51.973,
+      "end": 56.002,
+      "text": "A bar magnet has two poles, marked north in red and south in",
+      "sourceCueId": "magnet-pole-model",
+      "event": "magnet-pole-model-1",
+      "cueFunction": "selection",
+      "targets": [
+        "stable-red-blue-north-south-poles",
+        "magnet-pole-model-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 18,
+      "start": 56.002,
+      "end": 56.338,
+      "text": "blue.",
+      "sourceCueId": "magnet-pole-model",
+      "event": "magnet-pole-model-2",
+      "cueFunction": "integration",
+      "targets": [
+        "stable-red-blue-north-south-poles",
+        "magnet-pole-model-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 19,
+      "start": 56.338,
+      "end": 58.755,
+      "text": "Keep those colours and labels fixed.",
+      "sourceCueId": "magnet-pole-model",
+      "event": "magnet-pole-model-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "stable-red-blue-north-south-poles",
+        "magnet-pole-model-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 20,
+      "start": 58.755,
+      "end": 62.919,
+      "text": "Bring a north pole near a south pole, leaving a visible gap so",
+      "sourceCueId": "magnet-pole-model",
+      "event": "magnet-pole-model-4",
+      "cueFunction": "selection",
+      "targets": [
+        "stable-red-blue-north-south-poles",
+        "magnet-pole-model-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 21,
+      "start": 62.919,
+      "end": 65.806,
+      "text": "the non-contact interaction is easy to see.",
+      "sourceCueId": "magnet-pole-model",
+      "event": "magnet-pole-model-5",
+      "cueFunction": "integration",
+      "targets": [
+        "stable-red-blue-north-south-poles",
+        "magnet-pole-model-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 22,
+      "start": 65.806,
+      "end": 66.224,
+      "text": "Release.",
+      "sourceCueId": "magnet-attraction",
+      "event": "magnet-attraction-1",
+      "cueFunction": "selection",
+      "targets": [
+        "north-south-attraction-arrows-and-motion",
+        "magnet-attraction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 23,
+      "start": 66.224,
+      "end": 67.581,
+      "text": "The magnets move together.",
+      "sourceCueId": "magnet-attraction",
+      "event": "magnet-attraction-2",
+      "cueFunction": "integration",
+      "targets": [
+        "north-south-attraction-arrows-and-motion",
+        "magnet-attraction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 24,
+      "start": 67.581,
+      "end": 70.765,
+      "text": "Attraction means the magnetic forces pull the magnets towards",
+      "sourceCueId": "magnet-attraction",
+      "event": "magnet-attraction-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "north-south-attraction-arrows-and-motion",
+        "magnet-attraction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 25,
+      "start": 70.765,
+      "end": 71.34,
+      "text": "each other.",
+      "sourceCueId": "magnet-attraction",
+      "event": "magnet-attraction-4",
+      "cueFunction": "selection",
+      "targets": [
+        "north-south-attraction-arrows-and-motion",
+        "magnet-attraction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 26,
+      "start": 71.34,
+      "end": 74.472,
+      "text": "Draw magenta arrows on both receiving magnets, each pointing",
+      "sourceCueId": "magnet-attraction",
+      "event": "magnet-attraction-5",
+      "cueFunction": "integration",
+      "targets": [
+        "north-south-attraction-arrows-and-motion",
+        "magnet-attraction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 27,
+      "start": 74.472,
+      "end": 75.777,
+      "text": "towards the other magnet.",
+      "sourceCueId": "magnet-attraction",
+      "event": "magnet-attraction-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "north-south-attraction-arrows-and-motion",
+        "magnet-attraction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 28,
+      "start": 75.777,
+      "end": 79.014,
+      "text": "The arrows appear before contact and remain through the spoken",
+      "sourceCueId": "magnet-attraction",
+      "event": "magnet-attraction-7",
+      "cueFunction": "selection",
+      "targets": [
+        "north-south-attraction-arrows-and-motion",
+        "magnet-attraction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 29,
+      "start": 79.014,
+      "end": 79.64,
+      "text": "explanation.",
+      "sourceCueId": "magnet-attraction",
+      "event": "magnet-attraction-8",
+      "cueFunction": "integration",
+      "targets": [
+        "north-south-attraction-arrows-and-motion",
+        "magnet-attraction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 30,
+      "start": 79.64,
+      "end": 83.061,
+      "text": "Reset the same magnets and turn one around so north faces",
+      "sourceCueId": "magnet-repulsion",
+      "event": "magnet-repulsion-1",
+      "cueFunction": "selection",
+      "targets": [
+        "north-north-repulsion-matched-shot",
+        "magnet-repulsion-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 31,
+      "start": 83.061,
+      "end": 83.421,
+      "text": "north.",
+      "sourceCueId": "magnet-repulsion",
+      "event": "magnet-repulsion-2",
+      "cueFunction": "integration",
+      "targets": [
+        "north-north-repulsion-matched-shot",
+        "magnet-repulsion-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 32,
+      "start": 83.421,
+      "end": 84.982,
+      "text": "Release from the same gap.",
+      "sourceCueId": "magnet-repulsion",
+      "event": "magnet-repulsion-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "north-north-repulsion-matched-shot",
+        "magnet-repulsion-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 33,
+      "start": 84.982,
+      "end": 85.942,
+      "text": "They move apart.",
+      "sourceCueId": "magnet-repulsion",
+      "event": "magnet-repulsion-4",
+      "cueFunction": "selection",
+      "targets": [
+        "north-north-repulsion-matched-shot",
+        "magnet-repulsion-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 34,
+      "start": 85.942,
+      "end": 89.663,
+      "text": "Repulsion means the magnetic forces push the magnets away from",
+      "sourceCueId": "magnet-repulsion",
+      "event": "magnet-repulsion-5",
+      "cueFunction": "integration",
+      "targets": [
+        "north-north-repulsion-matched-shot",
+        "magnet-repulsion-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 35,
+      "start": 89.663,
+      "end": 90.324,
+      "text": "each other.",
+      "sourceCueId": "magnet-repulsion",
+      "event": "magnet-repulsion-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "north-north-repulsion-matched-shot",
+        "magnet-repulsion-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 36,
+      "start": 90.324,
+      "end": 93.805,
+      "text": "The matched camera view makes the changed pole arrangement",
+      "sourceCueId": "magnet-repulsion",
+      "event": "magnet-repulsion-7",
+      "cueFunction": "selection",
+      "targets": [
+        "north-north-repulsion-matched-shot",
+        "magnet-repulsion-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 37,
+      "start": 93.805,
+      "end": 94.165,
+      "text": "clear.",
+      "sourceCueId": "magnet-repulsion",
+      "event": "magnet-repulsion-8",
+      "cueFunction": "integration",
+      "targets": [
+        "north-north-repulsion-matched-shot",
+        "magnet-repulsion-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 38,
+      "start": 108.433,
+      "end": 111.985,
+      "text": "Keep the magnets, pole arrangement, track and release method",
+      "sourceCueId": "magnet-distance-plan",
+      "event": "magnet-distance-plan-1",
+      "cueFunction": "selection",
+      "targets": [
+        "one-four-eight-centimetre-gap-ruler",
+        "magnet-distance-plan-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 39,
+      "start": 111.985,
+      "end": 112.518,
+      "text": "the same.",
+      "sourceCueId": "magnet-distance-plan",
+      "event": "magnet-distance-plan-2",
+      "cueFunction": "integration",
+      "targets": [
+        "one-four-eight-centimetre-gap-ruler",
+        "magnet-distance-plan-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 40,
+      "start": 112.518,
+      "end": 115.537,
+      "text": "Change only the starting gap: one, four, then eight",
+      "sourceCueId": "magnet-distance-plan",
+      "event": "magnet-distance-plan-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "one-four-eight-centimetre-gap-ruler",
+        "magnet-distance-plan-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 41,
+      "start": 115.537,
+      "end": 116.248,
+      "text": "centimetres.",
+      "sourceCueId": "magnet-distance-plan",
+      "event": "magnet-distance-plan-4",
+      "cueFunction": "selection",
+      "targets": [
+        "one-four-eight-centimetre-gap-ruler",
+        "magnet-distance-plan-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 42,
+      "start": 116.248,
+      "end": 119.859,
+      "text": "Measure how far the moving magnet travels in two seconds, and",
+      "sourceCueId": "magnet-distance-plan",
+      "event": "magnet-distance-plan-5",
+      "cueFunction": "integration",
+      "targets": [
+        "one-four-eight-centimetre-gap-ruler",
+        "magnet-distance-plan-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 43,
+      "start": 119.859,
+      "end": 121.576,
+      "text": "repeat every gap three times.",
+      "sourceCueId": "magnet-distance-plan",
+      "event": "magnet-distance-plan-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "one-four-eight-centimetre-gap-ruler",
+        "magnet-distance-plan-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 44,
+      "start": 121.576,
+      "end": 124.741,
+      "text": "At one centimetre the magnet moves 14 centimetres.",
+      "sourceCueId": "magnet-distance-data",
+      "event": "magnet-distance-data-1",
+      "cueFunction": "selection",
+      "targets": [
+        "distance-response-table-and-bars",
+        "magnet-distance-data-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 45,
+      "start": 124.741,
+      "end": 126.703,
+      "text": "At four centimetres it moves 6.",
+      "sourceCueId": "magnet-distance-data",
+      "event": "magnet-distance-data-2",
+      "cueFunction": "integration",
+      "targets": [
+        "distance-response-table-and-bars",
+        "magnet-distance-data-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 46,
+      "start": 126.703,
+      "end": 130.438,
+      "text": "At eight centimetres it moves less than 1 in the same time.",
+      "sourceCueId": "magnet-distance-data",
+      "event": "magnet-distance-data-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "distance-response-table-and-bars",
+        "magnet-distance-data-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 47,
+      "start": 130.438,
+      "end": 133.983,
+      "text": "Greater distance gives a smaller observed effect in this",
+      "sourceCueId": "magnet-distance-data",
+      "event": "magnet-distance-data-4",
+      "cueFunction": "selection",
+      "targets": [
+        "distance-response-table-and-bars",
+        "magnet-distance-data-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 48,
+      "start": 133.983,
+      "end": 134.363,
+      "text": "setup.",
+      "sourceCueId": "magnet-distance-data",
+      "event": "magnet-distance-data-5",
+      "cueFunction": "integration",
+      "targets": [
+        "distance-response-table-and-bars",
+        "magnet-distance-data-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 49,
+      "start": 134.363,
+      "end": 138.093,
+      "text": "A cabinet catch must pull the door closed before its magnet",
+      "sourceCueId": "magnet-transfer",
+      "event": "magnet-transfer-1",
+      "cueFunction": "selection",
+      "targets": [
+        "magnetic-cabinet-catch-gap-transfer",
+        "magnet-transfer-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 50,
+      "start": 138.093,
+      "end": 139.61,
+      "text": "touches the steel plate.",
+      "sourceCueId": "magnet-transfer",
+      "event": "magnet-transfer-2",
+      "cueFunction": "integration",
+      "targets": [
+        "magnetic-cabinet-catch-gap-transfer",
+        "magnet-transfer-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 51,
+      "start": 139.61,
+      "end": 143.276,
+      "text": "A wide gap gives too little visible movement; a narrow gap",
+      "sourceCueId": "magnet-transfer",
+      "event": "magnet-transfer-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "magnetic-cabinet-catch-gap-transfer",
+        "magnet-transfer-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 52,
+      "start": 143.276,
+      "end": 144.224,
+      "text": "works reliably.",
+      "sourceCueId": "magnet-transfer",
+      "event": "magnet-transfer-4",
+      "cueFunction": "selection",
+      "targets": [
+        "magnetic-cabinet-catch-gap-transfer",
+        "magnet-transfer-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 53,
+      "start": 144.224,
+      "end": 148.143,
+      "text": "The design uses attraction across a gap and distance evidence,",
+      "sourceCueId": "magnet-transfer",
+      "event": "magnet-transfer-5",
+      "cueFunction": "integration",
+      "targets": [
+        "magnetic-cabinet-catch-gap-transfer",
+        "magnet-transfer-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 54,
+      "start": 148.143,
+      "end": 149.281,
+      "text": "not a hidden hook.",
+      "sourceCueId": "magnet-transfer",
+      "event": "magnet-transfer-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "magnetic-cabinet-catch-gap-transfer",
+        "magnet-transfer-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 55,
+      "start": 163.55,
+      "end": 166.031,
+      "text": "Someone claims magnets attract every metal.",
+      "sourceCueId": "magnet-misconception",
+      "event": "magnet-misconception-1",
+      "cueFunction": "selection",
+      "targets": [
+        "every-metal-claim-material-evidence",
+        "magnet-misconception-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 56,
+      "start": 166.031,
+      "end": 168.628,
+      "text": "Test that claim against the labelled samples.",
+      "sourceCueId": "magnet-misconception",
+      "event": "magnet-misconception-2",
+      "cueFunction": "integration",
+      "targets": [
+        "every-metal-claim-material-evidence",
+        "magnet-misconception-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 57,
+      "start": 168.628,
+      "end": 171.975,
+      "text": "Steel moves, while aluminium and copper do not move in the",
+      "sourceCueId": "magnet-misconception",
+      "event": "magnet-misconception-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "every-metal-claim-material-evidence",
+        "magnet-misconception-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 58,
+      "start": 171.975,
+      "end": 172.783,
+      "text": "repeated test.",
+      "sourceCueId": "magnet-misconception",
+      "event": "magnet-misconception-4",
+      "cueFunction": "selection",
+      "targets": [
+        "every-metal-claim-material-evidence",
+        "magnet-misconception-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 59,
+      "start": 172.783,
+      "end": 176.245,
+      "text": "One clear counterexample is enough to reject the word every.",
+      "sourceCueId": "magnet-misconception",
+      "event": "magnet-misconception-5",
+      "cueFunction": "integration",
+      "targets": [
+        "every-metal-claim-material-evidence",
+        "magnet-misconception-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 60,
+      "start": 176.245,
+      "end": 179.5,
+      "text": "Replace the claim: magnets attract some materials, including",
+      "sourceCueId": "magnet-correction",
+      "event": "magnet-correction-1",
+      "cueFunction": "selection",
+      "targets": [
+        "material-poles-distance-evidence-board",
+        "magnet-correction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 61,
+      "start": 179.5,
+      "end": 180.422,
+      "text": "the tested steel.",
+      "sourceCueId": "magnet-correction",
+      "event": "magnet-correction-2",
+      "cueFunction": "integration",
+      "targets": [
+        "material-poles-distance-evidence-board",
+        "magnet-correction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 62,
+      "start": 180.422,
+      "end": 183.515,
+      "text": "Two magnets may attract or repel depending on which poles",
+      "sourceCueId": "magnet-correction",
+      "event": "magnet-correction-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "material-poles-distance-evidence-board",
+        "magnet-correction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 63,
+      "start": 183.515,
+      "end": 183.786,
+      "text": "face.",
+      "sourceCueId": "magnet-correction",
+      "event": "magnet-correction-4",
+      "cueFunction": "selection",
+      "targets": [
+        "material-poles-distance-evidence-board",
+        "magnet-correction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 64,
+      "start": 183.786,
+      "end": 186.336,
+      "text": "The observed effect also changes with distance.",
+      "sourceCueId": "magnet-correction",
+      "event": "magnet-correction-5",
+      "cueFunction": "integration",
+      "targets": [
+        "material-poles-distance-evidence-board",
+        "magnet-correction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 65,
+      "start": 186.336,
+      "end": 189.645,
+      "text": "Keep each conclusion tied to the evidence actually collected.",
+      "sourceCueId": "magnet-correction",
+      "event": "magnet-correction-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "material-poles-distance-evidence-board",
+        "magnet-correction-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 66,
+      "start": 189.645,
+      "end": 193.111,
+      "text": "Three setups wait at equal gaps: north facing south, north",
+      "sourceCueId": "magnet-exit",
+      "event": "magnet-exit-1",
+      "cueFunction": "selection",
+      "targets": [
+        "three-magnet-setups-exit-prediction",
+        "magnet-exit-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 67,
+      "start": 193.111,
+      "end": 195.562,
+      "text": "facing north, and north facing aluminium.",
+      "sourceCueId": "magnet-exit",
+      "event": "magnet-exit-2",
+      "cueFunction": "integration",
+      "targets": [
+        "three-magnet-setups-exit-prediction",
+        "magnet-exit-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 68,
+      "start": 195.562,
+      "end": 199.088,
+      "text": "Predict move together, move apart or no visible movement in",
+      "sourceCueId": "magnet-exit",
+      "event": "magnet-exit-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "three-magnet-setups-exit-prediction",
+        "magnet-exit-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 69,
+      "start": 199.088,
+      "end": 199.686,
+      "text": "this test.",
+      "sourceCueId": "magnet-exit",
+      "event": "magnet-exit-4",
+      "cueFunction": "selection",
+      "targets": [
+        "three-magnet-setups-exit-prediction",
+        "magnet-exit-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 70,
+      "start": 199.686,
+      "end": 203.033,
+      "text": "For each choice, name the pole or material evidence that",
+      "sourceCueId": "magnet-exit",
+      "event": "magnet-exit-5",
+      "cueFunction": "integration",
+      "targets": [
+        "three-magnet-setups-exit-prediction",
+        "magnet-exit-evidence"
+      ],
+      "intentionalHold": null
+    },
+    {
+      "index": 71,
+      "start": 203.033,
+      "end": 203.75,
+      "text": "supports it.",
+      "sourceCueId": "magnet-exit",
+      "event": "magnet-exit-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "three-magnet-setups-exit-prediction",
+        "magnet-exit-evidence"
+      ],
+      "intentionalHold": null
+    }
+  ],
+  "visualBeats": [
+    {
+      "index": 1,
+      "start": 0,
+      "end": 3.166,
+      "sourceCueId": "magnet-predict",
+      "event": "magnet-predict-1",
+      "cueFunction": "selection",
+      "targets": [
+        "mixed-material-magnetic-prediction",
+        "magnet-predict-evidence"
+      ],
+      "holdUntil": 3.166,
+      "intentionalHold": null
+    },
+    {
+      "index": 2,
+      "start": 3.166,
+      "end": 4.749,
+      "sourceCueId": "magnet-predict",
+      "event": "magnet-predict-2",
+      "cueFunction": "integration",
+      "targets": [
+        "mixed-material-magnetic-prediction",
+        "magnet-predict-evidence"
+      ],
+      "holdUntil": 4.749,
+      "intentionalHold": null
+    },
+    {
+      "index": 3,
+      "start": 4.749,
+      "end": 6.987,
+      "sourceCueId": "magnet-predict",
+      "event": "magnet-predict-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "mixed-material-magnetic-prediction",
+        "magnet-predict-evidence"
+      ],
+      "holdUntil": 6.987,
+      "intentionalHold": null
+    },
+    {
+      "index": 4,
+      "start": 6.987,
+      "end": 8.297,
+      "sourceCueId": "magnet-predict",
+      "event": "magnet-predict-4",
+      "cueFunction": "selection",
+      "targets": [
+        "mixed-material-magnetic-prediction",
+        "magnet-predict-evidence"
+      ],
+      "holdUntil": 8.297,
+      "intentionalHold": null
+    },
+    {
+      "index": 5,
+      "start": 8.297,
+      "end": 11.627,
+      "sourceCueId": "magnet-predict",
+      "event": "magnet-predict-5",
+      "cueFunction": "integration",
+      "targets": [
+        "mixed-material-magnetic-prediction",
+        "magnet-predict-evidence"
+      ],
+      "holdUntil": 11.627,
+      "intentionalHold": "predict"
+    },
+    {
+      "index": 6,
+      "start": 11.627,
+      "end": 13.101,
+      "sourceCueId": "magnet-predict",
+      "event": "magnet-predict-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "mixed-material-magnetic-prediction",
+        "magnet-predict-evidence"
+      ],
+      "holdUntil": 13.101,
+      "intentionalHold": null
+    },
+    {
+      "index": 7,
+      "start": 13.101,
+      "end": 15.333,
+      "sourceCueId": "magnet-material-demo",
+      "event": "magnet-material-demo-1",
+      "cueFunction": "selection",
+      "targets": [
+        "bar-magnet-sorts-materials-gap-visible",
+        "magnet-material-demo-evidence"
+      ],
+      "holdUntil": 15.333,
+      "intentionalHold": null
+    },
+    {
+      "index": 8,
+      "start": 15.333,
+      "end": 18.165,
+      "sourceCueId": "magnet-material-demo",
+      "event": "magnet-material-demo-2",
+      "cueFunction": "integration",
+      "targets": [
+        "bar-magnet-sorts-materials-gap-visible",
+        "magnet-material-demo-evidence"
+      ],
+      "holdUntil": 18.165,
+      "intentionalHold": null
+    },
+    {
+      "index": 9,
+      "start": 18.165,
+      "end": 21.323,
+      "sourceCueId": "magnet-material-demo",
+      "event": "magnet-material-demo-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "bar-magnet-sorts-materials-gap-visible",
+        "magnet-material-demo-evidence"
+      ],
+      "holdUntil": 21.323,
+      "intentionalHold": null
+    },
+    {
+      "index": 10,
+      "start": 21.323,
+      "end": 22.412,
+      "sourceCueId": "magnet-material-demo",
+      "event": "magnet-material-demo-4",
+      "cueFunction": "selection",
+      "targets": [
+        "bar-magnet-sorts-materials-gap-visible",
+        "magnet-material-demo-evidence"
+      ],
+      "holdUntil": 22.412,
+      "intentionalHold": null
+    },
+    {
+      "index": 11,
+      "start": 22.412,
+      "end": 25.243,
+      "sourceCueId": "magnet-material-demo",
+      "event": "magnet-material-demo-5",
+      "cueFunction": "integration",
+      "targets": [
+        "bar-magnet-sorts-materials-gap-visible",
+        "magnet-material-demo-evidence"
+      ],
+      "holdUntil": 25.243,
+      "intentionalHold": null
+    },
+    {
+      "index": 12,
+      "start": 25.243,
+      "end": 28.332,
+      "sourceCueId": "magnet-repeat-materials",
+      "event": "magnet-repeat-materials-1",
+      "cueFunction": "selection",
+      "targets": [
+        "three-run-material-response-table",
+        "magnet-repeat-materials-evidence"
+      ],
+      "holdUntil": 28.332,
+      "intentionalHold": null
+    },
+    {
+      "index": 13,
+      "start": 28.332,
+      "end": 28.96,
+      "sourceCueId": "magnet-repeat-materials",
+      "event": "magnet-repeat-materials-2",
+      "cueFunction": "integration",
+      "targets": [
+        "three-run-material-response-table",
+        "magnet-repeat-materials-evidence"
+      ],
+      "holdUntil": 28.96,
+      "intentionalHold": null
+    },
+    {
+      "index": 14,
+      "start": 28.96,
+      "end": 32.207,
+      "sourceCueId": "magnet-repeat-materials",
+      "event": "magnet-repeat-materials-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "three-run-material-response-table",
+        "magnet-repeat-materials-evidence"
+      ],
+      "holdUntil": 32.207,
+      "intentionalHold": null
+    },
+    {
+      "index": 15,
+      "start": 32.207,
+      "end": 35.191,
+      "sourceCueId": "magnet-repeat-materials",
+      "event": "magnet-repeat-materials-4",
+      "cueFunction": "selection",
+      "targets": [
+        "three-run-material-response-table",
+        "magnet-repeat-materials-evidence"
+      ],
+      "holdUntil": 35.191,
+      "intentionalHold": null
+    },
+    {
+      "index": 16,
+      "start": 35.191,
+      "end": 37.704,
+      "sourceCueId": "magnet-repeat-materials",
+      "event": "magnet-repeat-materials-5",
+      "cueFunction": "integration",
+      "targets": [
+        "three-run-material-response-table",
+        "magnet-repeat-materials-evidence"
+      ],
+      "holdUntil": 37.704,
+      "intentionalHold": null
+    },
+    {
+      "index": 17,
+      "start": 51.973,
+      "end": 56.002,
+      "sourceCueId": "magnet-pole-model",
+      "event": "magnet-pole-model-1",
+      "cueFunction": "selection",
+      "targets": [
+        "stable-red-blue-north-south-poles",
+        "magnet-pole-model-evidence"
+      ],
+      "holdUntil": 56.002,
+      "intentionalHold": null
+    },
+    {
+      "index": 18,
+      "start": 56.002,
+      "end": 56.338,
+      "sourceCueId": "magnet-pole-model",
+      "event": "magnet-pole-model-2",
+      "cueFunction": "integration",
+      "targets": [
+        "stable-red-blue-north-south-poles",
+        "magnet-pole-model-evidence"
+      ],
+      "holdUntil": 56.338,
+      "intentionalHold": null
+    },
+    {
+      "index": 19,
+      "start": 56.338,
+      "end": 58.755,
+      "sourceCueId": "magnet-pole-model",
+      "event": "magnet-pole-model-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "stable-red-blue-north-south-poles",
+        "magnet-pole-model-evidence"
+      ],
+      "holdUntil": 58.755,
+      "intentionalHold": null
+    },
+    {
+      "index": 20,
+      "start": 58.755,
+      "end": 62.919,
+      "sourceCueId": "magnet-pole-model",
+      "event": "magnet-pole-model-4",
+      "cueFunction": "selection",
+      "targets": [
+        "stable-red-blue-north-south-poles",
+        "magnet-pole-model-evidence"
+      ],
+      "holdUntil": 62.919,
+      "intentionalHold": null
+    },
+    {
+      "index": 21,
+      "start": 62.919,
+      "end": 65.806,
+      "sourceCueId": "magnet-pole-model",
+      "event": "magnet-pole-model-5",
+      "cueFunction": "integration",
+      "targets": [
+        "stable-red-blue-north-south-poles",
+        "magnet-pole-model-evidence"
+      ],
+      "holdUntil": 65.806,
+      "intentionalHold": null
+    },
+    {
+      "index": 22,
+      "start": 65.806,
+      "end": 66.224,
+      "sourceCueId": "magnet-attraction",
+      "event": "magnet-attraction-1",
+      "cueFunction": "selection",
+      "targets": [
+        "north-south-attraction-arrows-and-motion",
+        "magnet-attraction-evidence"
+      ],
+      "holdUntil": 66.224,
+      "intentionalHold": null
+    },
+    {
+      "index": 23,
+      "start": 66.224,
+      "end": 67.581,
+      "sourceCueId": "magnet-attraction",
+      "event": "magnet-attraction-2",
+      "cueFunction": "integration",
+      "targets": [
+        "north-south-attraction-arrows-and-motion",
+        "magnet-attraction-evidence"
+      ],
+      "holdUntil": 67.581,
+      "intentionalHold": null
+    },
+    {
+      "index": 24,
+      "start": 67.581,
+      "end": 70.765,
+      "sourceCueId": "magnet-attraction",
+      "event": "magnet-attraction-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "north-south-attraction-arrows-and-motion",
+        "magnet-attraction-evidence"
+      ],
+      "holdUntil": 70.765,
+      "intentionalHold": null
+    },
+    {
+      "index": 25,
+      "start": 70.765,
+      "end": 71.34,
+      "sourceCueId": "magnet-attraction",
+      "event": "magnet-attraction-4",
+      "cueFunction": "selection",
+      "targets": [
+        "north-south-attraction-arrows-and-motion",
+        "magnet-attraction-evidence"
+      ],
+      "holdUntil": 71.34,
+      "intentionalHold": null
+    },
+    {
+      "index": 26,
+      "start": 71.34,
+      "end": 74.472,
+      "sourceCueId": "magnet-attraction",
+      "event": "magnet-attraction-5",
+      "cueFunction": "integration",
+      "targets": [
+        "north-south-attraction-arrows-and-motion",
+        "magnet-attraction-evidence"
+      ],
+      "holdUntil": 74.472,
+      "intentionalHold": null
+    },
+    {
+      "index": 27,
+      "start": 74.472,
+      "end": 75.777,
+      "sourceCueId": "magnet-attraction",
+      "event": "magnet-attraction-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "north-south-attraction-arrows-and-motion",
+        "magnet-attraction-evidence"
+      ],
+      "holdUntil": 75.777,
+      "intentionalHold": null
+    },
+    {
+      "index": 28,
+      "start": 75.777,
+      "end": 79.014,
+      "sourceCueId": "magnet-attraction",
+      "event": "magnet-attraction-7",
+      "cueFunction": "selection",
+      "targets": [
+        "north-south-attraction-arrows-and-motion",
+        "magnet-attraction-evidence"
+      ],
+      "holdUntil": 79.014,
+      "intentionalHold": null
+    },
+    {
+      "index": 29,
+      "start": 79.014,
+      "end": 79.64,
+      "sourceCueId": "magnet-attraction",
+      "event": "magnet-attraction-8",
+      "cueFunction": "integration",
+      "targets": [
+        "north-south-attraction-arrows-and-motion",
+        "magnet-attraction-evidence"
+      ],
+      "holdUntil": 79.64,
+      "intentionalHold": null
+    },
+    {
+      "index": 30,
+      "start": 79.64,
+      "end": 83.061,
+      "sourceCueId": "magnet-repulsion",
+      "event": "magnet-repulsion-1",
+      "cueFunction": "selection",
+      "targets": [
+        "north-north-repulsion-matched-shot",
+        "magnet-repulsion-evidence"
+      ],
+      "holdUntil": 83.061,
+      "intentionalHold": null
+    },
+    {
+      "index": 31,
+      "start": 83.061,
+      "end": 83.421,
+      "sourceCueId": "magnet-repulsion",
+      "event": "magnet-repulsion-2",
+      "cueFunction": "integration",
+      "targets": [
+        "north-north-repulsion-matched-shot",
+        "magnet-repulsion-evidence"
+      ],
+      "holdUntil": 83.421,
+      "intentionalHold": null
+    },
+    {
+      "index": 32,
+      "start": 83.421,
+      "end": 84.982,
+      "sourceCueId": "magnet-repulsion",
+      "event": "magnet-repulsion-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "north-north-repulsion-matched-shot",
+        "magnet-repulsion-evidence"
+      ],
+      "holdUntil": 84.982,
+      "intentionalHold": null
+    },
+    {
+      "index": 33,
+      "start": 84.982,
+      "end": 85.942,
+      "sourceCueId": "magnet-repulsion",
+      "event": "magnet-repulsion-4",
+      "cueFunction": "selection",
+      "targets": [
+        "north-north-repulsion-matched-shot",
+        "magnet-repulsion-evidence"
+      ],
+      "holdUntil": 85.942,
+      "intentionalHold": null
+    },
+    {
+      "index": 34,
+      "start": 85.942,
+      "end": 89.663,
+      "sourceCueId": "magnet-repulsion",
+      "event": "magnet-repulsion-5",
+      "cueFunction": "integration",
+      "targets": [
+        "north-north-repulsion-matched-shot",
+        "magnet-repulsion-evidence"
+      ],
+      "holdUntil": 89.663,
+      "intentionalHold": null
+    },
+    {
+      "index": 35,
+      "start": 89.663,
+      "end": 90.324,
+      "sourceCueId": "magnet-repulsion",
+      "event": "magnet-repulsion-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "north-north-repulsion-matched-shot",
+        "magnet-repulsion-evidence"
+      ],
+      "holdUntil": 90.324,
+      "intentionalHold": null
+    },
+    {
+      "index": 36,
+      "start": 90.324,
+      "end": 93.805,
+      "sourceCueId": "magnet-repulsion",
+      "event": "magnet-repulsion-7",
+      "cueFunction": "selection",
+      "targets": [
+        "north-north-repulsion-matched-shot",
+        "magnet-repulsion-evidence"
+      ],
+      "holdUntil": 93.805,
+      "intentionalHold": null
+    },
+    {
+      "index": 37,
+      "start": 93.805,
+      "end": 94.165,
+      "sourceCueId": "magnet-repulsion",
+      "event": "magnet-repulsion-8",
+      "cueFunction": "integration",
+      "targets": [
+        "north-north-repulsion-matched-shot",
+        "magnet-repulsion-evidence"
+      ],
+      "holdUntil": 94.165,
+      "intentionalHold": null
+    },
+    {
+      "index": 38,
+      "start": 108.433,
+      "end": 111.985,
+      "sourceCueId": "magnet-distance-plan",
+      "event": "magnet-distance-plan-1",
+      "cueFunction": "selection",
+      "targets": [
+        "one-four-eight-centimetre-gap-ruler",
+        "magnet-distance-plan-evidence"
+      ],
+      "holdUntil": 111.985,
+      "intentionalHold": null
+    },
+    {
+      "index": 39,
+      "start": 111.985,
+      "end": 112.518,
+      "sourceCueId": "magnet-distance-plan",
+      "event": "magnet-distance-plan-2",
+      "cueFunction": "integration",
+      "targets": [
+        "one-four-eight-centimetre-gap-ruler",
+        "magnet-distance-plan-evidence"
+      ],
+      "holdUntil": 112.518,
+      "intentionalHold": null
+    },
+    {
+      "index": 40,
+      "start": 112.518,
+      "end": 115.537,
+      "sourceCueId": "magnet-distance-plan",
+      "event": "magnet-distance-plan-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "one-four-eight-centimetre-gap-ruler",
+        "magnet-distance-plan-evidence"
+      ],
+      "holdUntil": 115.537,
+      "intentionalHold": null
+    },
+    {
+      "index": 41,
+      "start": 115.537,
+      "end": 116.248,
+      "sourceCueId": "magnet-distance-plan",
+      "event": "magnet-distance-plan-4",
+      "cueFunction": "selection",
+      "targets": [
+        "one-four-eight-centimetre-gap-ruler",
+        "magnet-distance-plan-evidence"
+      ],
+      "holdUntil": 116.248,
+      "intentionalHold": null
+    },
+    {
+      "index": 42,
+      "start": 116.248,
+      "end": 119.859,
+      "sourceCueId": "magnet-distance-plan",
+      "event": "magnet-distance-plan-5",
+      "cueFunction": "integration",
+      "targets": [
+        "one-four-eight-centimetre-gap-ruler",
+        "magnet-distance-plan-evidence"
+      ],
+      "holdUntil": 119.859,
+      "intentionalHold": null
+    },
+    {
+      "index": 43,
+      "start": 119.859,
+      "end": 121.576,
+      "sourceCueId": "magnet-distance-plan",
+      "event": "magnet-distance-plan-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "one-four-eight-centimetre-gap-ruler",
+        "magnet-distance-plan-evidence"
+      ],
+      "holdUntil": 121.576,
+      "intentionalHold": null
+    },
+    {
+      "index": 44,
+      "start": 121.576,
+      "end": 124.741,
+      "sourceCueId": "magnet-distance-data",
+      "event": "magnet-distance-data-1",
+      "cueFunction": "selection",
+      "targets": [
+        "distance-response-table-and-bars",
+        "magnet-distance-data-evidence"
+      ],
+      "holdUntil": 124.741,
+      "intentionalHold": null
+    },
+    {
+      "index": 45,
+      "start": 124.741,
+      "end": 126.703,
+      "sourceCueId": "magnet-distance-data",
+      "event": "magnet-distance-data-2",
+      "cueFunction": "integration",
+      "targets": [
+        "distance-response-table-and-bars",
+        "magnet-distance-data-evidence"
+      ],
+      "holdUntil": 126.703,
+      "intentionalHold": null
+    },
+    {
+      "index": 46,
+      "start": 126.703,
+      "end": 130.438,
+      "sourceCueId": "magnet-distance-data",
+      "event": "magnet-distance-data-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "distance-response-table-and-bars",
+        "magnet-distance-data-evidence"
+      ],
+      "holdUntil": 130.438,
+      "intentionalHold": null
+    },
+    {
+      "index": 47,
+      "start": 130.438,
+      "end": 133.983,
+      "sourceCueId": "magnet-distance-data",
+      "event": "magnet-distance-data-4",
+      "cueFunction": "selection",
+      "targets": [
+        "distance-response-table-and-bars",
+        "magnet-distance-data-evidence"
+      ],
+      "holdUntil": 133.983,
+      "intentionalHold": null
+    },
+    {
+      "index": 48,
+      "start": 133.983,
+      "end": 134.363,
+      "sourceCueId": "magnet-distance-data",
+      "event": "magnet-distance-data-5",
+      "cueFunction": "integration",
+      "targets": [
+        "distance-response-table-and-bars",
+        "magnet-distance-data-evidence"
+      ],
+      "holdUntil": 134.363,
+      "intentionalHold": null
+    },
+    {
+      "index": 49,
+      "start": 134.363,
+      "end": 138.093,
+      "sourceCueId": "magnet-transfer",
+      "event": "magnet-transfer-1",
+      "cueFunction": "selection",
+      "targets": [
+        "magnetic-cabinet-catch-gap-transfer",
+        "magnet-transfer-evidence"
+      ],
+      "holdUntil": 138.093,
+      "intentionalHold": null
+    },
+    {
+      "index": 50,
+      "start": 138.093,
+      "end": 139.61,
+      "sourceCueId": "magnet-transfer",
+      "event": "magnet-transfer-2",
+      "cueFunction": "integration",
+      "targets": [
+        "magnetic-cabinet-catch-gap-transfer",
+        "magnet-transfer-evidence"
+      ],
+      "holdUntil": 139.61,
+      "intentionalHold": null
+    },
+    {
+      "index": 51,
+      "start": 139.61,
+      "end": 143.276,
+      "sourceCueId": "magnet-transfer",
+      "event": "magnet-transfer-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "magnetic-cabinet-catch-gap-transfer",
+        "magnet-transfer-evidence"
+      ],
+      "holdUntil": 143.276,
+      "intentionalHold": null
+    },
+    {
+      "index": 52,
+      "start": 143.276,
+      "end": 144.224,
+      "sourceCueId": "magnet-transfer",
+      "event": "magnet-transfer-4",
+      "cueFunction": "selection",
+      "targets": [
+        "magnetic-cabinet-catch-gap-transfer",
+        "magnet-transfer-evidence"
+      ],
+      "holdUntil": 144.224,
+      "intentionalHold": null
+    },
+    {
+      "index": 53,
+      "start": 144.224,
+      "end": 148.143,
+      "sourceCueId": "magnet-transfer",
+      "event": "magnet-transfer-5",
+      "cueFunction": "integration",
+      "targets": [
+        "magnetic-cabinet-catch-gap-transfer",
+        "magnet-transfer-evidence"
+      ],
+      "holdUntil": 148.143,
+      "intentionalHold": null
+    },
+    {
+      "index": 54,
+      "start": 148.143,
+      "end": 149.281,
+      "sourceCueId": "magnet-transfer",
+      "event": "magnet-transfer-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "magnetic-cabinet-catch-gap-transfer",
+        "magnet-transfer-evidence"
+      ],
+      "holdUntil": 149.281,
+      "intentionalHold": null
+    },
+    {
+      "index": 55,
+      "start": 163.55,
+      "end": 166.031,
+      "sourceCueId": "magnet-misconception",
+      "event": "magnet-misconception-1",
+      "cueFunction": "selection",
+      "targets": [
+        "every-metal-claim-material-evidence",
+        "magnet-misconception-evidence"
+      ],
+      "holdUntil": 166.031,
+      "intentionalHold": null
+    },
+    {
+      "index": 56,
+      "start": 166.031,
+      "end": 168.628,
+      "sourceCueId": "magnet-misconception",
+      "event": "magnet-misconception-2",
+      "cueFunction": "integration",
+      "targets": [
+        "every-metal-claim-material-evidence",
+        "magnet-misconception-evidence"
+      ],
+      "holdUntil": 168.628,
+      "intentionalHold": null
+    },
+    {
+      "index": 57,
+      "start": 168.628,
+      "end": 171.975,
+      "sourceCueId": "magnet-misconception",
+      "event": "magnet-misconception-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "every-metal-claim-material-evidence",
+        "magnet-misconception-evidence"
+      ],
+      "holdUntil": 171.975,
+      "intentionalHold": null
+    },
+    {
+      "index": 58,
+      "start": 171.975,
+      "end": 172.783,
+      "sourceCueId": "magnet-misconception",
+      "event": "magnet-misconception-4",
+      "cueFunction": "selection",
+      "targets": [
+        "every-metal-claim-material-evidence",
+        "magnet-misconception-evidence"
+      ],
+      "holdUntil": 172.783,
+      "intentionalHold": null
+    },
+    {
+      "index": 59,
+      "start": 172.783,
+      "end": 176.245,
+      "sourceCueId": "magnet-misconception",
+      "event": "magnet-misconception-5",
+      "cueFunction": "integration",
+      "targets": [
+        "every-metal-claim-material-evidence",
+        "magnet-misconception-evidence"
+      ],
+      "holdUntil": 176.245,
+      "intentionalHold": null
+    },
+    {
+      "index": 60,
+      "start": 176.245,
+      "end": 179.5,
+      "sourceCueId": "magnet-correction",
+      "event": "magnet-correction-1",
+      "cueFunction": "selection",
+      "targets": [
+        "material-poles-distance-evidence-board",
+        "magnet-correction-evidence"
+      ],
+      "holdUntil": 179.5,
+      "intentionalHold": null
+    },
+    {
+      "index": 61,
+      "start": 179.5,
+      "end": 180.422,
+      "sourceCueId": "magnet-correction",
+      "event": "magnet-correction-2",
+      "cueFunction": "integration",
+      "targets": [
+        "material-poles-distance-evidence-board",
+        "magnet-correction-evidence"
+      ],
+      "holdUntil": 180.422,
+      "intentionalHold": null
+    },
+    {
+      "index": 62,
+      "start": 180.422,
+      "end": 183.515,
+      "sourceCueId": "magnet-correction",
+      "event": "magnet-correction-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "material-poles-distance-evidence-board",
+        "magnet-correction-evidence"
+      ],
+      "holdUntil": 183.515,
+      "intentionalHold": null
+    },
+    {
+      "index": 63,
+      "start": 183.515,
+      "end": 183.786,
+      "sourceCueId": "magnet-correction",
+      "event": "magnet-correction-4",
+      "cueFunction": "selection",
+      "targets": [
+        "material-poles-distance-evidence-board",
+        "magnet-correction-evidence"
+      ],
+      "holdUntil": 183.786,
+      "intentionalHold": null
+    },
+    {
+      "index": 64,
+      "start": 183.786,
+      "end": 186.336,
+      "sourceCueId": "magnet-correction",
+      "event": "magnet-correction-5",
+      "cueFunction": "integration",
+      "targets": [
+        "material-poles-distance-evidence-board",
+        "magnet-correction-evidence"
+      ],
+      "holdUntil": 186.336,
+      "intentionalHold": null
+    },
+    {
+      "index": 65,
+      "start": 186.336,
+      "end": 189.645,
+      "sourceCueId": "magnet-correction",
+      "event": "magnet-correction-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "material-poles-distance-evidence-board",
+        "magnet-correction-evidence"
+      ],
+      "holdUntil": 189.645,
+      "intentionalHold": null
+    },
+    {
+      "index": 66,
+      "start": 189.645,
+      "end": 193.111,
+      "sourceCueId": "magnet-exit",
+      "event": "magnet-exit-1",
+      "cueFunction": "selection",
+      "targets": [
+        "three-magnet-setups-exit-prediction",
+        "magnet-exit-evidence"
+      ],
+      "holdUntil": 193.111,
+      "intentionalHold": null
+    },
+    {
+      "index": 67,
+      "start": 193.111,
+      "end": 195.562,
+      "sourceCueId": "magnet-exit",
+      "event": "magnet-exit-2",
+      "cueFunction": "integration",
+      "targets": [
+        "three-magnet-setups-exit-prediction",
+        "magnet-exit-evidence"
+      ],
+      "holdUntil": 195.562,
+      "intentionalHold": null
+    },
+    {
+      "index": 68,
+      "start": 195.562,
+      "end": 199.088,
+      "sourceCueId": "magnet-exit",
+      "event": "magnet-exit-3",
+      "cueFunction": "organisation",
+      "targets": [
+        "three-magnet-setups-exit-prediction",
+        "magnet-exit-evidence"
+      ],
+      "holdUntil": 199.088,
+      "intentionalHold": null
+    },
+    {
+      "index": 69,
+      "start": 199.088,
+      "end": 199.686,
+      "sourceCueId": "magnet-exit",
+      "event": "magnet-exit-4",
+      "cueFunction": "selection",
+      "targets": [
+        "three-magnet-setups-exit-prediction",
+        "magnet-exit-evidence"
+      ],
+      "holdUntil": 199.686,
+      "intentionalHold": null
+    },
+    {
+      "index": 70,
+      "start": 199.686,
+      "end": 203.033,
+      "sourceCueId": "magnet-exit",
+      "event": "magnet-exit-5",
+      "cueFunction": "integration",
+      "targets": [
+        "three-magnet-setups-exit-prediction",
+        "magnet-exit-evidence"
+      ],
+      "holdUntil": 203.033,
+      "intentionalHold": null
+    },
+    {
+      "index": 71,
+      "start": 203.033,
+      "end": 203.75,
+      "sourceCueId": "magnet-exit",
+      "event": "magnet-exit-6",
+      "cueFunction": "organisation",
+      "targets": [
+        "three-magnet-setups-exit-prediction",
+        "magnet-exit-evidence"
+      ],
+      "holdUntil": 203.75,
+      "intentionalHold": null
+    }
+  ],
+  "actions": [
+    {
+      "id": "magnet-predict",
+      "start": 0,
+      "end": 13.101,
+      "narration": "A steel paperclip, aluminium strip, copper wire and wooden bead sit behind a clear line. A bar magnet approaches without touching. Which objects will move? Choose before the magnet crosses the distance markers, and do not use shiny as your rule.",
+      "expected_action": "mixed-material-magnetic-prediction",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "magnet-material-demo",
+      "start": 13.101,
+      "end": 25.243,
+      "narration": "The steel paperclip moves across the gap. In this test, the aluminium, copper and wood do not. Magnetic force can act without contact, but magnets do not attract every metal. Material evidence matters more than colour or shine.",
+      "expected_action": "bar-magnet-sorts-materials-gap-visible",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "magnet-repeat-materials",
+      "start": 25.243,
+      "end": 51.973,
+      "narration": "Reset each object at the same two-centimetre gap and repeat three times. Steel responds each time; the others show no visible movement. The repeated pattern supports a careful claim about these tested materials, not every object in the world.",
+      "expected_action": "three-run-material-response-table",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "magnet-pole-model",
+      "start": 51.973,
+      "end": 65.806,
+      "narration": "A bar magnet has two poles, marked north in red and south in blue. Keep those colours and labels fixed. Bring a north pole near a south pole, leaving a visible gap so the non-contact interaction is easy to see.",
+      "expected_action": "stable-red-blue-north-south-poles",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "magnet-attraction",
+      "start": 65.806,
+      "end": 79.64,
+      "narration": "Release. The magnets move together. Attraction means the magnetic forces pull the magnets towards each other. Draw magenta arrows on both receiving magnets, each pointing towards the other magnet. The arrows appear before contact and remain through the spoken explanation.",
+      "expected_action": "north-south-attraction-arrows-and-motion",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "magnet-repulsion",
+      "start": 79.64,
+      "end": 108.433,
+      "narration": "Reset the same magnets and turn one around so north faces north. Release from the same gap. They move apart. Repulsion means the magnetic forces push the magnets away from each other. The matched camera view makes the changed pole arrangement clear.",
+      "expected_action": "north-north-repulsion-matched-shot",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "magnet-distance-plan",
+      "start": 108.433,
+      "end": 121.576,
+      "narration": "Keep the magnets, pole arrangement, track and release method the same. Change only the starting gap: one, four, then eight centimetres. Measure how far the moving magnet travels in two seconds, and repeat every gap three times.",
+      "expected_action": "one-four-eight-centimetre-gap-ruler",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "magnet-distance-data",
+      "start": 121.576,
+      "end": 134.363,
+      "narration": "At one centimetre the magnet moves 14 centimetres. At four centimetres it moves 6. At eight centimetres it moves less than 1 in the same time. Greater distance gives a smaller observed effect in this setup.",
+      "expected_action": "distance-response-table-and-bars",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "magnet-transfer",
+      "start": 134.363,
+      "end": 163.55,
+      "narration": "A cabinet catch must pull the door closed before its magnet touches the steel plate. A wide gap gives too little visible movement; a narrow gap works reliably. The design uses attraction across a gap and distance evidence, not a hidden hook.",
+      "expected_action": "magnetic-cabinet-catch-gap-transfer",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "magnet-misconception",
+      "start": 163.55,
+      "end": 176.245,
+      "narration": "Someone claims magnets attract every metal. Test that claim against the labelled samples. Steel moves, while aluminium and copper do not move in the repeated test. One clear counterexample is enough to reject the word every.",
+      "expected_action": "every-metal-claim-material-evidence",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "magnet-correction",
+      "start": 176.245,
+      "end": 189.645,
+      "narration": "Replace the claim: magnets attract some materials, including the tested steel. Two magnets may attract or repel depending on which poles face. The observed effect also changes with distance. Keep each conclusion tied to the evidence actually collected.",
+      "expected_action": "material-poles-distance-evidence-board",
+      "board_region": "demonstration-stage"
+    },
+    {
+      "id": "magnet-exit",
+      "start": 189.645,
+      "end": 205,
+      "narration": "Three setups wait at equal gaps: north facing south, north facing north, and north facing aluminium. Predict move together, move apart or no visible movement in this test. For each choice, name the pole or material evidence that supports it.",
+      "expected_action": "three-magnet-setups-exit-prediction",
+      "board_region": "demonstration-stage"
+    }
+  ]
+}

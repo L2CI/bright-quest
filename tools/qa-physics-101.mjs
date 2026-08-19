@@ -3,8 +3,8 @@ import path from "node:path";
 import { spawn } from "node:child_process";
 
 const root = process.cwd();
-const expectedRelease = "physics-101-force-lab-010";
-const chapterNumbers = [1, 2, 3];
+const expectedRelease = "physics-101-cinematic-lab-011";
+const chapterNumbers = [1, 2, 3, 4, 5, 6];
 const chromePath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 const browserPath = process.env.BQ_BROWSER_PATH || chromePath;
 const browserName = process.env.BQ_BROWSER_NAME || "Google Chrome headless";
@@ -232,13 +232,13 @@ async function exerciseParentReview({ evaluate, send, buttonChecks }) {
     return true;
   })()`);
   await waitForOrThrow(
-    () => evaluate("document.querySelectorAll('[data-physics-review]').length === 3"),
-    "Parent Cockpit did not show review actions for all three Physics chapters.",
+    () => evaluate("document.querySelectorAll('[data-physics-review]').length === 6"),
+    "Parent Cockpit did not show review actions for all six Physics chapters.",
   );
   await evaluate("new Promise((resolve) => setTimeout(resolve, 650))");
   await screenshot(send, path.join(evidenceDir, "desktop-parent-physics.png"));
   const reviews = [];
-  for (let index = 0; index < 3; index += 1) {
+  for (let index = 0; index < 6; index += 1) {
     await evaluate(`document.querySelectorAll('[data-physics-review]')[${index}].click(); true`);
     await waitForOrThrow(
       () => evaluate("Boolean(document.querySelector('#bqChemistryReviewPopup:not(.hidden) .bq-chem-review-modal'))"),
@@ -267,11 +267,11 @@ async function exerciseParentReview({ evaluate, send, buttonChecks }) {
       `Physics parent review popup ${index + 1} did not close.`,
     );
   }
-  buttonChecks.push("three Physics parent review popup buttons", "three Physics review close buttons");
+  buttonChecks.push("six Physics parent review popup buttons", "six Physics review close buttons");
   await evaluate("document.querySelector('[data-parent-route=\"overview\"]').click(); true");
   await waitForOrThrow(() => evaluate("location.hash === '#parent/overview'"), "Physics Parent Cockpit return button failed.");
   buttonChecks.push("Physics return to Parent Cockpit button");
-  return { chapterReviewButtons: 3, reviews, returnPath: locationHashLabel("parent/overview") };
+  return { chapterReviewButtons: 6, reviews, returnPath: locationHashLabel("parent/overview") };
 }
 
 function locationHashLabel(value) {
@@ -520,7 +520,7 @@ function assertIndependentChapterAssets(chapterResults) {
   ];
   for (const [key, label] of checks) {
     if (new Set(chapterResults.map((result) => result[key])).size !== chapterNumbers.length) {
-      throw new Error(`Chapters 1-3 do not have independent ${label}.`);
+      throw new Error(`Chapters 1-6 do not have independent ${label}.`);
     }
   }
 }

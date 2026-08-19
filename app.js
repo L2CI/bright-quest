@@ -214,11 +214,10 @@ closeTrainingButton.addEventListener("click", () => {
   showScreen("dashboard");
 });
 completeTrainingButton.addEventListener("click", completeTraining);
-parentRefreshButton.addEventListener("click", () => {
-  state.profiles = loadProfiles();
-  if (state.profileId) state.profile = state.profiles[state.profileId];
+parentRefreshButton.addEventListener("click", async () => {
+  await pullCloudProfiles();
   renderParentDashboard();
-  showToast("Parent view refreshed.");
+  showToast("Parent view refreshed from Bright Quest.");
 });
 parentExitButton.addEventListener("click", () => {
   renderRoleScreen();
@@ -264,11 +263,12 @@ async function pullCloudProfiles() {
 
     body.profiles.forEach((remote) => {
       if (!remote.payload?.id) return;
-      if (remote.version) remote.payload.cloudVersion = remote.version;
       const local = state.profiles[remote.payload.id];
-      if (!local || new Date(remote.updatedAt) > new Date(local.cloudSyncedAt || local.createdAt || 0)) {
-        state.profiles[remote.payload.id] = { ...remote.payload, cloudSyncedAt: remote.updatedAt };
-      }
+      const remoteIsNewer = !local || new Date(remote.updatedAt) > new Date(local.cloudSyncedAt || local.createdAt || 0);
+      const merged = mergeCloudProfile(local, remote.payload, remoteIsNewer);
+      if (remote.version) merged.cloudVersion = remote.version;
+      merged.cloudSyncedAt = remote.updatedAt || merged.cloudSyncedAt;
+      state.profiles[remote.payload.id] = merged;
     });
 
     if (state.profileId && state.profiles[state.profileId]) state.profile = state.profiles[state.profileId];
@@ -280,7 +280,7 @@ async function pullCloudProfiles() {
   }
 }
 
-async function syncProfileToCloud(profile = state.profile) {
+async function syncProfileToCloud(profile = state.profile, canRetry = true) {
   if (!profile?.id) return;
   try {
     const response = await fetch(`${apiBase}/profiles`, {
@@ -290,13 +290,18 @@ async function syncProfileToCloud(profile = state.profile) {
     });
     if (response.status === 409) {
       await pullCloudProfiles();
-      showToast("Progress changed on another device. Bright Quest refreshed the latest copy.");
+      const merged = state.profiles[profile.id];
+      if (canRetry && merged) await syncProfileToCloud(merged, false);
+      showToast("Progress changed on another device. Bright Quest merged and saved the latest copy.");
       return;
     }
     if (!response.ok) return;
     const body = await response.json();
-    profile.cloudSyncedAt = body.syncedAt || new Date().toISOString();
-    if (body.version) profile.cloudVersion = body.version;
+    const latest = state.profiles[profile.id] || profile;
+    latest.cloudSyncedAt = body.syncedAt || new Date().toISOString();
+    if (body.version) latest.cloudVersion = body.version;
+    state.profiles[profile.id] = latest;
+    if (state.profileId === profile.id) state.profile = latest;
     saveProfiles();
   } catch {
     // Cloud sync is best-effort; local progress is still saved.
@@ -327,6 +332,92 @@ async function purgeCloudData() {
     // Local reset can still succeed without the cloud API.
     return false;
   }
+}
+
+function mergeCloudProfile(localProfile, remoteProfile, preferRemote) {
+  if (!localProfile) return { ...remoteProfile };
+  const merged = preferRemote
+    ? { ...localProfile, ...remoteProfile }
+    : { ...remoteProfile, ...localProfile };
+  if (remoteProfile?.physics101Progress || localProfile?.physics101Progress) {
+    merged.physics101Progress = mergePhysicsCourseProgress(
+      remoteProfile?.physics101Progress,
+      localProfile?.physics101Progress
+    );
+  }
+  merged.trainingCompleted = mergeTrainingProgress(
+    remoteProfile?.trainingCompleted,
+    localProfile?.trainingCompleted
+  );
+  return merged;
+}
+
+function mergePhysicsCourseProgress(remoteCourse = {}, localCourse = {}) {
+  const remoteChapters = remoteCourse?.chapters || {};
+  const localChapters = localCourse?.chapters || {};
+  const chapters = {};
+  new Set([...Object.keys(remoteChapters), ...Object.keys(localChapters)]).forEach((id) => {
+    chapters[id] = mergePhysicsChapterProgress(remoteChapters[id], localChapters[id]);
+  });
+  return {
+    ...remoteCourse,
+    ...localCourse,
+    courseId: localCourse.courseId || remoteCourse.courseId || "physics-101-advanced-grade-4",
+    releasedChapters: mergePhysicsReleasedChapters(remoteCourse?.releasedChapters, localCourse?.releasedChapters),
+    chapters
+  };
+}
+
+function mergePhysicsChapterProgress(remote = {}, local = {}) {
+  return {
+    ...remote,
+    ...local,
+    watchedSeconds: Math.max(Number(remote.watchedSeconds) || 0, Number(local.watchedSeconds) || 0),
+    completed: Boolean(remote.completed || local.completed),
+    completedAt: latestProfileDate(remote.completedAt, local.completedAt),
+    bestScore: Math.max(Number(remote.bestScore) || 0, Number(local.bestScore) || 0, Number(remote.test?.score) || 0, Number(local.test?.score) || 0),
+    attempts: Math.max(Number(remote.attempts) || 0, Number(local.attempts) || 0),
+    test: newestPhysicsTest(remote.test, local.test)
+  };
+}
+
+function newestPhysicsTest(remote, local) {
+  if (!remote) return local || null;
+  if (!local) return remote;
+  const remoteAt = Date.parse(remote.submittedAt || "") || 0;
+  const localAt = Date.parse(local.submittedAt || "") || 0;
+  if (localAt !== remoteAt) return localAt > remoteAt ? local : remote;
+  const remoteDetail = (remote.answers || []).length * 100 + Number(remote.score || 0);
+  const localDetail = (local.answers || []).length * 100 + Number(local.score || 0);
+  return localDetail >= remoteDetail ? local : remote;
+}
+
+function mergePhysicsReleasedChapters(remote = [], local = []) {
+  const chapters = new Map();
+  [...remote, ...local].forEach((chapter) => {
+    if (chapter?.id) chapters.set(chapter.id, { ...(chapters.get(chapter.id) || {}), ...chapter });
+  });
+  return [...chapters.values()].sort((a, b) => Number(a.number || 0) - Number(b.number || 0));
+}
+
+function mergeTrainingProgress(remote = {}, local = {}) {
+  const merged = { ...remote, ...local };
+  Object.keys(remote).forEach((key) => {
+    if (!local[key]) return;
+    merged[key] = {
+      ...remote[key],
+      ...local[key],
+      count: Math.max(Number(remote[key].count) || 0, Number(local[key].count) || 0),
+      date: latestProfileDate(remote[key].date, local[key].date)
+    };
+  });
+  return merged;
+}
+
+function latestProfileDate(first, second) {
+  if (!first) return second || null;
+  if (!second) return first;
+  return Date.parse(first) >= Date.parse(second) ? first : second;
 }
 
 function normalizeProfiles() {

@@ -767,7 +767,7 @@ body.bq-shell-merge {
 
 .bq-chemistry-review-panel {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(260px, auto);
+  grid-template-columns: minmax(260px, 0.42fr) minmax(0, 1fr);
   gap: 16px;
   align-items: center;
   border-radius: 24px;
@@ -788,10 +788,14 @@ body.bq-shell-merge {
 }
 
 .bq-chemistry-review-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 10px;
+}
+
+.bq-chemistry-review-actions .button {
+  width: 100%;
+  min-width: 0;
 }
 
 .bq-chem-review-overlay.hidden {
@@ -1589,8 +1593,7 @@ body.bq-shell-merge {
   }
 
   .bq-today-actions,
-  .bq-winter-actions,
-  .bq-chemistry-review-actions {
+  .bq-winter-actions {
     justify-content: flex-start;
   }
 
