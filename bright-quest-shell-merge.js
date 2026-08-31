@@ -9,6 +9,14 @@
   let chemistryCourseCache = null;
   let physicsCourseCache = null;
   let physicsCourseLoadPromise = null;
+  let beaconReviewRequest = 0;
+  let beaconReviewOpener = null;
+  let beaconReviewBackground = [];
+
+  const beaconStyles = document.createElement("link");
+  beaconStyles.rel = "stylesheet";
+  beaconStyles.href = "/beacon-parent.css";
+  document.head.append(beaconStyles);
 
   document.body.classList.add("bq-shell-merge");
   loadPhysicsCourseData();
@@ -324,6 +332,11 @@
               <strong>ICAS Challenge Lab</strong>
               <span>Grade 3 maths + spelling</span>
             </button>
+            <button type="button" class="bq-module-card bq-beacon-launch" data-bq-action="beacon-brigade">
+              ${beaconLaunchArt()}
+              <strong>Beacon Brigade</strong>
+              <span>Maths &amp; Science Expeditions</span>
+            </button>
           </div>
         </article>
 
@@ -451,6 +464,12 @@
               <strong>Physics Workshop</strong>
               <small>Forces, evidence and a cockpit check</small>
             </button>
+            <button type="button" class="bq-world-tile bq-beacon-launch" data-bq-action="beacon-brigade">
+              ${beaconLaunchArt()}
+              <span class="bq-world-status">Two regions</span>
+              <strong>Beacon Brigade</strong>
+              <small>Maths &amp; Science Expeditions</small>
+            </button>
           </div>
         </section>
 
@@ -475,6 +494,10 @@
   }
 
   function handleKidAction(action) {
+    if (action === "beacon-brigade") {
+      window.location.href = beaconBrigadeUrl(state.profile);
+      return;
+    }
     if (action === "learn") {
       document.querySelector(".bq-worlds-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
@@ -587,6 +610,17 @@
     const url = new URL("icas-prep/", window.location.href);
     if (profileId) url.searchParams.set("profileId", profileId);
     return `${url.pathname.replace(/^\//, "")}${url.search}`;
+  }
+
+  function beaconBrigadeUrl(profile) {
+    const url = new URL("/beacon-brigade/", window.location.href);
+    // This is a selection hint only; the module authenticates its active child.
+    if (profile?.id) url.searchParams.set("profileId", profile.id);
+    return `${url.pathname}${url.search}`;
+  }
+
+  function beaconLaunchArt() {
+    return `<img class="bq-beacon-preview" src="/beacon-brigade/assets/module-preview.jpg" alt="" width="1280" height="800" loading="lazy" decoding="async" />`;
   }
 
   function kidPageShell(title, copy, artName, body) {
@@ -929,11 +963,12 @@
   }
 
   function parentNavButton(route, label, activeRoute) {
-    const active = route === activeRoute || (route === "learning" && ["exam-results", "focus", "training", "chemistry", "physics", "icas", "winter-2026"].includes(activeRoute)) || (route === "evidence" && ["writing", "records"].includes(activeRoute));
+    const active = route === activeRoute || (route === "learning" && ["exam-results", "focus", "training", "chemistry", "physics", "icas", "winter-2026", "beacon-brigade"].includes(activeRoute)) || (route === "evidence" && ["writing", "records"].includes(activeRoute));
     return `<button type="button" class="${active ? "active" : ""}" data-parent-route="${route}" ${active ? 'aria-current="page"' : ""}>${label}</button>`;
   }
 
   function renderParentRoute(profile) {
+    closeBeaconReviewPopup(false);
     parentProfileList.innerHTML = "";
     parentOverview.innerHTML = "";
     parentQuestionTable.innerHTML = "";
@@ -975,6 +1010,7 @@
       games: () => renderGamesPage(metrics),
       chemistry: () => renderChemistryPage(metrics),
       physics: () => renderPhysicsPage(metrics),
+      "beacon-brigade": () => renderBeaconPage(metrics),
       icas: () => renderIcasPage(metrics),
       "winter-2026": () => renderWinterPage(metrics),
       records: () => renderRecordsPage(metrics)
@@ -1007,6 +1043,7 @@
         ${parentHubRow("icas", "ICAS Challenge Lab", `${metrics.icasAttempts.length} attempts`, metrics.icasAttempts.length ? `${metrics.icasAttempts.at(-1).percent}% latest` : "No result yet", "clipboard")}
         ${parentHubRow("chemistry", "Chemistry", `${chemistryProgress(metrics.profile).completed} of 11 chapters`, "Chapter tests and wrong answers", "chemistry")}
         ${parentHubRow("physics", "Physics", `${physicsProgress(metrics.profile).completed} of ${physicsProgress(metrics.profile).total} chapters`, "Cockpit Checks and wrong answers", "focus")}
+        ${parentHubRow("beacon-brigade", "Beacon Brigade", "Maths & Science Expeditions", "HQ and expedition evidence", "chart")}
         ${parentHubRow("evidence", "Evidence", `${metrics.questionStats.length} saved question records`, `${metrics.writing.length} writing samples`, "database")}
       </section>
     `, true);
@@ -1022,6 +1059,7 @@
         ${parentHubRow("training", "Bright Quest Training", `${metrics.training.completed.length} complete`, `${metrics.training.untouched.length} available`, "book")}
         ${parentHubRow("chemistry", "Chemistry 101", `${chemistry.completed} of ${chemistry.total} chapters`, `${chemistry.tested} tests submitted`, "chemistry")}
         ${parentHubRow("physics", "Physics 101", `${physicsProgress(metrics.profile).completed} of ${physicsProgress(metrics.profile).total} chapters`, `${physicsProgress(metrics.profile).tests} Cockpit Checks submitted`, "focus")}
+        ${parentHubRow("beacon-brigade", "Beacon Brigade", "Maths & Science Expeditions", "HQ and expedition evidence", "chart")}
         ${parentHubLink(agmathsUrl("cockpit", metrics.profile, "parent/learning"), "Winter Maths", "Open linked AGMaths progress", "External course", "snow")}
       </section>
     `);
@@ -1039,10 +1077,261 @@
       <section class="bq-parent-hub-list" aria-label="Evidence areas">
         ${parentHubRow("exam-results", "Attempts and answers", "Wrong answers first in each review", `${metrics.questionStats.length} question records`, "clipboard")}
         ${parentHubRow("icas", "ICAS answer evidence", "Wrong answers first in a popup", `${metrics.icasQuestions.length} question records`, "clipboard")}
+        ${parentHubRow("beacon-brigade", "Beacon Brigade evidence", "Expeditions and original answers", "Corrections and support used", "chart")}
         ${parentHubRow("writing", "Writing evidence", "Saved responses and writing signals", `${metrics.writing.length} samples`, "writing")}
         ${parentHubRow("records", "All records", "Complete audit view", "Profiles, attempts, questions and training", "database")}
       </section>
     `);
+  }
+
+  function renderBeaconPage(metrics) {
+    return parentPageShell("beacon-brigade", `
+      <section class="bq-chemistry-review-panel">
+        <h3>Beacon Brigade</h3>
+        <p>Supply Harbour: maths. Discovery Grove: science.</p>
+        <div class="bq-chemistry-review-actions">
+          <button class="button button-primary" type="button" data-beacon-review="${escapeAttr(metrics.profile.id)}">Review expeditions</button>
+        </div>
+      </section>
+    `);
+  }
+
+  function ensureBeaconReviewPopup() {
+    let popup = document.querySelector("#bqBeaconReviewPopup");
+    if (popup) return popup;
+    popup = document.createElement("div");
+    popup.id = "bqBeaconReviewPopup";
+    popup.className = "bq-chem-review-overlay hidden";
+    popup.setAttribute("role", "dialog");
+    popup.setAttribute("aria-modal", "true");
+    popup.setAttribute("aria-labelledby", "bqBeaconReviewTitle");
+    popup.tabIndex = -1;
+    popup.addEventListener("click", (event) => {
+      if (event.target.closest("[data-beacon-review-close]")) closeBeaconReviewPopup();
+      if (event.target.closest("[data-beacon-review-retry]")) openBeaconReviewPopup(beaconReviewOpener);
+    });
+    popup.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        closeBeaconReviewPopup();
+      }
+      if (event.key !== "Tab") return;
+      const controls = [...popup.querySelectorAll('button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), summary, [tabindex="0"]')]
+        .filter((control) => control.getClientRects().length > 0);
+      const first = controls[0] || popup;
+      const last = controls.at(-1) || popup;
+      if (event.shiftKey && (document.activeElement === first || document.activeElement === popup)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || document.activeElement === popup)) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+    document.body.append(popup);
+    if (screens.parent) {
+      new MutationObserver(() => {
+        if (screens.parent.classList.contains("hidden")) closeBeaconReviewPopup(false);
+      }).observe(screens.parent, { attributes: true, attributeFilter: ["class"] });
+    }
+    return popup;
+  }
+
+  function closeBeaconReviewPopup(restoreFocus = true) {
+    beaconReviewRequest += 1;
+    const popup = document.querySelector("#bqBeaconReviewPopup");
+    if (!popup || popup.classList.contains("hidden")) return;
+    popup.classList.add("hidden");
+    popup.innerHTML = "";
+    beaconReviewBackground.forEach(([element, wasInert]) => { element.inert = wasInert; });
+    beaconReviewBackground = [];
+    const opener = beaconReviewOpener;
+    beaconReviewOpener = null;
+    if (restoreFocus && opener?.isConnected) opener.focus({ preventScroll: true });
+  }
+
+  async function openBeaconReviewPopup(opener) {
+    const profile = getParentProfile(Object.values(state.profiles || {}));
+    if (!profile || state.selectedRole !== "parent" || screens.parent.classList.contains("hidden")) return;
+    closeBeaconReviewPopup(false);
+    beaconReviewOpener = opener;
+    const request = ++beaconReviewRequest;
+    const popup = ensureBeaconReviewPopup();
+    popup.innerHTML = `
+      <div class="bq-chem-review-scrim" data-beacon-review-close></div>
+      <section class="bq-chem-review-modal">
+        <header class="bq-chem-review-head">
+          <div><p class="eyebrow">${escapeHtml(profile.name)}</p><h3 id="bqBeaconReviewTitle">Beacon Brigade expeditions</h3></div>
+          <button class="button button-soft" type="button" data-beacon-review-close>Close</button>
+        </header>
+        <div data-beacon-review-body aria-busy="true"><p role="status">Loading saved expeditions...</p></div>
+      </section>
+    `;
+    popup.classList.remove("hidden");
+    beaconReviewBackground = [...document.body.children]
+      .filter((element) => element !== popup && !["SCRIPT", "STYLE", "LINK"].includes(element.tagName))
+      .map((element) => [element, element.inert]);
+    beaconReviewBackground.forEach(([element]) => { element.inert = true; });
+    popup.querySelector("[data-beacon-review-close][type=button]").focus();
+    const current = () => request === beaconReviewRequest && state.selectedRole === "parent"
+      && state.parentProfileId === profile.id && !screens.parent.classList.contains("hidden");
+    const body = popup.querySelector("[data-beacon-review-body]");
+    try {
+      // Resolve legacy profile IDs only from the current family's authorised listing.
+      const listing = await fetchBeaconReviewJson("/api/profiles");
+      if (!current()) return;
+      const matches = (Array.isArray(listing.profiles) ? listing.profiles : [])
+        .filter((row) => row.profileId === profile.id || row.childId === profile.id);
+      if (matches.length !== 1 || !matches[0].childId) {
+        throw new Error("This child could not be matched to the signed-in family. Refresh Parent data and try again.");
+      }
+      const data = await fetchBeaconReviewJson(`/api/beacon-brigade?childId=${encodeURIComponent(matches[0].childId)}`);
+      if (!current()) return;
+      if (!data.state || !Array.isArray(data.state.history)) throw new Error("Saved expeditions are unavailable. Please try again.");
+      if (data.state.profileId !== matches[0].childId || data.profile?.id !== matches[0].childId) {
+        throw new Error("The returned records do not match this child. Close this review and refresh Parent data.");
+      }
+      body.innerHTML = beaconReviewBody(data.state);
+    } catch (error) {
+      if (!current()) return;
+      body.innerHTML = `<p role="alert">${escapeHtml(error.message)}</p><button class="button button-soft" type="button" data-beacon-review-retry>Try again</button>`;
+    } finally {
+      if (current()) body.setAttribute("aria-busy", "false");
+    }
+  }
+
+  async function fetchBeaconReviewJson(url) {
+    let response;
+    try {
+      response = await fetch(url, {
+        credentials: "same-origin",
+        cache: "no-store",
+        headers: window.BrightQuestFamilyAuth?.requestHeaders?.() || {}
+      });
+    } catch {
+      throw new Error("Could not connect. Check your connection and try again.");
+    }
+    if (response.status === 401 || response.status === 403) {
+      throw new Error("Parent access has expired or is unavailable. Close this review and unlock Parent again.");
+    }
+    if (!response.ok) throw new Error("Saved expeditions could not be loaded. Please try again.");
+    try { return await response.json(); }
+    catch { throw new Error("Saved expeditions could not be read. Please try again."); }
+  }
+
+  function beaconReviewBody(saved) {
+    const expeditions = [
+      ...(saved.activeExpedition ? [saved.activeExpedition] : []),
+      ...saved.history.slice().reverse()
+    ];
+    const stations = expeditions.flatMap((expedition) => expedition.stations || []);
+    const attempted = stations.filter((station) => station.attempts?.length);
+    const firstCorrect = attempted.filter((station) => station.attempts[0].correct === true).length;
+    const missed = stations.filter(beaconStationMissed).length;
+    const guided = stations.filter((station) => station.resolved && ["hinted", "assisted"].includes(station.resolution)).length;
+    const needsReview = expeditions.filter((expedition) => expedition.stations.some(beaconStationMissed));
+    const other = expeditions.filter((expedition) => !expedition.stations.some(beaconStationMissed));
+    return `
+      <div class="bq-beacon-summary" aria-label="HQ progress">
+        ${metric("HQ level", saved.hqLevel)}
+        ${metric("Building parts available", saved.wallet?.parts ?? 0)}
+        ${metric("Research cores available", saved.wallet?.cores ?? 0)}
+      </div>
+      <div class="bq-beacon-summary" aria-label="Learning evidence">
+        ${metric("First answers correct", attempted.length ? `${firstCorrect} of ${attempted.length}` : "No answers yet")}
+        ${metric("Stations with incorrect answers", missed)}
+        ${metric("Completed with hints or guidance", guided)}
+      </div>
+      ${saved.activeExpedition ? `<p>One expedition is in progress.</p>` : ""}
+      <h4>Expedition history</h4>
+      ${expeditions.length ? `
+        ${needsReview.length ? `<h4>Incorrect answers, including later corrections</h4>${needsReview.map(beaconExpeditionReview).join("")}` : ""}
+        ${other.length ? `<h4>${needsReview.length ? "Other expeditions" : "Saved expeditions"}</h4>${other.map(beaconExpeditionReview).join("")}` : ""}
+      ` : `<p>No saved expeditions yet.</p>`}
+    `;
+  }
+
+  function beaconStationMissed(station) {
+    return (station.attempts || []).some((attempt) => attempt.correct === false);
+  }
+
+  function beaconExpeditionReview(expedition) {
+    const stations = expedition.stations || [];
+    const resolved = stations.filter((station) => station.resolved).length;
+    const status = expedition.status === "active" ? "In progress"
+      : expedition.status === "ended" ? (resolved < stations.length ? "Ended early - partial" : "Ended - all stations resolved")
+        : expedition.status === "completed" ? "Completed" : "Status unavailable";
+    const region = { harbour: "Supply Harbour", grove: "Discovery Grove" }[expedition.regionId] || expedition.regionId;
+    const missed = stations.filter(beaconStationMissed);
+    const remaining = stations.filter((station) => !beaconStationMissed(station));
+    const independent = remaining.filter((station) => station.resolved && station.resolution === "independent");
+    const unresolvedOrSupported = remaining.filter((station) => !independent.includes(station));
+    return `<section class="bq-beacon-expedition">
+      <h4>${escapeHtml(region)}</h4>
+      <p>${escapeHtml(status)} | ${resolved} of ${stations.length} stations resolved</p>
+      <p>Started: ${escapeHtml(displayDate(expedition.startedAt))}${expedition.finishedAt ? `<br>Finished: ${escapeHtml(displayDate(expedition.finishedAt))}` : ""}</p>
+      <p>Earned: ${escapeHtml(expedition.earned?.parts ?? 0)} parts, ${escapeHtml(expedition.earned?.cores ?? 0)} cores</p>
+      <div class="bq-chem-review-list">
+        ${missed.map(beaconStationReview).join("")}
+        ${unresolvedOrSupported.map(beaconStationReview).join("")}
+      </div>
+      ${independent.length ? `<details class="bq-chem-review-correct"><summary>Correct first try (${independent.length})</summary><div class="bq-chem-review-list">${independent.map(beaconStationReview).join("")}</div></details>` : ""}
+    </section>`;
+  }
+
+  function beaconAnswerText(question, answer) {
+    if (answer === undefined || answer === null) return "Not recorded";
+    if (question.type === "choice") {
+      return question.options?.find((option) => option.id === answer)?.label || `Saved option: ${answer}`;
+    }
+    return String(answer);
+  }
+
+  function beaconStationReview(station) {
+    const question = station.question || {};
+    const attempts = station.attempts || [];
+    const missed = beaconStationMissed(station);
+    const resolution = {
+      independent: "Correct first try, without hints",
+      corrected: "Corrected after feedback",
+      hinted: "Completed with a hint",
+      assisted: "Completed with worked guidance"
+    }[station.resolution];
+    const outcome = station.resolved ? resolution || "Resolved; support detail unavailable"
+      : attempts.length ? "Unresolved - no station reward" : "Not attempted - no station reward";
+    const support = station.support?.stage === 2 ? "Worked guidance used"
+      : station.support?.stage === 1 ? "Hint used" : station.helpUsed ? "Support used" : "No hint or worked guidance used";
+    return `<article class="bq-beacon-station ${missed ? "missed" : station.resolved ? "correct" : "pending"}">
+      <p class="eyebrow">${escapeHtml(station.name || "Station")} | ${escapeHtml(question.subject || "")} | ${escapeHtml(question.skill || "")}</p>
+      <h5>${escapeHtml(question.prompt || "Question detail not recorded")}</h5>
+      ${beaconQuestionEvidence(question)}
+      <p><strong>${escapeHtml(outcome)}</strong>${missed && station.resolved ? " - original incorrect answer retained" : ""}</p>
+      <p>${escapeHtml(support)}</p>
+      ${attempts.length ? `<ol class="bq-beacon-attempts">${attempts.map((attempt, index) => `
+        <li><strong>${index === 0 ? "Original answer" : `Attempt ${index + 1}`}:</strong> ${escapeHtml(beaconAnswerText(question, attempt.answer))}
+          <span>(${attempt.correct === true ? "Correct" : attempt.correct === false ? "Incorrect" : "Not marked"}; ${attempt.helpStage === 2 ? "worked guidance" : attempt.helpStage === 1 ? "hint used" : index === 0 ? "no prior feedback" : "after feedback"})</span>
+          ${attempt.at ? `<br><small>${escapeHtml(displayDate(attempt.at))}</small>` : ""}</li>
+      `).join("")}</ol>` : ""}
+      <p><strong>Correct answer:</strong> ${escapeHtml(beaconAnswerText(question, question.answer))}</p>
+      ${question.explanation ? `<p>${escapeHtml(question.explanation)}</p>` : ""}
+      <small>Question ${escapeHtml(question.id || "ID not recorded")}</small>
+    </article>`;
+  }
+
+  function beaconQuestionEvidence(question) {
+    const diagram = question.diagram;
+    const table = diagram?.kind === "table" || diagram?.kind === "quantities";
+    return `
+      ${table ? `<div class="bq-beacon-table-wrap"><table>
+        <caption>${escapeHtml(diagram.label || "Saved observations")}</caption>
+        ${diagram.columns ? `<thead><tr>${diagram.columns.map((column) => `<th scope="col">${escapeHtml(column)}</th>`).join("")}</tr></thead>` : ""}
+        <tbody>${(diagram.rows || []).map((row) => `<tr>${row.map((cell, index) => index === 0 ? `<th scope="row">${escapeHtml(cell)}</th>` : `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`).join("")}</tbody>
+      </table></div>` : ""}
+      ${diagram?.controls ? `<p><strong>Test controls:</strong> ${escapeHtml(diagram.controls)}</p>` : ""}
+      ${diagram?.limitation ? `<p>${escapeHtml(diagram.limitation)}</p>` : ""}
+      ${question.options?.length ? `<details><summary>Saved answer choices</summary><ul>${question.options.map((option) => `<li>${escapeHtml(option.label)}</li>`).join("")}</ul></details>` : ""}
+    `;
   }
 
   function renderParentSettingsHub(metrics) {
@@ -1224,6 +1513,7 @@
           queryCard("training", "Training Coverage", "Completed, untouched, and recommended Bright Quest training.", "book"),
           queryCard("chemistry", "Chemistry 101 Winter 2026", "Video chapters, tests, and course progress.", "chemistry"),
           queryCard("physics", "Physics 101: Advanced Grade 4", "Force-interaction lesson, Cockpit Check and saved evidence.", "focus"),
+          queryCard("beacon-brigade", "Beacon Brigade", "Maths & Science Expeditions, HQ progress and original answers.", "compass"),
           queryLinkCard(agmathsUrl("cockpit", metrics.profile, "parent/overview"), "Winter 2026 Training 1", "Open the AGMaths cockpit for this child.", "winter")
         ])}
         ${queryGroup("Play", "Reward games and motivation signals.", [
@@ -1905,6 +2195,7 @@
       games: ["Rewards", "Games & Rewards", "Unlocked and recommended Bright Quest game experiences."],
       chemistry: ["Bright Quest module", "Chemistry 101 Winter 2026", "Video chapter progress and chapter-test results."],
       physics: ["Bright Quest module", "Physics 101: Advanced Grade 4", "Six animated force chapters, Cockpit Checks and saved evidence reasoning."],
+      "beacon-brigade": ["Bright Quest module", "Beacon Brigade", "Maths & Science Expeditions"],
       icas: ["Bright Quest module", "ICAS Challenge Lab", "Grade 3 maths and spelling attempts with wrong-answer-first evidence."],
       "winter-2026": ["Linked module", "Winter 2026 Training 1", "Open AGMaths without moving its data."],
       records: ["Audit", "All Records", "Complete saved Bright Quest records remain accessible here."]
@@ -1928,6 +2219,9 @@
     });
     parentRecommendation.querySelectorAll("[data-icas-review]").forEach((button) => {
       button.addEventListener("click", () => openIcasReviewPopup(button.dataset.icasReview));
+    });
+    parentRecommendation.querySelectorAll("[data-beacon-review]").forEach((button) => {
+      button.addEventListener("click", () => openBeaconReviewPopup(button));
     });
   }
 

@@ -1,0 +1,37 @@
+{
+  "importedAt": "2026-08-31T03:43:40.568Z",
+  "files": [
+    {
+      "file": "ground-colour.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/aerial_grass_rock/aerial_grass_rock_diff_1k.jpg",
+      "asset": "https://polyhaven.com/a/aerial_grass_rock",
+      "licence": "CC0",
+      "bytes": 666655,
+      "sha256": "57b8041bfe0d0f01430e4dbaad45e7ddddf0a9fc97317f90dbc51f7b0d9e1b5d"
+    },
+    {
+      "file": "ground-normal.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/aerial_grass_rock/aerial_grass_rock_nor_gl_1k.jpg",
+      "asset": "https://polyhaven.com/a/aerial_grass_rock",
+      "licence": "CC0",
+      "bytes": 904956,
+      "sha256": "1aa3e23bff453f152e089b9f83aa36b4901651e019f7e2ca01d5331a9bbbda78"
+    },
+    {
+      "file": "concrete-colour.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_floor_worn_001/concrete_floor_worn_001_diff_1k.jpg",
+      "asset": "https://polyhaven.com/a/concrete_floor_worn_001",
+      "licence": "CC0",
+      "bytes": 118806,
+      "sha256": "6e40c0fc908f4d66431836f5abe203f3a4eb064e88824378a91a46a26e2f464c"
+    },
+    {
+      "file": "concrete-normal.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_floor_worn_001/concrete_floor_worn_001_nor_gl_1k.jpg",
+      "asset": "https://polyhaven.com/a/concrete_floor_worn_001",
+      "licence": "CC0",
+      "bytes": 110906,
+      "sha256": "523bd94a1be5dd2f11c2ae2b7d7c77445cf5bd9e41604db515a7c8364dcba067"
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+.bq-beacon-preview {
+  display: block;
+  object-fit: cover;
+  object-position: 30% 100%;
+  background: #e8f1ed;
+}
+
+.bq-module-card.bq-beacon-launch .bq-beacon-preview {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  width: 104px;
+  height: 104px;
+}
+
+@media (max-width: 620px) {
+  .bq-module-card.bq-beacon-launch .bq-beacon-preview {
+    grid-row: auto;
+  }
+}
+
+body.bq-experience-uplift .bq-world-tile.bq-beacon-launch {
+  border-top: 4px solid #3c755c;
+}
+
+#bqBeaconReviewPopup .bq-chem-review-modal {
+  min-width: 0;
+  background: #fff;
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+  letter-spacing: 0;
+}
+
+#bqBeaconReviewPopup .bq-chem-review-head {
+  align-items: flex-start;
+}
+
+#bqBeaconReviewPopup .bq-chem-review-head h3 {
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+#bqBeaconReviewPopup .bq-chem-review-head button {
+  flex-shrink: 0;
+}
+
+#bqBeaconReviewPopup h4 {
+  margin: 12px 0 8px;
+}
+
+#bqBeaconReviewPopup p {
+  margin-block: 8px;
+}
+
+#bqBeaconReviewPopup .bq-beacon-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-block: 8px;
+  border-block: 1px solid #d9e2dc;
+}
+
+#bqBeaconReviewPopup .bq-beacon-summary span {
+  display: grid;
+  gap: 4px;
+}
+
+#bqBeaconReviewPopup .bq-beacon-expedition {
+  min-width: 0;
+  padding-block: 8px;
+  border-bottom: 1px solid #d9e2dc;
+}
+
+#bqBeaconReviewPopup .bq-beacon-station {
+  min-width: 0;
+  padding: 12px 0 12px 14px;
+  border-left: 3px solid #82958a;
+}
+
+#bqBeaconReviewPopup .bq-beacon-station.missed {
+  border-left-color: #b43b34;
+}
+
+#bqBeaconReviewPopup .bq-beacon-station.correct {
+  border-left-color: #277453;
+}
+
+#bqBeaconReviewPopup .bq-beacon-station h5 {
+  margin: 8px 0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+#bqBeaconReviewPopup .bq-beacon-attempts {
+  padding-left: 22px;
+}
+
+#bqBeaconReviewPopup li {
+  margin-block: 8px;
+  line-height: 1.5;
+}
+
+#bqBeaconReviewPopup .bq-beacon-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+#bqBeaconReviewPopup table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  text-align: left;
+}
+
+#bqBeaconReviewPopup caption {
+  text-align: left;
+  font-weight: 700;
+  padding-block: 8px;
+}
+
+#bqBeaconReviewPopup td,
+#bqBeaconReviewPopup th {
+  padding: 8px;
+  border: 1px solid #d9e2dc;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}

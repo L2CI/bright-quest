@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#263b39">
+  <title>Beacon Brigade | Bright Quest</title>
+  <link rel="stylesheet" href="./beacon.css">
+</head>
+<body>
+  <main id="game" aria-label="Beacon Brigade expedition command">
+    <div id="world"><canvas id="scene" aria-label="Interactive 3D expedition base and Atlas tank" tabindex="0"></canvas></div>
+    <header id="topbar"></header>
+    <div id="location-pins"></div>
+    <section id="interface" aria-live="polite"></section>
+    <div id="world-controls"></div>
+    <nav id="navigation" aria-label="Game navigation"></nav>
+    <div id="toast" role="status"></div>
+    <dialog id="dialog"></dialog>
+    <div id="boot"><span class="boot-mark">B</span><h1>Beacon Brigade</h1><p>Establishing contact...</p><noscript>JavaScript is needed to launch this expedition.</noscript></div>
+  </main>
+  <script type="module" src="./game.js"></script>
+</body>
+</html>

@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build:beacon": "node tools/build-beacon.mjs",
+    "test:beacon": "node --test tools/test-beacon-domain.mjs tools/test-beacon-api.mjs",
     "serve": "node serve-static.mjs",
     "build:final-test": "node build-final-test-data.mjs",
     "build:workbook": "node build-questionnaire-workbook.mjs",
@@ -14,9 +16,11 @@
     "cf:deploy": "wrangler pages deploy . --project-name bright-quest"
   },
   "devDependencies": {
+    "esbuild": "0.27.3",
     "wrangler": "^4.0.0"
   },
   "dependencies": {
+    "lucide": "1.8.0",
     "howler": "^2.2.4",
     "phaser": "^4.1.0"
   }
