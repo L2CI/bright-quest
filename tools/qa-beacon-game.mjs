@@ -47,10 +47,27 @@ try {
     for (const region of ['harbour', 'grove']) {
       await act('map'); await page.locator(`#interface [data-region="${region}"]`).click(); await act('deploy');
       await page.waitForFunction(() => window.__BEACON_QA__.view === 'region');
-      check(`${region} deployment`, await page.locator('[data-action="station"]').count() === 3);
+      check(`${region} deployment exposes three physical destinations`, await page.locator('[data-action="select-station"]').count() === 3);
       const stations = await page.evaluate(() => window.__BEACON_QA__.state.activeExpedition.stations.map(s => s.id));
       for (let i = 0; i < stations.length; i++) {
-        await page.locator(`[data-station="${stations[i]}"]`).click();
+        await page.locator(`[data-action="select-station"][data-station="${stations[i]}"]`).click();
+        check(`${region} station ${i + 1} offers Explore and March`, await page.locator('[data-action="explore-station"]').isVisible() && await page.locator('[data-action="march-station"]').isVisible());
+        if (i === 0) {
+          await page.waitForTimeout(350); await shot(`${region}-aerial-desktop`);
+          await page.setViewportSize({ width: 390, height: 844 }); await page.waitForTimeout(350); await shot(`${region}-aerial-mobile`);
+          check(`${region} aerial destinations fit mobile`, await page.evaluate(() => {
+            const panel = document.querySelector('.field-command')?.getBoundingClientRect();
+            const pins = [...document.querySelectorAll('.field-location-pin:not([hidden])')].map(el => el.getBoundingClientRect());
+            return pins.length === 3 && pins.every(r => r.left >= 0 && r.right <= innerWidth && r.top >= 0 && (!panel || r.bottom < panel.top));
+          }));
+          await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(250);
+          const version = await page.evaluate(() => window.__BEACON_QA__.state.version);
+          await act('explore-station');
+          check('Explore opens reconnaissance without saving', await page.locator('dialog').isVisible() && await page.evaluate(v => window.__BEACON_QA__.state.version === v, version));
+          await act('march-dialog');
+        } else await act('march-station');
+        check('Question stays closed during march', await page.locator('#answer-form').count() === 0);
+        await page.waitForFunction(() => window.__BEACON_QA__.view === 'station');
         check(`${region} station ${i + 1} renders`, await page.locator('#answer-form').isVisible());
         await submitAnswer();
         check('Empty answer does not submit', await page.evaluate(() => window.__BEACON_QA__.state.activeExpedition.stations.find(s => s.id === location.hash.split('/').slice(1).map(decodeURIComponent).join('/'))?.attempts.length === 0));

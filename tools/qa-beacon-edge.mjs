@@ -54,7 +54,9 @@ try {
   await act('cancel-travel'); check('Stopping travel retains active expedition', await page.evaluate(() => window.__BEACON_QA__.view === 'hq' && !!window.__BEACON_QA__.state.activeExpedition));
   await act('settings'); await page.locator('#motion-setting').check(); await act('save-settings');
   await act('resume'); await page.waitForFunction(() => window.__BEACON_QA__.view === 'region');
-  await page.locator('[data-action="station"]').first().click();
+  await page.locator('[data-action="select-station"]').first().click();
+  check('Destination selection exposes Explore and March', await page.locator('[data-action="explore-station"]').isVisible() && await page.locator('[data-action="march-station"]').isVisible());
+  await act('march-station'); await page.waitForFunction(() => window.__BEACON_QA__.view === 'station');
   await page.locator('#answer-input').fill('123'); await page.reload(); await ready();
   check('Unsubmitted numeric draft survives reload', await page.locator('#answer-input').inputValue() === '123');
   await act('read'); check('Muted read-aloud has visible feedback', await page.locator('#toast').innerText().then(t => t.includes('Turn on sound')));
@@ -79,7 +81,7 @@ try {
   await act('end-expedition'); await act('end-now');
   check('End retains earned cargo and evidence', await page.evaluate(() => !window.__BEACON_QA__.state.activeExpedition && window.__BEACON_QA__.state.wallet.parts === 4 && window.__BEACON_QA__.state.history[0].stations[0].attempts.length === 1));
   await act('map'); await page.locator('#interface [data-region="grove"]').click(); await act('deploy');
-  await page.waitForFunction(() => window.__BEACON_QA__.view === 'region'); await page.locator('[data-action="station"]').first().click();
+  await page.waitForFunction(() => window.__BEACON_QA__.view === 'region'); await page.locator('[data-action="select-station"]').first().click(); await act('march-station'); await page.waitForFunction(() => window.__BEACON_QA__.view === 'station');
   await page.locator('[data-option]').first().click(); const choice = await page.locator('[data-option][aria-pressed="true"]').getAttribute('data-option');
   await page.reload(); await ready();
   check('Choice draft survives reload', await page.locator('[data-option][aria-pressed="true"]').getAttribute('data-option') === choice);
