@@ -1,4 +1,6 @@
-export const CONTENT_VERSION = 2;
+import { SUBJECT_QUESTION_TEMPLATES } from "./subject-content.js";
+
+export const CONTENT_VERSION = 3;
 export const STATIONS_PER_EXPEDITION = 5;
 export const STATION_REWARD = 4;
 export const HQ_UPGRADES = deepFreeze({
@@ -7,12 +9,21 @@ export const HQ_UPGRADES = deepFreeze({
 });
 
 export const REGIONS = deepFreeze([
-  { id: "harbour", name: "Supply Harbour", subject: "maths", resource: "parts", minHqLevel: 1,
-    description: "Supply and repair the travelling tank base.",
-    stationNames: ["Cargo Crane", "Supply Depot", "Repair Workshop", "Rail Loading Yard", "Power Substation"] },
-  { id: "grove", name: "Discovery Grove", subject: "science", resource: "cores", minHqLevel: 1,
-    description: "Investigate materials and forces for the travelling base.",
-    stationNames: ["Materials Lab", "Field Test Rig", "Research Outpost", "Weather Station", "Water Analysis Unit"] }
+  { id: "harbour", name: "Maths Operations", subject: "maths", resource: "parts", icon: "calculator", minHqLevel: 1,
+    description: "Run the number-powered logistics district and recover building parts.",
+    stationNames: ["Multiplication Depot", "Addition Dispatch", "Division Workshop", "Subtraction Yard", "Place Value Tower"] },
+  { id: "english", name: "English Communications", subject: "english", resource: "parts", icon: "book-open", minHqLevel: 1,
+    description: "Decode words, sentences and stories inside the communications archive.",
+    stationNames: ["Word Archive", "Sentence Studio", "Spelling Signal", "Reading Room", "Story Press"] },
+  { id: "physics", name: "Physics Research", subject: "physics", resource: "cores", icon: "orbit", minHqLevel: 1,
+    description: "Test forces, light, sound, circuits and energy at the research complex.",
+    stationNames: ["Force Track", "Light Observatory", "Sound Lab", "Circuit Station", "Energy Workshop"] },
+  { id: "chemistry", name: "Chemistry Laboratory", subject: "chemistry", resource: "cores", icon: "flask-conical", minHqLevel: 1,
+    description: "Investigate matter, mixtures, changes, materials and particle models.",
+    stationNames: ["Matter Hall", "Mixture Lab", "Changes Chamber", "Properties Bay", "Particle Observatory"] },
+  { id: "grove", name: "Life Sciences BioDome", subject: "life-sciences", resource: "cores", icon: "sprout", minHqLevel: 1,
+    description: "Study plants, habitats, life cycles, food webs and adaptations.",
+    stationNames: ["Seed Lab", "Habitat Dome", "Life-Cycle Nursery", "Food-Web Field", "Adaptation Clinic"] }
 ]);
 
 const review = {
@@ -30,7 +41,7 @@ function maths(id, skill, prerequisites, hint, variants, build) {
 }
 
 function science(id, skill, hint, instances) {
-  return { id, version: 1, regionId: "grove", subject: "science", skill,
+  return { id, version: 1, regionId: "legacy-grove", subject: "science", skill,
     yearBand: "Year 3 core / Year 4 stretch (provisional)",
     prerequisites: ["Read a short observation table", "Compare evidence with a requirement"],
     parameterPolicy: "Only the two checked curated datasets are used.", review,
@@ -175,7 +186,8 @@ export const QUESTION_TEMPLATES = deepFreeze([
         explanation: "D holds 7 blocks without bending and meets the requirement exactly. E holds 4 and F holds 6, which are both fewer than 7.",
         diagram: { kind: "table", label: "New support tests", columns: ["Support", "Most blocks held without bending"], rows: [["D", 7], ["E", 4], ["F", 6]],
           controls: "Same span and identical blocks, added in the same position.", limitation: "These results concern only the displayed supports." } }
-    ])
+    ]),
+  ...SUBJECT_QUESTION_TEMPLATES
 ]);
 
 export function createQuestion(templateId, variant = 0) {

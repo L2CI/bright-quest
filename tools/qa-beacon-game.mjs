@@ -45,8 +45,14 @@ try {
     await act('settings'); check('Settings dialog opens', await page.locator('dialog').isVisible());
     await page.locator('#motion-setting').check(); await act('save-settings');
     await act('construction'); check('Unfunded build disabled', await page.locator('[data-action="confirm-build"]').isDisabled()); await act('hq');
-    for (const region of ['harbour', 'grove']) {
-      await act('map'); await page.locator(`#interface [data-region="${region}"]`).click(); await act('deploy');
+    for (const region of ['harbour', 'english', 'physics', 'chemistry', 'grove']) {
+      await act('map');
+      await page.locator(`#location-pins [data-region="${region}"]`).click();
+      check(`${region} selection exposes Explore and March`, await page.locator('[data-action="explore-region"]').isVisible() && await page.locator('[data-action="march-region"]').isVisible());
+      const selectionVersion = await page.evaluate(() => window.__BEACON_QA__.state.version);
+      await act('explore-region');
+      check(`${region} Explore is read-only`, await page.locator('dialog').isVisible() && await page.evaluate(v => window.__BEACON_QA__.state.version === v, selectionVersion));
+      await act('close-dialog'); await act('march-region');
       await page.waitForFunction(() => window.__BEACON_QA__.view === 'region');
       check(`${region} deployment exposes five physical destinations`, await page.locator('[data-action="select-station"]').count() === 5);
       check(`${region} quiet overview hides destination controls`, await page.locator('.field-command').count() === 0);
@@ -96,13 +102,15 @@ try {
       }
       await act('finish'); check(`${region} complete`, await page.locator('#game').getAttribute('data-view') === 'results');
       await act('review'); check('Review retains first missed answer', await page.locator('.review-station').first().innerText().then(t => /first answer missed/i.test(t)));
-      await act('journal'); await act('hq');
+      await act('journal'); await act('map');
+      check(`${region} shows a luminous completion choice`, await page.locator(`#location-pins [data-region="${region}"].completed .completion-beacon`).isVisible());
+      await act('hq');
     }
-    check('Both resources total 20', await page.evaluate(() => { const w = window.__BEACON_QA__.state.wallet; return w.parts === 20 && w.cores === 20; }));
-    await act('construction'); await act('confirm-build'); await act('close-dialog'); check('Cancelling build keeps resources', await page.evaluate(() => window.__BEACON_QA__.state.wallet.parts === 20));
-    await act('confirm-build'); await act('build-now'); check('HQ upgrade funded once', await page.evaluate(() => window.__BEACON_QA__.state.hqLevel === 2 && window.__BEACON_QA__.state.wallet.parts === 8));
+    check('Five districts award the intended resources', await page.evaluate(() => { const w = window.__BEACON_QA__.state.wallet; return w.parts === 40 && w.cores === 60; }));
+    await act('construction'); await act('confirm-build'); await act('close-dialog'); check('Cancelling build keeps resources', await page.evaluate(() => window.__BEACON_QA__.state.wallet.parts === 40));
+    await act('confirm-build'); await act('build-now'); check('HQ upgrade funded once', await page.evaluate(() => window.__BEACON_QA__.state.hqLevel === 2 && window.__BEACON_QA__.state.wallet.parts === 28 && window.__BEACON_QA__.state.wallet.cores === 48));
     await page.reload({ waitUntil: 'networkidle' }); await page.waitForFunction(() => !!window.__BEACON_QA__);
-    check('HQ reload keeps upgrade and history', await page.evaluate(() => window.__BEACON_QA__.state.hqLevel === 2 && window.__BEACON_QA__.state.history.length === 2));
+    check('HQ reload keeps upgrade and history', await page.evaluate(() => window.__BEACON_QA__.state.hqLevel === 2 && window.__BEACON_QA__.state.history.length === 5));
     await shot('hq-level2-desktop');
     await act('map'); await page.goBack(); check('Browser Back returns to HQ', await page.locator('#game').getAttribute('data-view') === 'hq');
     await page.setViewportSize({ width: 834, height: 1194 }); await page.waitForTimeout(400); await shot('hq-tablet');
@@ -111,9 +119,14 @@ try {
     if (harness) {
       const result = await context.request.get(`${base}/api/beacon-brigade?childId=${harness.fixture.childId}`, { headers: { 'x-bq-parent-capability': harness.fixture.parentCapability } });
       const parent = await result.json();
-      check('Real D1 Parent evidence matches game', result.ok() && parent.state.hqLevel === 2 && parent.state.history.length === 2 && parent.state.history.every(e => e.stations[0].firstAttemptCorrect === false && e.stations[0].resolved));
+      check('Real D1 Parent evidence matches all districts', result.ok() && parent.state.hqLevel === 2 && parent.state.history.length === 5 && parent.state.history.every(e => e.stations[0].firstAttemptCorrect === false && e.stations[0].resolved));
       check('No browser-only wallet in authenticated play', await page.evaluate(() => localStorage.getItem('bqBeaconPreviewV1') === null));
     }
+    const resetVersion = await page.evaluate(() => window.__BEACON_QA__.state.version);
+    await act('reset-game'); check('Reset warning names every erased record type', await page.locator('.reset-warning').innerText().then(t => /HQ levels.+resources.+completed districts.+answers.+journal records/s.test(t)));
+    await act('close-dialog'); check('Cancelling reset preserves progress', await page.evaluate(v => window.__BEACON_QA__.state.version === v && window.__BEACON_QA__.state.history.length === 5, resetVersion));
+    await act('reset-game'); await act('reset-now');
+    check('Confirmed reset returns a clean HQ', await page.evaluate(() => { const s = window.__BEACON_QA__.state; return s.hqLevel === 1 && s.history.length === 0 && !s.activeExpedition && s.wallet.parts === 0 && s.wallet.cores === 0; }));
   }
   check('No runtime/console errors', report.errors.length === 0, report.errors);
 } catch (e) { report.errors.push(e.stack); console.error(e); }

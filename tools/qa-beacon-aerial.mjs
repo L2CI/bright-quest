@@ -27,13 +27,29 @@ try {
   await page.goto(`${base}/beacon-brigade/?preview=1`, { waitUntil: 'networkidle' });
   await page.evaluate(() => localStorage.removeItem('bqBeaconPreviewV1'));
   await page.reload({ waitUntil: 'networkidle' }); await ready();
-  await tap('map'); await page.locator('#interface [data-region="harbour"]').tap(); await tap('deploy');
+  await tap('map');
+  await page.waitForTimeout(900);
+  const overviewCounts = { subjects: await page.locator('.subject-pin:visible').count(), hq: await page.locator('.hq-location:visible').count(), atlas: await page.locator('.atlas-world:visible').count() };
+  check('Five compact subject choices appear with HQ and Atlas', overviewCounts.subjects === 5 && overviewCounts.hq === 1 && overviewCounts.atlas === 1, JSON.stringify(overviewCounts));
+  check('World starts without a command popup', await page.locator('.world-command').count() === 0);
+  const worldLayout = await page.evaluate(() => {
+    const markers = [...document.querySelectorAll('.subject-pin:not([hidden]),.hq-location:not([hidden]),.atlas-world:not([hidden])')].map(el => ({ id: el.getAttribute('data-pin'), rect: el.getBoundingClientRect().toJSON() }));
+    const overlap = (a, b) => Math.min(a.right, b.right) - Math.max(a.left, b.left) > 4 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 4;
+    return { markers, overlaps: markers.flatMap((marker, index) => markers.slice(index + 1).filter(other => overlap(marker.rect, other.rect)).map(other => `${marker.id}/${other.id}`)) };
+  });
+  check('Subject choices fit mobile without overlap', worldLayout.markers.length === 7 && worldLayout.overlaps.length === 0, worldLayout.overlaps.join(', '));
+  await page.locator('#location-pins [data-region="harbour"]').tap();
+  check('Touching a district reveals Explore and March', await page.locator('[data-action="explore-region"]').isVisible() && await page.locator('[data-action="march-region"]').isVisible());
+  await tap('explore-region'); check('Explore opens district details', await page.locator('dialog').isVisible()); await tap('close-dialog');
+  await tap('march-region');
   check('Deployment uses aerial travel', await page.evaluate(() => window.__BEACON_QA__.view === 'travel' && window.__BEACON_QA__.world.radius === 42 && window.__BEACON_QA__.world.elevation === 34));
   await page.waitForFunction(() => window.__BEACON_QA__.view === 'region');
   await page.waitForFunction(() => document.querySelectorAll('[data-action="select-station"]:not([hidden])').length === 5);
+  await page.waitForTimeout(900);
   check('Five touch destinations appear', await page.locator('[data-action="select-station"]:visible').count() === 5);
   check('Overview starts without a command popup', await page.locator('.field-command').count() === 0);
-  check('HQ and Atlas stay marked on mobile', await page.locator('.hq-anchor:visible').count() === 1 && await page.locator('.atlas-anchor:visible').count() === 1);
+  const anchorCounts = { hq: await page.locator('.hq-anchor:visible').count(), atlas: await page.locator('.atlas-anchor:visible').count() };
+  check('HQ and Atlas stay marked on mobile', anchorCounts.hq === 1 && anchorCounts.atlas === 1, JSON.stringify(anchorCounts));
   const markerLayout = await page.evaluate(() => {
     const markers = [...document.querySelectorAll('.field-location-pin:not([hidden]),.strategic-anchor:not([hidden])')].map(el => ({ id: el.getAttribute('data-pin'), rect: el.getBoundingClientRect().toJSON() }));
     const overlap = (a, b) => Math.min(a.right, b.right) - Math.max(a.left, b.left) > 3 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 3;

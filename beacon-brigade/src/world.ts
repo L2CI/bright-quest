@@ -1,23 +1,21 @@
 import * as THREE from '../../cave-river-quest/vendor/three.module.js';
 
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
-const LOCATIONS = { hq: V(0, 0, 0), harbour: V(-26, 0, -18), grove: V(24, 0, -22) };
-const REGION_NODES: Record<string, any[]> = {
-  harbour: [
-    { id: 'station-0', label: 'Cargo Crane', position: LOCATIONS.harbour.clone().add(V(-5.2, 0, 2.6)) },
-    { id: 'station-1', label: 'Supply Depot', position: V(-15, 0, -7) },
-    { id: 'station-2', label: 'Repair Workshop', position: V(-37, 0, -30) },
-    { id: 'station-3', label: 'Rail Loading Yard', position: V(-5, 0, -29) },
-    { id: 'station-4', label: 'Power Substation', position: V(-28, 0, 3) }
-  ],
-  grove: [
-    { id: 'station-0', label: 'Materials Lab', position: LOCATIONS.grove.clone().add(V(-3.2, 0, -1.5)) },
-    { id: 'station-1', label: 'Field Test Rig', position: V(12, 0, -8) },
-    { id: 'station-2', label: 'Research Outpost', position: V(38, 0, -31) },
-    { id: 'station-3', label: 'Weather Station', position: V(7, 0, -33) },
-    { id: 'station-4', label: 'Water Analysis Unit', position: V(35, 0, -6) }
-  ]
+const LOCATIONS: Record<string, any> = {
+  hq: V(0, 0, 5), harbour: V(-31, 0, -7), english: V(-19, 0, -30),
+  physics: V(4, 0, -38), chemistry: V(30, 0, -25), grove: V(33, 0, 3)
 };
+const nodesAround = (location: any, labels: string[]) => [
+  V(-4.8, 0, -2.8), V(4.6, 0, -2.5), V(-6.2, 0, 4.3), V(5.8, 0, 4.7), V(0, 0, 7.7)
+].map((offset, index) => ({ id: `station-${index}`, label: labels[index], position: location.clone().add(offset) }));
+const REGION_NODES: Record<string, any[]> = {
+  harbour: nodesAround(LOCATIONS.harbour, ['Multiplication Depot', 'Addition Dispatch', 'Division Workshop', 'Subtraction Yard', 'Place Value Tower']),
+  english: nodesAround(LOCATIONS.english, ['Word Archive', 'Sentence Studio', 'Spelling Signal', 'Reading Room', 'Story Press']),
+  physics: nodesAround(LOCATIONS.physics, ['Force Track', 'Light Observatory', 'Sound Lab', 'Circuit Station', 'Energy Workshop']),
+  chemistry: nodesAround(LOCATIONS.chemistry, ['Matter Hall', 'Mixture Lab', 'Changes Chamber', 'Properties Bay', 'Particle Observatory']),
+  grove: nodesAround(LOCATIONS.grove, ['Seed Lab', 'Habitat Dome', 'Life-Cycle Nursery', 'Food-Web Field', 'Adaptation Clinic'])
+};
+const REGION_LABELS: Record<string, string> = { hq: 'Headquarters', harbour: 'Maths Operations', english: 'English Communications', physics: 'Physics Research', chemistry: 'Chemistry Laboratory', grove: 'Life Sciences BioDome' };
 const clamp = THREE.MathUtils.clamp;
 const lerp = THREE.MathUtils.lerp;
 const mats: Record<string, any> = {};
@@ -123,7 +121,7 @@ export class ExpeditionWorld {
     const beam = cylinder(this.waypoint, .045, .11, 3.7, waypointMat, 0, 1.95, 0, 14); beam.castShadow = false;
     this.ready = this.createLandscape();
     this.hq = new THREE.Group(); this.group.add(this.hq); this.createBase(1);
-    this.createHarbour(); this.createScienceBase(); this.tank = this.createTank();
+    this.createHarbour(); this.createEnglishDistrict(); this.createPhysicsDistrict(); this.createChemistryDistrict(); this.createScienceBase(); this.tank = this.createTank();
     this.tank.position.set(2.4, .02, 4.5); this.tank.rotation.y = .3; this.group.add(this.tank);
     this.createDust();
     this.resizeObserver = new ResizeObserver(() => this.resize()); this.resizeObserver.observe(canvas.parentElement!);
@@ -158,7 +156,7 @@ export class ExpeditionWorld {
     const ground = new THREE.MeshStandardMaterial({ color: 0x7b8061, roughness: .96 });
     mesh(this.group, geo, ground).castShadow = false;
     const road = material('road', 0x777970, .03, .97);
-    for (const endpoint of [LOCATIONS.harbour, LOCATIONS.grove]) {
+    for (const endpoint of Object.entries(LOCATIONS).filter(([id]) => id !== 'hq').map(([, point]) => point)) {
       const mid = endpoint.clone().multiplyScalar(.5); const length = endpoint.length();
       const obj = box(this.group, 5, .07, length + 8, road, mid.x, .02, mid.z);
       obj.rotation.y = Math.atan2(endpoint.x, endpoint.z);
@@ -210,10 +208,29 @@ export class ExpeditionWorld {
   }
 
   sitePad(g: any, node: any, w = 7.2, d = 5.6) {
-    const site = new THREE.Group(); site.position.set(node.x, 0, node.z); site.scale.setScalar(.68); g.add(site);
+    const site = new THREE.Group(); site.position.set(node.x, 0, node.z); site.scale.setScalar(.54); g.add(site);
     box(site, w, .11, d, concrete, 0, .035, 0);
     for (const x of [-w / 2 + .3, w / 2 - .3]) for (const z of [-d / 2 + .3, d / 2 - .3]) cylinder(site, .05, .07, .55, ochre, x, .3, z, 8);
     return site;
+  }
+
+  missionOutpost(g: any, node: any, index: number, accent: any, tag: string) {
+    const site = this.sitePad(g, node, 6.8, 5.2);
+    const neutral = material(`mission-${tag}`, 0x5a6460, .35, .72);
+    if (index === 0) {
+      box(site, 4.4, 1.75, 3, neutral, 0, 1, 0); this.gableRoof(site, 4.7, 3.25, 2, accent);
+    } else if (index === 1) {
+      box(site, 4.6, 1.45, 2.8, neutral, -.55, .86, 0); cylinder(site, 1.05, 1.05, 1.9, accent, 2, 1.05, 0, 22);
+    } else if (index === 2) {
+      box(site, 3.8, 1.65, 3, neutral, -.7, .94, .2); cylinder(site, .09, .13, 4, steel, 2, 2, 0, 10); line(site, V(1.2, 3.25, 0), V(2.8, 3.25, 0), .05, accent);
+    } else if (index === 3) {
+      for (const x of [-2, 2]) line(site, V(x, 0, -1.5), V(x, 2.8, -1.5), .1, accent);
+      line(site, V(-2.2, 2.8, -1.5), V(2.2, 2.8, -1.5), .12, accent); box(site, 3.7, 1.2, 2.3, neutral, 0, .7, .7);
+    } else {
+      box(site, 3.2, 2.7, 2.7, neutral, 0, 1.45, 0); box(site, 3.5, .16, 3, accent, 0, 2.86, 0);
+      cylinder(site, .09, .12, 2, steel, 0, 3.9, 0, 10); cylinder(site, .22, .22, .14, lamp, 0, 5, 0, 12);
+    }
+    label(site, `${tag}${index + 1}`, 0, index === 4 ? 2.2 : 1.35, 1.56, 1.8);
   }
 
   gableRoof(g: any, w: number, d: number, y: number, mat: any) {
@@ -427,41 +444,69 @@ export class ExpeditionWorld {
   }
   createHarbour() {
     const g = new THREE.Group(); g.position.copy(LOCATIONS.harbour); this.group.add(g);
-    box(g, 21, .22, 18, concrete, 0, .02, -2);
-    this.building(g, 3, -5.5, 7, 4, 2.7, 'SUPPLY HARBOUR', blue);
-    for (let i = 0; i < 8; i++) this.crate(g, -6 + i % 4 * 1.3, -4 - Math.floor(i / 4) * 1.4, i % 2 ? blue : edge);
-    const crane = new THREE.Group(); crane.position.set(-5, 0, 1); g.add(crane);
-    for (const x of [-1.4, 1.4]) {
-      line(crane, V(x, 0, -1), V(x, 6, 0), .13, ochre); line(crane, V(x, 0, 1), V(x, 6, 0), .13, ochre);
+    box(g, 15, .2, 13, concrete, 0, .02, 1.2);
+    this.building(g, 0, -2.1, 5.5, 3.4, 2.25, 'MATHS OPS', blue);
+    const tower = new THREE.Group(); tower.position.set(-4.4, 0, 2.5); g.add(tower);
+    for (let i = 0; i < 5; i++) {
+      const block = box(tower, 1.2, .72, 1.2, i % 2 ? ochre : edge, 0, .42 + i * .72, 0);
+      label(block, String(i + 1), 0, 0, .62, .7);
     }
-    line(crane, V(-2, 6, 0), V(5, 6, 0), .18, ochre);
-    line(crane, V(3, 6, 0), V(3, 2, 0), .025, dark);
-    const cargo = new THREE.Group(); cargo.position.set(3, .9, 0); crane.add(cargo); this.crate(cargo, 0, 0, blue);
-    this.water = mesh(g, new THREE.PlaneGeometry(16, 32), new THREE.MeshStandardMaterial({ color: 0x597f85, metalness: .5, roughness: .24 }), -16, -.12, -2);
-    this.water.rotation.x = -Math.PI / 2; this.water.castShadow = false;
-    for (let i = 0; i < 3; i++) { box(g, 4, .15, 2, edge, -10, .1, -10 + i * 7); this.lightPole(g, -8.5, -9 + i * 7); }
+    const abacus = new THREE.Group(); abacus.position.set(4, 0, 2.2); g.add(abacus);
+    for (const x of [-2.1, 2.1]) line(abacus, V(x, 0, 0), V(x, 3.5, 0), .1, ochre);
+    for (let y = .7; y < 3.4; y += .65) { line(abacus, V(-2.1, y, 0), V(2.1, y, 0), .045, steel); for (let i = 0; i < 5; i++) cylinder(abacus, .18, .18, .24, i % 2 ? blue : ochre, -1.4 + i * .7, y, 0, 12).rotation.z = Math.PI / 2; }
     const nodes = REGION_NODES.harbour.map(n => n.position.clone().sub(LOCATIONS.harbour));
     nodes.forEach((node, i) => this.fieldNode(g, node.x, node.z, i + 1, ochre));
-    this.supplyDepot(g, nodes[1]);
-    this.repairWorkshop(g, nodes[2]);
-    this.railYard(g, nodes[3]);
-    this.powerSubstation(g, nodes[4]);
-    for (let i = 0; i < 3; i++) { const container = box(g, 2.5, 1, 1, i % 2 ? blue : edge, -1.5 + i * 1.65, .58, -7.8); container.rotation.y = i % 2 ? .04 : -.03; }
-    this.rig = cargo;
+    nodes.forEach((node, i) => this.missionOutpost(g, node, i, ochre, 'M'));
+  }
+
+  createEnglishDistrict() {
+    const g = new THREE.Group(); g.position.copy(LOCATIONS.english); this.group.add(g);
+    const paper = material('paper-stone', 0xd4cfbb, .05, .88); const red = material('english-red', 0x8a443b, .22, .7);
+    box(g, 15, .2, 13, concrete, 0, .02, 1.2); this.building(g, 0, -2, 5.7, 3.5, 2.2, 'WORD ARCHIVE', paper);
+    for (const side of [-1, 1]) { const page = box(g, 3.7, .14, 3.4, paper, side * 1.7, 3.15, -2); page.rotation.z = side * -.22; }
+    const mast = cylinder(g, .1, .15, 5, steel, 4.6, 2.5, 2.5, 10);
+    for (const y of [2.2, 3.1, 4]) { const signal = mesh(g, new THREE.TorusGeometry(.7, .055, 8, 22, Math.PI), red, 4.6, y, 2.5); signal.rotation.z = Math.PI / 2; }
+    for (let i = 0; i < 4; i++) { const book = box(g, 2.2, .3, .85, i % 2 ? red : blue, -4.2, .25 + i * .3, 2.3); book.rotation.y = (i - 2) * .04; }
+    const nodes = REGION_NODES.english.map(n => n.position.clone().sub(LOCATIONS.english));
+    nodes.forEach((node, i) => { this.fieldNode(g, node.x, node.z, i + 1, red); this.missionOutpost(g, node, i, red, 'E'); });
+  }
+
+  createPhysicsDistrict() {
+    const g = new THREE.Group(); g.position.copy(LOCATIONS.physics); this.group.add(g);
+    const physicsBlue = material('physics-blue', 0x3d6f8d, .4, .5); const copper = material('physics-copper', 0xb37a42, .45, .48);
+    box(g, 15, .2, 13, concrete, 0, .02, 1.2); this.building(g, -1.2, -2.2, 5.1, 3.5, 2.1, 'PHYSICS', physicsBlue);
+    const dome = mesh(g, new THREE.SphereGeometry(2, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), glass, -1.2, 2.55, -2.2); dome.scale.y = .7;
+    const pendulum = new THREE.Group(); pendulum.position.set(4.2, 0, 1.8); g.add(pendulum);
+    for (const x of [-1.5, 1.5]) line(pendulum, V(x, 0, 0), V(x, 4.4, 0), .1, copper); line(pendulum, V(-1.7, 4.4, 0), V(1.7, 4.4, 0), .12, copper);
+    line(pendulum, V(0, 4.35, 0), V(.9, 1.2, 0), .035, dark); mesh(pendulum, new THREE.SphereGeometry(.45, 16, 10), copper, .9, 1.15, 0);
+    const nodes = REGION_NODES.physics.map(n => n.position.clone().sub(LOCATIONS.physics));
+    nodes.forEach((node, i) => { this.fieldNode(g, node.x, node.z, i + 1, physicsBlue); this.missionOutpost(g, node, i, physicsBlue, 'P'); });
+  }
+
+  createChemistryDistrict() {
+    const g = new THREE.Group(); g.position.copy(LOCATIONS.chemistry); this.group.add(g);
+    const chem = material('chemistry-teal', 0x287b79, .35, .48); const reaction = material('chemistry-amber', 0xc8873c, .2, .55);
+    box(g, 15, .2, 13, concrete, 0, .02, 1.2); this.building(g, -1, -2.1, 5.6, 3.6, 2.25, 'CHEM LAB', chem);
+    for (const x of [-2.6, 0, 2.6]) { cylinder(g, .7, .9, 2.8 + (x === 0 ? .8 : 0), x === 0 ? reaction : steel, x + 1, 1.5, 2.3, 20); cylinder(g, .16, .25, 1.2, steel, x + 1, 3.35 + (x === 0 ? .4 : 0), 2.3, 12); }
+    const molecule = new THREE.Group(); molecule.position.set(-4.8, 3.2, 2.5); g.add(molecule);
+    const atoms = [V(0, 0, 0), V(1.2, .7, 0), V(-.9, 1, .25), V(.15, 1.8, -.2)];
+    atoms.slice(1).forEach(point => line(molecule, V(), point, .08, steel)); atoms.forEach((point, i) => mesh(molecule, new THREE.SphereGeometry(i ? .28 : .4, 14, 9), i % 2 ? reaction : chem, point.x, point.y, point.z));
+    const nodes = REGION_NODES.chemistry.map(n => n.position.clone().sub(LOCATIONS.chemistry));
+    nodes.forEach((node, i) => { this.fieldNode(g, node.x, node.z, i + 1, chem); this.missionOutpost(g, node, i, chem, 'C'); });
   }
   createScienceBase() {
     const g = new THREE.Group(); g.position.copy(LOCATIONS.grove); this.group.add(g);
-    box(g, 18, .2, 16, concrete, 0, 0, -2);
-    this.building(g, -3, -4.5, 7, 5, 3.1, 'FIELD RESEARCH', material('lab', 0xb7bcb0, .24, .74));
+    box(g, 15, .2, 13, concrete, 0, 0, 1.2);
+    this.building(g, -1.8, -2.5, 5.4, 3.6, 2.35, 'BIO SCIENCE', material('lab', 0xb7bcb0, .24, .74));
     const domeMat = new THREE.MeshStandardMaterial({ color: 0x728d8d, metalness: .32, roughness: .46, transparent: true, opacity: .92 });
-    const dome = mesh(g, new THREE.SphereGeometry(2.25, 28, 14, 0, Math.PI * 2, 0, Math.PI / 2), domeMat, 5, .3, -4); dome.scale.y = .68;
-    const domeRing = mesh(g, new THREE.TorusGeometry(2.1, .045, 8, 40), steel, 5, .38, -4); domeRing.rotation.x = Math.PI / 2;
+    const dome = mesh(g, new THREE.SphereGeometry(2.25, 28, 14, 0, Math.PI * 2, 0, Math.PI / 2), domeMat, 3.8, .3, -2.3); dome.scale.y = .68;
+    const domeRing = mesh(g, new THREE.TorusGeometry(2.1, .045, 8, 40), steel, 3.8, .38, -2.3); domeRing.rotation.x = Math.PI / 2;
     for (const x of [-1.6, 1.6]) {
-      cylinder(g, .85, .85, 2.7, steel, x + 4, 1.6, 1.6, 24);
-      cylinder(g, .87, .87, .09, blue, x + 4, .5, 1.6, 24);
-      cylinder(g, .87, .87, .09, blue, x + 4, 2.65, 1.6, 24);
+      cylinder(g, .7, .7, 2.1, steel, x + 3.4, 1.25, 2, 24);
+      cylinder(g, .72, .72, .09, blue, x + 3.4, .25, 2, 24);
+      cylinder(g, .72, .72, .09, blue, x + 3.4, 2.3, 2, 24);
     }
-    line(g, V(2.4, 2.2, 1.6), V(5.6, 2.2, 1.6), .1, steel);
+    line(g, V(1.8, 1.8, 2), V(5, 1.8, 2), .1, steel);
     for (let i = 0; i < 3; i++) {
       box(g, 1.5, .1, .8, concrete, -5 + i * 1.9, 1.15, 2);
       for (const dx of [-.6, .6]) cylinder(g, .035, .035, 1.1, steel, -5 + i * 1.9 + dx, .6, 2);
@@ -469,16 +514,13 @@ export class ExpeditionWorld {
     }
     const nodes = REGION_NODES.grove.map(n => n.position.clone().sub(LOCATIONS.grove));
     nodes.forEach((node, i) => this.fieldNode(g, node.x, node.z, i + 1, blue));
-    this.fieldTestRig(g, nodes[1]);
-    this.researchOutpost(g, nodes[2]);
-    this.weatherStation(g, nodes[3]);
-    this.waterAnalysis(g, nodes[4]);
+    nodes.forEach((node, i) => this.missionOutpost(g, node, i, material('bio-green', 0x4f7d4f, .18, .68), 'L'));
     for (let i = 0; i < 4; i++) {
       const panel = box(g, 1.7, .08, 1.05, glass, -7 + (i % 2) * 2, 1.2, -6.2 + Math.floor(i / 2) * 1.5); panel.rotation.x = .38;
       cylinder(g, .05, .07, 1.1, steel, panel.position.x, .62, panel.position.z, 8);
     }
     for (const [x, z, s] of [[8, -7, .65], [8.5, 1, .7], [-8, -1, .6], [-7, 6, .7]] as any[]) this.tree(LOCATIONS.grove.x + x, LOCATIONS.grove.z + z, s);
-    this.lightPole(g, 7, 4); this.tree(34, -24, 1.2); this.tree(29, -31, 1.4);
+    this.lightPole(g, 6, 3.5);
   }
   stationNode(region: string, index: number) { return REGION_NODES[region]?.[index] || null; }
   clearRoute() { while (this.routeLayer.children.length) this.routeLayer.remove(this.routeLayer.children[0]); }
@@ -518,16 +560,15 @@ export class ExpeditionWorld {
       this.tank.position.copy(loc).add(V(2.4, .02, 4.5)); this.tank.rotation.y = .3; this.currentArea = region;
     }
     const selected = this.selectedNodeKey.startsWith(`${region}:`) ? this.stationNode(region, Number(this.selectedNodeKey.split(':')[1]))?.position : null;
-    const regionCentre = region === 'harbour' ? V(-11, 0, -13) : region === 'grove' ? V(11, 0, -13) : V(0, 0, -13);
-    this.target.copy(view === 'region' ? regionCentre : view === 'station' && selected ? selected : loc).add(V(0, 1, 0));
-    if (view === 'region') { this.radius = 60; this.elevation = 52; }
+    this.target.copy(view === 'region' ? loc : view === 'station' && selected ? selected : loc).add(V(0, 1, 0));
+    if (view === 'region') { this.radius = 38; this.elevation = 31; }
     else if (view === 'station') { this.radius = 23; this.elevation = 17; }
     else { this.radius = 18; this.elevation = 11; }
     if (changed) this.yaw = view === 'region' ? .1 : view === 'station' ? .28 : .73;
   }
   drive(region: string, callback: () => void) {
     const end = (LOCATIONS[region] || LOCATIONS.hq).clone().add(V(2.4, .02, 4.5));
-    this.beginTravel([this.tank.position.clone(), end], callback, { kind: 'region', region, label: region === 'hq' ? 'Headquarters' : region === 'harbour' ? 'Supply Harbour' : 'Discovery Grove' });
+    this.beginTravel([this.tank.position.clone(), end], callback, { kind: 'region', region, label: REGION_LABELS[region] || 'Destination' });
   }
   driveToStation(region: string, index: number, callback: () => void) {
     const node = this.stationNode(region, index); if (!node) return;
@@ -575,7 +616,8 @@ export class ExpeditionWorld {
       const pulse = 1 + Math.sin(this.clock * 3.8) * .12; this.waypointRing.scale.setScalar(pulse); this.waypoint.rotation.y = this.clock * .18;
     }
     if (this.water && !this.reduced) this.water.position.y = -.12 + Math.sin(this.clock * .55) * .035;
-    const mobile = this.width < 650; const strategic = this.view === 'map' || this.view === 'region'; const factor = mobile ? (strategic ? 3 : this.view === 'travel' ? 1.8 : 1.32) : 1;
+    const mobile = this.width < 650; const strategic = this.view === 'map' || this.view === 'region';
+    const factor = mobile ? (this.view === 'map' ? 3 : this.view === 'region' ? 1.45 : this.view === 'travel' ? 1.8 : 1.32) : 1;
     this.scene.fog.density = strategic || this.view === 'travel' ? .0015 : .009;
     this.cameraGoal.copy(this.target).add(V(Math.sin(this.yaw) * this.radius * factor, this.elevation * factor, Math.cos(this.yaw) * this.radius * factor));
     this.lookGoal.copy(this.target);
@@ -583,16 +625,18 @@ export class ExpeditionWorld {
       if (mobile) this.lookGoal.y -= 7;
       else this.lookGoal.add(V(3.4, 0, -2.8));
     }
-    if (strategic) this.lookGoal.add(mobile ? V(0, -28, 0) : V(8, 0, 0));
+    if (strategic) this.lookGoal.add(mobile ? this.view === 'map' ? V(0, -28, 0) : V(0, -8, 0) : this.view === 'map' ? V(8, 0, 0) : V(3, 0, 0));
     this.camera.position.lerp(this.cameraGoal, this.reduced ? 1 : 1 - Math.exp(-dt * 4));
     this.camera.lookAt(this.lookGoal); this.renderer.render(this.scene, this.camera);
     if (this.onFrame) {
       const source = this.view === 'region' || this.view === 'station'
         ? [['hq', LOCATIONS.hq], ['atlas', this.tank.position], ...(REGION_NODES[this.destination] || []).map((node: any) => [node.id, node.position])]
-        : Object.entries(LOCATIONS);
+        : [...Object.entries(LOCATIONS), ['atlas', this.tank.position]];
       this.onFrame(source.map(([id, loc]: any) => {
         const p = loc.clone().add(V(0, 3.5, -1)).project(this.camera);
-        return { id, x: (p.x + 1) / 2 * this.width, y: (-p.y + 1) / 2 * this.height, visible: p.z > -1 && p.z < 1 && p.x > -1.12 && p.x < 1.12 && p.y > -1.12 && p.y < 1.12 };
+        const strategicAnchor = this.view === 'region' && (id === 'hq' || id === 'atlas');
+        return { id, x: (p.x + 1) / 2 * this.width, y: (-p.y + 1) / 2 * this.height,
+          visible: p.z > -1 && p.z < 1 && (strategicAnchor || (p.x > -1.12 && p.x < 1.12 && p.y > -1.12 && p.y < 1.12)) };
       }));
     }
   };

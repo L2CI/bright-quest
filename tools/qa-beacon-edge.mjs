@@ -36,14 +36,14 @@ try {
       const title = document.querySelector('.scene-caption').getBoundingClientRect();
       return [...document.querySelectorAll('[data-pin]')].every(el => { const r = el.getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth && r.top >= title.bottom + 8; });
     }));
-    for (const region of ['harbour', 'grove']) {
+    for (const region of ['harbour', 'english', 'physics', 'chemistry', 'grove']) {
       const pin = page.locator(`[data-pin="${region}"]`); await pin.click({ timeout: 4000 });
-      check(`Map ${label} ${region} pin works`, await page.locator('#game').getAttribute('data-view') === 'region-info');
-      await act('map'); await page.waitForTimeout(300);
+      check(`Map ${label} ${region} pin works`, await page.locator('#game').getAttribute('data-view') === 'map' && await page.locator('[data-action="explore-region"]').isVisible() && await page.locator('[data-action="march-region"]').isVisible());
+      await act('clear-region'); await page.waitForTimeout(300);
     }
   }
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.locator('#interface [data-region="harbour"]').click(); await act('deploy');
+  await page.locator('#location-pins [data-region="harbour"]').click(); await act('march-region');
   await page.waitForTimeout(500); await act('pause-travel');
   const elapsed = await page.evaluate(() => window.__BEACON_QA__.world.travel.elapsed);
   const position = await page.evaluate(() => window.__BEACON_QA__.world.tank.position.toArray());
@@ -74,13 +74,13 @@ try {
   check('Retry credits exactly once', await page.evaluate(() => window.__BEACON_QA__.state.wallet.parts === 4 && window.__BEACON_QA__.state.activeExpedition.stations[0].attempts.length === 1));
   await page.reload(); await ready();
   check('Reload after retry retains server receipt', await page.evaluate(() => window.__BEACON_QA__.state.wallet.parts === 4));
-  await act('map'); await page.locator('#interface [data-region="grove"]').click(); await act('deploy');
+  await act('map'); await page.locator('#location-pins [data-region="grove"]').click(); await act('march-region');
   check('Second region cannot discard active expedition', await page.locator('dialog').innerText().then(t => t.includes('already active')));
   await act('journal-dialog'); await act('end-expedition'); await act('close-dialog');
   check('Cancel ending retains active expedition', await page.evaluate(() => !!window.__BEACON_QA__.state.activeExpedition));
   await act('end-expedition'); await act('end-now');
   check('End retains earned cargo and evidence', await page.evaluate(() => !window.__BEACON_QA__.state.activeExpedition && window.__BEACON_QA__.state.wallet.parts === 4 && window.__BEACON_QA__.state.history[0].stations[0].attempts.length === 1));
-  await act('map'); await page.locator('#interface [data-region="grove"]').click(); await act('deploy');
+  await act('map'); await page.locator('#location-pins [data-region="grove"]').click(); await act('march-region');
   await page.waitForFunction(() => window.__BEACON_QA__.view === 'region'); await page.locator('[data-action="select-station"]').first().click(); await act('march-station'); await page.waitForFunction(() => window.__BEACON_QA__.view === 'station');
   await page.locator('[data-option]').first().click(); const choice = await page.locator('[data-option][aria-pressed="true"]').getAttribute('data-option');
   await page.reload(); await ready();

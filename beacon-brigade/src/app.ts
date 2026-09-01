@@ -1,9 +1,9 @@
-import { createIcons, Shield, House, Map, BookOpen, Settings, ArrowLeft, ArrowRight, Plus, Minus, RotateCcw, Volume2, VolumeX, Pause, Play, FlaskConical, Package, Check, X, ChevronRight, Radio, Flag, Wrench, HardHat, RefreshCw, HelpCircle, Eye, Navigation, MapPin } from 'lucide';
+import { createIcons, Shield, House, Map, BookOpen, Settings, ArrowLeft, ArrowRight, Plus, Minus, RotateCcw, Volume2, VolumeX, Pause, Play, FlaskConical, Package, Check, X, ChevronRight, Radio, Flag, Wrench, HardHat, RefreshCw, HelpCircle, Eye, Navigation, MapPin, Calculator, Orbit, Sprout } from 'lucide';
 import { ExpeditionWorld } from './world';
-import { REGIONS, STATION_REWARD, STATIONS_PER_EXPEDITION } from '../content.js';
+import { REGIONS, STATION_REWARD } from '../content.js';
 import { createState, applyAction, publicState } from '../../functions/_lib/beacon-brigade.js';
 
-const icons = { Shield, House, Map, BookOpen, Settings, ArrowLeft, ArrowRight, Plus, Minus, RotateCcw, Volume2, VolumeX, Pause, Play, FlaskConical, Package, Check, X, ChevronRight, Radio, Flag, Wrench, HardHat, RefreshCw, HelpCircle, Eye, Navigation, MapPin };
+const icons = { Shield, House, Map, BookOpen, Settings, ArrowLeft, ArrowRight, Plus, Minus, RotateCcw, Volume2, VolumeX, Pause, Play, FlaskConical, Package, Check, X, ChevronRight, Radio, Flag, Wrench, HardHat, RefreshCw, HelpCircle, Eye, Navigation, MapPin, Calculator, Orbit, Sprout };
 const $ = (id: string) => document.getElementById(id)!;
 const escape = (s: unknown) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 const ico = (name: string) => `<i data-lucide="${name}" aria-hidden="true"></i>`;
@@ -17,13 +17,15 @@ const storage = {
   remove(key: string) { localStorage.removeItem(key); }
 };
 let state: any, profile: any, raw: any, world: ExpeditionWorld;
-let view = 'hq', regionId = 'harbour', stationId = '', targetStationId = '', selected = '', busy = false, paused = false;
+let view = 'hq', regionId = 'harbour', selectedRegionId = '', stationId = '', targetStationId = '', selected = '', busy = false, paused = false;
 let lastResult: any = null, reviewId = '', toastTimer: any, pending: any = null;
 let prefs = storage.get('bqBeaconSettings', { sound: false, reduced: matchMedia('(prefers-reduced-motion: reduce)').matches });
 const previewKey = 'bqBeaconPreviewV1';
 const dialog = $('dialog') as HTMLDialogElement;
 let dialogReturn: HTMLElement | null = null;
 const region = () => REGIONS.find((r: any) => r.id === regionId)!;
+const regionCompleted = (id: string) => state?.history?.some((item: any) => item.regionId === id && item.status === 'completed');
+const subjectLabel = (r: any) => `${r.subject === 'life-sciences' ? 'Life Sciences' : r.subject[0].toUpperCase() + r.subject.slice(1)} / ${r.resource === 'parts' ? 'Building parts' : 'Research cores'}`;
 const activeStation = () => state?.activeExpedition?.stations.find((s: any) => s.id === stationId);
 const targetStation = () => state?.activeExpedition?.stations.find((s: any) => s.id === targetStationId);
 const stationIndex = (id: string) => state?.activeExpedition?.stations.findIndex((s: any) => s.id === id) ?? -1;
@@ -103,7 +105,7 @@ function navigate(next: string, options: any = {}, replace = false) {
   view = next; if (options.regionId) regionId = options.regionId;
   if (options.stationId) stationId = options.stationId;
   if (options.reviewId) reviewId = options.reviewId;
-  const route = { view, regionId, stationId, targetStationId, reviewId };
+  const route = { view, regionId, selectedRegionId, stationId, targetStationId, reviewId };
   history[replace ? 'replaceState' : 'pushState'](route, '', `${location.pathname}${location.search}#${next}${next === 'station' ? `/${encodeURIComponent(stationId)}` : ''}`);
   render();
 }
@@ -121,6 +123,7 @@ function header() {
   $('topbar').innerHTML = `<div class="brand"><span class="brand-mark">${ico('shield')}</span><div><strong>BEACON BRIGADE</strong><span class="overline">${preview ? 'Local preview / saved on this device' : 'Bright Quest / Expedition command'}</span></div></div>
     <div class="wallet"><div class="resource">${ico('package')}<div><strong>${state.wallet.parts}</strong><small>BUILDING PARTS</small></div></div><div class="resource cores">${ico('flask-conical')}<div><strong>${state.wallet.cores}</strong><small>RESEARCH CORES</small></div></div></div>
     <div class="profile-chip">${escape(profile.name)}<small>${pending ? 'Save pending' : preview ? 'Preview commander' : 'Progress connected'}</small></div>
+    ${iconButton('reset-game', 'Reset game progress', 'rotate-ccw')}
     <a class="icon-btn portal-home" href="/" title="Return to Bright Quest" aria-label="Return to Bright Quest">${ico('arrow-left')}</a>`;
 }
 function navigation() {
@@ -146,12 +149,16 @@ function hqScreen() {
     `<div class="hq-quick-actions" aria-label="Headquarters actions">${next ? iconButton('construction', 'View construction', 'hard-hat') : ''}${primary}</div>` + tankPlate();
 }
 function mapScreen() {
-  return caption('Expedition theatre', 'Choose your destination', 'Two bases. One growing headquarters.') +
-    `<aside class="panel"><div class="panel-head"><div class="eyebrow">Mission directory</div><h2>Resource expeditions</h2></div><div class="panel-body">${REGIONS.map((r: any) => `<button type="button" class="region-option" data-action="destination" data-region="${r.id}"><span class="region-symbol ${r.subject}">${ico(r.subject === 'maths' ? 'package' : 'flask-conical')}</span><span><strong>${escape(r.name)}</strong><small>${r.subject === 'maths' ? 'Maths / Building parts' : 'Science / Research cores'}</small></span>${ico('chevron-right')}</button>`).join('')}</div>${state.activeExpedition ? `<div class="panel-foot">${button('resume', 'Resume current expedition', 'play', 'full', busy)}</div>` : ''}</aside>`;
+  const r = REGIONS.find((item: any) => item.id === selectedRegionId);
+  const completed = r && regionCompleted(r.id);
+  const resolved = r ? state.history.filter((item: any) => item.regionId === r.id && item.status === 'completed').length : 0;
+  const active = r && state.activeExpedition?.regionId === r.id;
+  const panel = r ? `<aside class="panel field-command world-command selected"><div class="panel-head destination-panel-head"><div><div class="eyebrow">${completed ? 'District completed' : 'Destination selected'}</div><h2>${escape(r.name)}</h2><div class="mission-count">${escape(subjectLabel(r))}</div></div>${iconButton('clear-region', 'Close destination', 'x')}</div><div class="panel-body"><div class="destination-status"><span class="status ${completed ? 'complete-glow' : 'pending'}">${completed ? `${ico('check')} Complete` : active ? 'In progress' : 'Ready'}</span><span class="node-code">${resolved ? `${resolved} CLEAR${resolved === 1 ? '' : 'S'}` : 'NEW ROUTE'}</span></div><p class="destination-skill">${escape(r.description)}</p><div class="summary-resource"><span>${ico(r.resource === 'parts' ? 'package' : 'flask-conical')}${r.resource === 'parts' ? 'Building parts' : 'Research cores'}</span><strong>+${r.stationNames.length * STATION_REWARD}</strong></div><div class="destination-actions">${button('explore-region', 'Explore', 'eye')}${button('march-region', active ? 'Resume' : completed ? 'March again' : 'March', 'navigation', 'primary', busy)}</div></div></aside>` : '';
+  return caption('Expedition theatre', 'Choose a subject district', 'Five specialist districts. Tap a building to inspect it.') + panel;
 }
 function regionInfoScreen() {
   const r = region();
-  return caption('Destination selected', escape(r.name)) + `<aside class="panel"><div class="panel-head"><div class="eyebrow">${r.subject === 'maths' ? 'Logistics and engineering' : 'Materials and field science'}</div><h2>${escape(r.name)}</h2></div><div class="panel-body"><p>${r.id === 'harbour' ? 'Take Atlas to the docks. Complete supply contracts to recover parts for your headquarters.' : 'Deploy Atlas to the field station. Investigate evidence to earn research cores for your headquarters.'}</p><div class="summary-resource"><span>${ico(r.subject === 'maths' ? 'package' : 'flask-conical')}${r.resource === 'parts' ? 'Building parts' : 'Research cores'}</span><strong>+${STATIONS_PER_EXPEDITION * STATION_REWARD}</strong></div><p class="subtle">${STATIONS_PER_EXPEDITION} destinations / untimed questions</p>${button('deploy', 'Deploy Atlas', 'arrow-right', 'primary full', busy)}${button('map', 'Back to world map', 'arrow-left', 'quiet full')}</div></aside>`;
+  return caption('Destination selected', escape(r.name)) + `<aside class="panel"><div class="panel-head"><div class="eyebrow">${escape(subjectLabel(r))}</div><h2>${escape(r.name)}</h2></div><div class="panel-body"><p>${escape(r.description)}</p><div class="summary-resource"><span>${ico(r.resource === 'parts' ? 'package' : 'flask-conical')}${r.resource === 'parts' ? 'Building parts' : 'Research cores'}</span><strong>+${r.stationNames.length * STATION_REWARD}</strong></div><p class="subtle">${r.stationNames.length} destinations / untimed questions</p>${button('deploy', 'Deploy Atlas', 'arrow-right', 'primary full', busy)}${button('map', 'Back to world map', 'arrow-left', 'quiet full')}</div></aside>`;
 }
 function regionScreen() {
   const e = state.activeExpedition;
@@ -209,7 +216,10 @@ function render() {
   const screens: any = { hq: hqScreen, map: mapScreen, 'region-info': regionInfoScreen, region: regionScreen, station: stationScreen, construction: constructionScreen, results: resultsScreen, journal: journalScreen, review: reviewScreen };
   if (view === 'travel') $('interface').innerHTML = `<section class="travel-panel ${paused ? 'paused' : ''}"><div class="eyebrow">Atlas M-07 / ${world.travel?.kind === 'station' ? 'Field march' : 'Convoy in transit'}</div><h2>${world.travel?.label ? `En route to ${escape(world.travel.label)}` : 'Route in progress'}</h2><div class="travel-progress"><span></span></div><div class="travel-readout"><span>ROUTE ACTIVE</span><strong>${Math.max(0, Math.ceil((world.travel?.duration || 0) - (world.travel?.elapsed || 0)))}s</strong></div><div class="actions">${button('pause-travel', paused ? 'Continue journey' : 'Pause journey', paused ? 'play' : 'pause')}${button('cancel-travel', world.travel?.kind === 'station' ? 'Cancel march' : 'Stop journey', 'flag')}</div></section>`;
   else $('interface').innerHTML = (screens[view] || hqScreen)();
-  if (['map', 'region-info'].includes(view)) $('location-pins').innerHTML = [['hq', 'Headquarters', 'Home base', 'house'], ...REGIONS.map((r: any) => [r.id, r.name, r.subject === 'maths' ? 'Parts / Maths' : 'Cores / Science', r.subject === 'maths' ? 'package' : 'flask-conical'])].map(([id, name, sub, icon]) => `<button class="location-pin" type="button" data-pin="${id}" data-action="${id === 'hq' ? 'hq' : 'destination'}" data-region="${id}">${ico(icon)}<span><strong>${name}</strong><small>${sub}</small></span></button>`).join('');
+  if (['map', 'region-info'].includes(view)) $('location-pins').innerHTML = `<button class="location-pin hq-location" type="button" data-pin="hq" data-action="hq">${ico('house')}<span><strong>Headquarters</strong><small>Home base</small></span></button><span class="strategic-anchor atlas-anchor atlas-world" data-pin="atlas" aria-label="Atlas expedition vehicle">${ico('navigation')}<b>ATLAS</b></span>` + REGIONS.map((r: any) => {
+    const completed = regionCompleted(r.id); const active = state.activeExpedition?.regionId === r.id;
+    return `<button class="location-pin subject-pin ${selectedRegionId === r.id ? 'selected' : ''} ${completed ? 'completed' : ''} ${active ? 'active' : ''}" type="button" data-pin="${r.id}" data-action="destination" data-region="${r.id}" aria-pressed="${selectedRegionId === r.id}" aria-label="${escape(r.name)}, ${completed ? 'completed' : active ? 'in progress' : 'ready'}">${completed ? `<span class="completion-beacon">${ico('check')}</span>` : ico(r.icon)}<span><strong>${escape(r.name)}</strong><small>${escape(subjectLabel(r))}</small></span></button>`;
+  }).join('');
   else if (view === 'region' && state.activeExpedition) $('location-pins').innerHTML = `<span class="strategic-anchor hq-anchor" data-pin="hq" aria-label="Headquarters">${ico('house')}<b>HQ</b></span><span class="strategic-anchor atlas-anchor" data-pin="atlas" aria-label="Atlas expedition vehicle">${ico('navigation')}<b>ATLAS</b></span>` + state.activeExpedition.stations.map((s: any, i: number) => `<button class="field-location-pin ${s.id === targetStationId ? 'selected' : ''} ${s.resolved ? 'resolved' : ''}" type="button" data-pin="station-${i}" data-action="select-station" data-station="${escape(s.id)}" aria-label="${escape(s.name)}, ${s.resolved ? 'resolved' : 'available'}" aria-pressed="${s.id === targetStationId}"><span class="field-pin-index">${s.resolved ? ico('check') : i + 1}</span></button>`).join('');
   else $('location-pins').innerHTML = '';
   if (pending) $('interface').insertAdjacentHTML('beforeend', `<div style="position:absolute;top:0;left:50%;transform:translateX(-50%);pointer-events:auto">${button('retry-save', 'Reconnect pending save', 'refresh-cw', 'gold', busy)}</div>`);
@@ -225,6 +235,10 @@ function openDialog(title: string, contents: string) {
 function closeDialog() { dialog.close(); world.paused = paused; dialogReturn?.focus(); }
 function openSettings() {
   openDialog('Expedition settings', `<label class="setting">Sound and read-aloud<input id="sound-setting" type="checkbox" ${prefs.sound ? 'checked' : ''}></label><label class="setting">Reduced motion<input id="motion-setting" type="checkbox" ${prefs.reduced ? 'checked' : ''}></label><p class="subtle" style="margin-top:15px">${preview ? 'Local preview. Progress is stored on this device only.' : 'Progress is saved to the current Bright Quest child profile.'}</p><div class="dialog-actions">${button('save-settings', 'Done', 'check', 'primary')}</div><a class="button full" style="margin-top:10px" href="/">${ico('arrow-left')}Return to Bright Quest</a>`);
+}
+function exploreRegion() {
+  const r = region();
+  openDialog(r.name, `<div class="recon-card"><span class="status ${regionCompleted(r.id) ? 'complete-glow' : 'pending'}">${regionCompleted(r.id) ? `${ico('check')} District completed` : 'Ready to explore'}</span><p><strong>${escape(r.stationNames.length)} subject missions</strong><br>${escape(r.stationNames.join(' / '))}</p><p>${escape(r.description)}</p><div class="summary-resource"><span>${ico(r.resource === 'parts' ? 'package' : 'flask-conical')}${r.resource === 'parts' ? 'Building parts' : 'Research cores'}</span><strong>+${r.stationNames.length * STATION_REWARD}</strong></div></div><div class="dialog-actions">${button('close-dialog', 'Back to map', 'arrow-left')}${button('march-region-dialog', state.activeExpedition?.regionId === r.id ? 'Resume' : 'March', 'navigation', 'primary')}</div>`);
 }
 async function deploy() {
   if (state.activeExpedition) {
@@ -280,6 +294,8 @@ $('game').addEventListener('click', async e => {
     rows.forEach(row => row.classList.remove('selected')); return;
   }
   if (action === 'settings') return openSettings();
+  if (action === 'reset-game') return openDialog('Reset Beacon Brigade?', `<div class="reset-warning"><strong>This erases this child\'s Beacon Brigade progress.</strong><p>HQ levels, resources, completed districts, answers and journal records will all be permanently cleared. Other Bright Quest modules are not affected.</p></div><div class="dialog-actions">${button('close-dialog', 'Keep progress', 'arrow-left', 'primary')}${button('reset-now', 'Reset all progress', 'rotate-ccw', 'danger')}</div>`);
+  if (action === 'reset-now') { closeDialog(); if (await commit({ type: 'reset' })) { selectedRegionId = ''; targetStationId = ''; stationId = ''; selected = ''; reviewId = ''; lastResult = null; world.selectStation(regionId, null); world.clearRoute(); navigate('hq', {}, true); toast('Beacon Brigade has been reset for this child.'); } return; }
   if (action === 'save-settings') { prefs = { sound: ($('sound-setting') as HTMLInputElement).checked, reduced: ($('motion-setting') as HTMLInputElement).checked }; storage.set('bqBeaconSettings', prefs); if (!prefs.sound) silence(); closeDialog(); render(); return; }
   if (action === 'pause-travel') { paused = !paused; world.paused = paused; render(); return; }
   if (action === 'cancel-travel') { const stationMarch = world.travel?.kind === 'station'; world.travel = null; world.onTravelEnd = null; world.clearRoute(); world.dustPuffs.forEach((p: any) => { p.visible = false; }); paused = false; world.paused = false; navigate(stationMarch ? 'region' : 'hq'); return; }
@@ -289,7 +305,11 @@ $('game').addEventListener('click', async e => {
     if (action !== 'region' || state.activeExpedition?.stations.every((station: any) => station.resolved)) targetStationId = '';
     navigate(action!); return;
   }
-  if (action === 'destination') { targetStationId = ''; regionId = b.dataset.region!; navigate('region-info'); return; }
+  if (action === 'destination') { targetStationId = ''; selectedRegionId = b.dataset.region!; regionId = selectedRegionId; navigate('map'); return; }
+  if (action === 'clear-region') { selectedRegionId = ''; render(); return; }
+  if (action === 'explore-region') return exploreRegion();
+  if (action === 'march-region') return deploy();
+  if (action === 'march-region-dialog') { closeDialog(); return deploy(); }
   if (action === 'deploy') return deploy();
   if (action === 'resume') return resume();
   if (action === 'resume-dialog') { closeDialog(); return resume(); }
@@ -313,7 +333,7 @@ window.addEventListener('online', () => { if (pending) retryPending(); });
 window.addEventListener('popstate', e => {
   silence(); if (dialog.open) closeDialog();
   if (world?.travel) { world.travel = null; world.onTravelEnd = null; }
-  paused = false; view = e.state?.view || 'hq'; regionId = e.state?.regionId || regionId; stationId = e.state?.stationId || ''; targetStationId = e.state?.targetStationId || ''; reviewId = e.state?.reviewId || ''; selected = '';
+  paused = false; view = e.state?.view || 'hq'; regionId = e.state?.regionId || regionId; selectedRegionId = e.state?.selectedRegionId || ''; stationId = e.state?.stationId || ''; targetStationId = e.state?.targetStationId || ''; reviewId = e.state?.reviewId || ''; selected = '';
   if (view === 'travel') view = 'hq'; render();
 });
 async function boot() {
@@ -343,7 +363,7 @@ async function boot() {
     $('scene').addEventListener('world-error', (e: any) => toast(e.detail));
     $('boot').remove();
     const savedRoute = history.state;
-    if (savedRoute?.view && !['travel', 'results'].includes(savedRoute.view)) { view = savedRoute.view; regionId = savedRoute.regionId || regionId; stationId = savedRoute.stationId || ''; targetStationId = savedRoute.targetStationId || ''; reviewId = savedRoute.reviewId || ''; }
+    if (savedRoute?.view && !['travel', 'results'].includes(savedRoute.view)) { view = savedRoute.view; regionId = savedRoute.regionId || regionId; selectedRegionId = savedRoute.selectedRegionId || ''; stationId = savedRoute.stationId || ''; targetStationId = savedRoute.targetStationId || ''; reviewId = savedRoute.reviewId || ''; }
     navigate(view, {}, true);
     await world.ready;
     if (world.textureErrors.length) toast('Some terrain textures did not load. Refresh when your connection is ready.');

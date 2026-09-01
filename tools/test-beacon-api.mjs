@@ -336,3 +336,18 @@ test("identical operation committed between receipt lookup and state read return
   assert.equal(result.body.state.version, current.version + 1);
   assert.deepEqual(result.body.state.wallet, current.wallet);
 });
+
+test("reset persists through the authenticated API and clears Parent review evidence for that child", async () => {
+  const before = await rawState();
+  assert.ok(before.activeExpedition || before.history.length || before.wallet.parts || before.wallet.cores);
+  const response = await command({ type: "reset" });
+  assert.equal(response.status, 200);
+  assert.equal(response.body.state.version, before.version + 1);
+  assert.equal(response.body.state.activeExpedition, null);
+  assert.deepEqual(response.body.state.history, []);
+  assert.deepEqual(response.body.state.wallet, { parts: 0, cores: 0 });
+  const parent = await get("?childId=child-a", { headers: { ...headers, "x-bq-parent-capability": parentCapability } });
+  assert.equal(parent.status, 200);
+  assert.deepEqual(parent.body.state.history, []);
+  assert.equal(parent.body.state.activeExpedition, null);
+});

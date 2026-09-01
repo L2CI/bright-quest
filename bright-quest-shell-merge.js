@@ -335,7 +335,7 @@
             <button type="button" class="bq-module-card bq-beacon-launch" data-bq-action="beacon-brigade">
               ${beaconLaunchArt()}
               <strong>Beacon Brigade</strong>
-              <span>Maths &amp; Science Expeditions</span>
+              <span>Five subject expeditions</span>
             </button>
           </div>
         </article>
@@ -466,9 +466,9 @@
             </button>
             <button type="button" class="bq-world-tile bq-beacon-launch" data-bq-action="beacon-brigade">
               ${beaconLaunchArt()}
-              <span class="bq-world-status">Two regions</span>
+              <span class="bq-world-status">Five districts</span>
               <strong>Beacon Brigade</strong>
-              <small>Maths &amp; Science Expeditions</small>
+              <small>Five subject expeditions</small>
             </button>
           </div>
         </section>
@@ -1043,7 +1043,7 @@
         ${parentHubRow("icas", "ICAS Challenge Lab", `${metrics.icasAttempts.length} attempts`, metrics.icasAttempts.length ? `${metrics.icasAttempts.at(-1).percent}% latest` : "No result yet", "clipboard")}
         ${parentHubRow("chemistry", "Chemistry", `${chemistryProgress(metrics.profile).completed} of 11 chapters`, "Chapter tests and wrong answers", "chemistry")}
         ${parentHubRow("physics", "Physics", `${physicsProgress(metrics.profile).completed} of ${physicsProgress(metrics.profile).total} chapters`, "Cockpit Checks and wrong answers", "focus")}
-        ${parentHubRow("beacon-brigade", "Beacon Brigade", "Maths & Science Expeditions", "HQ and expedition evidence", "chart")}
+        ${parentHubRow("beacon-brigade", "Beacon Brigade", "Five subject expeditions", "HQ and expedition evidence", "chart")}
         ${parentHubRow("evidence", "Evidence", `${metrics.questionStats.length} saved question records`, `${metrics.writing.length} writing samples`, "database")}
       </section>
     `, true);
@@ -1059,7 +1059,7 @@
         ${parentHubRow("training", "Bright Quest Training", `${metrics.training.completed.length} complete`, `${metrics.training.untouched.length} available`, "book")}
         ${parentHubRow("chemistry", "Chemistry 101", `${chemistry.completed} of ${chemistry.total} chapters`, `${chemistry.tested} tests submitted`, "chemistry")}
         ${parentHubRow("physics", "Physics 101", `${physicsProgress(metrics.profile).completed} of ${physicsProgress(metrics.profile).total} chapters`, `${physicsProgress(metrics.profile).tests} Cockpit Checks submitted`, "focus")}
-        ${parentHubRow("beacon-brigade", "Beacon Brigade", "Maths & Science Expeditions", "HQ and expedition evidence", "chart")}
+        ${parentHubRow("beacon-brigade", "Beacon Brigade", "Five subject expeditions", "HQ and expedition evidence", "chart")}
         ${parentHubLink(agmathsUrl("cockpit", metrics.profile, "parent/learning"), "Winter Maths", "Open linked AGMaths progress", "External course", "snow")}
       </section>
     `);
@@ -1513,7 +1513,7 @@
           queryCard("training", "Training Coverage", "Completed, untouched, and recommended Bright Quest training.", "book"),
           queryCard("chemistry", "Chemistry 101 Winter 2026", "Video chapters, tests, and course progress.", "chemistry"),
           queryCard("physics", "Physics 101: Advanced Grade 4", "Force-interaction lesson, Cockpit Check and saved evidence.", "focus"),
-          queryCard("beacon-brigade", "Beacon Brigade", "Maths & Science Expeditions, HQ progress and original answers.", "compass"),
+          queryCard("beacon-brigade", "Beacon Brigade", "Five subject expeditions, HQ progress and original answers.", "compass"),
           queryLinkCard(agmathsUrl("cockpit", metrics.profile, "parent/overview"), "Winter 2026 Training 1", "Open the AGMaths cockpit for this child.", "winter")
         ])}
         ${queryGroup("Play", "Reward games and motivation signals.", [
@@ -2195,7 +2195,7 @@
       games: ["Rewards", "Games & Rewards", "Unlocked and recommended Bright Quest game experiences."],
       chemistry: ["Bright Quest module", "Chemistry 101 Winter 2026", "Video chapter progress and chapter-test results."],
       physics: ["Bright Quest module", "Physics 101: Advanced Grade 4", "Six animated force chapters, Cockpit Checks and saved evidence reasoning."],
-      "beacon-brigade": ["Bright Quest module", "Beacon Brigade", "Maths & Science Expeditions"],
+      "beacon-brigade": ["Bright Quest module", "Beacon Brigade", "Five subject expeditions"],
       icas: ["Bright Quest module", "ICAS Challenge Lab", "Grade 3 maths and spelling attempts with wrong-answer-first evidence."],
       "winter-2026": ["Linked module", "Winter 2026 Training 1", "Open AGMaths without moving its data."],
       records: ["Audit", "All Records", "Complete saved Bright Quest records remain accessible here."]

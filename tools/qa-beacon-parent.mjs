@@ -370,26 +370,30 @@ try {
     const launch = page.locator('[data-bq-action="beacon-brigade"]');
     assert.equal(await launch.count(), 1);
     assert.equal(await launch.isDisabled(), false);
-    assert.match(await launch.innerText(), /Beacon Brigade[\s\S]*Maths & Science Expeditions/);
+    assert.match(await launch.innerText(), /Beacon Brigade[\s\S]*Five subject expeditions/);
     assert.equal(await page.evaluate(() => state.profile.attempts.length), 0);
     await enterParent();
   });
   await check("Hinted science completion retains the original choice label", async () => {
     payload = data.hintedScience;
     await openReady();
+    const station = payload.state.history[0].stations[0];
+    const original = station.question.options.find((option) => option.id === station.attempts[0].answer).label;
+    const corrected = station.question.options.find((option) => option.id === station.attempts[1].answer).label;
     assert.match(await popup.innerText(), /Completed with a hint/);
-    assert.match(await popup.locator(".bq-beacon-attempts").innerText(), /Original answer: Sample B: card/);
-    assert.match(await popup.locator(".bq-beacon-attempts").innerText(), /Attempt 2: Sample A: flexible sheet/);
+    assert.ok((await popup.locator(".bq-beacon-attempts").innerText()).includes(`Original answer: ${original}`));
+    assert.ok((await popup.locator(".bq-beacon-attempts").innerText()).includes(`Attempt 2: ${corrected}`));
   });
   await check("Science tables, saved choices and answer evidence fit desktop/mobile", async () => {
+    const station = payload.state.history[0].stations[0];
     for (const size of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
       await page.setViewportSize(size);
       const table = popup.locator("table").first();
-      assert.equal(await table.locator("th[scope=col]").count(), 3);
-      assert.equal(await table.locator("tbody tr").count(), 3);
+      assert.equal(await table.locator("th[scope=col]").count(), station.question.diagram.columns.length);
+      assert.equal(await table.locator("tbody tr").count(), station.question.diagram.rows.length);
       const choices = popup.locator(".bq-beacon-station").first().locator("summary");
       await choices.click();
-      assert.match(await popup.innerText(), /Sample C: tile/);
+      assert.ok((await popup.innerText()).includes(station.question.options.at(-1).label));
       await choices.click();
       await popup.locator(".bq-beacon-attempts").scrollIntoViewIfNeeded();
       assert.equal(await popup.locator(".bq-chem-review-modal").evaluate((element) => element.scrollWidth > element.clientWidth + 2), false);

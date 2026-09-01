@@ -1,5 +1,5 @@
 import { CONTENT_VERSION, HQ_UPGRADES, QUESTION_TEMPLATES, REGIONS, STATION_REWARD,
-  STATIONS_PER_EXPEDITION, createQuestion } from "../../beacon-brigade/content.js";
+  createQuestion } from "../../beacon-brigade/content.js";
 
 export const MAX_EXPEDITIONS = 100;
 export const MAX_WRONG_ATTEMPTS = 12;
@@ -39,9 +39,9 @@ export function applyAction(state, action) {
       const id = `${next.profileId}:exp-${next.nextExpeditionNumber++}-${region.id}`;
       next.activeExpedition = { id, regionId: region.id, resource: region.resource,
         startedAt: at, startedVersion: version, status: "active", earned: { parts: 0, cores: 0 },
-        stations: Array.from({ length: STATIONS_PER_EXPEDITION }, (_, index) => {
-          const template = templates[(run * STATIONS_PER_EXPEDITION + index) % templates.length];
-          const variant = Math.floor(run * STATIONS_PER_EXPEDITION / templates.length) % template.instances.length;
+        stations: Array.from({ length: region.stationNames.length }, (_, index) => {
+          const template = templates[(run * region.stationNames.length + index) % templates.length];
+          const variant = Math.floor(run * region.stationNames.length / templates.length) % template.instances.length;
           return { id: `${id}:station-${index + 1}`, name: region.stationNames[index],
             question: createQuestion(template.id, variant), attempts: [], resolved: false,
             helpUsed: false, support: { stage: 0, hintAtAttempt: null, events: [], message: null },
@@ -116,6 +116,12 @@ export function applyAction(state, action) {
       next.upgrades.push({ hqLevel: next.hqLevel, cost: { ...cost }, at, version });
       break;
     }
+    case "reset": {
+      const fresh = createState({ profileId: next.profileId });
+      Object.assign(next, fresh);
+      next.contentVersion = CONTENT_VERSION;
+      break;
+    }
   }
   next.version = version;
   return next;
@@ -142,7 +148,7 @@ export function publicState(state, { review = false } = {}) {
 
 function validateAction(action) {
   if (!action || typeof action !== "object" || Array.isArray(action)) fail("INVALID_ACTION", "An action object is required.", 400);
-  const fields = { start: ["regionId"], answer: ["stationId", "answer"], hint: ["stationId"], finish: [], upgrade: [], end: [] };
+  const fields = { start: ["regionId"], answer: ["stationId", "answer"], hint: ["stationId"], finish: [], upgrade: [], end: [], reset: [] };
   if (typeof action.type !== "string" || !Object.hasOwn(fields, action.type)) fail("INVALID_ACTION", "Unknown action type.", 400);
   const allowed = ["type", "at", ...fields[action.type]];
   if (Object.keys(action).some((key) => !allowed.includes(key))) fail("INVALID_ACTION", "Unexpected action fields.", 400);
