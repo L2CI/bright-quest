@@ -118,6 +118,15 @@ function syncWorld() {
   else if (view === 'station') { world.setView('station', regionId); world.selectStation(regionId, stationIndex(stationId)); world.setView('station', regionId); }
   else if (view === 'results') world.setView('region', lastResult?.regionId || regionId);
   else world.setView('hq');
+  world.syncMarkers({
+    view,
+    region: regionId,
+    selectedRegion: selectedRegionId,
+    completedRegions: REGIONS.filter((item: any) => regionCompleted(item.id)).map((item: any) => item.id),
+    activeRegion: state.activeExpedition?.regionId || '',
+    selectedStation: targetStationId,
+    stations: state.activeExpedition?.regionId === regionId ? state.activeExpedition.stations : []
+  });
 }
 function header() {
   $('topbar').innerHTML = `<div class="brand"><span class="brand-mark">${ico('shield')}</span><div><strong>BEACON BRIGADE</strong><span class="overline">${preview ? 'Local preview / saved on this device' : 'Bright Quest / Expedition command'}</span></div></div>
@@ -283,7 +292,7 @@ $('game').addEventListener('click', async e => {
   const action = b.dataset.action;
   if (action === 'zoom-in') return world.zoom(-2);
   if (action === 'zoom-out') return world.zoom(2);
-  if (action === 'reset-camera') return syncWorld();
+  if (action === 'reset-camera') { world.resetCamera(); return syncWorld(); }
   if (action === 'close-dialog') return closeDialog();
   if (action === 'retry-save') return retryPending();
   if (action === 'read') return speak();
@@ -302,6 +311,7 @@ $('game').addEventListener('click', async e => {
   if (busy || view === 'travel') return;
   if (action === 'hq' || action === 'return-hq') { if (['region', 'station', 'results'].includes(view)) return travelTo('hq', 'hq'); navigate('hq'); return; }
   if (['map', 'construction', 'journal', 'region'].includes(action!)) {
+    if (action === 'map') selectedRegionId = '';
     if (action !== 'region' || state.activeExpedition?.stations.every((station: any) => station.resolved)) targetStationId = '';
     navigate(action!); return;
   }
@@ -342,7 +352,6 @@ async function boot() {
     else { const response = await request(); state = response.state; profile = response.profile; pending = storage.get(pendingKey()); }
     world = new ExpeditionWorld($('scene') as HTMLCanvasElement); world.createBase(state.hqLevel); world.reduced = prefs.reduced;
     world.onFrame = pins => {
-      const captionBottom = document.querySelector('.scene-caption')?.getBoundingClientRect().bottom || 0;
       const topbarBottom = document.querySelector('#topbar')?.getBoundingClientRect().bottom || 0;
       const panelRect = document.querySelector('.field-command')?.getBoundingClientRect();
       const navigationTop = document.querySelector('#navigation')?.getBoundingClientRect().top || innerHeight;
@@ -350,11 +359,10 @@ async function boot() {
       for (const p of pins) {
         const el = document.querySelector(`[data-pin="${p.id}"]`) as HTMLElement;
         if (el) {
-          const margin = el.offsetWidth / 2 + 12; const minimumTop = Math.max(captionBottom, topbarBottom) + el.offsetHeight + 10; const maximumTop = panelTop - 22;
+          const margin = Math.max(el.offsetWidth, el.offsetHeight) / 2 + 4; const minimumTop = topbarBottom + margin; const maximumTop = panelTop - margin;
           const visibleRight = innerWidth > 650 && panelRect ? panelRect.left - 12 : innerWidth;
-          el.style.left = `${Math.max(margin, Math.min(visibleRight - margin, p.x))}px`;
-          el.style.top = `${Math.max(minimumTop, Math.min(maximumTop, p.y))}px`;
-          el.hidden = !p.visible || maximumTop <= minimumTop;
+          el.style.left = `${p.x}px`; el.style.top = `${p.y}px`;
+          el.hidden = !p.visible || p.x < margin || p.x > visibleRight - margin || p.y < minimumTop || p.y > maximumTop || maximumTop <= minimumTop;
         }
       }
       const progress = document.querySelector('.travel-progress span') as HTMLElement;

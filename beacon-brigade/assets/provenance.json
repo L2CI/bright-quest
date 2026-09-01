@@ -32,6 +32,15 @@
       "licence": "CC0",
       "bytes": 110906,
       "sha256": "523bd94a1be5dd2f11c2ae2b7d7c77445cf5bd9e41604db515a7c8364dcba067"
+    },
+    {
+      "file": "world-biomes.jpg",
+      "source": "OpenAI image generation",
+      "asset": "Original Beacon Brigade five-biome aerial terrain painting",
+      "licence": "Project-generated asset",
+      "generatedAt": "2026-09-01",
+      "bytes": 658306,
+      "sha256": "eb55c1dc04999b0b23a83f46e53d53ba4ce2d6db059e7ac98031b94aca3eb22e"
     }
   ]
 }

@@ -103,7 +103,10 @@ try {
       await act('finish'); check(`${region} complete`, await page.locator('#game').getAttribute('data-view') === 'results');
       await act('review'); check('Review retains first missed answer', await page.locator('.review-station').first().innerText().then(t => /first answer missed/i.test(t)));
       await act('journal'); await act('map');
-      check(`${region} shows a luminous completion choice`, await page.locator(`#location-pins [data-region="${region}"].completed .completion-beacon`).isVisible());
+      check(`${region} shows a luminous completion choice`, await page.evaluate(regionId => {
+        const world = window.__BEACON_QA__.world; const marker = world.mapMarkers.get(regionId);
+        return !!marker?.completed && marker.sprite.material.map === world.completedMarkerTexture && marker.halo.material.opacity > .5;
+      }, region));
       await act('hq');
     }
     check('Five districts award the intended resources', await page.evaluate(() => { const w = window.__BEACON_QA__.state.wallet; return w.parts === 40 && w.cores === 60; }));

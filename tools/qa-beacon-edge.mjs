@@ -23,7 +23,7 @@ try {
   const shot = async name => { const path = resolve(out, `${name}.png`); await page.screenshot({ path }); report.screenshots.push(path); };
   await page.goto(`${harness.origin}/beacon-brigade/`); await ready(); await page.waitForTimeout(1600);
   if (process.env.BQ_QA_CAPTURE_ART === '1') {
-    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.setViewportSize({ width: 1280, height: 800 }); await act('map'); await page.waitForTimeout(900);
     const hide = await page.addStyleTag({ content: '#topbar,#interface,#navigation,#world-controls,#location-pins,#toast{visibility:hidden!important}' });
     await page.waitForTimeout(700);
     await page.screenshot({ path: resolve('beacon-brigade/assets/module-preview.jpg'), type: 'jpeg', quality: 86 });
@@ -32,10 +32,26 @@ try {
   for (const [label, viewport] of [['desktop', { width: 1440, height: 900 }], ['mobile', { width: 390, height: 844 }]]) {
     await page.setViewportSize(viewport); await act('map'); await page.waitForTimeout(1500); await shot(`map-${label}`);
     check(`Map ${label} fits viewport`, await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-    check(`Map ${label} labels clear title and screen edges`, await page.evaluate(() => {
-      const title = document.querySelector('.scene-caption').getBoundingClientRect();
-      return [...document.querySelectorAll('[data-pin]')].every(el => { const r = el.getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth && r.top >= title.bottom + 8; });
+    check(`Map ${label} uses world-anchored beacons with in-bounds hit targets`, await page.evaluate(() => {
+      const world = window.__BEACON_QA__.world;
+      const targets = [...document.querySelectorAll('.subject-pin:not([hidden]),.hq-location:not([hidden])')];
+      return world.mapMarkers.size === 6 && [...world.mapMarkers.values()].every(marker => marker.root.parent === world.markerLayer)
+        && targets.length === 6 && targets.every(el => { const r = el.getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth && r.top >= 0 && r.bottom <= innerHeight; });
     }));
+    if (label === 'desktop') {
+      await page.locator('#scene').dragTo(page.locator('#scene'), { sourcePosition: { x: 760, y: 430 }, targetPosition: { x: 630, y: 430 } });
+      await page.waitForTimeout(500);
+      check('Camera drag keeps each touch target locked to its 3D beacon', await page.evaluate(() => {
+        const world = window.__BEACON_QA__.world;
+        return [...document.querySelectorAll('.subject-pin:not([hidden]),.hq-location:not([hidden])')].every(el => {
+          const marker = world.mapMarkers.get(el.getAttribute('data-pin')); if (!marker) return false;
+          const projected = marker.root.position.clone().project(world.camera); const rect = el.getBoundingClientRect();
+          const x = (projected.x + 1) / 2 * world.width, y = (-projected.y + 1) / 2 * world.height;
+          return Math.abs(rect.left + rect.width / 2 - x) < 3 && Math.abs(rect.top + rect.height / 2 - y) < 3;
+        });
+      }));
+      await act('reset-camera'); await page.waitForTimeout(250);
+    }
     for (const region of ['harbour', 'english', 'physics', 'chemistry', 'grove']) {
       const pin = page.locator(`[data-pin="${region}"]`); await pin.click({ timeout: 4000 });
       check(`Map ${label} ${region} pin works`, await page.locator('#game').getAttribute('data-view') === 'map' && await page.locator('[data-action="explore-region"]').isVisible() && await page.locator('[data-action="march-region"]').isVisible());

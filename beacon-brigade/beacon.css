@@ -80,3 +80,22 @@
   .completion-beacon{width:24px;height:24px}
   #game[data-view="map"] .world-command{max-height:43%}
 }
+
+/* Destination artwork is rendered in-world. HTML remains as accessible hit targets. */
+#location-pins .location-pin,#location-pins .field-location-pin{width:58px;min-width:58px;max-width:58px;height:58px;min-height:58px;padding:0;transform:translate(-50%,-50%);border:0;background:transparent;box-shadow:none;opacity:.001}
+#location-pins .location-pin:after,#location-pins .field-location-pin:after,#location-pins .location-pin>*,#location-pins .field-location-pin>*{display:none}
+#location-pins .location-pin:focus-visible,#location-pins .field-location-pin:focus-visible{opacity:1;background:#fffdf2;border:3px solid #237fc3;box-shadow:0 0 0 5px #ffffffb8}
+#location-pins .strategic-anchor{opacity:0;pointer-events:none}
+.scene-caption{text-shadow:0 2px 4px #173438,0 0 22px #1e5b58b8}
+.scene-caption .eyebrow{color:#fff5c6}
+#game[data-view="map"] #world-controls .icon-btn,#game[data-view="region"] #world-controls .icon-btn{background:#ffffffe6;border-color:#fff;box-shadow:0 5px 18px #2348402e}
+@media(max-width:650px){#location-pins .location-pin,#location-pins .field-location-pin{width:52px;min-width:52px;max-width:52px;height:52px;min-height:52px}}
+@media(max-width:650px){
+  #topbar{padding:10px 9px;gap:6px}
+  .brand{min-width:0;flex:1}.brand>div{min-width:0}.brand .overline{display:none}.brand strong{font-size:11px;white-space:nowrap}
+  .wallet{gap:4px}.resource{min-width:50px;padding:6px 7px}.resource small{display:none}.resource strong{font-size:16px}
+  #topbar>.icon-btn{width:38px;height:38px}
+}
+
+/* Keep the world lively without letting every biome and beacon compete at once. */
+#scene{filter:saturate(.64) contrast(.97) brightness(.98)}
