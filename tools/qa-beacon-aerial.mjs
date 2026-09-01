@@ -28,8 +28,9 @@ try {
   await page.evaluate(() => localStorage.removeItem('bqBeaconPreviewV1'));
   await page.reload({ waitUntil: 'networkidle' }); await ready();
   await tap('map'); await page.locator('#interface [data-region="harbour"]').tap(); await tap('deploy');
-  check('Deployment uses aerial travel', await page.evaluate(() => window.__BEACON_QA__.view === 'travel' && window.__BEACON_QA__.world.radius === 24 && window.__BEACON_QA__.world.elevation === 19));
+  check('Deployment uses aerial travel', await page.evaluate(() => window.__BEACON_QA__.view === 'travel' && window.__BEACON_QA__.world.radius === 42 && window.__BEACON_QA__.world.elevation === 34));
   await page.waitForFunction(() => window.__BEACON_QA__.view === 'region');
+  await page.waitForFunction(() => document.querySelectorAll('[data-action="select-station"]:not([hidden])').length === 3);
   check('Three touch destinations appear', await page.locator('[data-action="select-station"]:visible').count() === 3);
 
   const first = page.locator('[data-action="select-station"]:visible').first(); await first.tap();
@@ -39,7 +40,7 @@ try {
   check('Challenge is absent before arrival', await page.locator('#answer-form').count() === 0);
   await page.waitForTimeout(1700); await shot('mobile-march');
   check('March keeps aerial framing and advances vehicle', await page.evaluate(() => {
-    const qa = window.__BEACON_QA__; return qa.view === 'travel' && qa.world.radius === 24 && qa.world.elevation === 19 && qa.world.travel.elapsed > 1;
+    const qa = window.__BEACON_QA__; return qa.view === 'travel' && qa.world.radius === 42 && qa.world.elevation === 34 && qa.world.travel.elapsed > 1;
   }));
   await page.waitForFunction(() => window.__BEACON_QA__.view === 'station');
   check('Question opens automatically on arrival', await page.locator('#answer-form').isVisible());

@@ -5,13 +5,13 @@ const LOCATIONS = { hq: V(0, 0, 0), harbour: V(-26, 0, -18), grove: V(24, 0, -22
 const REGION_NODES: Record<string, any[]> = {
   harbour: [
     { id: 'station-0', label: 'Cargo Crane', position: LOCATIONS.harbour.clone().add(V(-5.2, 0, 2.6)) },
-    { id: 'station-1', label: 'Supply Depot', position: LOCATIONS.harbour.clone().add(V(4.8, 0, -1.7)) },
-    { id: 'station-2', label: 'Repair Workshop', position: LOCATIONS.harbour.clone().add(V(5.6, 0, 4.7)) }
+    { id: 'station-1', label: 'Supply Depot', position: V(-15, 0, -7) },
+    { id: 'station-2', label: 'Repair Workshop', position: V(-37, 0, -30) }
   ],
   grove: [
     { id: 'station-0', label: 'Materials Lab', position: LOCATIONS.grove.clone().add(V(-3.2, 0, -1.5)) },
-    { id: 'station-1', label: 'Field Test Rig', position: LOCATIONS.grove.clone().add(V(-5.5, 0, 4.5)) },
-    { id: 'station-2', label: 'Research Outpost', position: LOCATIONS.grove.clone().add(V(5.6, 0, 4.6)) }
+    { id: 'station-1', label: 'Field Test Rig', position: V(12, 0, -8) },
+    { id: 'station-2', label: 'Research Outpost', position: V(38, 0, -31) }
   ]
 };
 const clamp = THREE.MathUtils.clamp;
@@ -338,7 +338,12 @@ export class ExpeditionWorld {
     const nodes = REGION_NODES.harbour.map(n => n.position.clone().sub(LOCATIONS.harbour));
     const entry = V(2.4, 0, 4.5);
     nodes.forEach((node, i) => { track(g, entry, node, 1.45); this.fieldNode(g, node.x, node.z, i + 1, ochre); });
-    this.building(g, 5.6, 4.2, 4.5, 3.2, 2.1, 'WORKSHOP', edge);
+    box(g, 9, .14, 7, concrete, nodes[1].x - 1.5, .03, nodes[1].z + .2);
+    this.building(g, nodes[1].x - 2.4, nodes[1].z, 4.7, 3.1, 2.1, 'SUPPLY DEPOT', blue);
+    for (let i = 0; i < 5; i++) this.crate(g, nodes[1].x + .5 + (i % 2) * 1.25, nodes[1].z - 1.1 + Math.floor(i / 2) * 1.15, i % 2 ? blue : edge);
+    box(g, 9.5, .14, 7.5, concrete, nodes[2].x + 1.8, .03, nodes[2].z - 1.2);
+    this.building(g, nodes[2].x + 2.5, nodes[2].z - 1.5, 4.8, 3.3, 2.2, 'WORKSHOP', edge);
+    for (const x of [nodes[2].x - 1.2, nodes[2].x + .2]) { cylinder(g, .42, .42, .32, dark, x, .28, nodes[2].z - 1.4, 20); cylinder(g, .18, .18, .36, steel, x, .3, nodes[2].z - 1.4, 16); }
     for (let i = 0; i < 5; i++) { const container = box(g, 3.1, 1.25, 1.25, i % 2 ? blue : edge, -1.8 + (i % 2) * 3.4, .75 + Math.floor(i / 4) * 1.25, -8 + Math.floor(i / 2) * 1.45); container.rotation.y = i % 2 ? .04 : -.03; }
     for (let i = 0; i < 7; i++) cylinder(g, .08, .12, 1.3, steel, 8.7, .72, -8 + i * 2.35, 8);
     line(g, V(8.7, 1.35, -8), V(8.7, 1.35, 6.1), .028, steel);
@@ -365,7 +370,16 @@ export class ExpeditionWorld {
     const nodes = REGION_NODES.grove.map(n => n.position.clone().sub(LOCATIONS.grove));
     const entry = V(2.4, 0, 4.5);
     nodes.forEach((node, i) => { track(g, entry, node, 1.35); this.fieldNode(g, node.x, node.z, i + 1, blue); });
-    this.building(g, 5.7, 4.1, 4.2, 3.1, 2.1, 'OUTPOST', blue);
+    box(g, 9.5, .14, 7.5, concrete, nodes[1].x + 1, .03, nodes[1].z - .5);
+    for (let i = 0; i < 3; i++) {
+      const x = nodes[1].x - 1.8 + i * 1.8; box(g, 1.45, .1, .8, concrete, x, 1.1, nodes[1].z - .8);
+      for (const dx of [-.55, .55]) cylinder(g, .04, .04, 1.05, steel, x + dx, .56, nodes[1].z - .8, 8);
+      cylinder(g, .13, .13, .4, [paint, blue, ochre][i], x, 1.35, nodes[1].z - .8, 12);
+    }
+    box(g, 10, .14, 8, concrete, nodes[2].x + 1.8, .03, nodes[2].z - 1.2);
+    this.building(g, nodes[2].x + 2.4, nodes[2].z - 1.3, 4.8, 3.4, 2.25, 'OUTPOST', blue);
+    const mast = cylinder(g, .07, .11, 4.8, steel, nodes[2].x - 1.4, 2.4, nodes[2].z - 1.2, 10); mast.castShadow = true;
+    const beacon = cylinder(g, .18, .18, .18, lamp, nodes[2].x - 1.4, 4.86, nodes[2].z - 1.2, 14); beacon.castShadow = false;
     for (let i = 0; i < 4; i++) {
       const panel = box(g, 1.7, .08, 1.05, glass, -7 + (i % 2) * 2, 1.2, -6.2 + Math.floor(i / 2) * 1.5); panel.rotation.x = .38;
       cylinder(g, .05, .07, 1.1, steel, panel.position.x, .62, panel.position.z, 8);
@@ -411,11 +425,11 @@ export class ExpeditionWorld {
       this.tank.position.copy(loc).add(V(2.4, .02, 4.5)); this.tank.rotation.y = .3; this.currentArea = region;
     }
     const selected = this.selectedNodeKey.startsWith(`${region}:`) ? this.stationNode(region, Number(this.selectedNodeKey.split(':')[1]))?.position : null;
-    this.target.copy(view === 'station' && selected ? selected : loc).add(V(0, 1, 0));
-    if (view === 'region') { this.radius = 29; this.elevation = 24; }
+    this.target.copy(view === 'region' ? V(0, 0, -13) : view === 'station' && selected ? selected : loc).add(V(0, 1, 0));
+    if (view === 'region') { this.radius = 60; this.elevation = 52; }
     else if (view === 'station') { this.radius = 23; this.elevation = 17; }
     else { this.radius = 18; this.elevation = 11; }
-    if (changed) this.yaw = view === 'region' || view === 'station' ? .28 : .73;
+    if (changed) this.yaw = view === 'region' ? .1 : view === 'station' ? .28 : .73;
   }
   drive(region: string, callback: () => void) {
     const end = (LOCATIONS[region] || LOCATIONS.hq).clone().add(V(2.4, .02, 4.5));
@@ -431,7 +445,7 @@ export class ExpeditionWorld {
     this.travel = { ...meta, path, lengths, totalLength, start: path[0], end, elapsed: 0, duration: this.reduced ? 1 : meta.kind === 'station' ? 5.2 : 6.5 };
     this.onTravelEnd = callback; this.view = 'travel'; this.destination = meta.region;
   }
-  zoom(delta: number) { this.radius = clamp(this.radius + delta, this.view === 'map' ? 34 : 12, this.view === 'map' ? 68 : 36); }
+  zoom(delta: number) { const strategic = this.view === 'map' || this.view === 'region'; this.radius = clamp(this.radius + delta, strategic ? 34 : 12, strategic ? 68 : 44); }
   resize() {
     const rect = this.canvas.parentElement!.getBoundingClientRect(); this.width = rect.width; this.height = rect.height;
     this.camera.aspect = rect.width / rect.height; this.camera.updateProjectionMatrix(); this.renderer.setSize(rect.width, rect.height, false);
@@ -450,7 +464,7 @@ export class ExpeditionWorld {
         const a = tr.path[segment], b = tr.path[segment + 1] || tr.end; const segmentT = tr.lengths[segment] ? clamp(remaining / tr.lengths[segment], 0, 1) : 1;
         this.tank.position.lerpVectors(a, b, segmentT); this.tank.rotation.y = Math.atan2(b.x - a.x, b.z - a.z);
         this.tank.position.y = .02 + (this.reduced ? 0 : Math.sin(this.clock * 22) * .013);
-        this.updateTracks(this.clock * 2.7); this.target.copy(this.tank.position).lerp(tr.end, .16).add(V(0, 1, 0)); this.radius = 24; this.elevation = 19; this.yaw = .34;
+        this.updateTracks(this.clock * 2.7); this.target.copy(this.tank.position).lerp(tr.end, .16).add(V(0, 1, 0)); this.radius = 42; this.elevation = 34; this.yaw = .22;
         const direction = b.clone().sub(a).normalize();
         this.dustPuffs.forEach((puff, i) => {
           const phase = (this.clock * .72 + i / this.dustPuffs.length) % 1; const side = i % 2 ? 1 : -1;
@@ -467,15 +481,15 @@ export class ExpeditionWorld {
       const pulse = 1 + Math.sin(this.clock * 3.8) * .12; this.waypointRing.scale.setScalar(pulse); this.waypoint.rotation.y = this.clock * .18;
     }
     if (this.water && !this.reduced) this.water.position.y = -.12 + Math.sin(this.clock * .55) * .035;
-    const mobile = this.width < 650; const factor = mobile ? (this.view === 'map' ? 3 : 1.32) : 1;
-    this.scene.fog.density = this.view === 'map' ? .0015 : .009;
+    const mobile = this.width < 650; const strategic = this.view === 'map' || this.view === 'region'; const factor = mobile ? (strategic ? 3 : this.view === 'travel' ? 1.8 : 1.32) : 1;
+    this.scene.fog.density = strategic || this.view === 'travel' ? .0015 : .009;
     this.cameraGoal.copy(this.target).add(V(Math.sin(this.yaw) * this.radius * factor, this.elevation * factor, Math.cos(this.yaw) * this.radius * factor));
     this.lookGoal.copy(this.target);
-    if (this.view !== 'map' && this.view !== 'travel') {
+    if (!strategic && this.view !== 'travel') {
       if (mobile) this.lookGoal.y -= 7;
       else this.lookGoal.add(V(3.4, 0, -2.8));
     }
-    if (this.view === 'map') this.lookGoal.add(mobile ? V(0, -56, 0) : V(8, 0, 0));
+    if (strategic) this.lookGoal.add(mobile ? V(0, -56, 0) : V(8, 0, 0));
     this.camera.position.lerp(this.cameraGoal, this.reduced ? 1 : 1 - Math.exp(-dt * 4));
     this.camera.lookAt(this.lookGoal); this.renderer.render(this.scene, this.camera);
     if (this.onFrame) {

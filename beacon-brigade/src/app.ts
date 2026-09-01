@@ -316,12 +316,14 @@ async function boot() {
     world = new ExpeditionWorld($('scene') as HTMLCanvasElement); world.createBase(state.hqLevel); world.reduced = prefs.reduced;
     world.onFrame = pins => {
       const captionBottom = document.querySelector('.scene-caption')?.getBoundingClientRect().bottom || 0;
-      const panelTop = innerWidth <= 650 ? document.querySelector('.field-command')?.getBoundingClientRect().top || innerHeight : innerHeight;
+      const panelRect = document.querySelector('.field-command')?.getBoundingClientRect();
+      const panelTop = innerWidth <= 650 ? panelRect?.top || innerHeight : innerHeight;
       for (const p of pins) {
         const el = document.querySelector(`[data-pin="${p.id}"]`) as HTMLElement;
         if (el) {
           const margin = el.offsetWidth / 2 + 12; const minimumTop = captionBottom + el.offsetHeight + 14; const maximumTop = panelTop - 22;
-          el.style.left = `${Math.max(margin, Math.min(innerWidth - margin, p.x))}px`;
+          const visibleRight = innerWidth > 650 && panelRect ? panelRect.left - 12 : innerWidth;
+          el.style.left = `${Math.max(margin, Math.min(visibleRight - margin, p.x))}px`;
           el.style.top = `${Math.max(minimumTop, Math.min(maximumTop, p.y))}px`;
           el.hidden = !p.visible || maximumTop <= minimumTop;
         }

@@ -57,8 +57,10 @@ try {
           await page.setViewportSize({ width: 390, height: 844 }); await page.waitForTimeout(350); await shot(`${region}-aerial-mobile`);
           check(`${region} aerial destinations fit mobile`, await page.evaluate(() => {
             const panel = document.querySelector('.field-command')?.getBoundingClientRect();
+            const controls = document.querySelector('#world-controls')?.getBoundingClientRect();
             const pins = [...document.querySelectorAll('.field-location-pin:not([hidden])')].map(el => el.getBoundingClientRect());
-            return pins.length === 3 && pins.every(r => r.left >= 0 && r.right <= innerWidth && r.top >= 0 && (!panel || r.bottom < panel.top));
+            const separate = (a, b) => !a || !b || a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom;
+            return pins.length === 3 && pins.every(r => r.left >= 0 && r.right <= innerWidth && r.top >= 0 && (!panel || r.bottom < panel.top) && separate(r, controls));
           }));
           await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(250);
           const version = await page.evaluate(() => window.__BEACON_QA__.state.version);
