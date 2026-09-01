@@ -95,7 +95,7 @@ export function applyAction(state, action) {
     case "end": {
       const expedition = activeExpedition(next);
       if (action.type === "finish" && expedition.stations.some((station) => !station.resolved)) {
-        fail("STATIONS_UNRESOLVED", "Resolve all three stations, or end the expedition with the rewards already earned.");
+        fail("STATIONS_UNRESOLVED", "Resolve every station, or end the expedition with the rewards already earned.");
       }
       expedition.status = action.type === "finish" ? "completed" : "ended";
       expedition.finishedAt = at;

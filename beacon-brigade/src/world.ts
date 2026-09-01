@@ -6,12 +6,16 @@ const REGION_NODES: Record<string, any[]> = {
   harbour: [
     { id: 'station-0', label: 'Cargo Crane', position: LOCATIONS.harbour.clone().add(V(-5.2, 0, 2.6)) },
     { id: 'station-1', label: 'Supply Depot', position: V(-15, 0, -7) },
-    { id: 'station-2', label: 'Repair Workshop', position: V(-37, 0, -30) }
+    { id: 'station-2', label: 'Repair Workshop', position: V(-37, 0, -30) },
+    { id: 'station-3', label: 'Rail Loading Yard', position: V(-5, 0, -29) },
+    { id: 'station-4', label: 'Power Substation', position: V(-28, 0, 3) }
   ],
   grove: [
     { id: 'station-0', label: 'Materials Lab', position: LOCATIONS.grove.clone().add(V(-3.2, 0, -1.5)) },
     { id: 'station-1', label: 'Field Test Rig', position: V(12, 0, -8) },
-    { id: 'station-2', label: 'Research Outpost', position: V(38, 0, -31) }
+    { id: 'station-2', label: 'Research Outpost', position: V(38, 0, -31) },
+    { id: 'station-3', label: 'Weather Station', position: V(7, 0, -33) },
+    { id: 'station-4', label: 'Water Analysis Unit', position: V(35, 0, -6) }
   ]
 };
 const clamp = THREE.MathUtils.clamp;
@@ -200,11 +204,112 @@ export class ExpeditionWorld {
     const tip = mesh(g, new THREE.ConeGeometry(.62, 1.5, 12), foliage[0], 0, 5.55, 0); tip.rotation.y = .4;
   }
   fieldNode(g: any, x: number, z: number, number: number, accent: any) {
-    cylinder(g, 1.32, 1.44, .14, material('node-pad', 0x555b55, .08, .94), x, .16, z, 24);
-    const ring = mesh(g, new THREE.TorusGeometry(1.03, .08, 10, 32), accent, x, .26, z); ring.rotation.x = Math.PI / 2;
-    cylinder(g, .09, .14, 2.6, steel, x, 1.42, z, 10);
-    const light = cylinder(g, .21, .21, .12, lamp, x, 2.76, z, 16); light.castShadow = false;
-    label(g, `0${number}`, x, .82, z + 1.47, .9).rotation.x = -Math.PI / 2;
+    cylinder(g, .58, .66, .08, material('node-pad', 0x555b55, .08, .94), x, .1, z, 20);
+    const ring = mesh(g, new THREE.TorusGeometry(.48, .045, 8, 24), accent, x, .17, z); ring.rotation.x = Math.PI / 2;
+    const light = cylinder(g, .09, .09, .09, lamp, x, .25, z, 12); light.castShadow = false;
+  }
+
+  sitePad(g: any, node: any, w = 7.2, d = 5.6) {
+    const site = new THREE.Group(); site.position.set(node.x, 0, node.z); site.scale.setScalar(.68); g.add(site);
+    box(site, w, .11, d, concrete, 0, .035, 0);
+    for (const x of [-w / 2 + .3, w / 2 - .3]) for (const z of [-d / 2 + .3, d / 2 - .3]) cylinder(site, .05, .07, .55, ochre, x, .3, z, 8);
+    return site;
+  }
+
+  gableRoof(g: any, w: number, d: number, y: number, mat: any) {
+    for (const side of [-1, 1]) {
+      const roof = box(g, w * .58, .16, d + .3, mat, side * w * .235, y, 0);
+      roof.rotation.z = side * -.43;
+    }
+  }
+
+  supplyDepot(g: any, node: any) {
+    const site = this.sitePad(g, node, 8, 6);
+    box(site, 5.2, 2.25, 3.5, blue, -.65, 1.24, -.35); this.gableRoof(site, 5.5, 3.7, 2.65, steel);
+    for (const x of [-1.75, -.25]) box(site, 1.15, 1.35, .08, dark, x, .86, 1.43);
+    for (const x of [2.1, 3.25]) this.crate(site, x, .75, x > 3 ? edge : blue);
+  }
+
+  repairWorkshop(g: any, node: any) {
+    const site = this.sitePad(g, node, 8, 6);
+    box(site, 5.8, 2.2, 3.7, edge, 0, 1.22, -.35); box(site, 6.1, .16, 4, steel, 0, 2.4, -.35);
+    for (const x of [-1.65, 0, 1.65]) box(site, 1.35, 1.45, .08, x === 0 ? blue : dark, x, .9, 1.54);
+    for (const x of [-2.5, 2.5]) { const tyre = cylinder(site, .48, .48, .28, dark, x, .36, 2, 18); tyre.rotation.z = Math.PI / 2; }
+    const hoist = new THREE.Group(); hoist.position.set(0, 0, -2.1); site.add(hoist);
+    for (const x of [-.8, .8]) line(hoist, V(x, 0, 0), V(x, 2.8, 0), .07, ochre); line(hoist, V(-.9, 2.8, 0), V(.9, 2.8, 0), .08, ochre);
+  }
+
+  railYard(g: any, node: any) {
+    const site = this.sitePad(g, node, 9, 6.5);
+    for (const x of [-1.2, 1.2]) line(site, V(x, .14, -3), V(x, .14, 3), .06, steel);
+    for (let z = -2.8; z <= 2.8; z += .65) box(site, 3.2, .09, .13, dark, 0, .09, z);
+    const wagon = new THREE.Group(); wagon.position.set(0, .28, -.5); site.add(wagon);
+    box(wagon, 3.2, .75, 1.55, blue, 0, .58, 0); box(wagon, 3.45, .12, 1.75, steel, 0, .14, 0);
+    for (const x of [-1.15, 1.15]) for (const z of [-.68, .68]) { const wheel = cylinder(wagon, .28, .28, .16, dark, x, .08, z, 14); wheel.rotation.x = Math.PI / 2; }
+    const gantry = new THREE.Group(); gantry.position.set(0, 0, 1.7); site.add(gantry);
+    for (const x of [-2.4, 2.4]) line(gantry, V(x, 0, 0), V(x, 3.2, 0), .09, ochre); line(gantry, V(-2.6, 3.2, 0), V(2.6, 3.2, 0), .11, ochre);
+  }
+
+  powerSubstation(g: any, node: any) {
+    const site = this.sitePad(g, node, 7.8, 6.2);
+    for (const x of [-2, 0, 2]) {
+      box(site, 1.15, 1.35, 1.45, steel, x, .8, 0);
+      for (const dx of [-.35, .35]) cylinder(site, .09, .15, .7, material('insulator', 0x6f867e, .25, .5), x + dx, 1.85, 0, 12);
+    }
+    for (const x of [-3, 3]) { line(site, V(x, 0, -2), V(x, 3.4, -2), .08, edge); line(site, V(x, 0, 2), V(x, 3.4, 2), .08, edge); }
+    line(site, V(-3, 3.4, -2), V(3, 3.4, -2), .08, edge); line(site, V(-3, 3.4, 2), V(3, 3.4, 2), .08, edge);
+    for (const z of [-2, 2]) for (const x of [-2, 0, 2]) cylinder(site, .07, .12, .5, ochre, x, 3.7, z, 10);
+  }
+
+  materialsLab(g: any, node: any) {
+    const site = this.sitePad(g, node, 8, 6);
+    box(site, 5.5, 2.35, 3.8, material('lab', 0xb7bcb0, .24, .74), -.45, 1.28, -.2);
+    box(site, 5.8, .16, 4.1, steel, -.45, 2.53, -.2);
+    for (const x of [-2, -.7, .6, 1.9]) box(site, .95, .85, .07, glass, x, 1.45, 1.74);
+    for (const x of [-1.6, .2, 2]) cylinder(site, .24, .33, 1.1 + (x === .2 ? .35 : 0), steel, x, 3.1, -.6, 14);
+    const sample = new THREE.Group(); sample.position.set(2.8, 0, 1.75); site.add(sample);
+    box(sample, 1.3, .1, .8, concrete, 0, .85, 0); for (const dx of [-.5, .5]) cylinder(sample, .04, .04, .85, edge, dx, .43, 0, 8);
+  }
+
+  fieldTestRig(g: any, node: any) {
+    const site = this.sitePad(g, node, 8, 6);
+    const ramp = box(site, 4.7, .16, 1.5, steel, -.6, 1.05, 0); ramp.rotation.z = -.25;
+    box(site, 1.2, .65, 1.25, blue, -2.45, .46, 0);
+    const frame = new THREE.Group(); frame.position.set(2.1, 0, 0); site.add(frame);
+    line(frame, V(-1.1, 0, 0), V(0, 3.6, 0), .09, ochre); line(frame, V(1.1, 0, 0), V(0, 3.6, 0), .09, ochre);
+    line(frame, V(-1.2, 2.4, 0), V(1.2, 2.4, 0), .08, ochre); line(frame, V(0, 3.55, 0), V(0, 1.25, 0), .035, dark);
+    box(frame, .65, .65, .65, paint, 0, .95, 0);
+  }
+
+  researchOutpost(g: any, node: any) {
+    const site = this.sitePad(g, node, 7.5, 6);
+    for (const x of [-2, 2]) for (const z of [-1.3, 1.3]) cylinder(site, .08, .11, 1.2, steel, x, .62, z, 8);
+    box(site, 5.1, 1.85, 3.5, blue, 0, 2.05, 0); this.gableRoof(site, 5.3, 3.7, 3.15, steel);
+    box(site, 1.2, 1.05, .08, glass, 0, 2.15, 1.78);
+    const mast = cylinder(site, .07, .1, 4.4, steel, 2.8, 2.2, -.9, 10);
+    const dishGroup = new THREE.Group(); dishGroup.position.set(2.8, 4.05, -.9); site.add(dishGroup);
+    const dish = mesh(dishGroup, new THREE.SphereGeometry(.72, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), concrete); dish.rotation.x = 1.05;
+  }
+
+  weatherStation(g: any, node: any) {
+    const site = this.sitePad(g, node, 7.2, 6);
+    const hut = box(site, 2.8, 1.65, 2.45, concrete, -1.45, .95, .5); this.gableRoof(site, 3, 2.65, 1.9, steel);
+    const mast = cylinder(site, .06, .1, 4.7, steel, 1.45, 2.35, 0, 10);
+    line(site, V(.6, 3.4, 0), V(2.3, 3.4, 0), .04, steel);
+    for (const [x, z] of [[.6, 0], [2.3, 0], [1.45, .85]] as any[]) { cylinder(site, .22, .22, .1, ochre, x, 3.55, z, 12); }
+    const radar = mesh(site, new THREE.SphereGeometry(.72, 18, 9, 0, Math.PI * 2, 0, Math.PI / 2), material('weather-dome', 0xc7d7d2, .15, .5), 1.45, 4.85, 0); radar.scale.y = .7;
+  }
+
+  waterAnalysis(g: any, node: any) {
+    const site = this.sitePad(g, node, 8, 6.3);
+    for (const x of [-1.8, .2, 2.2]) {
+      cylinder(site, .82, .82, 1.75, x === .2 ? blue : steel, x, .96, -.35, 22);
+      cylinder(site, .84, .84, .1, concrete, x, 1.86, -.35, 22);
+    }
+    line(site, V(-2.6, .75, -.35), V(3, .75, -.35), .1, material('water-pipe', 0x4e858f, .35, .45));
+    box(site, 4.8, .16, 1.5, steel, .2, 1.95, 1.65);
+    for (const x of [-1.7, 2.1]) cylinder(site, .07, .08, 2, steel, x, 1, 1.65, 8);
+    for (const x of [-1.2, .2, 1.6]) cylinder(site, .22, .15, .55, glass, x, 2.35, 1.65, 16);
   }
   createTank() {
     const tank = new THREE.Group();
@@ -336,17 +441,12 @@ export class ExpeditionWorld {
     this.water.rotation.x = -Math.PI / 2; this.water.castShadow = false;
     for (let i = 0; i < 3; i++) { box(g, 4, .15, 2, edge, -10, .1, -10 + i * 7); this.lightPole(g, -8.5, -9 + i * 7); }
     const nodes = REGION_NODES.harbour.map(n => n.position.clone().sub(LOCATIONS.harbour));
-    const entry = V(2.4, 0, 4.5);
-    nodes.forEach((node, i) => { track(g, entry, node, 1.45); this.fieldNode(g, node.x, node.z, i + 1, ochre); });
-    box(g, 9, .14, 7, concrete, nodes[1].x - 1.5, .03, nodes[1].z + .2);
-    this.building(g, nodes[1].x - 2.4, nodes[1].z, 4.7, 3.1, 2.1, 'SUPPLY DEPOT', blue);
-    for (let i = 0; i < 5; i++) this.crate(g, nodes[1].x + .5 + (i % 2) * 1.25, nodes[1].z - 1.1 + Math.floor(i / 2) * 1.15, i % 2 ? blue : edge);
-    box(g, 9.5, .14, 7.5, concrete, nodes[2].x + 1.8, .03, nodes[2].z - 1.2);
-    this.building(g, nodes[2].x + 2.5, nodes[2].z - 1.5, 4.8, 3.3, 2.2, 'WORKSHOP', edge);
-    for (const x of [nodes[2].x - 1.2, nodes[2].x + .2]) { cylinder(g, .42, .42, .32, dark, x, .28, nodes[2].z - 1.4, 20); cylinder(g, .18, .18, .36, steel, x, .3, nodes[2].z - 1.4, 16); }
-    for (let i = 0; i < 5; i++) { const container = box(g, 3.1, 1.25, 1.25, i % 2 ? blue : edge, -1.8 + (i % 2) * 3.4, .75 + Math.floor(i / 4) * 1.25, -8 + Math.floor(i / 2) * 1.45); container.rotation.y = i % 2 ? .04 : -.03; }
-    for (let i = 0; i < 7; i++) cylinder(g, .08, .12, 1.3, steel, 8.7, .72, -8 + i * 2.35, 8);
-    line(g, V(8.7, 1.35, -8), V(8.7, 1.35, 6.1), .028, steel);
+    nodes.forEach((node, i) => this.fieldNode(g, node.x, node.z, i + 1, ochre));
+    this.supplyDepot(g, nodes[1]);
+    this.repairWorkshop(g, nodes[2]);
+    this.railYard(g, nodes[3]);
+    this.powerSubstation(g, nodes[4]);
+    for (let i = 0; i < 3; i++) { const container = box(g, 2.5, 1, 1, i % 2 ? blue : edge, -1.5 + i * 1.65, .58, -7.8); container.rotation.y = i % 2 ? .04 : -.03; }
     this.rig = cargo;
   }
   createScienceBase() {
@@ -368,18 +468,11 @@ export class ExpeditionWorld {
       cylinder(g, .12, .12, .35, [paint, blue, ochre][i], -5 + i * 1.9, 1.38, 2);
     }
     const nodes = REGION_NODES.grove.map(n => n.position.clone().sub(LOCATIONS.grove));
-    const entry = V(2.4, 0, 4.5);
-    nodes.forEach((node, i) => { track(g, entry, node, 1.35); this.fieldNode(g, node.x, node.z, i + 1, blue); });
-    box(g, 9.5, .14, 7.5, concrete, nodes[1].x + 1, .03, nodes[1].z - .5);
-    for (let i = 0; i < 3; i++) {
-      const x = nodes[1].x - 1.8 + i * 1.8; box(g, 1.45, .1, .8, concrete, x, 1.1, nodes[1].z - .8);
-      for (const dx of [-.55, .55]) cylinder(g, .04, .04, 1.05, steel, x + dx, .56, nodes[1].z - .8, 8);
-      cylinder(g, .13, .13, .4, [paint, blue, ochre][i], x, 1.35, nodes[1].z - .8, 12);
-    }
-    box(g, 10, .14, 8, concrete, nodes[2].x + 1.8, .03, nodes[2].z - 1.2);
-    this.building(g, nodes[2].x + 2.4, nodes[2].z - 1.3, 4.8, 3.4, 2.25, 'OUTPOST', blue);
-    const mast = cylinder(g, .07, .11, 4.8, steel, nodes[2].x - 1.4, 2.4, nodes[2].z - 1.2, 10); mast.castShadow = true;
-    const beacon = cylinder(g, .18, .18, .18, lamp, nodes[2].x - 1.4, 4.86, nodes[2].z - 1.2, 14); beacon.castShadow = false;
+    nodes.forEach((node, i) => this.fieldNode(g, node.x, node.z, i + 1, blue));
+    this.fieldTestRig(g, nodes[1]);
+    this.researchOutpost(g, nodes[2]);
+    this.weatherStation(g, nodes[3]);
+    this.waterAnalysis(g, nodes[4]);
     for (let i = 0; i < 4; i++) {
       const panel = box(g, 1.7, .08, 1.05, glass, -7 + (i % 2) * 2, 1.2, -6.2 + Math.floor(i / 2) * 1.5); panel.rotation.x = .38;
       cylinder(g, .05, .07, 1.1, steel, panel.position.x, .62, panel.position.z, 8);
@@ -425,7 +518,8 @@ export class ExpeditionWorld {
       this.tank.position.copy(loc).add(V(2.4, .02, 4.5)); this.tank.rotation.y = .3; this.currentArea = region;
     }
     const selected = this.selectedNodeKey.startsWith(`${region}:`) ? this.stationNode(region, Number(this.selectedNodeKey.split(':')[1]))?.position : null;
-    this.target.copy(view === 'region' ? V(0, 0, -13) : view === 'station' && selected ? selected : loc).add(V(0, 1, 0));
+    const regionCentre = region === 'harbour' ? V(-11, 0, -13) : region === 'grove' ? V(11, 0, -13) : V(0, 0, -13);
+    this.target.copy(view === 'region' ? regionCentre : view === 'station' && selected ? selected : loc).add(V(0, 1, 0));
     if (view === 'region') { this.radius = 60; this.elevation = 52; }
     else if (view === 'station') { this.radius = 23; this.elevation = 17; }
     else { this.radius = 18; this.elevation = 11; }
@@ -489,12 +583,12 @@ export class ExpeditionWorld {
       if (mobile) this.lookGoal.y -= 7;
       else this.lookGoal.add(V(3.4, 0, -2.8));
     }
-    if (strategic) this.lookGoal.add(mobile ? V(0, -56, 0) : V(8, 0, 0));
+    if (strategic) this.lookGoal.add(mobile ? V(0, -28, 0) : V(8, 0, 0));
     this.camera.position.lerp(this.cameraGoal, this.reduced ? 1 : 1 - Math.exp(-dt * 4));
     this.camera.lookAt(this.lookGoal); this.renderer.render(this.scene, this.camera);
     if (this.onFrame) {
       const source = this.view === 'region' || this.view === 'station'
-        ? (REGION_NODES[this.destination] || []).map((node: any) => [node.id, node.position])
+        ? [['hq', LOCATIONS.hq], ['atlas', this.tank.position], ...(REGION_NODES[this.destination] || []).map((node: any) => [node.id, node.position])]
         : Object.entries(LOCATIONS);
       this.onFrame(source.map(([id, loc]: any) => {
         const p = loc.clone().add(V(0, 3.5, -1)).project(this.camera);

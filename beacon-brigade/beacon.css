@@ -21,3 +21,26 @@
 @media(max-width:1000px){.field-location-pin.selected{min-width:135px;max-width:165px}.field-command{width:300px}}
 @media(max-width:650px){#game[data-view="region"] .scene-caption{max-width:250px}#game[data-view="region"] .field-command{max-height:39%;width:100%}#game[data-view="region"] .field-command .panel-head{padding:10px 15px 8px}#game[data-view="region"] .field-command .panel-body{padding:10px 15px}#game[data-view="region"] .field-command .panel-foot{display:none;padding:8px 15px}#game[data-view="region"] .field-command.complete .panel-foot{display:block}.field-location-pin{width:44px;min-width:44px;max-width:44px;min-height:44px;padding:6px;gap:6px}.field-location-pin.selected{width:128px;min-width:118px;max-width:128px;padding:6px 8px}.field-location-pin strong{font-size:10px}.field-location-pin small{font-size:8px}.field-pin-index{width:27px;height:27px;font-size:9px}.field-progress-copy{font-size:10px}.destination-skill{font-size:12px!important;margin:8px 0!important}.destination-actions{margin-top:10px}.destination-status .status{min-height:19px}.field-command .summary-resource{padding:10px 0}.travel-panel{bottom:0;max-width:none}.travel-readout{margin-bottom:9px}}
 @media(max-width:650px){#game[data-view="region"] #world-controls{display:none}}
+
+/* Quiet strategic overview: reveal mission detail only after a destination is selected. */
+#game[data-view="region"] .scene-caption{max-width:220px}
+#game[data-view="region"] .scene-caption p,#game[data-view="region"] .scene-caption .coordinate{display:none}
+#game[data-view="region"] .vehicle-id{display:none}
+.field-location-pin,.field-location-pin.selected{width:36px;min-width:36px;max-width:36px;min-height:36px;padding:3px;border-radius:50%;gap:0;transform:translate(-50%,-70%);background:#f5f7f1e8;box-shadow:0 4px 12px #15261f35}
+.field-location-pin:after{height:9px;background:#e5ce7ba8}
+.field-location-pin span.field-pin-index{display:grid;width:26px;height:26px;font-size:9px}
+.field-location-pin.selected{justify-content:center;border-color:#d5b33d;background:#fff4bd;box-shadow:0 0 0 3px #f0d47880,0 5px 14px #18271f45}
+.destination-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.destination-panel-head>.icon-btn{width:36px;height:36px;background:#edf2ec;flex:0 0 auto}
+.strategic-anchor{position:absolute;transform:translate(-50%,-80%);display:flex;align-items:center;gap:3px;color:#f8fbf5;background:#263d37e8;border:1px solid #f4f7ee88;padding:4px 6px;border-radius:3px;box-shadow:0 3px 9px #14231e44;font:800 8px/1 Consolas,monospace;pointer-events:none;z-index:2}
+.strategic-anchor svg{width:12px;height:12px}
+.strategic-anchor.atlas-anchor{transform:translate(calc(-50% + 18px),-135%);background:#5b644ee8;color:#fff1ad}
+
+@media(max-width:650px){
+  #game[data-view="region"] .scene-caption{display:none}
+  #game[data-view="region"] .field-command{max-height:36%;width:100%}
+  .field-location-pin,.field-location-pin.selected{width:32px;min-width:32px;max-width:32px;min-height:32px;padding:2px}
+  .field-location-pin span.field-pin-index{width:24px;height:24px;font-size:8px}
+  .strategic-anchor{padding:3px 4px;font-size:7px}
+  .strategic-anchor svg{width:10px;height:10px}
+}

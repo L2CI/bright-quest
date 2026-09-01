@@ -1,6 +1,6 @@
 import { createIcons, Shield, House, Map, BookOpen, Settings, ArrowLeft, ArrowRight, Plus, Minus, RotateCcw, Volume2, VolumeX, Pause, Play, FlaskConical, Package, Check, X, ChevronRight, Radio, Flag, Wrench, HardHat, RefreshCw, HelpCircle, Eye, Navigation, MapPin } from 'lucide';
 import { ExpeditionWorld } from './world';
-import { REGIONS } from '../content.js';
+import { REGIONS, STATION_REWARD, STATIONS_PER_EXPEDITION } from '../content.js';
 import { createState, applyAction, publicState } from '../../functions/_lib/beacon-brigade.js';
 
 const icons = { Shield, House, Map, BookOpen, Settings, ArrowLeft, ArrowRight, Plus, Minus, RotateCcw, Volume2, VolumeX, Pause, Play, FlaskConical, Package, Check, X, ChevronRight, Radio, Flag, Wrench, HardHat, RefreshCw, HelpCircle, Eye, Navigation, MapPin };
@@ -150,17 +150,19 @@ function mapScreen() {
 }
 function regionInfoScreen() {
   const r = region();
-  return caption('Destination selected', escape(r.name)) + `<aside class="panel"><div class="panel-head"><div class="eyebrow">${r.subject === 'maths' ? 'Logistics and engineering' : 'Materials and field science'}</div><h2>${escape(r.name)}</h2></div><div class="panel-body"><p>${r.id === 'harbour' ? 'Take Atlas to the docks. Complete supply contracts to recover parts for your headquarters.' : 'Deploy Atlas to the field station. Investigate evidence to earn research cores for your headquarters.'}</p><div class="summary-resource"><span>${ico(r.subject === 'maths' ? 'package' : 'flask-conical')}${r.resource === 'parts' ? 'Building parts' : 'Research cores'}</span><strong>+12</strong></div><p class="subtle">3 stations / untimed questions</p>${button('deploy', 'Deploy Atlas', 'arrow-right', 'primary full', busy)}${button('map', 'Back to world map', 'arrow-left', 'quiet full')}</div></aside>`;
+  return caption('Destination selected', escape(r.name)) + `<aside class="panel"><div class="panel-head"><div class="eyebrow">${r.subject === 'maths' ? 'Logistics and engineering' : 'Materials and field science'}</div><h2>${escape(r.name)}</h2></div><div class="panel-body"><p>${r.id === 'harbour' ? 'Take Atlas to the docks. Complete supply contracts to recover parts for your headquarters.' : 'Deploy Atlas to the field station. Investigate evidence to earn research cores for your headquarters.'}</p><div class="summary-resource"><span>${ico(r.subject === 'maths' ? 'package' : 'flask-conical')}${r.resource === 'parts' ? 'Building parts' : 'Research cores'}</span><strong>+${STATIONS_PER_EXPEDITION * STATION_REWARD}</strong></div><p class="subtle">${STATIONS_PER_EXPEDITION} destinations / untimed questions</p>${button('deploy', 'Deploy Atlas', 'arrow-right', 'primary full', busy)}${button('map', 'Back to world map', 'arrow-left', 'quiet full')}</div></aside>`;
 }
 function regionScreen() {
   const e = state.activeExpedition;
   if (!e) { view = 'map'; return mapScreen(); }
   regionId = e.regionId;
   const resolved = e.stations.filter((s: any) => s.resolved).length;
+  const total = e.stations.length;
+  const complete = resolved === total;
   const target = targetStation();
-  const body = target ? `<div class="destination-status"><span class="status ${target.resolved ? '' : 'pending'}">${target.resolved ? 'Resolved' : 'Unresolved'}</span><span class="node-code">SITE 0${stationIndex(target.id) + 1}</span></div><p class="destination-skill">${escape(target.question.skill)}</p><div class="summary-resource"><span>${ico(e.resource === 'parts' ? 'package' : 'flask-conical')}${e.resource === 'parts' ? 'Building parts' : 'Research cores'}</span><strong>+4</strong></div><div class="destination-actions">${button('explore-station', 'Explore', 'eye', '', false, `data-station="${escape(target.id)}"`)}${button('march-station', target.resolved ? 'Revisit' : 'March', 'navigation', 'primary', busy, `data-station="${escape(target.id)}"`)}</div>`
-    : `<div class="field-overview"><div class="field-progress"><span style="width:${resolved / 3 * 100}%"></span></div><div class="field-progress-copy"><strong>${resolved} of 3 sites resolved</strong><span>+${resolved * 4} ${e.resource === 'parts' ? 'parts' : 'cores'} secured</span></div></div>`;
-  return caption('Aerial expedition view', escape(region().name), 'Choose a field destination and dispatch Atlas.') + `<aside class="panel field-command ${resolved === 3 ? 'complete' : ''}"><div class="panel-head"><div class="eyebrow">${target ? 'Destination selected' : 'Field operations'}</div><h2>${target ? escape(target.name) : resolved === 3 ? 'All sites complete' : 'Choose a work site'}</h2><div class="mission-count">${resolved} of 3 resolved / +${resolved * 4} ${e.resource === 'parts' ? 'parts' : 'cores'}</div></div><div class="panel-body">${body}</div><div class="panel-foot">${resolved === 3 ? button('finish', 'Complete expedition', 'check', 'primary full', busy) : button('return-hq', 'Return to HQ', 'house', 'full', busy)}</div></aside>` + tankPlate();
+  const selectedPanel = target ? `<aside class="panel field-command selected"><div class="panel-head destination-panel-head"><div><div class="eyebrow">Destination selected</div><h2>${escape(target.name)}</h2><div class="mission-count">${resolved} of ${total} resolved</div></div>${iconButton('clear-station', 'Close destination', 'x')}</div><div class="panel-body"><div class="destination-status"><span class="status ${target.resolved ? '' : 'pending'}">${target.resolved ? 'Resolved' : 'Ready'}</span><span class="node-code">SITE ${String(stationIndex(target.id) + 1).padStart(2, '0')}</span></div><p class="destination-skill">${escape(target.question.skill)}</p><div class="summary-resource"><span>${ico(e.resource === 'parts' ? 'package' : 'flask-conical')}${e.resource === 'parts' ? 'Building parts' : 'Research cores'}</span><strong>+${STATION_REWARD}</strong></div><div class="destination-actions">${button('explore-station', 'Explore', 'eye', '', false, `data-station="${escape(target.id)}"`)}${button('march-station', target.resolved ? 'Revisit' : 'March', 'navigation', 'primary', busy, `data-station="${escape(target.id)}"`)}</div></div></aside>` : '';
+  const completePanel = !target && complete ? `<aside class="panel field-command complete"><div class="panel-head"><div class="eyebrow">Expedition ready</div><h2>All ${total} sites complete</h2><div class="mission-count">+${resolved * STATION_REWARD} ${e.resource === 'parts' ? 'parts' : 'cores'} secured</div></div><div class="panel-foot">${button('finish', 'Complete expedition', 'check', 'primary full', busy)}</div></aside>` : '';
+  return caption('Aerial expedition view', escape(region().name), `${resolved} of ${total} missions complete`) + selectedPanel + completePanel + tankPlate();
 }
 function diagram(d: any, interactive = false) {
   if (!d) return '';
@@ -193,7 +195,7 @@ function resultsScreen() {
 function answerText(q: any, value: any) { return q.options?.find((o: any) => o.id === value)?.label ?? value ?? 'No answer'; }
 function journalScreen() {
   const expeditions = [...state.history].reverse();
-  return caption('Expedition record', 'Field journal') + `<section class="panel journal"><div class="panel-head"><div class="eyebrow">Your learning and expeditions</div><h2>Field journal</h2></div><div class="panel-body">${state.activeExpedition ? `<div class="history-item"><span class="status pending">In progress</span><h3 style="margin-top:8px">${escape(REGIONS.find((r: any) => r.id === state.activeExpedition.regionId)?.name)}</h3><div class="actions">${button('resume', 'Resume', 'play', 'primary')}${button('end-expedition', 'End expedition', 'flag')}</div></div>` : ''}${!expeditions.length ? '<p class="empty">Your completed expeditions will appear here.</p>' : expeditions.map(e => `<article class="history-item"><span class="status ${e.status === 'ended' ? 'plain' : ''}">${e.status === 'ended' ? 'Ended early' : 'Completed'}</span><h3 style="margin-top:8px">${escape(REGIONS.find((r: any) => r.id === e.regionId)?.name)}</h3><p class="subtle">${e.stations.filter((s: any) => s.resolved).length} of 3 stations / +${e.earned.parts} parts / +${e.earned.cores} cores</p><div class="actions">${button('review', 'Review answers', 'book-open', '', false, `data-review="${escape(e.id)}"`)}</div></article>`).join('')}</div></section>`;
+  return caption('Expedition record', 'Field journal') + `<section class="panel journal"><div class="panel-head"><div class="eyebrow">Your learning and expeditions</div><h2>Field journal</h2></div><div class="panel-body">${state.activeExpedition ? `<div class="history-item"><span class="status pending">In progress</span><h3 style="margin-top:8px">${escape(REGIONS.find((r: any) => r.id === state.activeExpedition.regionId)?.name)}</h3><div class="actions">${button('resume', 'Resume', 'play', 'primary')}${button('end-expedition', 'End expedition', 'flag')}</div></div>` : ''}${!expeditions.length ? '<p class="empty">Your completed expeditions will appear here.</p>' : expeditions.map(e => `<article class="history-item"><span class="status ${e.status === 'ended' ? 'plain' : ''}">${e.status === 'ended' ? 'Ended early' : 'Completed'}</span><h3 style="margin-top:8px">${escape(REGIONS.find((r: any) => r.id === e.regionId)?.name)}</h3><p class="subtle">${e.stations.filter((s: any) => s.resolved).length} of ${e.stations.length} stations / +${e.earned.parts} parts / +${e.earned.cores} cores</p><div class="actions">${button('review', 'Review answers', 'book-open', '', false, `data-review="${escape(e.id)}"`)}</div></article>`).join('')}</div></section>`;
 }
 function reviewScreen() {
   const e = state.history.find((e: any) => e.id === reviewId); if (!e) return journalScreen();
@@ -207,7 +209,7 @@ function render() {
   if (view === 'travel') $('interface').innerHTML = `<section class="travel-panel ${paused ? 'paused' : ''}"><div class="eyebrow">Atlas M-07 / ${world.travel?.kind === 'station' ? 'Field march' : 'Convoy in transit'}</div><h2>${world.travel?.label ? `En route to ${escape(world.travel.label)}` : 'Route in progress'}</h2><div class="travel-progress"><span></span></div><div class="travel-readout"><span>ROUTE ACTIVE</span><strong>${Math.max(0, Math.ceil((world.travel?.duration || 0) - (world.travel?.elapsed || 0)))}s</strong></div><div class="actions">${button('pause-travel', paused ? 'Continue journey' : 'Pause journey', paused ? 'play' : 'pause')}${button('cancel-travel', world.travel?.kind === 'station' ? 'Cancel march' : 'Stop journey', 'flag')}</div></section>`;
   else $('interface').innerHTML = (screens[view] || hqScreen)();
   if (['map', 'region-info'].includes(view)) $('location-pins').innerHTML = [['hq', 'Headquarters', 'Home base', 'house'], ...REGIONS.map((r: any) => [r.id, r.name, r.subject === 'maths' ? 'Parts / Maths' : 'Cores / Science', r.subject === 'maths' ? 'package' : 'flask-conical'])].map(([id, name, sub, icon]) => `<button class="location-pin" type="button" data-pin="${id}" data-action="${id === 'hq' ? 'hq' : 'destination'}" data-region="${id}">${ico(icon)}<span><strong>${name}</strong><small>${sub}</small></span></button>`).join('');
-  else if (view === 'region' && state.activeExpedition) $('location-pins').innerHTML = state.activeExpedition.stations.map((s: any, i: number) => `<button class="field-location-pin ${s.id === targetStationId ? 'selected' : ''} ${s.resolved ? 'resolved' : ''}" type="button" data-pin="station-${i}" data-action="select-station" data-station="${escape(s.id)}" aria-pressed="${s.id === targetStationId}"><span class="field-pin-index">${s.resolved ? ico('check') : `0${i + 1}`}</span><span><strong>${escape(s.name)}</strong><small>${s.resolved ? 'Resolved' : 'Available'}</small></span></button>`).join('');
+  else if (view === 'region' && state.activeExpedition) $('location-pins').innerHTML = `<span class="strategic-anchor hq-anchor" data-pin="hq" aria-label="Headquarters">${ico('house')}<b>HQ</b></span><span class="strategic-anchor atlas-anchor" data-pin="atlas" aria-label="Atlas expedition vehicle">${ico('navigation')}<b>ATLAS</b></span>` + state.activeExpedition.stations.map((s: any, i: number) => `<button class="field-location-pin ${s.id === targetStationId ? 'selected' : ''} ${s.resolved ? 'resolved' : ''}" type="button" data-pin="station-${i}" data-action="select-station" data-station="${escape(s.id)}" aria-label="${escape(s.name)}, ${s.resolved ? 'resolved' : 'available'}" aria-pressed="${s.id === targetStationId}"><span class="field-pin-index">${s.resolved ? ico('check') : i + 1}</span></button>`).join('');
   else $('location-pins').innerHTML = '';
   if (pending) $('interface').insertAdjacentHTML('beforeend', `<div style="position:absolute;top:0;left:50%;transform:translateX(-50%);pointer-events:auto">${button('retry-save', 'Reconnect pending save', 'refresh-cw', 'gold', busy)}</div>`);
   syncWorld(); decorate();
@@ -282,13 +284,17 @@ $('game').addEventListener('click', async e => {
   if (action === 'cancel-travel') { const stationMarch = world.travel?.kind === 'station'; world.travel = null; world.onTravelEnd = null; world.clearRoute(); world.dustPuffs.forEach((p: any) => { p.visible = false; }); paused = false; world.paused = false; navigate(stationMarch ? 'region' : 'hq'); return; }
   if (busy || view === 'travel') return;
   if (action === 'hq' || action === 'return-hq') { if (['region', 'station', 'results'].includes(view)) return travelTo('hq', 'hq'); navigate('hq'); return; }
-  if (['map', 'construction', 'journal', 'region'].includes(action!)) { if (action !== 'region') targetStationId = ''; navigate(action!); return; }
+  if (['map', 'construction', 'journal', 'region'].includes(action!)) {
+    if (action !== 'region' || state.activeExpedition?.stations.every((station: any) => station.resolved)) targetStationId = '';
+    navigate(action!); return;
+  }
   if (action === 'destination') { targetStationId = ''; regionId = b.dataset.region!; navigate('region-info'); return; }
   if (action === 'deploy') return deploy();
   if (action === 'resume') return resume();
   if (action === 'resume-dialog') { closeDialog(); return resume(); }
   if (action === 'journal-dialog') { closeDialog(); navigate('journal'); return; }
   if (action === 'select-station') { targetStationId = b.dataset.station!; render(); return; }
+  if (action === 'clear-station') { targetStationId = ''; render(); return; }
   if (action === 'explore-station') return exploreStation(b.dataset.station!);
   if (action === 'march-station') return marchToStation(b.dataset.station!);
   if (action === 'march-dialog') { const id = b.dataset.station!; closeDialog(); return marchToStation(id); }
@@ -316,12 +322,14 @@ async function boot() {
     world = new ExpeditionWorld($('scene') as HTMLCanvasElement); world.createBase(state.hqLevel); world.reduced = prefs.reduced;
     world.onFrame = pins => {
       const captionBottom = document.querySelector('.scene-caption')?.getBoundingClientRect().bottom || 0;
+      const topbarBottom = document.querySelector('#topbar')?.getBoundingClientRect().bottom || 0;
       const panelRect = document.querySelector('.field-command')?.getBoundingClientRect();
-      const panelTop = innerWidth <= 650 ? panelRect?.top || innerHeight : innerHeight;
+      const navigationTop = document.querySelector('#navigation')?.getBoundingClientRect().top || innerHeight;
+      const panelTop = innerWidth <= 650 ? panelRect?.top || navigationTop : navigationTop;
       for (const p of pins) {
         const el = document.querySelector(`[data-pin="${p.id}"]`) as HTMLElement;
         if (el) {
-          const margin = el.offsetWidth / 2 + 12; const minimumTop = captionBottom + el.offsetHeight + 14; const maximumTop = panelTop - 22;
+          const margin = el.offsetWidth / 2 + 12; const minimumTop = Math.max(captionBottom, topbarBottom) + el.offsetHeight + 10; const maximumTop = panelTop - 22;
           const visibleRight = innerWidth > 650 && panelRect ? panelRect.left - 12 : innerWidth;
           el.style.left = `${Math.max(margin, Math.min(visibleRight - margin, p.x))}px`;
           el.style.top = `${Math.max(minimumTop, Math.min(maximumTop, p.y))}px`;

@@ -47,7 +47,8 @@ try {
     for (const region of ['harbour', 'grove']) {
       await act('map'); await page.locator(`#interface [data-region="${region}"]`).click(); await act('deploy');
       await page.waitForFunction(() => window.__BEACON_QA__.view === 'region');
-      check(`${region} deployment exposes three physical destinations`, await page.locator('[data-action="select-station"]').count() === 3);
+      check(`${region} deployment exposes five physical destinations`, await page.locator('[data-action="select-station"]').count() === 5);
+      check(`${region} quiet overview hides destination controls`, await page.locator('.field-command').count() === 0);
       const stations = await page.evaluate(() => window.__BEACON_QA__.state.activeExpedition.stations.map(s => s.id));
       for (let i = 0; i < stations.length; i++) {
         await page.locator(`[data-action="select-station"][data-station="${stations[i]}"]`).click();
@@ -60,7 +61,7 @@ try {
             const controls = document.querySelector('#world-controls')?.getBoundingClientRect();
             const pins = [...document.querySelectorAll('.field-location-pin:not([hidden])')].map(el => el.getBoundingClientRect());
             const separate = (a, b) => !a || !b || a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom;
-            return pins.length === 3 && pins.every(r => r.left >= 0 && r.right <= innerWidth && r.top >= 0 && (!panel || r.bottom < panel.top) && separate(r, controls));
+            return pins.length === 5 && pins.every(r => r.left >= 0 && r.right <= innerWidth && r.top >= 0 && (!panel || r.bottom < panel.top) && separate(r, controls));
           }));
           await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(250);
           const version = await page.evaluate(() => window.__BEACON_QA__.state.version);
@@ -96,9 +97,9 @@ try {
       await act('review'); check('Review retains first missed answer', await page.locator('.review-station').first().innerText().then(t => /first answer missed/i.test(t)));
       await act('journal'); await act('hq');
     }
-    check('Both resources total 12', await page.evaluate(() => { const w = window.__BEACON_QA__.state.wallet; return w.parts === 12 && w.cores === 12; }));
-    await act('construction'); await act('confirm-build'); await act('close-dialog'); check('Cancelling build keeps resources', await page.evaluate(() => window.__BEACON_QA__.state.wallet.parts === 12));
-    await act('confirm-build'); await act('build-now'); check('HQ upgrade funded once', await page.evaluate(() => window.__BEACON_QA__.state.hqLevel === 2 && window.__BEACON_QA__.state.wallet.parts === 0));
+    check('Both resources total 20', await page.evaluate(() => { const w = window.__BEACON_QA__.state.wallet; return w.parts === 20 && w.cores === 20; }));
+    await act('construction'); await act('confirm-build'); await act('close-dialog'); check('Cancelling build keeps resources', await page.evaluate(() => window.__BEACON_QA__.state.wallet.parts === 20));
+    await act('confirm-build'); await act('build-now'); check('HQ upgrade funded once', await page.evaluate(() => window.__BEACON_QA__.state.hqLevel === 2 && window.__BEACON_QA__.state.wallet.parts === 8));
     await page.reload({ waitUntil: 'networkidle' }); await page.waitForFunction(() => !!window.__BEACON_QA__);
     check('HQ reload keeps upgrade and history', await page.evaluate(() => window.__BEACON_QA__.state.hqLevel === 2 && window.__BEACON_QA__.state.history.length === 2));
     await shot('hq-level2-desktop');

@@ -277,7 +277,7 @@ try {
   await check("Worked guidance, partial and unattempted labels", async () => {
     const text = await popup.innerText();
     assert.match(text, /Completed with worked guidance/);
-    assert.match(text, /Ended early - partial \| 2 of 3 stations resolved/);
+    assert.match(text, /Ended early - partial \| 2 of 5 stations resolved/);
     assert.match(text, /Not attempted - no station reward/);
     assert.match(text, /One expedition is in progress/);
   });
@@ -285,7 +285,7 @@ try {
     const first = popup.locator(".bq-beacon-expedition").first();
     assert.equal(await first.locator("h4").innerText(), "Supply Harbour");
     assert.match(await first.innerText(), /Ended early - partial/);
-    assert.match(await popup.locator(".bq-beacon-summary").nth(1).innerText(), /4 of 6/);
+    assert.match(await popup.locator(".bq-beacon-summary").nth(1).innerText(), /6 of 8/);
   });
   await check("Correct-first-try answers start collapsed and expand", async () => {
     assert.equal(await popup.locator(".bq-chem-review-correct[open]").count(), 0);
@@ -341,7 +341,7 @@ try {
     networkMode = "success";
     await popup.getByRole("button", { name: "Try again" }).click();
     await ready();
-    assert(await popup.getByText("Ended early - partial | 2 of 3 stations resolved", { exact: true }).isVisible());
+    assert(await popup.getByText("Ended early - partial | 2 of 5 stations resolved", { exact: true }).isVisible());
     await close.click();
   });
   await check("A closed popup rejects a delayed response", async () => {

@@ -30,11 +30,23 @@ try {
   await tap('map'); await page.locator('#interface [data-region="harbour"]').tap(); await tap('deploy');
   check('Deployment uses aerial travel', await page.evaluate(() => window.__BEACON_QA__.view === 'travel' && window.__BEACON_QA__.world.radius === 42 && window.__BEACON_QA__.world.elevation === 34));
   await page.waitForFunction(() => window.__BEACON_QA__.view === 'region');
-  await page.waitForFunction(() => document.querySelectorAll('[data-action="select-station"]:not([hidden])').length === 3);
-  check('Three touch destinations appear', await page.locator('[data-action="select-station"]:visible').count() === 3);
+  await page.waitForFunction(() => document.querySelectorAll('[data-action="select-station"]:not([hidden])').length === 5);
+  check('Five touch destinations appear', await page.locator('[data-action="select-station"]:visible').count() === 5);
+  check('Overview starts without a command popup', await page.locator('.field-command').count() === 0);
+  check('HQ and Atlas stay marked on mobile', await page.locator('.hq-anchor:visible').count() === 1 && await page.locator('.atlas-anchor:visible').count() === 1);
+  const markerLayout = await page.evaluate(() => {
+    const markers = [...document.querySelectorAll('.field-location-pin:not([hidden]),.strategic-anchor:not([hidden])')].map(el => ({ id: el.getAttribute('data-pin'), rect: el.getBoundingClientRect().toJSON() }));
+    const overlap = (a, b) => Math.min(a.right, b.right) - Math.max(a.left, b.left) > 3 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 3;
+    return { markers, overlaps: markers.flatMap((marker, index) => markers.slice(index + 1).filter(other => overlap(marker.rect, other.rect)).map(other => `${marker.id}/${other.id}`)) };
+  });
+  check('Overview markers do not overlap', markerLayout.overlaps.length === 0, markerLayout.overlaps.join(', '));
+  await shot('mobile-quiet-overview');
 
   const first = page.locator('[data-action="select-station"]:visible').first(); await first.tap();
   check('Touch selection exposes both actions', await page.locator('[data-action="explore-station"]').isVisible() && await page.locator('[data-action="march-station"]').isVisible());
+  await tap('clear-station');
+  check('Closing a destination restores the quiet map', await page.locator('.field-command').count() === 0);
+  await first.tap();
   await tap('explore-station'); check('Explore is a non-blocking reconnaissance popup', await page.locator('dialog').isVisible()); await tap('close-dialog');
   await tap('march-station');
   check('Challenge is absent before arrival', await page.locator('#answer-form').count() === 0);

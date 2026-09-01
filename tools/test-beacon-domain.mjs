@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { HQ_UPGRADES, QUESTION_TEMPLATES, REGIONS, createQuestion } from "../beacon-brigade/content.js";
+import { HQ_UPGRADES, QUESTION_TEMPLATES, REGIONS, STATION_REWARD, STATIONS_PER_EXPEDITION, createQuestion } from "../beacon-brigade/content.js";
 import { MAX_EXPEDITIONS, MAX_WRONG_ATTEMPTS, applyAction, createState, publicState } from "../functions/_lib/beacon-brigade.js";
 
 const expectedAnswers = {
@@ -96,9 +96,9 @@ test("reducer is deterministic and immutable; questions rotate through all 12 in
   for (const region of REGIONS) {
     let state = initial;
     const seen = new Set();
-    for (let run = 0; run < 4; run += 1) {
+    for (let run = 0; run < 5; run += 1) {
       state = start(region.id, state);
-      assert.equal(state.activeExpedition.stations.length, 3);
+      assert.equal(state.activeExpedition.stations.length, 5);
       for (const station of state.activeExpedition.stations) {
         seen.add(station.question.id);
         assert.ok(station.id.startsWith("child-a:"));
@@ -151,7 +151,7 @@ test("worked support requires wrong -> hint -> wrong -> hint -> correct, never a
   assert.equal(state.wallet.cores, 4);
 });
 
-test("full gameplay funds exact HQ2 and optional HQ3, never overspends", () => {
+test("five-site gameplay funds HQ upgrades without overspending", () => {
   let state = createState();
   fails(state, { type: "upgrade" }, "INSUFFICIENT_RESOURCES");
   state = complete(state, "harbour");
@@ -159,14 +159,14 @@ test("full gameplay funds exact HQ2 and optional HQ3, never overspends", () => {
   state = complete(state, "grove");
   state = applyAction(state, { type: "upgrade" });
   assert.equal(state.hqLevel, 2);
-  assert.deepEqual(state.wallet, { parts: 0, cores: 0 });
+  assert.deepEqual(state.wallet, { parts: 8, cores: 8 });
   fails(state, { type: "upgrade" }, "INSUFFICIENT_RESOURCES");
   for (let i = 0; i < 2; i += 1) for (const region of REGIONS) state = complete(state, region.id);
   state = applyAction(state, { type: "upgrade" });
   assert.equal(state.hqLevel, 3);
   assert.equal(state.history.length, 6);
   assert.equal(state.upgrades.length, 2);
-  assert.deepEqual(state.wallet, { parts: 0, cores: 0 });
+  assert.deepEqual(state.wallet, { parts: 24, cores: 24 });
   fails(state, { type: "upgrade" }, "MAX_HQ_LEVEL");
 });
 
@@ -222,8 +222,9 @@ test("100-expedition retention limit never silently discards history and leaves 
   for (let i = 0; i < MAX_EXPEDITIONS; i += 1) state = complete(state, i % 2 ? "grove" : "harbour");
   assert.equal(state.history.length, MAX_EXPEDITIONS);
   assert.equal(state.history[0].id, "local-preview:exp-1-harbour");
-  assert.equal(state.wallet.parts, 600);
-  assert.equal(state.wallet.cores, 600);
+  const expectedPerResource = MAX_EXPEDITIONS / 2 * STATIONS_PER_EXPEDITION * STATION_REWARD;
+  assert.equal(state.wallet.parts, expectedPerResource);
+  assert.equal(state.wallet.cores, expectedPerResource);
   fails(state, { type: "start", regionId: "harbour" }, "HISTORY_FULL");
   assert.equal(publicState(state).limits.expeditionsRemaining, 0);
   assert.ok(Buffer.byteLength(JSON.stringify(state)) < 1800000);

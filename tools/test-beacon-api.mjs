@@ -207,7 +207,11 @@ test("different operations at same version have only one winner, no orphan recei
 });
 
 test("finish/end preserve earned cargo and learning history; duplicate finish cannot archive twice", async () => {
-  const before = await rawState();
+  let before = await rawState();
+  for (const station of before.activeExpedition.stations.filter((station) => !station.resolved)) {
+    assert.equal((await command({ type: "answer", stationId: station.id, answer: station.question.answer })).status, 200);
+  }
+  before = await rawState();
   const body = { operationId: "finish-once", version: before.version, action: { type: "finish" } };
   assert.equal((await post(body)).status, 200);
   const replay = await post(body);
@@ -215,14 +219,14 @@ test("finish/end preserve earned cargo and learning history; duplicate finish ca
   assert.equal(replay.body.state.history.length, 1);
   assert.equal(replay.body.state.history[0].status, "completed");
   assert.equal(replay.body.state.activeExpedition, null);
-  assert.equal(replay.body.state.wallet.parts, 12);
+  assert.equal(replay.body.state.wallet.parts, 20);
   assert.equal(replay.body.state.history[0].stations[0].attempts[0].correct, false);
   await complete("grove");
 });
 
 test("concurrent upgrades debit once, replay never upgrades again, insufficient upgrade stays unchanged", async () => {
   const before = await rawState();
-  assert.deepEqual(before.wallet, { parts: 12, cores: 12 });
+  assert.deepEqual(before.wallet, { parts: 20, cores: 20 });
   const requests = ["upgrade-one", "upgrade-two"].map((operationId) => ({ operationId, version: before.version, action: { type: "upgrade" } }));
   const raceEnv = { ...env, DB: synchronisedDB(2) };
   const results = await Promise.all(requests.map((body) => post(body, { env: raceEnv })));
@@ -230,7 +234,7 @@ test("concurrent upgrades debit once, replay never upgrades again, insufficient 
   const winner = requests[results.findIndex((result) => result.status === 200)];
   const after = await rawState();
   assert.equal(after.hqLevel, 2);
-  assert.deepEqual(after.wallet, { parts: 0, cores: 0 });
+  assert.deepEqual(after.wallet, { parts: 8, cores: 8 });
   assert.equal(after.upgrades.length, 1);
   assert.equal((await post(winner)).body.state.hqLevel, 2);
   assert.equal((await command({ type: "upgrade" })).body.code, "INSUFFICIENT_RESOURCES");

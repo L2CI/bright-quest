@@ -1,5 +1,5 @@
-export const CONTENT_VERSION = 1;
-export const STATIONS_PER_EXPEDITION = 3;
+export const CONTENT_VERSION = 2;
+export const STATIONS_PER_EXPEDITION = 5;
 export const STATION_REWARD = 4;
 export const HQ_UPGRADES = deepFreeze({
   2: { parts: 12, cores: 12 },
@@ -9,10 +9,10 @@ export const HQ_UPGRADES = deepFreeze({
 export const REGIONS = deepFreeze([
   { id: "harbour", name: "Supply Harbour", subject: "maths", resource: "parts", minHqLevel: 1,
     description: "Supply and repair the travelling tank base.",
-    stationNames: ["Cargo Crane", "Supply Depot", "Repair Workshop"] },
+    stationNames: ["Cargo Crane", "Supply Depot", "Repair Workshop", "Rail Loading Yard", "Power Substation"] },
   { id: "grove", name: "Discovery Grove", subject: "science", resource: "cores", minHqLevel: 1,
     description: "Investigate materials and forces for the travelling base.",
-    stationNames: ["Materials Lab", "Field Test Rig", "Research Outpost"] }
+    stationNames: ["Materials Lab", "Field Test Rig", "Research Outpost", "Weather Station", "Water Analysis Unit"] }
 ]);
 
 const review = {
