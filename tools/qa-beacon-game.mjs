@@ -30,6 +30,7 @@ try {
   await page.goto(`${base}/beacon-brigade/${authenticated ? '' : '?preview=1'}`, { waitUntil: 'networkidle' });
   await page.waitForFunction(() => !!window.__BEACON_QA__); await page.waitForTimeout(1800);
   check(authenticated ? 'Authenticated game boots' : 'Preview boots', await page.locator('#game').getAttribute('data-view') === 'hq');
+  check('HQ view is unobstructed until an action is chosen', await page.locator('#interface .panel').count() === 0 && await page.locator('.hq-quick-actions').isVisible());
   const startFrame = await page.evaluate(() => window.__BEACON_QA__.frame); await page.waitForTimeout(300);
   check('3D render advances', await page.evaluate(f => window.__BEACON_QA__.frame > f, startFrame));
   const image = await shot('01-hq-desktop');

@@ -138,11 +138,12 @@ function requirements() {
   return `<div class="requirements">${[['parts', 'Building parts', 'package', 'harbour'], ['cores', 'Research cores', 'flask-conical', 'grove']].map(([key, label, icon, region]) => `<div class="requirement ${state.wallet[key] >= cost[key] ? 'ready' : ''}"><span>${ico(icon)}${label}</span><strong>${state.wallet[key]} <small>/ ${cost[key]}</small></strong>${state.wallet[key] < cost[key] ? `<button data-action="destination" data-region="${region}">Find ${cost[key] - state.wallet[key]} more</button>` : '<small>Ready to build</small>'}</div>`).join('')}</div>`;
 }
 function hqScreen() {
-  const next = state.nextUpgrade; const ready = next && state.wallet.parts >= next.cost.parts && state.wallet.cores >= next.cost.cores;
+  const next = state.nextUpgrade;
+  const primary = state.activeExpedition
+    ? button('resume', 'Resume expedition', 'play', 'primary hq-primary', busy)
+    : button('map', 'Choose expedition', 'map', 'primary hq-primary', busy);
   return caption('Your home base', ['','Forward operating base','Expedition headquarters','Beacon command centre'][state.hqLevel], 'Build the base. Equip the expedition.') +
-    `<aside class="panel"><div class="panel-head"><div class="rank">${ico('flag')}HQ LEVEL ${state.hqLevel}</div><h2>${next ? (next.level === 2 ? 'Establish headquarters' : 'Raise the command centre') : 'Command centre operational'}</h2></div><div class="panel-body"><p>${next ? 'Recover building parts and research cores from the surrounding bases.' : 'Your headquarters is fully equipped. Continue expeditions and put your knowledge to work.'}</p>${requirements()}
-    ${next ? button('construction', ready ? 'Build headquarters' : 'View construction', 'hard-hat', ready ? 'primary full' : 'full', busy) : ''}
-    ${state.activeExpedition ? `<div style="margin-top:12px">${button('resume', 'Resume expedition', 'play', 'primary full', busy)}</div>` : `<div style="margin-top:12px">${button('map', 'Choose an expedition', 'map', 'primary full', busy)}</div>`}</div><div class="panel-foot"><span class="subtle">${state.history.filter((e: any) => e.status === 'completed').length} expeditions completed</span></div></aside>` + tankPlate();
+    `<div class="hq-quick-actions" aria-label="Headquarters actions">${next ? iconButton('construction', 'View construction', 'hard-hat') : ''}${primary}</div>` + tankPlate();
 }
 function mapScreen() {
   return caption('Expedition theatre', 'Choose your destination', 'Two bases. One growing headquarters.') +

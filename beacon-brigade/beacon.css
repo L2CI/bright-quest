@@ -22,6 +22,16 @@
 @media(max-width:650px){#game[data-view="region"] .scene-caption{max-width:250px}#game[data-view="region"] .field-command{max-height:39%;width:100%}#game[data-view="region"] .field-command .panel-head{padding:10px 15px 8px}#game[data-view="region"] .field-command .panel-body{padding:10px 15px}#game[data-view="region"] .field-command .panel-foot{display:none;padding:8px 15px}#game[data-view="region"] .field-command.complete .panel-foot{display:block}.field-location-pin{width:44px;min-width:44px;max-width:44px;min-height:44px;padding:6px;gap:6px}.field-location-pin.selected{width:128px;min-width:118px;max-width:128px;padding:6px 8px}.field-location-pin strong{font-size:10px}.field-location-pin small{font-size:8px}.field-pin-index{width:27px;height:27px;font-size:9px}.field-progress-copy{font-size:10px}.destination-skill{font-size:12px!important;margin:8px 0!important}.destination-actions{margin-top:10px}.destination-status .status{min-height:19px}.field-command .summary-resource{padding:10px 0}.travel-panel{bottom:0;max-width:none}.travel-readout{margin-bottom:9px}}
 @media(max-width:650px){#game[data-view="region"] #world-controls{display:none}}
 
+/* Keep the HQ scene unobstructed; detailed progress appears only after an explicit action. */
+.hq-quick-actions{position:absolute;top:0;right:0;display:flex;align-items:center;gap:8px;pointer-events:auto}
+.hq-quick-actions>.icon-btn{width:46px;height:46px;background:#f7faf5e8;border-color:#d6e0d6;box-shadow:0 4px 14px #18322a24}
+.hq-quick-actions .hq-primary{min-width:188px;box-shadow:0 4px 14px #18322a24,inset 0 -3px #0002}
+
+@media(max-width:650px){
+  .hq-quick-actions{top:auto;right:0;bottom:0;left:0;justify-content:flex-end}
+  .hq-quick-actions .hq-primary{min-width:0;flex:1;max-width:230px}
+}
+
 /* Quiet strategic overview: reveal mission detail only after a destination is selected. */
 #game[data-view="region"] .scene-caption{max-width:220px}
 #game[data-view="region"] .scene-caption p,#game[data-view="region"] .scene-caption .coordinate{display:none}
