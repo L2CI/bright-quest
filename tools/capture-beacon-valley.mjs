@@ -27,11 +27,12 @@ try {
     await page.waitForTimeout(1500);
     await page.screenshot({ path: resolve(`beacon-brigade/assets/project-${id}.jpg`), type: 'jpeg', quality: 87 });
   }
-  for (const id of ['balanced', 'survey', 'hauler']) {
+  for (const id of ['balanced', 'survey', 'hauler', 'rescue', 'crawler']) {
     await page.evaluate(id => {
       const w = window.__BEACON_QA__.world;
+      w.syncCampaign({ projectsBuilt: [], totalResolved: 0, resolvedStations: 0 });
       w.setLoadout(id); w.view = 'project'; w.target.copy(w.tank.position); w.target.y = 1;
-      w.radius = 7.4; w.elevation = 5; w.yaw = .65;
+      w.radius = 7.8; w.elevation = 3.7; w.yaw = .65;
     }, id);
     await page.waitForTimeout(1200);
     await page.screenshot({ path: resolve(`beacon-brigade/assets/atlas-${id}.jpg`), type: 'jpeg', quality: 87 });

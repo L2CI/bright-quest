@@ -300,7 +300,7 @@ try {
   });
   await check("Garage offers all loadouts; hauler equipment persists through reload", async () => {
     await nav("hq"); await click("garage"); await view("garage");
-    for (const id of ["survey", "balanced", "hauler"]) {
+    for (const id of ["survey", "balanced", "rescue", "crawler", "hauler"]) {
       await uiCommit("equip", equipButton(id));
       assert.equal(getCampaign(await state()).loadoutId, id);
       assert(await equipButton(id).isDisabled());
@@ -317,7 +317,7 @@ try {
     const expedition = await deploy("harbour", 5);
     assert.equal(expedition.modifiers.travelSpeedMultiplier, 0.85);
     await nav("hq"); await click("garage"); await view("garage");
-    for (const id of ["balanced", "survey", "hauler"]) assert(await equipButton(id).isDisabled());
+    for (const id of ["balanced", "survey", "hauler", "rescue", "crawler"]) assert(await equipButton(id).isDisabled());
     const before = await stored();
     const response = await context.request.post(`${harness.origin}/api/beacon-brigade`, {
       headers: { "x-bq-child-capability": fixture.childCapability, "x-bq-child-id": fixture.childId },

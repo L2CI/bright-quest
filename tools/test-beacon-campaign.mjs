@@ -68,7 +68,7 @@ test("five repeat expeditions keep every station on topic and rotate variants wi
 });
 
 test("campaign catalogues are frozen arrays with exact IDs and detached projections", () => {
-  assert.deepEqual(LOADOUTS.map((item) => item.id), ["balanced", "survey", "hauler"]);
+  assert.deepEqual(LOADOUTS.map((item) => item.id), ["balanced", "survey", "hauler", "rescue", "crawler"]);
   assert.deepEqual(PROJECTS.map((item) => item.id), ["bridge", "observatory", "greenhouse"]);
   assert.throws(() => { PROJECTS[0].cost.parts = 0; }, TypeError);
   assert.throws(() => { LOADOUTS[1].cargoBonus = 100; }, TypeError);
@@ -88,7 +88,7 @@ test("campaign catalogues are frozen arrays with exact IDs and detached projecti
 });
 
 test("loadout speed/cargo tradeoffs and every support path preserve advertised payouts", () => {
-  for (const [loadoutId, speed, amount] of [["balanced", 1, 4], ["survey", 1.2, 3], ["hauler", 0.85, 5]]) {
+  for (const [loadoutId, speed, amount] of [["balanced", 1, 4], ["survey", 1.2, 3], ["hauler", 0.85, 5], ["rescue", 1, 4], ["crawler", .85, 5]]) {
     for (const regionId of ["harbour", "physics"]) {
       for (const mode of ["independent", "corrected", "hinted", "assisted"]) {
         let state = act(createState(), "equip", { loadoutId });

@@ -1,5 +1,7 @@
 import * as THREE from '../../cave-river-quest/vendor/three.module.js';
 import { ValleyScenery, disposeScenery } from './scenery';
+import { ExpeditionFleet } from './vehicles';
+import { ACTIVITY_SITES } from '../activities.js';
 
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 const LOCATIONS: Record<string, any> = {
@@ -142,6 +144,9 @@ export class ExpeditionWorld {
   markerLayer = new THREE.Group(); mapMarkers = new Map<string, any>(); stationMarkers = new Map<string, any>();
   animatedProps: any[] = []; completedMarkerTexture = markerTexture('check', 0x54ef9b, true);
   resizeObserver: ResizeObserver; scenery: ValleyScenery;
+  fleet: ExpeditionFleet;
+  activityMarkers = new Map<string, any>();
+  vehicleDistance = 0;
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, preserveDrawingBuffer: true });
@@ -211,6 +216,12 @@ export class ExpeditionWorld {
   }
   createWorldMarkers() {
     for (const [id, position] of Object.entries(LOCATIONS)) this.mapMarkers.set(id, this.createBeacon(id, position));
+    for (const site of ACTIVITY_SITES) {
+      const marker = this.createBeacon(`activity-${site.id}`, this.scenery.activitySites.get(site.id)?.position || V(...site.position));
+      marker.sprite.material.map = markerTexture(site.symbol, site.colour);
+      marker.root.position.y = 2.5; marker.activity = true; marker.halo.visible = false; marker.beam.visible = false;
+      this.activityMarkers.set(site.id, marker);
+    }
     for (const [region, nodes] of Object.entries(REGION_NODES)) for (const node of nodes) {
       const marker = this.createBeacon(node.id, node.position, true, region); marker.region = region; marker.index = Number(node.id.split('-')[1]);
       marker.sprite.material.map = markerTexture(String(marker.index + 1), SUBJECT_STYLE[region].colour); marker.sprite.material.needsUpdate = true;
@@ -218,7 +229,17 @@ export class ExpeditionWorld {
     }
   }
   syncMarkers(options: any) {
-    this.mapSelection = !!options.selectedRegion;
+    this.mapSelection = !!options.selectedRegion || !!options.selectedActivity;
+    for (const [id, marker] of this.activityMarkers) {
+      marker.root.visible = options.view === 'map';
+      marker.selected = options.selectedActivity === id;
+      const complete = options.visitedActivities?.includes(id) || false;
+      if (complete !== marker.completed) {
+        marker.completed = complete;
+        const site = ACTIVITY_SITES.find((s: any) => s.id === id)!;
+        marker.sprite.material.map = markerTexture(site.symbol, site.colour, complete);
+      }
+    }
     const mapVisible = options.view === 'map' || options.view === 'region-info';
     for (const [id, marker] of this.mapMarkers) {
       marker.root.visible = mapVisible || (options.view === 'region' && id === 'hq');
@@ -254,15 +275,15 @@ export class ExpeditionWorld {
   syncCampaign(campaign: any, totalResolved?: number) {
     this.scenery.syncCampaign(campaign, totalResolved);
   }
-  setLoadout(loadoutId: string) { this.scenery.setLoadout(this.tank, loadoutId); }
+  setLoadout(loadoutId: string) { this.fleet.setVehicle(loadoutId); }
   pickDestination(clientX: number, clientY: number) {
     if (this.view !== 'map' || this.travel) return null;
     const rect = this.canvas.getBoundingClientRect();
     const ray = new THREE.Raycaster(); ray.setFromCamera(new THREE.Vector2((clientX - rect.left) / rect.width * 2 - 1, 1 - (clientY - rect.top) / rect.height * 2), this.camera);
-    const hit = ray.intersectObjects([...this.scenery.campuses.values()], true)[0];
+    const hit = ray.intersectObjects([...this.scenery.campuses.values(), ...this.scenery.activitySites.values()], true)[0];
     let object = hit?.object;
-    while (object && !object.userData.destination) object = object.parent;
-    const id = object?.userData.destination;
+    while (object && !object.userData.destination && !object.userData.activity) object = object.parent;
+    const id = object?.userData.activity ? `activity-${object.userData.activity}` : object?.userData.destination;
     if (id) this.onDestinationPick?.(id);
     return id || null;
   }
@@ -272,6 +293,23 @@ export class ExpeditionWorld {
     this.view = 'project'; this.framingKey = `project:${id}`; this.target.copy(locations[id]).add(V(0, 1.2, 0));
     this.radius = id === 'bridge' ? 20 : 14; this.elevation = id === 'bridge' ? 16 : 10; this.yaw = .52;
     return true;
+  }
+  focusVehicle() {
+    this.scenery.repairs.forEach((g: any) => { g.visible = false; });
+    this.view = 'vehicle'; this.target.copy(this.tank.position).add(V(0, 1.1, .3));
+    this.radius = 7.2; this.elevation = 3.5;
+    if (this.framingKey !== 'vehicle') this.yaw = .68;
+    this.framingKey = 'vehicle';
+  }
+  focusActivity(id: string) {
+    const site = this.scenery.activitySites.get(id); if (!site) return;
+    if (this.currentArea !== `activity-${id}`) { this.tank.position.copy(site.position).add(V(3, .08, id === 'jokes' ? -2 : 3)); this.currentArea = `activity-${id}`; }
+    this.view = 'activity'; this.target.copy(site.position).lerp(this.tank.position, .35).add(V(0, 1, 0));
+    this.radius = 18; this.elevation = 11; this.yaw = .35;
+  }
+  driveToActivity(id: string, callback: () => void) {
+    const site = this.scenery.activitySites.get(id); if (!site) return;
+    this.beginTravel(this.scenery.activityRoute(this.tank.position, id, this.currentArea), callback, { kind: 'activity', region: this.currentArea, label: ACTIVITY_SITES.find((s: any) => s.id === id)?.name });
   }
   tree(x: number, z: number, s: number) {
     const g = new THREE.Group(); g.position.set(x, 0, z); g.scale.setScalar(s); this.group.add(g);
@@ -434,61 +472,10 @@ export class ExpeditionWorld {
     for (const x of [-1.2, .2, 1.6]) cylinder(site, .22, .15, .55, glass, x, 2.35, 1.65, 16);
   }
   createTank() {
-    const tank = new THREE.Group();
-    armour(tank, 2.45, .52, 4.6, edge, 0, .96, 0);
-    armour(tank, 2.58, .48, 3.9, paint, 0, 1.37, -.08, .32);
-    const front = box(tank, 2.36, .11, .91, paint, 0, 1.28, 1.91); front.rotation.x = -.38;
-    for (const side of [-1, 1]) {
-      const track = new THREE.InstancedMesh(new THREE.BoxGeometry(.59, .095, .21), dark, 64); track.castShadow = true; track.receiveShadow = true;
-      const shoe = new THREE.InstancedMesh(new THREE.BoxGeometry(.63, .045, .11), steel, 64); shoe.castShadow = true;
-      tank.add(track, shoe); this.tracks.push({ track, shoe, side });
-      for (let i = 0; i < 7; i++) {
-        const wheel = cylinder(tank, .39, .39, .42, dark, side * 1.39, .58, -1.62 + i * .54, 20); wheel.rotation.z = Math.PI / 2; this.wheels.push(wheel);
-        const hub = cylinder(tank, .27, .27, .045, paint, side * 1.62, .58, -1.62 + i * .54); hub.rotation.z = Math.PI / 2;
-        const bolt = cylinder(tank, .09, .09, .055, steel, side * 1.66, .58, -1.62 + i * .54, 6); bolt.rotation.z = Math.PI / 2;
-      }
-      for (let i = 0; i < 5; i++) armour(tank, .12, .45, .65, paint, side * 1.64, 1.24, -1.58 + i * .76, .035);
-      line(tank, V(side * 1.05, 1.63, -1.3), V(side * 1.05, 1.63, 1.35), .025, steel);
-      box(tank, .5, .06, 4.45, edge, side * 1.36, 1.54, 0);
-      mesh(tank, new THREE.TorusGeometry(.12, .027, 6, 12), steel, side * .8, 1.07, 2.44);
-      box(tank, .2, .12, .08, lamp, side * 1.08, 1.49, 1.84);
-      box(tank, .17, .08, .05, material('rear-lamp', 0x963c29, .1), side * 1.1, 1.46, -2);
-    }
-    const turret = new THREE.Group(); tank.add(turret); turret.position.set(0, 1.64, .03);
-    cylinder(turret, .78, .85, .17, dark, 0, .05, 0, 32);
-    armour(turret, 1.82, .6, 1.92, paint, 0, .44, -.2, .3);
-    const mantle = armour(turret, .7, .49, .38, edge, 0, .41, .91, .11);
-    const barrel = cylinder(turret, .092, .14, 2.35, paint, 0, .44, 2.08, 20); barrel.rotation.x = Math.PI / 2;
-    for (const z of [1.1, 1.43, 2.64, 3.1]) { const ring = cylinder(turret, .145, .145, .09, steel, 0, .44, z, 20); ring.rotation.x = Math.PI / 2; }
-    const cap = cylinder(turret, .091, .091, .03, dark, 0, .44, 3.26, 20); cap.rotation.x = Math.PI / 2;
-    cylinder(turret, .32, .35, .08, edge, .4, .81, -.24, 24);
-    cylinder(turret, .23, .25, .1, paint, -.4, .79, -.45, 24);
-    box(turret, .38, .16, .24, edge, -.45, .9, .25); box(turret, .3, .07, .025, glass, -.45, .93, .385);
-    line(turret, V(.73, .7, -.85), V(.76, 2.9, -.93), .012, dark);
-    for (let i = 0; i < 8; i++) box(tank, 1.3, .035, .035, dark, 0, 1.644, -1.55 + i * .055);
-    for (const x of [-.75, .75]) { armour(tank, .46, .38, .75, edge, x, 1.77, -1.56, .055); }
-    label(turret, '07', -.91, .46, -.15, .64).rotation.y = -Math.PI / 2;
-    label(turret, '07', .91, .46, -.15, .64).rotation.y = Math.PI / 2;
-    label(tank, 'ATLAS', 0, 1.35, 2.07, .9);
-    const bolts = new THREE.InstancedMesh(new THREE.CylinderGeometry(.026, .026, .025, 6), steel, 48); const t = new THREE.Object3D();
-    for (let i = 0; i < 48; i++) { const side = i < 24 ? -1 : 1; t.position.set(side * 1.13, 1.64, -1.8 + (i % 24) * .153); t.updateMatrix(); bolts.setMatrixAt(i, t.matrix); } tank.add(bolts);
-    this.updateTracks(0); return tank;
+    const root = new THREE.Group();
+    this.fleet = new ExpeditionFleet(root); return root;
   }
-  updateTracks(offset: number) {
-    const dummy = new THREE.Object3D();
-    // Closed capsule path: pads stay on the wheel envelope and touch the ground.
-    for (const { track, shoe, side } of this.tracks) for (let i = 0; i < 64; i++) {
-      const length = 6.6 + Math.PI * .96, dist = ((i / 64 * length + offset) % length + length) % length;
-      let z, y, a;
-      if (dist < 3.3) { z = -1.65 + dist; y = 1.06; a = 0; }
-      else if (dist < 3.3 + Math.PI * .48) { a = (dist - 3.3) / .48; z = 1.65 + Math.sin(a) * .48; y = .58 + Math.cos(a) * .48; }
-      else if (dist < 6.6 + Math.PI * .48) { z = 1.65 - (dist - 3.3 - Math.PI * .48); y = .1; a = Math.PI; }
-      else { const b = (dist - 6.6 - Math.PI * .48) / .48; a = Math.PI + b; z = -1.65 - Math.sin(b) * .48; y = .58 - Math.cos(b) * .48; }
-      dummy.position.set(side * 1.4, y, z); dummy.rotation.set(a, 0, 0); dummy.updateMatrix(); track.setMatrixAt(i, dummy.matrix);
-      dummy.position.y += Math.cos(a) * .06; dummy.position.z += Math.sin(a) * .06; dummy.updateMatrix(); shoe.setMatrixAt(i, dummy.matrix);
-    }
-    for (const { track, shoe } of this.tracks) { track.instanceMatrix.needsUpdate = true; shoe.instanceMatrix.needsUpdate = true; }
-  }
+  updateTracks(distance: number) { this.fleet.animate(distance); }
   createBase(level: number) {
     this.hqLevel = level;
     disposeScenery(this.hq);
@@ -629,9 +616,11 @@ export class ExpeditionWorld {
         let remaining = eased * tr.totalLength, segment = 0;
         while (segment < tr.lengths.length - 1 && remaining > tr.lengths[segment]) { remaining -= tr.lengths[segment]; segment++; }
         const a = tr.path[segment], b = tr.path[segment + 1] || tr.end; const segmentT = tr.lengths[segment] ? clamp(remaining / tr.lengths[segment], 0, 1) : 1;
+        const before = this.tank.position.clone();
         this.tank.position.lerpVectors(a, b, segmentT); this.tank.rotation.y = Math.atan2(b.x - a.x, b.z - a.z);
+        this.vehicleDistance += before.distanceTo(this.tank.position);
         this.tank.position.y = this.scenery.height(this.tank.position.x, this.tank.position.z) + .085 + (this.reduced ? 0 : Math.sin(this.clock * 22) * .013);
-        this.updateTracks(this.clock * 2.7); this.target.copy(this.tank.position).lerp(tr.end, .16).add(V(0, 1, 0)); this.radius = 42; this.elevation = 34; this.yaw = .22;
+        this.updateTracks(this.vehicleDistance); this.target.copy(this.tank.position).lerp(tr.end, .16).add(V(0, 1, 0)); this.radius = 42; this.elevation = 34; this.yaw = .22;
         const direction = b.clone().sub(a).normalize();
         this.dustPuffs.forEach((puff, i) => {
           const phase = (this.clock * .72 + i / this.dustPuffs.length) % 1; const side = i % 2 ? 1 : -1;
@@ -647,10 +636,10 @@ export class ExpeditionWorld {
     if (this.waypoint.visible && !this.reduced) {
       const pulse = 1 + Math.sin(this.clock * 3.8) * .12; this.waypointRing.scale.setScalar(pulse); this.waypoint.rotation.y = this.clock * .18;
     }
-    for (const marker of [...this.mapMarkers.values(), ...this.stationMarkers.values()]) if (marker.root.visible) {
+    for (const marker of [...this.mapMarkers.values(), ...this.stationMarkers.values(), ...this.activityMarkers.values()]) if (marker.root.visible) {
       const pulse = this.reduced ? 1 : 1 + Math.sin(this.clock * 2.4 + marker.root.position.x * .11) * (marker.selected ? .11 : .045);
       const mobileMarkerScale = this.width < 650 ? this.view === 'map' ? 2.7 : this.view === 'region' ? 2.05 : 1.2 : 1;
-      const size = marker.station ? 2.8 : 4.35; marker.sprite.scale.setScalar(size * pulse * mobileMarkerScale);
+      const size = marker.activity ? 2.4 : marker.station ? 2.8 : 4.35; marker.sprite.scale.setScalar(size * pulse * mobileMarkerScale);
       marker.halo.scale.setScalar((marker.selected ? 1.15 : 1) * pulse);
       const haloBase = marker.halo.userData.baseOpacity ?? marker.halo.material.opacity;
       const beamBase = marker.beam.userData.baseOpacity ?? marker.beam.material.opacity;
@@ -662,11 +651,13 @@ export class ExpeditionWorld {
       if (this.water.material.normalMap) this.water.material.normalMap.offset.y = this.clock * .012;
     }
     const mobile = this.width < 650; const strategic = this.view === 'map' || this.view === 'region';
-    const factor = mobile ? (this.view === 'map' ? 2.73 : this.view === 'region' ? 3 : this.view === 'travel' ? 1.8 : 1.32) : 1;
+    const aspect = this.width / this.height;
+    const factor = this.view === 'vehicle' ? Math.max(1, 1.25 / aspect) : strategic ? Math.max(1, (this.view === 'map' ? 1.26 : 1.38) / aspect)
+      : mobile ? this.view === 'travel' ? 1.8 : 1.32 : 1;
     this.scene.fog.density = strategic || this.view === 'travel' ? .0015 : .009;
     this.cameraGoal.copy(this.target).add(V(Math.sin(this.yaw) * this.radius * factor, this.elevation * factor, Math.cos(this.yaw) * this.radius * factor));
     this.lookGoal.copy(this.target);
-    if (!strategic && this.view !== 'travel' && this.view !== 'project') {
+    if (!strategic && !['travel', 'project', 'vehicle'].includes(this.view)) {
       if (mobile) this.lookGoal.y -= 7;
       else this.lookGoal.add(V(3.4, 0, -2.8));
     }
@@ -677,9 +668,9 @@ export class ExpeditionWorld {
     if (this.onFrame) {
       const source = this.view === 'region' || this.view === 'station'
         ? [['hq', LOCATIONS.hq], ['atlas', this.tank.position], ...(REGION_NODES[this.destination] || []).map((node: any) => [node.id, node.position])]
-        : [...Object.entries(LOCATIONS), ['atlas', this.tank.position]];
+        : [...Object.entries(LOCATIONS), ...ACTIVITY_SITES.map((s: any) => [`activity-${s.id}`, V(...s.position)]), ['atlas', this.tank.position]];
       this.onFrame(source.map(([id, loc]: any) => {
-        const marker = id.startsWith('station-') ? this.stationMarkers.get(`${this.destination}:${id}`) : this.mapMarkers.get(id);
+        const marker = id.startsWith('activity-') ? this.activityMarkers.get(id.slice(9)) : id.startsWith('station-') ? this.stationMarkers.get(`${this.destination}:${id}`) : this.mapMarkers.get(id);
         const anchor = id === 'atlas' ? loc.clone().add(V(0, 2.7, 0)) : marker?.root.position.clone() || loc.clone().add(V(0, 3.5, 0));
         const p = anchor.project(this.camera);
         const strategicAnchor = this.view === 'region' && (id === 'hq' || id === 'atlas');

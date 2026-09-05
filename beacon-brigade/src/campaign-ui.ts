@@ -8,9 +8,11 @@ const projectCopy: Record<string, any> = {
   greenhouse: { title: 'Bring the gardens back', description: 'Restore the glasshouse and its supply trails to help the whole valley thrive.', icon: 'sprout', name: 'Valley greenhouse' }
 };
 const loadoutCopy: Record<string, any> = {
-  balanced: { name: 'Atlas Explorer', tag: 'All-rounder', icon: 'compass', description: 'Steady travel. A reliable cargo hold.' },
-  survey: { name: 'Atlas Scout', tag: 'Quick journeys', icon: 'radar', description: 'Travel faster. Carry a little less cargo.' },
-  hauler: { name: 'Atlas Hauler', tag: 'Extra cargo', icon: 'truck', description: 'Carry more home. Take a little longer.' }
+  balanced: { name: 'Atlas Expedition Tank', tag: 'Tracked explorer', icon: 'compass', description: 'Armoured hull, steel tracks and a dependable cargo hold.' },
+  survey: { name: 'Falcon Scout Buggy', tag: 'Quick journeys', icon: 'radar', description: 'Open roll cage and all-terrain tyres. Faster travel, lighter cargo.' },
+  hauler: { name: 'Titan Cargo Truck', tag: 'Eight-wheel hauler', icon: 'truck', description: 'A heavy-duty cargo bed. Carry more home at a steady pace.' },
+  rescue: { name: 'Summit Rescue Rover', tag: 'Six-wheel support', icon: 'shield', description: 'Rescue equipment, all-terrain suspension and balanced cargo.' },
+  crawler: { name: 'Terra Engineering Crawler', tag: 'Tracked workhorse', icon: 'hard-hat', description: 'Hydraulic blade and heavy tracks. Extra cargo, slower travel.' }
 };
 
 export function campaignScreen(state: any, busy: boolean, pending: boolean) {
@@ -24,7 +26,7 @@ export function campaignScreen(state: any, busy: boolean, pending: boolean) {
 
 export function garageScreen(state: any, busy: boolean, pending: boolean) {
   const c = getCampaign(state);
-  return `<section class="panel garage-board"><div class="panel-head campaign-heading"><div><span class="eyebrow">Atlas workshop</span><h1>Ready for the next journey</h1><p>${c.canEquip ? 'Choose your expedition vehicle.' : 'Your vehicle is equipped for the active expedition.'}</p></div><button class="icon-btn" data-action="hq" title="Return to HQ" aria-label="Return to HQ">${icon('x')}</button></div><div class="panel-body"><div class="loadout-grid">${LOADOUTS.map((l: any) => { const copy = loadoutCopy[l.id]; const chosen = c.loadoutId === l.id; return `<article class="loadout-item ${chosen ? 'equipped' : ''}"><div class="loadout-art"><img src="./assets/atlas-${l.id}.jpg" width="640" height="360" alt="${copy.name}"><span>${icon(copy.icon)}</span></div><div class="loadout-content"><span class="eyebrow">${copy.tag}</span><h2>${copy.name}</h2><p>${copy.description}</p><div class="loadout-stat"><span>Cargo per mission</span><strong>${4 + l.cargoBonus + c.bonuses.cargoBonus}</strong></div><button class="button ${chosen ? '' : 'primary'} full" data-action="equip-loadout" data-loadout="${l.id}" ${chosen || !c.canEquip || busy || pending ? 'disabled' : ''}>${icon(chosen ? 'check' : 'wrench')}${chosen ? 'Equipped' : c.canEquip ? 'Equip vehicle' : 'Expedition active'}</button></div></article>`; }).join('')}</div><p class="garage-note">Every vehicle can visit every district. Hints and corrections keep the same cargo reward.</p></div></section>`;
+  return `<section class="panel garage-board"><div class="panel-head campaign-heading"><div><span class="eyebrow">Atlas workshop</span><h1>Ready for the next journey</h1><p>${c.canEquip ? 'Choose your expedition vehicle.' : 'Your vehicle is equipped for the active expedition.'}</p></div><button class="icon-btn" data-action="hq" title="Return to HQ" aria-label="Return to HQ">${icon('x')}</button></div><div class="panel-body"><div class="loadout-grid">${LOADOUTS.map((l: any) => { const copy = loadoutCopy[l.id]; const chosen = c.loadoutId === l.id; return `<article class="loadout-item ${chosen ? 'equipped' : ''}"><div class="loadout-art"><button class="inspect-vehicle" data-action="inspect-vehicle" data-loadout="${l.id}" aria-label="Inspect ${copy.name}" title="Inspect vehicle">${icon('eye')}</button><img src="./assets/atlas-${l.id}.jpg" width="640" height="360" alt="${copy.name}"><span>${icon(copy.icon)}</span></div><div class="loadout-content"><span class="eyebrow">${copy.tag}</span><h2>${copy.name}</h2><p>${copy.description}</p><div class="loadout-stat"><span>Cargo per mission</span><strong>${4 + l.cargoBonus + c.bonuses.cargoBonus}</strong></div><button class="button ${chosen ? '' : 'primary'} full" data-action="equip-loadout" data-loadout="${l.id}" ${chosen || !c.canEquip || busy || pending ? 'disabled' : ''}>${icon(chosen ? 'check' : 'wrench')}${chosen ? 'Equipped' : c.canEquip ? 'Equip vehicle' : 'Expedition active'}</button></div></article>`; }).join('')}</div><p class="garage-note">Every vehicle can visit every district. Hints and corrections keep the same cargo reward.</p></div></section>`;
 }
 
 export function campaignObjective(state: any) {
@@ -35,4 +37,4 @@ export function campaignObjective(state: any) {
     detail: `${c.projectsBuilt.length} / 3 landmarks restored`, action: 'campaign' };
 }
 
-export function loadoutName(id: string) { return loadoutCopy[id]?.name || 'Atlas Explorer'; }
+export function loadoutName(id: string) { return loadoutCopy[id]?.name || 'Atlas Expedition Tank'; }

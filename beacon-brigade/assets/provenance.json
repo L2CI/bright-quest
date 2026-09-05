@@ -57,8 +57,8 @@
       "asset": "Actual in-game scenery and vehicle capture",
       "licence": "Project-generated asset",
       "generatedAt": "2026-09-05",
-      "bytes": 120545,
-      "sha256": "4006d59bf94e34952a844b5580a47069f1b7c97af71e355cf0d87dabaf4d4b19"
+      "bytes": 137639,
+      "sha256": "d0a2fec412b90042811095d6474d1638c05226c0a4b5f0c3a641bf411c8ce33b"
     },
     {
       "file": "atlas-survey.jpg",
@@ -66,8 +66,8 @@
       "asset": "Actual in-game scenery and vehicle capture",
       "licence": "Project-generated asset",
       "generatedAt": "2026-09-05",
-      "bytes": 119661,
-      "sha256": "84ba2bde7e81c44c6876d6e5b4bf760511d03ee62d5db775f67db46d9a98c9d4"
+      "bytes": 134973,
+      "sha256": "795586fa4dd8ee4ee6a59f93840021b3785b451deed0eae0803773a9cb9f0ebe"
     },
     {
       "file": "atlas-hauler.jpg",
@@ -75,8 +75,8 @@
       "asset": "Actual in-game scenery and vehicle capture",
       "licence": "Project-generated asset",
       "generatedAt": "2026-09-05",
-      "bytes": 119044,
-      "sha256": "53bb3464c2e46e8083b7f2c49490399995953289e8b131f418243b34450b9898"
+      "bytes": 131800,
+      "sha256": "2f3449b1ec1968f138a945d16d4b13f74e1de5c6187f98d5675b7369bd52d951"
     },
     {
       "file": "project-bridge.jpg",
@@ -84,8 +84,8 @@
       "asset": "Actual in-game scenery and vehicle capture",
       "licence": "Project-generated asset",
       "generatedAt": "2026-09-05",
-      "bytes": 138096,
-      "sha256": "bf961292a0db610407ee5b29e914d627d4e01bb685faeee372f3e6e4830d6252"
+      "bytes": 146518,
+      "sha256": "e4c5d9672eb0792611056e62daedfce79a36d2b91262eaae61b1d34c9d1d4878"
     },
     {
       "file": "project-observatory.jpg",
@@ -93,8 +93,8 @@
       "asset": "Actual in-game scenery and vehicle capture",
       "licence": "Project-generated asset",
       "generatedAt": "2026-09-05",
-      "bytes": 152177,
-      "sha256": "0c1a5c4d6b78bfe3e86cf78838ba9346d27fd0c575b7ead32435e1a5336643b5"
+      "bytes": 154194,
+      "sha256": "0c48692f2963d5860bb96fc36063b94b886d6da695ef40782e486aa67c2088d5"
     },
     {
       "file": "project-greenhouse.jpg",
@@ -102,8 +102,8 @@
       "asset": "Actual in-game scenery and vehicle capture",
       "licence": "Project-generated asset",
       "generatedAt": "2026-09-05",
-      "bytes": 171607,
-      "sha256": "9af21b88cd86d2556405823db37dad5c0ff71efac4c6bbd8b109ecca79f3ecd0"
+      "bytes": 171281,
+      "sha256": "e21121a2e37fa292cd2b466ad5d31addbb9422485dcd802159a4acdb1cfc2649"
     },
     {
       "file": "module-preview.jpg",
@@ -111,8 +111,26 @@
       "asset": "Actual in-game scenery and vehicle capture",
       "licence": "Project-generated asset",
       "generatedAt": "2026-09-05",
-      "bytes": 199186,
-      "sha256": "c8df625d5bc52ade795fa4b854b6dc56a96ca9ef55a556daa1502bf89fd5c6cb"
+      "bytes": 203263,
+      "sha256": "66f9c1fa45a7d3aab68691b4a5c29c3b2ef39f22eae515ea6b5b7f0f8c0acd68"
+    },
+    {
+      "file": "atlas-rescue.jpg",
+      "source": "Rendered from Beacon Brigade Three.js world",
+      "asset": "Actual in-game scenery and vehicle capture",
+      "licence": "Project-generated asset",
+      "generatedAt": "2026-09-05",
+      "bytes": 136661,
+      "sha256": "35c479f1c00654f796fd40cc3d81ae25f40c03f58fc3fa7223e9d10e0ecb6b6b"
+    },
+    {
+      "file": "atlas-crawler.jpg",
+      "source": "Rendered from Beacon Brigade Three.js world",
+      "asset": "Actual in-game scenery and vehicle capture",
+      "licence": "Project-generated asset",
+      "generatedAt": "2026-09-05",
+      "bytes": 136529,
+      "sha256": "2d025ef4bbc61c664644b7afb6b5724d2b3b30777a4509f808cd4066e4b64311"
     }
   ]
 }

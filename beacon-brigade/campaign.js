@@ -5,7 +5,9 @@ import { REGIONS, STATION_REWARD } from "./content.js";
 export const LOADOUTS = deepFreeze([
   { id: "balanced", name: "Balanced", description: "Standard travel and cargo.", travelSpeedMultiplier: 1, cargoBonus: 0 },
   { id: "survey", name: "Survey", description: "Faster travel with a smaller cargo hold.", travelSpeedMultiplier: 1.2, cargoBonus: -1 },
-  { id: "hauler", name: "Hauler", description: "Extra cargo with slower travel.", travelSpeedMultiplier: 0.85, cargoBonus: 1 }
+  { id: "hauler", name: "Hauler", description: "Extra cargo with slower travel.", travelSpeedMultiplier: 0.85, cargoBonus: 1 },
+  { id: "rescue", name: "Rescue", description: "A six-wheel expedition support vehicle.", travelSpeedMultiplier: 1, cargoBonus: 0 },
+  { id: "crawler", name: "Crawler", description: "Tracked engineering power and extra cargo.", travelSpeedMultiplier: 0.85, cargoBonus: 1 }
 ]);
 
 export const PROJECTS = deepFreeze([

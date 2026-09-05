@@ -2,7 +2,8 @@ import { createIcons, Shield, House, Map, BookOpen, Settings, ArrowLeft, ArrowRi
 import { ExpeditionWorld } from './world';
 import { REGIONS } from '../content.js';
 import { createState, applyAction, publicState } from '../../functions/_lib/beacon-brigade.js';
-import { getCampaign, getExpeditionCompletion } from '../campaign.js';
+import { getCampaign, getExpeditionCompletion, LOADOUTS } from '../campaign.js';
+import { ACTIVITY_SITES, ACTIVITY_CONTENT, getActivityItem, checkActivityAnswer } from '../activities.js';
 import { campaignScreen, garageScreen, campaignObjective, loadoutName } from './campaign-ui';
 import { renderFieldLab, handleFieldLabClick, handleFieldLabInput, clearFieldLabs } from './field-lab';
 
@@ -23,6 +24,20 @@ let state: any, profile: any, raw: any, world: ExpeditionWorld;
 let view = 'hq', regionId = 'harbour', selectedRegionId = '', stationId = '', targetStationId = '', selected = '', busy = false, paused = false;
 let lastResult: any = null, reviewId = '', toastTimer: any, pending: any = null;
 let projectId = 'bridge';
+let activityId = 'jokes', selectedActivityId = '', activityChoice = '', inspectedVehicleId = 'balanced';
+const funKey = () => `bqBeaconDiscovery:${profile?.id}`;
+function activityProgress(id = activityId) {
+  const saved = storage.get(funKey(), {})?.[id];
+  return { index: Number.isSafeInteger(saved?.index) && saved.index >= 0 ? saved.index : 0,
+    seen: Array.isArray(saved?.seen) ? saved.seen.filter((s: any) => typeof s === 'string') : [] };
+}
+function saveActivity(reveal = false, advance = false) {
+  const progress = activityProgress(), item = getActivityItem(activityId, progress.index);
+  if (reveal && !progress.seen.includes(item.id)) progress.seen.push(item.id);
+  if (advance) progress.index = (progress.index + 1) % ACTIVITY_CONTENT[activityId].length;
+  storage.set(funKey(), { ...storage.get(funKey(), {}), [activityId]: progress });
+  if (advance) activityChoice = '';
+}
 let prefs = storage.get('bqBeaconSettings', { sound: false, reduced: matchMedia('(prefers-reduced-motion: reduce)').matches });
 const previewKey = 'bqBeaconPreviewV1';
 const dialog = $('dialog') as HTMLDialogElement;
@@ -104,7 +119,9 @@ async function retryPending() {
   if (!pending || busy) return;
   busy = true; render();
   try {
+    const resetting = pending.action?.type === 'reset';
     const result = await request(pending); state = result.state; pending = null; storage.remove(pendingKey());
+    if (resetting) { storage.remove(funKey()); selectedActivityId = ''; activityChoice = ''; clearFieldLabs(); }
     if (world.hqLevel !== state.hqLevel) world.createBase(state.hqLevel);
     toast('Saved. Your progress is up to date.');
   } catch (e: any) {
@@ -118,7 +135,9 @@ function navigate(next: string, options: any = {}, replace = false) {
   if (options.stationId) stationId = options.stationId;
   if (options.reviewId) reviewId = options.reviewId;
   if (options.projectId) projectId = options.projectId;
-  const route = { view, regionId, selectedRegionId, stationId, targetStationId, reviewId, projectId };
+  if (options.activityId) activityId = options.activityId;
+  if (options.inspectedVehicleId) inspectedVehicleId = options.inspectedVehicleId;
+  const route = { view, regionId, selectedRegionId, stationId, targetStationId, reviewId, projectId, activityId, selectedActivityId, inspectedVehicleId };
   history[replace ? 'replaceState' : 'pushState'](route, '', `${location.pathname}${location.search}#${next}${next === 'station' ? `/${encodeURIComponent(stationId)}` : ''}`);
   render();
 }
@@ -128,17 +147,21 @@ function syncWorld() {
   world.reduced = prefs.reduced;
   const campaign = getCampaign(state);
   world.syncCampaign(campaign);
-  world.setLoadout(state.activeExpedition ? state.activeExpedition.loadoutId ?? state.activeExpedition.loadout?.id ?? 'balanced' : campaign.loadoutId);
+  world.setLoadout(view === 'vehicle' ? inspectedVehicleId : state.activeExpedition ? state.activeExpedition.loadoutId ?? state.activeExpedition.loadout?.id ?? 'balanced' : campaign.loadoutId);
   if (view === 'map' || view === 'region-info') { world.selectStation(regionId, null); world.setView('map'); }
   else if (view === 'region') { world.setView('region', regionId); world.selectStation(regionId, targetStationId ? stationIndex(targetStationId) : null); }
   else if (view === 'station') { world.setView('station', regionId); world.selectStation(regionId, stationIndex(stationId)); world.setView('station', regionId); }
   else if (view === 'results') world.setView('region', lastResult?.regionId || regionId);
   else if (view === 'landmark') world.focusProject(projectId);
+  else if (view === 'activity') world.focusActivity(activityId);
+  else if (view === 'vehicle') world.focusVehicle();
   else world.setView('hq');
   world.syncMarkers({
     view,
     region: regionId,
     selectedRegion: selectedRegionId,
+    selectedActivity: selectedActivityId,
+    visitedActivities: ACTIVITY_SITES.filter((s: any) => activityProgress(s.id).seen.length > 0).map((s: any) => s.id),
     completedRegions: REGIONS.filter((item: any) => regionCompleted(item.id)).map((item: any) => item.id),
     activeRegion: state.activeExpedition?.regionId || '',
     selectedStation: targetStationId,
@@ -176,6 +199,10 @@ function hqScreen() {
     `<button class="hq-objective" data-action="${objective.action}">${ico('flag')}<span><strong>${objective.title}</strong><small>${objective.detail}</small></span>${ico('chevron-right')}</button><div class="hq-quick-actions" aria-label="Headquarters actions">${iconButton('garage', 'Equip Atlas', 'wrench')}${next ? iconButton('construction', 'View construction', 'hard-hat') : ''}${primary}</div>`;
 }
 function mapScreen() {
+  if (selectedActivityId) {
+    const site = ACTIVITY_SITES.find((s: any) => s.id === selectedActivityId);
+    if (site) return caption('Beacon Valley', 'Take a discovery detour') + `<aside class="panel field-command world-command selected"><div class="panel-head destination-panel-head"><div><span class="eyebrow">Just for fun</span><h2>${escape(site.name)}</h2></div>${iconButton('clear-activity', 'Close destination', 'x')}</div><div class="panel-body"><p>${escape(site.description)}</p><div class="activity-count">${activityProgress(site.id).seen.length} / ${ACTIVITY_CONTENT[site.id].length} discovered on this device</div>${button('visit-activity', 'Drive over', 'navigation', 'primary full', busy)}</div></aside>`;
+  }
   const r = REGIONS.find((item: any) => item.id === selectedRegionId);
   const completed = r && regionCompleted(r.id);
   const resolved = r ? state.history.filter((item: any) => item.regionId === r.id && item.status === 'completed').length : 0;
@@ -211,7 +238,7 @@ function diagram(d: any, interactive = false) {
 }
 function stationScreen() {
   const s = activeStation(); if (!s) { view = 'region'; return regionScreen(); }
-  const q = s.question; const draft = storage.get(draftKey(), ''); selected = selected || String(draft ?? '');
+  const q = s.question; const draft = storage.get(draftKey(), ''); selected = s.resolved ? String(s.attempts.at(-1)?.answer ?? '') : selected || String(draft ?? '');
   const fb = s.lastFeedback;
   const remaining = state.activeExpedition.stations.filter((s: any) => !s.resolved).length;
   return caption(region().name, escape(s.name), '', 'station-caption') + `<section class="panel challenge"><div class="panel-head"><div class="challenge-top"><span class="eyebrow">Arrived / ${escape(s.name)}</span><span class="status ${s.resolved ? '' : 'plain'}">${s.resolved ? 'Reward saved' : ` +${s.reward.amount} ${s.reward.resource === 'parts' ? 'parts' : 'cores'}`}</span></div><h2 tabindex="-1">${escape(q.prompt)}</h2></div><div class="panel-body">${diagram(q.diagram, true)}
@@ -242,22 +269,37 @@ function reviewScreen() {
   const stations = [...e.stations].sort((a, b) => Number(a.firstAttemptCorrect !== false) - Number(b.firstAttemptCorrect !== false));
   return caption('Expedition evidence', 'Answer review') + `<section class="panel journal"><div class="panel-head"><div class="eyebrow">Original missed answers first</div><h2>${escape(REGIONS.find((r: any) => r.id === e.regionId)?.name)}</h2></div><div class="panel-body">${stations.map(s => `<article class="review-station"><span class="status ${s.firstAttemptCorrect === false ? 'missed' : s.resolved ? '' : 'plain'}">${s.firstAttemptCorrect === false ? 'First answer missed' : s.resolved ? 'Correct first time' : 'Not completed'}</span><h3>${escape(s.question.prompt)}</h3>${diagram(s.question.diagram)}<p><strong>First answer:</strong> ${escape(answerText(s.question, s.attempts[0]?.answer))}</p><p><strong>Correct answer:</strong> ${escape(answerText(s.question, s.question.answer))}</p><p>${escape(s.question.explanation)}</p><p class="subtle">${s.resolution ? escape(s.resolution) : 'Unresolved'} / ${s.attempts.length} response${s.attempts.length === 1 ? '' : 's'}${s.helpUsed ? ' / support used' : ''}</p></article>`).join('')}<div class="actions">${button('journal', 'Back to journal', 'arrow-left', 'full')}</div></div></section>`;
 }
+function activityScreen() {
+  const site = ACTIVITY_SITES.find((s: any) => s.id === activityId);
+  if (!site) { view = 'map'; return mapScreen(); }
+  const progress = activityProgress(), item = getActivityItem(activityId, progress.index);
+  const revealed = progress.seen.includes(item.id);
+  return caption('Discovery stop', escape(site.name)) + `<section class="panel activity-panel"><div class="panel-head"><div class="challenge-top"><span class="eyebrow">${activityId === 'jokes' ? 'A little laugh' : 'A little brain break'}</span><span class="status plain">${progress.index + 1} / ${ACTIVITY_CONTENT[activityId].length}</span></div><h2>${escape(item.prompt)}</h2></div><div class="panel-body">${item.options ? `<div class="answer-options">${item.options.map((o: any) => `<button class="answer-option ${revealed && o.id === item.correctOption ? 'selected' : ''}" data-action="activity-answer" data-option="${escape(o.id)}" ${revealed ? 'disabled' : ''}>${escape(o.text)}</button>`).join('')}</div>` : ''}${revealed ? `<div class="discovery-answer" role="status"><strong>${escape(item.answer)}</strong><p>${escape(item.explanation)}</p></div>` : activityChoice ? '<p class="activity-retry" role="status">Not quite. Try another idea.</p>' : ''}<div class="actions">${revealed ? button('next-activity', activityId === 'jokes' ? 'Another joke' : 'Next challenge', 'arrow-right', 'primary full') : button('reveal-activity', activityId === 'jokes' ? 'Tell me!' : 'Show the answer', 'eye', activityId === 'jokes' ? 'primary full' : 'quiet full')}</div><div class="activity-count">${progress.seen.length} / ${ACTIVITY_CONTENT[activityId].length} discovered on this device</div><div class="actions">${button('map', 'Back to valley', 'arrow-left', 'quiet')}${state.activeExpedition ? button('resume', 'Resume expedition', 'navigation', 'quiet') : ''}</div></div></section>`;
+}
+function vehicleScreen() {
+  const l = LOADOUTS.find((l: any) => l.id === inspectedVehicleId) || LOADOUTS[0];
+  const c = getCampaign(state), equipped = c.loadoutId === l.id;
+  return caption('Expedition fleet', escape(loadoutName(l.id))) + `<div class="vehicle-inspect-actions">${button('garage', 'Back to workshop', 'arrow-left')}${button('equip-loadout', equipped ? 'Equipped' : c.canEquip ? 'Equip vehicle' : 'Expedition active', equipped ? 'check' : 'wrench', 'primary', equipped || !c.canEquip || busy || !!pending, `data-loadout="${l.id}"`)}</div>`;
+}
 function render() {
   if (!state || !world) return;
   header(); navigation();
   const screens: any = { hq: hqScreen, map: mapScreen, 'region-info': regionInfoScreen, region: regionScreen, station: stationScreen, construction: constructionScreen, campaign: () => campaignScreen(state, busy, !!pending), garage: () => garageScreen(state, busy, !!pending), results: resultsScreen, journal: journalScreen, review: reviewScreen };
   screens.landmark = () => caption('Built by your team', escape(getCampaign(state).projects.find((p: any) => p.id === projectId)?.name || 'Valley restored')) + `<div class="hq-quick-actions">${button('map', 'Explore the valley', 'map', 'primary')}${button('campaign', 'Next restoration', 'flag')}</div>`;
-  if (view === 'travel') $('interface').innerHTML = `<section class="travel-panel ${paused ? 'paused' : ''}"><div class="eyebrow">Atlas M-07 / ${world.travel?.kind === 'station' ? 'Field march' : 'Convoy in transit'}</div><h2>${world.travel?.label ? `En route to ${escape(world.travel.label)}` : 'Route in progress'}</h2><div class="travel-progress"><span></span></div><div class="travel-readout"><span>ROUTE ACTIVE</span><strong>${Math.max(0, Math.ceil((world.travel?.duration || 0) - (world.travel?.elapsed || 0)))}s</strong></div><div class="actions">${button('pause-travel', paused ? 'Continue journey' : 'Pause journey', paused ? 'play' : 'pause')}${button('cancel-travel', world.travel?.kind === 'station' ? 'Cancel march' : 'Stop journey', 'flag')}</div></section>`;
+  screens.activity = activityScreen; screens.vehicle = vehicleScreen;
+  if (view === 'travel') $('interface').innerHTML = `<section class="travel-panel ${paused ? 'paused' : ''}"><div class="eyebrow">${escape(loadoutName(world.fleet.activeId))} / ${world.travel?.kind === 'station' ? 'Field march' : 'Convoy in transit'}</div><h2>${world.travel?.label ? `En route to ${escape(world.travel.label)}` : 'Route in progress'}</h2><div class="travel-progress"><span></span></div><div class="travel-readout"><span>ROUTE ACTIVE</span><strong>${Math.max(0, Math.ceil((world.travel?.duration || 0) - (world.travel?.elapsed || 0)))}s</strong></div><div class="actions">${button('pause-travel', paused ? 'Continue journey' : 'Pause journey', paused ? 'play' : 'pause')}${button('cancel-travel', world.travel?.kind === 'station' ? 'Cancel march' : 'Stop journey', 'flag')}</div></section>`;
   else $('interface').innerHTML = (screens[view] || hqScreen)();
   if (['map', 'region-info'].includes(view)) $('location-pins').innerHTML = `<button class="location-pin hq-location" type="button" data-pin="hq" data-action="hq">${ico('house')}<span><strong>Headquarters</strong><small>Home base</small></span></button><span class="strategic-anchor atlas-anchor atlas-world" data-pin="atlas" aria-label="Atlas expedition vehicle">${ico('navigation')}<b>ATLAS</b></span>` + REGIONS.map((r: any) => {
     const completed = regionCompleted(r.id); const active = state.activeExpedition?.regionId === r.id;
     return `<button class="location-pin subject-pin ${selectedRegionId === r.id ? 'selected' : ''} ${completed ? 'completed' : ''} ${active ? 'active' : ''}" type="button" data-pin="${r.id}" data-action="destination" data-region="${r.id}" aria-pressed="${selectedRegionId === r.id}" aria-label="${escape(r.name)}, ${completed ? 'completed' : active ? 'in progress' : 'ready'}">${completed ? `<span class="completion-beacon">${ico('check')}</span>` : ico(r.icon)}<span><strong>${escape(r.name)}</strong><small>${escape(subjectLabel(r))}</small></span></button>`;
   }).join('');
+  if (view === 'map') $('location-pins').insertAdjacentHTML('beforeend', ACTIVITY_SITES.map((s: any) => `<button class="activity-pin" data-pin="activity-${s.id}" data-action="select-activity" data-activity="${s.id}" title="${escape(s.name)}" aria-label="${escape(s.name)}" aria-pressed="${selectedActivityId === s.id}">${escape(s.symbol)}</button>`).join(''));
   else if (view === 'region' && state.activeExpedition) $('location-pins').innerHTML = `<span class="strategic-anchor hq-anchor" data-pin="hq" aria-label="Headquarters">${ico('house')}<b>HQ</b></span><span class="strategic-anchor atlas-anchor" data-pin="atlas" aria-label="Atlas expedition vehicle">${ico('navigation')}<b>ATLAS</b></span>` + state.activeExpedition.stations.map((s: any, i: number) => `<button class="field-location-pin ${s.id === targetStationId ? 'selected' : ''} ${s.resolved ? 'resolved' : ''}" type="button" data-pin="station-${i}" data-action="select-station" data-station="${escape(s.id)}" aria-label="${escape(s.name)}, ${s.resolved ? 'resolved' : 'available'}" aria-pressed="${s.id === targetStationId}"><span class="field-pin-index">${s.resolved ? ico('check') : i + 1}</span></button>`).join('');
-  else $('location-pins').innerHTML = '';
+  else if (view !== 'region-info') $('location-pins').innerHTML = '';
   if (pending) $('interface').insertAdjacentHTML('beforeend', `<div style="position:absolute;top:0;left:50%;transform:translateX(-50%);pointer-events:auto">${button('retry-save', 'Reconnect pending save', 'refresh-cw', 'gold', busy)}</div>`);
   syncWorld(); decorate();
   $('game').dataset.view = view; $('game').dataset.hqLevel = state.hqLevel;
+  $('game').dataset.activity = view === 'activity' ? activityId : '';
   $('game').setAttribute('aria-busy', String(busy));
 }
 function openDialog(title: string, contents: string) {
@@ -330,7 +372,7 @@ $('game').addEventListener('click', async e => {
     rows.forEach(row => row.classList.remove('selected')); return;
   }
   if (action === 'settings') return openSettings();
-  if (action === 'reset-game') return openDialog('Reset Beacon Brigade?', `<div class="reset-warning"><strong>This erases this child\'s Beacon Brigade progress.</strong><p>HQ levels, resources, completed districts, answers and journal records will all be permanently cleared. Other Bright Quest modules are not affected.</p></div><div class="dialog-actions">${button('close-dialog', 'Keep progress', 'arrow-left', 'primary')}${button('reset-now', 'Reset all progress', 'rotate-ccw', 'danger')}</div>`);
+  if (action === 'reset-game') return openDialog('Reset Beacon Brigade?', `<div class="reset-warning"><strong>This erases this child\'s Beacon Brigade progress.</strong><p>HQ levels, resources, completed districts, answers, journal records and discoveries on this device will all be permanently cleared. Other Bright Quest modules are not affected.</p></div><div class="dialog-actions">${button('close-dialog', 'Keep progress', 'arrow-left', 'primary')}${button('reset-now', 'Reset all progress', 'rotate-ccw', 'danger')}</div>`);
   if (action === 'reset-now') {
     const previousPaused = paused;
     closeDialog(); paused = true; world.paused = true;
@@ -338,7 +380,7 @@ $('game').addEventListener('click', async e => {
       world.travel = null; world.onTravelEnd = null; paused = false; world.paused = false;
       world.dustPuffs.forEach((p: any) => { p.visible = false; });
       selectedRegionId = ''; targetStationId = ''; stationId = ''; selected = ''; reviewId = ''; lastResult = null;
-      clearFieldLabs(); world.selectStation(regionId, null); world.clearRoute(); navigate('hq', {}, true);
+      clearFieldLabs(); storage.remove(funKey()); selectedActivityId = ''; activityChoice = ''; world.selectStation(regionId, null); world.clearRoute(); navigate('hq', {}, true);
       toast('Beacon Brigade has been reset for this child.');
     } else { paused = previousPaused; world.paused = paused; render(); }
     return;
@@ -347,6 +389,23 @@ $('game').addEventListener('click', async e => {
   if (action === 'pause-travel') { paused = !paused; world.paused = paused; render(); return; }
   if (action === 'cancel-travel') { const stationMarch = world.travel?.kind === 'station'; world.travel = null; world.onTravelEnd = null; world.clearRoute(); world.dustPuffs.forEach((p: any) => { p.visible = false; }); paused = false; world.paused = false; navigate(stationMarch ? 'region' : 'hq'); return; }
   if (busy || view === 'travel') return;
+  if (action === 'inspect-vehicle') { navigate('vehicle', { inspectedVehicleId: b.dataset.loadout }); return; }
+  if (action === 'select-activity') {
+    selectedActivityId = b.dataset.activity!; activityId = selectedActivityId; selectedRegionId = ''; activityChoice = ''; navigate('map'); return;
+  }
+  if (action === 'clear-activity') { selectedActivityId = ''; render(); return; }
+  if (action === 'visit-activity') {
+    activityId = selectedActivityId; activityChoice = ''; paused = false; world.paused = false;
+    world.driveToActivity(activityId, () => navigate('activity', {}, true));
+    applyTravelEquipment(); view = 'travel'; render(); return;
+  }
+  if (action === 'activity-answer') {
+    activityChoice = b.dataset.option!;
+    if (checkActivityAnswer(activityId, activityProgress().index, activityChoice)) { saveActivity(true); cue(true); }
+    render(); return;
+  }
+  if (action === 'reveal-activity') { saveActivity(true); render(); return; }
+  if (action === 'next-activity') { saveActivity(false, true); render(); return; }
   if (action === 'equip-loadout') { if (await commit({ type: 'equip', loadoutId: b.dataset.loadout })) toast(`${loadoutName(b.dataset.loadout!)} equipped.`); return; }
   if (action === 'restore-project') {
     const p = getCampaign(state).projects.find((p: any) => p.id === b.dataset.project);
@@ -357,11 +416,11 @@ $('game').addEventListener('click', async e => {
   if (action === 'next-mission') { const next = state.activeExpedition?.stations.find((s: any) => !s.resolved); if (next) return marchToStation(next.id); navigate('region'); return; }
   if (action === 'hq' || action === 'return-hq') { if (['region', 'station', 'results'].includes(view)) return travelTo('hq', 'hq'); navigate('hq'); return; }
   if (['map', 'construction', 'campaign', 'garage', 'journal', 'region'].includes(action!)) {
-    if (action === 'map') selectedRegionId = '';
+    if (action === 'map') { selectedRegionId = ''; selectedActivityId = ''; }
     if (action !== 'region' || state.activeExpedition?.stations.every((station: any) => station.resolved)) targetStationId = '';
     navigate(action!); return;
   }
-  if (action === 'destination') { targetStationId = ''; selectedRegionId = b.dataset.region!; regionId = selectedRegionId; navigate('map'); return; }
+  if (action === 'destination') { selectedActivityId = ''; targetStationId = ''; selectedRegionId = b.dataset.region!; regionId = selectedRegionId; navigate('map'); return; }
   if (action === 'clear-region') { selectedRegionId = ''; render(); return; }
   if (action === 'explore-region') return exploreRegion();
   if (action === 'march-region') return deploy();
@@ -387,6 +446,7 @@ dialog.addEventListener('cancel', e => { e.preventDefault(); closeDialog(); });
 document.addEventListener('visibilitychange', () => { if (document.hidden) silence(); });
 window.addEventListener('online', () => { if (pending) retryPending(); });
 window.addEventListener('popstate', e => {
+  activityId = e.state?.activityId || 'jokes'; selectedActivityId = e.state?.selectedActivityId || ''; activityChoice = ''; inspectedVehicleId = e.state?.inspectedVehicleId || 'balanced';
   projectId = e.state?.projectId || 'bridge';
   silence(); if (dialog.open) closeDialog();
   if (world?.travel) { world.travel = null; world.onTravelEnd = null; }
@@ -400,6 +460,11 @@ async function boot() {
     world = new ExpeditionWorld($('scene') as HTMLCanvasElement); world.createBase(state.hqLevel); world.reduced = prefs.reduced;
     world.onDestinationPick = id => {
       if (view !== 'map' || dialog.open || busy || pending) return;
+      if (id.startsWith('activity-')) {
+        const site = ACTIVITY_SITES.find((s: any) => s.id === id.slice(9)); if (!site) return;
+        activityId = site.id; selectedActivityId = site.id; selectedRegionId = ''; activityChoice = ''; navigate('map'); return;
+      }
+      selectedActivityId = '';
       if (id === 'hq') { selectedRegionId = ''; navigate('hq'); return; }
       if (!REGIONS.some((r: any) => r.id === id)) return;
       targetStationId = ''; selectedRegionId = id; regionId = id; navigate('map');
@@ -424,6 +489,7 @@ async function boot() {
     $('scene').addEventListener('world-error', (e: any) => toast(e.detail));
     $('boot').remove();
     const savedRoute = history.state;
+    activityId = savedRoute?.activityId || 'jokes'; selectedActivityId = savedRoute?.selectedActivityId || ''; inspectedVehicleId = savedRoute?.inspectedVehicleId || 'balanced';
     projectId = savedRoute?.projectId || 'bridge';
     if (savedRoute?.view && !['travel', 'results'].includes(savedRoute.view)) { view = savedRoute.view; regionId = savedRoute.regionId || regionId; selectedRegionId = savedRoute.selectedRegionId || ''; stationId = savedRoute.stationId || ''; targetStationId = savedRoute.targetStationId || ''; reviewId = savedRoute.reviewId || ''; }
     navigate(view, {}, true);

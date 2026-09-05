@@ -17,7 +17,7 @@ const hash = b => createHash('sha256').update(b).digest('hex');
 const manifest = JSON.parse(await readFile('beacon-brigade/assets/provenance.json', 'utf8'));
 let browser, harness;
 try {
-  for (const path of ['beacon-brigade/index.html', 'beacon-brigade/game.js', 'beacon-brigade/beacon.css', 'beacon-brigade/campaign.css', 'beacon-brigade/field-lab.css', ...manifest.files.map(f => 'beacon-brigade/assets/' + f.file)]) {
+  for (const path of ['beacon-brigade/index.html', 'beacon-brigade/game.js', 'beacon-brigade/beacon.css', 'beacon-brigade/campaign.css', 'beacon-brigade/field-lab.css', 'beacon-brigade/discovery.css', ...manifest.files.map(f => 'beacon-brigade/assets/' + f.file)]) {
     const response = await fetch(origin + '/' + path, { cache: 'no-store' });
     assert.equal(response.status, 200, path);
     const local = await readFile(path), live = Buffer.from(await response.arrayBuffer());
@@ -78,7 +78,27 @@ try {
     }
     await act('campaign'); assert.equal(await page.locator('.restoration-project').count(), 3);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
-    await act('hq'); await act('garage'); assert.equal(await page.locator('.loadout-item').count(), 3);
+    await act('hq'); await act('garage'); assert.equal(await page.locator('.loadout-item').count(), 5);
+    for (const id of ['balanced', 'survey', 'hauler', 'rescue', 'crawler']) {
+      await page.locator(`[data-action="inspect-vehicle"][data-loadout="${id}"]`).click(); await idle();
+      await page.locator('#game[data-view="vehicle"]').waitFor();
+      assert.equal(latest.campaign.loadoutId, 'balanced', 'Inspection must not equip');
+      await page.screenshot({ path: resolve(out, `live-vehicle-${id}-${name}.png`) });
+      await act('garage');
+    }
+    await act('settings'); await page.locator('#motion-setting').check(); await act('save-settings');
+    await act('map');
+    for (const id of ['jokes', 'riddles', 'lookout', 'numbers']) {
+      const version = latest.version;
+      await page.locator(`[data-activity="${id}"]`).click(); await act('visit-activity');
+      await page.locator('#game[data-view="activity"]').waitFor();
+      if (await page.locator('[data-action="reveal-activity"]').count()) await act('reveal-activity');
+      assert(await page.locator('.discovery-answer').isVisible());
+      assert.equal(latest.version, version, 'Discovery must not change assessment progress');
+      await page.screenshot({ path: resolve(out, `live-discovery-${id}-${name}.png`) });
+      await act('map');
+    }
+    report.checks.push(`${name}: all five vehicle inspections and four discovery arrivals/reveals`);
     report.checks.push(`${name}: nonblank live canvas, all five destination popups, campaign, garage and return controls`);
   }
   await page.setViewportSize({ width: 1440, height: 900 }); await act('map');
