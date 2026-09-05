@@ -1,0 +1,83 @@
+/* Scoped to the optional station manipulative; no station or answer styles. */
+.field-lab {
+  --fl-ink: #243b36;
+  --fl-line: #bacac5;
+  --fl-teal: #20695f;
+  color: var(--fl-ink);
+  background: #f7faf9;
+  border-block: 1px solid var(--fl-line);
+  margin-block: 16px;
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: left;
+  letter-spacing: 0;
+  min-width: 0;
+}
+.field-lab *, .field-lab *::before, .field-lab *::after { box-sizing: border-box; letter-spacing: 0; }
+.field-lab summary { min-height: 48px; padding: 12px 8px; cursor: pointer; font-weight: 700; overflow-wrap: anywhere; }
+.field-lab .fl-optional { display: inline-block; margin-left: 12px; font-size: 12px; font-weight: 400; color: #546760; }
+.field-lab .fl-body { padding: 0 8px 14px; min-width: 0; }
+.field-lab .fl-top, .field-lab .fl-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.field-lab .fl-top { justify-content: space-between; margin-bottom: 10px; font-size: 12px; color: #546760; }
+.field-lab .fl-top > span { flex: 1; overflow-wrap: anywhere; }
+.field-lab button {
+  appearance: none; display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px; min-width: 44px; min-height: 44px; margin: 0; padding: 9px;
+  border: 1px solid #859e95; border-radius: 4px; background: #fff;
+  color: var(--fl-ink); font: inherit; line-height: 1.3; font-weight: 650;
+  cursor: pointer; box-shadow: none; touch-action: manipulation; overflow-wrap: anywhere;
+}
+.field-lab button:hover:not(:disabled) { background: #e7f0ed; border-color: var(--fl-teal); }
+.field-lab button:disabled { color: #68736f; background: #edf0ef; border-color: #c9d1cd; cursor: default; }
+.field-lab :is(button, input, summary):focus-visible { outline: 3px solid #256ca1; outline-offset: 2px; }
+.field-lab svg { width: 20px; height: 20px; flex: 0 0 20px; pointer-events: none; }
+.field-lab .fl-readout { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+.field-lab .fl-metric { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.field-lab .fl-metric > span { min-height: 36px; font-size: 12px; line-height: 1.4; overflow-wrap: anywhere; }
+.field-lab .fl-metric strong { font-size: 20px; line-height: 1.3; font-variant-numeric: tabular-nums; }
+.field-lab .fl-toolbar { margin-bottom: 12px; }
+.field-lab .fl-kits { display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); gap: 10px; }
+.field-lab .fl-kit { min-width: 0; padding: 0; }
+.field-lab .fl-kit h4 { display: flex; justify-content: space-between; align-items: center; margin: 0 0 6px; font-size: 13px; line-height: 24px; }
+.field-lab .fl-kit h4 strong { font-size: 18px; font-variant-numeric: tabular-nums; }
+.field-lab .fl-washers {
+  display: grid; grid-template-columns: repeat(auto-fill, 16px); grid-auto-rows: 16px;
+  align-content: start; justify-content: center; gap: 5px; height: 98px; padding: 8px;
+  overflow-y: auto; scrollbar-gutter: stable; border: 1px solid var(--fl-line);
+  border-radius: 4px; background: #edf3f1;
+}
+.field-lab .fl-washer { display: block; width: 16px; height: 16px; border: 5px solid #587c85; border-radius: 50%; }
+.field-lab .fl-kit-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; }
+.field-lab .fl-status { margin: 12px 0 0; min-height: 42px; font-size: 13px; color: #41594f; overflow-wrap: anywhere; }
+.field-lab .fl-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 12px; }
+.field-lab .fl-modes button[aria-pressed="true"] { background: var(--fl-teal); color: white; border-color: var(--fl-teal); }
+.field-lab .fl-crates { display: grid; grid-template-columns: repeat(auto-fit, minmax(152px, 1fr)); gap: 10px; }
+.field-lab .fl-crate { min-width: 0; margin: 0; padding: 8px; border: 1px solid var(--fl-line); border-radius: 4px; }
+.field-lab .fl-crate legend { padding-inline: 4px; font-size: 12px; font-weight: 650; }
+.field-lab .fl-pieces { display: grid; grid-template-columns: repeat(auto-fit, 44px); gap: 4px; justify-content: center; }
+.field-lab .fl-piece { position: relative; width: 44px; height: 44px; padding: 4px; }
+.field-lab .fl-piece-shape { display: grid; place-items: center; width: 28px; height: 28px; border: 2px solid #79877c; border-radius: 3px; background: #e2e8df; font-size: 13px; font-variant-numeric: tabular-nums; }
+.field-lab .fl-counted .fl-piece-shape { background: #20695f; border-color: #20695f; color: white; }
+.field-lab .fl-reserved { border: 2px dashed #895737; background: #f7ede5; }
+.field-lab .fl-piece-mark { position: absolute; right: 1px; top: -1px; color: #895737; background: #fff; font-weight: 800; font-size: 15px; line-height: 16px; }
+.field-lab .fl-choices { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; border: 0; padding: 0; margin: 0 0 14px; }
+.field-lab .fl-choices legend { margin-bottom: 6px; padding: 0; font-size: 13px; font-weight: 700; overflow-wrap: anywhere; }
+.field-lab .fl-choice { display: flex; align-items: center; gap: 8px; min-height: 44px; max-width: 100%; padding: 7px 9px; border: 1px solid var(--fl-line); border-radius: 4px; cursor: pointer; font-size: 13px; }
+.field-lab .fl-choice:has(:checked) { background: #e1eeea; border-color: var(--fl-teal); }
+.field-lab .fl-choice:has(:disabled) { color: #68736f; cursor: default; }
+.field-lab .fl-choice span { min-width: 0; overflow-wrap: anywhere; }
+.field-lab input[type="checkbox"] { appearance: auto; flex: 0 0 20px; width: 20px; height: 20px; min-height: 20px; margin: 0; padding: 0; accent-color: var(--fl-teal); }
+.field-lab .fl-comparison { min-height: 64px; }
+.field-lab table { border-collapse: collapse; table-layout: fixed; width: 100%; margin: 0; font-size: 13px; }
+.field-lab caption { text-align: left; color: #546760; font-size: 12px; padding-block: 0 6px; }
+.field-lab th, .field-lab td { width: 33.333%; padding: 10px 6px; border-bottom: 1px solid var(--fl-line); vertical-align: top; text-align: left; overflow-wrap: anywhere; white-space: normal; }
+.field-lab thead th { background: #eaf0ee; font-weight: 700; }
+.field-lab tbody th { font-weight: 600; }
+.field-lab th small { display: block; margin-top: 6px; font-size: 11px; font-weight: 400; color: #546760; }
+.field-lab .fl-notes { margin-top: 10px; border-top: 1px solid var(--fl-line); }
+.field-lab .fl-notes summary { font-size: 12px; }
+.field-lab .fl-notes p { font-size: 12px; margin: 6px 8px; color: #546760; overflow-wrap: anywhere; }
+@media (max-width: 380px) {
+  .field-lab .fl-crates { grid-template-columns: 1fr; }
+  .field-lab th, .field-lab td { padding-inline: 4px; font-size: 12px; }
+}

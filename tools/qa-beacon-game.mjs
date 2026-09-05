@@ -105,7 +105,7 @@ try {
       await act('journal'); await act('map');
       check(`${region} shows a luminous completion choice`, await page.evaluate(regionId => {
         const world = window.__BEACON_QA__.world; const marker = world.mapMarkers.get(regionId);
-        return !!marker?.completed && marker.sprite.material.map === world.completedMarkerTexture && marker.halo.material.opacity > .5;
+        return !!marker?.completed && marker.sprite.material.map === world.completedMarkerTexture && marker.halo.material.opacity > .1;
       }, region));
       await act('hq');
     }

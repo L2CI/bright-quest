@@ -98,4 +98,4 @@
 }
 
 /* Keep the world lively without letting every biome and beacon compete at once. */
-#scene{filter:saturate(.64) contrast(.97) brightness(.98)}
+#scene{filter:none}

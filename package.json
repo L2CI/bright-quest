@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build:beacon": "node tools/build-beacon.mjs",
-    "test:beacon": "node --test tools/test-beacon-domain.mjs tools/test-beacon-api.mjs",
+    "test:beacon": "node --test tools/test-beacon-domain.mjs tools/test-beacon-api.mjs tools/test-beacon-campaign.mjs tools/test-beacon-content-age.mjs",
     "serve": "node serve-static.mjs",
     "build:final-test": "node build-final-test-data.mjs",
     "build:workbook": "node build-questionnaire-workbook.mjs",

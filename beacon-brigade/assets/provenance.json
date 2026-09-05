@@ -41,6 +41,78 @@
       "generatedAt": "2026-09-01",
       "bytes": 658306,
       "sha256": "eb55c1dc04999b0b23a83f46e53d53ba4ce2d6db059e7ac98031b94aca3eb22e"
+    },
+    {
+      "file": "valley-ground.jpg",
+      "source": "OpenAI image generation",
+      "asset": "Original seamless natural valley ground",
+      "licence": "Project-generated asset",
+      "generatedAt": "2026-09-05",
+      "bytes": 494670,
+      "sha256": "3e0a7f3fa0250d8c981274b96bd03447c4e0c99e682921a51529b26fe38b9cb3"
+    },
+    {
+      "file": "atlas-balanced.jpg",
+      "source": "Rendered from Beacon Brigade Three.js world",
+      "asset": "Actual in-game scenery and vehicle capture",
+      "licence": "Project-generated asset",
+      "generatedAt": "2026-09-05",
+      "bytes": 120545,
+      "sha256": "4006d59bf94e34952a844b5580a47069f1b7c97af71e355cf0d87dabaf4d4b19"
+    },
+    {
+      "file": "atlas-survey.jpg",
+      "source": "Rendered from Beacon Brigade Three.js world",
+      "asset": "Actual in-game scenery and vehicle capture",
+      "licence": "Project-generated asset",
+      "generatedAt": "2026-09-05",
+      "bytes": 119661,
+      "sha256": "84ba2bde7e81c44c6876d6e5b4bf760511d03ee62d5db775f67db46d9a98c9d4"
+    },
+    {
+      "file": "atlas-hauler.jpg",
+      "source": "Rendered from Beacon Brigade Three.js world",
+      "asset": "Actual in-game scenery and vehicle capture",
+      "licence": "Project-generated asset",
+      "generatedAt": "2026-09-05",
+      "bytes": 119044,
+      "sha256": "53bb3464c2e46e8083b7f2c49490399995953289e8b131f418243b34450b9898"
+    },
+    {
+      "file": "project-bridge.jpg",
+      "source": "Rendered from Beacon Brigade Three.js world",
+      "asset": "Actual in-game scenery and vehicle capture",
+      "licence": "Project-generated asset",
+      "generatedAt": "2026-09-05",
+      "bytes": 138096,
+      "sha256": "bf961292a0db610407ee5b29e914d627d4e01bb685faeee372f3e6e4830d6252"
+    },
+    {
+      "file": "project-observatory.jpg",
+      "source": "Rendered from Beacon Brigade Three.js world",
+      "asset": "Actual in-game scenery and vehicle capture",
+      "licence": "Project-generated asset",
+      "generatedAt": "2026-09-05",
+      "bytes": 152177,
+      "sha256": "0c1a5c4d6b78bfe3e86cf78838ba9346d27fd0c575b7ead32435e1a5336643b5"
+    },
+    {
+      "file": "project-greenhouse.jpg",
+      "source": "Rendered from Beacon Brigade Three.js world",
+      "asset": "Actual in-game scenery and vehicle capture",
+      "licence": "Project-generated asset",
+      "generatedAt": "2026-09-05",
+      "bytes": 171607,
+      "sha256": "9af21b88cd86d2556405823db37dad5c0ff71efac4c6bbd8b109ecca79f3ecd0"
+    },
+    {
+      "file": "module-preview.jpg",
+      "source": "Rendered from Beacon Brigade Three.js world",
+      "asset": "Actual in-game scenery and vehicle capture",
+      "licence": "Project-generated asset",
+      "generatedAt": "2026-09-05",
+      "bytes": 199186,
+      "sha256": "c8df625d5bc52ade795fa4b854b6dc56a96ca9ef55a556daa1502bf89fd5c6cb"
     }
   ]
 }

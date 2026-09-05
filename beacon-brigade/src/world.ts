@@ -1,4 +1,5 @@
 import * as THREE from '../../cave-river-quest/vendor/three.module.js';
+import { ValleyScenery, disposeScenery } from './scenery';
 
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 const LOCATIONS: Record<string, any> = {
@@ -134,25 +135,27 @@ export class ExpeditionWorld {
   target = V(0, 1, 0); cameraGoal = V(); lookGoal = V(); travel: any = null;
   paused = false; reduced = false; running = true; frame = 0; last = 0; clock = 0;
   onTravelEnd: (() => void) | null = null; onFrame: ((pins: any[]) => void) | null = null;
+  onDestinationPick: ((id: string) => void) | null = null;
   width = 0; height = 0; hqLevel = 0; ready: Promise<void>; textureErrors: string[] = [];
   currentArea = 'hq'; framingKey = ''; selectedNodeKey = '';
+  mapSelection = false;
   markerLayer = new THREE.Group(); mapMarkers = new Map<string, any>(); stationMarkers = new Map<string, any>();
   animatedProps: any[] = []; completedMarkerTexture = markerTexture('check', 0x54ef9b, true);
-  resizeObserver: ResizeObserver;
+  resizeObserver: ResizeObserver; scenery: ValleyScenery;
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, preserveDrawingBuffer: true });
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.6)); this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap; this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-    this.renderer.toneMapping = THREE.ACESFilmicToneMapping; this.renderer.toneMappingExposure = .96;
-    this.scene = new THREE.Scene(); this.scene.background = new THREE.Color(0xccecf1);
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping; this.renderer.toneMappingExposure = 1.06;
+    this.scene = new THREE.Scene(); this.scene.background = new THREE.Color(0xc5d3cf);
     paint.map = surfaceTexture(); edge.map = paint.map; blue.map = paint.map;
-    this.scene.fog = new THREE.FogExp2(0xccecf1, .007);
-    this.camera = new THREE.PerspectiveCamera(42, 1, .1, 300); this.camera.position.set(15, 10, 18);
-    this.scene.add(new THREE.HemisphereLight(0xf2fbff, 0x547b59, 1.75));
-    const sun = new THREE.DirectionalLight(0xffedc3, 2.75); sun.position.set(-20, 35, 15); sun.castShadow = true;
-    sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -50, right: 50, top: 50, bottom: -50, near: .5, far: 110 });
-    sun.shadow.normalBias = .045; this.scene.add(sun);
+    this.scene.fog = new THREE.FogExp2(0xc5d3cf, .007);
+    this.camera = new THREE.PerspectiveCamera(42, 1, .1, 650); this.camera.position.set(15, 10, 18);
+    this.scene.add(new THREE.HemisphereLight(0xe9efed, 0x646c54, 1.65));
+    const sun = new THREE.DirectionalLight(0xffe8c7, 2.4); sun.position.set(-38, 65, 25); sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -78, right: 78, top: 78, bottom: -78, near: .5, far: 190 });
+    sun.shadow.normalBias = .06; sun.shadow.bias = -.00015; sun.target.position.set(0, 0, -15); this.scene.add(sun, sun.target);
     this.group = new THREE.Group(); this.scene.add(this.group);
     this.group.add(this.routeLayer, this.waypoint, this.markerLayer); this.waypoint.visible = false;
     this.waypointRing = mesh(this.waypoint, new THREE.TorusGeometry(1.05, .11, 12, 40), waypointMat, 0, .18, 0); this.waypointRing.rotation.x = Math.PI / 2;
@@ -161,13 +164,27 @@ export class ExpeditionWorld {
     this.hq = new THREE.Group(); this.group.add(this.hq); this.createBase(1);
     this.createHarbour(); this.createEnglishDistrict(); this.createPhysicsDistrict(); this.createChemistryDistrict(); this.createScienceBase(); this.tank = this.createTank();
     this.createWorldMarkers();
-    this.tank.position.set(2.4, .02, 4.5); this.tank.rotation.y = .3; this.group.add(this.tank);
+    this.tank.position.copy(LOCATIONS.hq).add(V(2.4, .02, 4.5)); this.tank.rotation.y = .3; this.group.add(this.tank);
     this.createDust();
     this.resizeObserver = new ResizeObserver(() => this.resize()); this.resizeObserver.observe(canvas.parentElement!);
-    let dragging = false, lastX = 0;
-    canvas.addEventListener('pointerdown', e => { if (this.travel) return; dragging = true; lastX = e.clientX; canvas.setPointerCapture(e.pointerId); });
-    canvas.addEventListener('pointermove', e => { if (dragging) { this.yaw += (lastX - e.clientX) * .005; lastX = e.clientX; } });
-    for (const type of ['pointerup', 'pointercancel']) canvas.addEventListener(type, () => { dragging = false; });
+    let pointer: number | null = null, lastX = 0, startX = 0, startY = 0, dragged = false;
+    canvas.addEventListener('pointerdown', e => {
+      if (this.travel || !e.isPrimary || e.button !== 0) return;
+      pointer = e.pointerId; startX = lastX = e.clientX; startY = e.clientY; dragged = false; canvas.setPointerCapture(e.pointerId);
+    });
+    canvas.addEventListener('pointermove', e => {
+      if (e.pointerId !== pointer) return;
+      if (Math.hypot(e.clientX - startX, e.clientY - startY) > 8) dragged = true;
+      if (dragged) this.yaw += (lastX - e.clientX) * .005;
+      lastX = e.clientX;
+    });
+    canvas.addEventListener('pointerup', e => {
+      if (e.pointerId !== pointer) return;
+      const tap = !dragged && Math.hypot(e.clientX - startX, e.clientY - startY) <= 8;
+      pointer = null; if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
+      if (tap && this.view === 'map' && !this.travel) this.pickDestination(e.clientX, e.clientY);
+    });
+    for (const type of ['pointercancel', 'lostpointercapture']) canvas.addEventListener(type, () => { pointer = null; });
     canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); this.running = false; canvas.dispatchEvent(new CustomEvent('world-error', { detail: 'Graphics paused. Reload to restore the scene; your saved progress is safe.' })); });
     this.resize(); this.setView('hq'); this.animate(0);
   }
@@ -201,6 +218,7 @@ export class ExpeditionWorld {
     }
   }
   syncMarkers(options: any) {
+    this.mapSelection = !!options.selectedRegion;
     const mapVisible = options.view === 'map' || options.view === 'region-info';
     for (const [id, marker] of this.mapMarkers) {
       marker.root.visible = mapVisible || (options.view === 'region' && id === 'hq');
@@ -229,58 +247,31 @@ export class ExpeditionWorld {
     }
   }
   async createLandscape() {
-    const loader = new THREE.TextureLoader();
-    const load = async (path: string) => {
-      try { return await loader.loadAsync(new URL(`./assets/${path}`, document.baseURI).href); }
-      catch { this.textureErrors.push(path); return null; }
-    };
-    // Geometry remains available while textures stream in; no blank loading scene.
-    const underlayGeo = new THREE.PlaneGeometry(360, 360); underlayGeo.rotateX(-Math.PI / 2);
-    const underlay = mesh(this.group, underlayGeo, new THREE.MeshStandardMaterial({ color: 0x72b96f, roughness: 1 }), 0, -.42, 0);
-    underlay.castShadow = false; underlay.receiveShadow = true;
-    const geo = new THREE.PlaneGeometry(180, 180, 120, 120); geo.rotateX(-Math.PI / 2);
-    const p = geo.attributes.position;
-    for (let i = 0; i < p.count; i++) {
-      const x = p.getX(i), z = p.getZ(i), distance = Math.max(Math.abs(x) - 39, Math.abs(z) - 38, 0);
-      p.setY(i, distance * .17 * (1.1 + Math.sin(x * .13) * Math.cos(z * .1)) - .08);
-    }
-    geo.computeVertexNormals();
-    const ground = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .92 });
-    mesh(this.group, geo, ground).castShadow = false;
-    const road = material('road', 0xe3d5ad, .03, .94);
-    for (const endpoint of Object.entries(LOCATIONS).filter(([id]) => id !== 'hq').map(([, point]) => point)) {
-      const mid = endpoint.clone().multiplyScalar(.5); const length = endpoint.length();
-        const obj = box(this.group, 4.3, .07, length + 8, road, mid.x, .02, mid.z);
-      obj.rotation.y = Math.atan2(endpoint.x, endpoint.z);
-      for (let i = 1; i < 14; i++) {
-        const t = i / 14; const marking = box(this.group, .09, .01, .68, material('line', 0xfff6d7), endpoint.x * t, .067, endpoint.z * t);
-        marking.rotation.y = obj.rotation.y;
-      }
-    }
-    const rockMat = material('rock', 0x7d8d7a, 0, .97);
-    const rockGeo = new THREE.DodecahedronGeometry(1, 1);
-    const rocks = new THREE.InstancedMesh(rockGeo, rockMat, 140); const temp = new THREE.Object3D();
-    let seed = 18; const rand = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
-    for (let i = 0; i < 140; i++) {
-      const angle = rand() * Math.PI * 2, r = 39 + rand() * 27;
-      const s = .3 + rand() * 1.15; temp.position.set(Math.cos(angle) * r, .1, Math.sin(angle) * r);
-      temp.scale.set(s * 1.65, s * .72, s * 1.15); temp.rotation.set(rand() * .25, rand() * 6, rand() * .18); temp.updateMatrix(); rocks.setMatrixAt(i, temp.matrix);
-    }
-    rocks.castShadow = true; rocks.receiveShadow = true; this.group.add(rocks);
-    for (let i = 0; i < 32; i++) {
-      const angle = rand() * 6.28, r = 36 + rand() * 20, x = Math.cos(angle) * r, z = Math.sin(angle) * r;
-      this.tree(x, z, .7 + rand() * .8);
-    }
-    const colour = await load('world-biomes.jpg'); const normal = await load('ground-normal.jpg');
-    if (colour) { colour.colorSpace = THREE.SRGBColorSpace; colour.anisotropy = 8; ground.map = colour; ground.color.set(0xffffff); }
-    if (normal) { normal.wrapS = normal.wrapT = THREE.RepeatWrapping; normal.repeat.set(24, 24); normal.anisotropy = 8; }
-    if (normal) { ground.normalMap = normal; ground.normalScale.set(.6, .6); }
-    ground.needsUpdate = true;
-    const concreteMap = await load('concrete-colour.jpg'); const concreteNormal = await load('concrete-normal.jpg');
-    for (const tex of [concreteMap, concreteNormal]) if (tex) { tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(6, 6); tex.anisotropy = 8; }
-    if (concreteMap) { concreteMap.colorSpace = THREE.SRGBColorSpace; concrete.map = concreteMap; concrete.color.set(0xd3d4ca); }
-    if (concreteNormal) { concrete.normalMap = concreteNormal; concrete.normalScale.set(.4, .4); }
-    concrete.needsUpdate = true;
+    this.scenery = new ValleyScenery(this.group, LOCATIONS, REGION_NODES, this.textureErrors);
+    this.water = this.scenery.water;
+    await this.scenery.ready;
+  }
+  syncCampaign(campaign: any, totalResolved?: number) {
+    this.scenery.syncCampaign(campaign, totalResolved);
+  }
+  setLoadout(loadoutId: string) { this.scenery.setLoadout(this.tank, loadoutId); }
+  pickDestination(clientX: number, clientY: number) {
+    if (this.view !== 'map' || this.travel) return null;
+    const rect = this.canvas.getBoundingClientRect();
+    const ray = new THREE.Raycaster(); ray.setFromCamera(new THREE.Vector2((clientX - rect.left) / rect.width * 2 - 1, 1 - (clientY - rect.top) / rect.height * 2), this.camera);
+    const hit = ray.intersectObjects([...this.scenery.campuses.values()], true)[0];
+    let object = hit?.object;
+    while (object && !object.userData.destination) object = object.parent;
+    const id = object?.userData.destination;
+    if (id) this.onDestinationPick?.(id);
+    return id || null;
+  }
+  focusProject(id: string) {
+    const locations: Record<string, any> = { bridge: V(10, 0, 19.7), observatory: V(12, 0, -48), greenhouse: V(44, 0, 6) };
+    if (!locations[id]) return false;
+    this.view = 'project'; this.framingKey = `project:${id}`; this.target.copy(locations[id]).add(V(0, 1.2, 0));
+    this.radius = id === 'bridge' ? 20 : 14; this.elevation = id === 'bridge' ? 16 : 10; this.yaw = .52;
+    return true;
   }
   tree(x: number, z: number, s: number) {
     const g = new THREE.Group(); g.position.set(x, 0, z); g.scale.setScalar(s); this.group.add(g);
@@ -500,38 +491,13 @@ export class ExpeditionWorld {
   }
   createBase(level: number) {
     this.hqLevel = level;
-    while (this.hq.children.length) this.hq.remove(this.hq.children[0]);
-    const command = material('hq-teal', 0x2c9f91, .08, .55), roof = material('hq-roof', 0x245f68, .12, .56), warm = material('hq-warm', 0xffc857, .06, .56), cream = material('hq-cream', 0xf6edcf, .02, .82), coral = material('hq-coral', 0xef746f, .05, .58);
-    this.districtGarden(this.hq, 0x55c5a0);
-    const commandHeight = level === 1 ? 1.65 : level === 2 ? 2.65 : 3.25;
-    cylinder(this.hq, 3.4, 3.9, commandHeight, cream, -3.2, commandHeight / 2 + .16, -3.1, 32);
-    const commandDome = mesh(this.hq, new THREE.SphereGeometry(3.5, 28, 14, 0, Math.PI * 2, 0, Math.PI / 2), command, -3.2, commandHeight + .14, -3.1); commandDome.scale.y = .48; commandDome.castShadow = true;
-    for (let i = 0; i < 7; i++) {
-      const a = -.9 + i * .3; const window = mesh(this.hq, new THREE.PlaneGeometry(.72, .82), glass, -3.2 + Math.sin(a) * 3.42, commandHeight * .62, -3.1 + Math.cos(a) * 3.42);
-      window.rotation.y = a; window.castShadow = false;
-    }
-    cylinder(this.hq, 2.45, 2.8, 1.7, command, 4.4, 1.02, -3.5, 28);
-    const workshopRoof = mesh(this.hq, new THREE.SphereGeometry(2.55, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), roof, 4.4, 1.86, -3.5); workshopRoof.scale.y = .38;
-    const wrench = new THREE.Group(); wrench.position.set(4.4, 2.55, -3.5); this.hq.add(wrench);
-    const wrenchRing = mesh(wrench, new THREE.TorusGeometry(.63, .15, 10, 24, Math.PI * 1.45), warm); wrenchRing.rotation.z = .7; line(wrench, V(-.5, -.45, 0), V(.65, .62, 0), .16, warm);
-    for (let i = 0; i < 4; i++) { const crate = cylinder(this.hq, .55, .66, .58, i % 2 ? coral : warm, -6.5 + i * 1.38, .34, 3.8, 16); crate.rotation.y = i * .3; }
-    for (let i = 0; i < 6; i++) {
-      const lampStem = cylinder(this.hq, .055, .08, 1.2, roof, -7 + i * 2.4, .65, 6, 10);
-      const orb = mesh(this.hq, new THREE.SphereGeometry(.18, 12, 8), i % 2 ? warm : coral, -7 + i * 2.4, 1.35, 6); this.animatedProps.push({ kind: 'bob', object: orb, baseY: orb.position.y, speed: 1.1, phase: i * .6, amp: .07 });
-    }
-    const mast = new THREE.Group(); mast.position.set(-6.4, 0, -5.5); this.hq.add(mast);
-    cylinder(mast, .12, .22, 5.7, roof, 0, 2.85, 0, 12);
-    this.dish = new THREE.Group(); mast.add(this.dish); this.dish.position.set(0, 5.1, 0);
-    const dish = mesh(this.dish, new THREE.SphereGeometry(1.05, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), cream); dish.rotation.x = 1.1;
-    line(this.dish, V(0, 0, 0), V(0, .4, 1.15), .035, roof);
-    if (level > 1) for (let i = 0; i < 5; i++) {
-      const a = i / 5 * Math.PI * 2; const solar = box(this.hq, 2.25, .08, 1.25, glass, Math.cos(a) * 5.5, .72, Math.sin(a) * 4.7 - 1.2); solar.rotation.x = .28; solar.rotation.y = -a;
-    }
-    if (level > 2) {
-      const beacon = new THREE.Group(); beacon.position.set(-3.2, commandHeight + 1.2, -3.1); this.hq.add(beacon);
-      cylinder(beacon, .42, .68, 2.4, warm, 0, 1.2, 0, 18); const crown = mesh(beacon, new THREE.SphereGeometry(.48, 16, 10), lamp, 0, 2.55, 0);
-      const halo = mesh(beacon, new THREE.TorusGeometry(.9, .08, 10, 36), coral, 0, 2.55, 0); halo.rotation.x = Math.PI / 2; this.animatedProps.push({ kind: 'spin', object: halo, speed: .35, phase: 0 }); crown.castShadow = false;
-    }
+    disposeScenery(this.hq);
+    this.hq.position.copy(LOCATIONS.hq);
+    this.scenery.campus('hq', this.hq, level);
+    const mast = cylinder(this.hq, .08, .14, 5.5, steel, -6.5, 2.75, -5.3, 10);
+    this.dish = new THREE.Group(); this.dish.position.set(-6.5, 5.1, -5.3); this.hq.add(this.dish);
+    const dish = mesh(this.dish, new THREE.SphereGeometry(.85, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), concrete);
+    dish.rotation.x = 1.1; line(this.dish, V(), V(0, .3, 1), .025, steel);
   }
   building(g: any, x: number, z: number, w: number, d: number, h: number, name: string, mat: any) {
     const building = new THREE.Group(); building.position.set(x, 0, z); g.add(building);
@@ -571,96 +537,13 @@ export class ExpeditionWorld {
       flower.castShadow = false;
     }
   }
-  createHarbour() {
-    const g = new THREE.Group(); g.position.copy(LOCATIONS.harbour); this.group.add(g);
-    const aqua = material('math-aqua', 0x12b8b1, .08, .55), gold = material('math-gold', 0xffc857, .08, .55), ink = material('math-ink', 0x215b6a, .12, .6);
-    this.districtGarden(g, 0x33d5c8);
-    cylinder(g, 3.3, 3.8, 1.3, material('math-cream', 0xfff0c6, .02, .86), 0, .72, -1.1, 32);
-    for (let i = 0; i < 4; i++) cylinder(g, 2.8 - i * .45, 3.12 - i * .45, .55, i % 2 ? aqua : gold, -1.5 + i * 1.02, 1.45 + i * .53, -1.1, 24);
-    const abacus = new THREE.Group(); abacus.position.set(3.9, 0, 2); g.add(abacus);
-    for (const x of [-2, 2]) { const post = cylinder(abacus, .15, .2, 4, gold, x, 2, 0, 16); post.rotation.z = -.06 * x; }
-    for (let y = .85; y < 3.7; y += .66) {
-      line(abacus, V(-2.05, y, 0), V(2.05, y, 0), .055, ink);
-      for (let i = 0; i < 5; i++) { const bead = mesh(abacus, new THREE.SphereGeometry(.24, 14, 8), i % 2 ? aqua : gold, -1.25 + i * .62, y, 0); bead.scale.x = 1.35; this.animatedProps.push({ kind: 'slide', object: bead, baseX: bead.position.x, speed: .35 + y * .05, phase: i + y }); }
-    }
-    const arch = mesh(g, new THREE.TorusGeometry(2.1, .18, 12, 48, Math.PI), ink, -4.2, 2.1, 2.2); arch.rotation.set(0, Math.PI / 2, Math.PI);
-    for (let i = 0; i < 7; i++) cylinder(g, .14, .2, .22 + i * .08, gold, -5.8 + i * .52, .2 + i * .04, 2.2, 12);
-    const nodes = REGION_NODES.harbour.map(n => n.position.clone().sub(LOCATIONS.harbour));
-    nodes.forEach((node, i) => { this.fieldNode(g, node.x, node.z, i + 1, aqua); this.missionOutpost(g, node, i, aqua, 'M'); });
-  }
-
-  createEnglishDistrict() {
-    const g = new THREE.Group(); g.position.copy(LOCATIONS.english); this.group.add(g);
-    const paper = material('paper-stone', 0xffefcf, .02, .86), coral = material('english-coral', 0xf16f73, .05, .58), plum = material('english-plum', 0x8d4c8e, .08, .58), blueInk = material('english-ink', 0x385a7d, .08, .62), gold = material('english-gold', 0xffc857, .04, .56);
-    this.districtGarden(g, 0xff8588);
-    cylinder(g, 3.45, 3.9, 1.35, paper, 0, .75, -1.3, 32);
-    for (const side of [-1, 1]) {
-      const page = box(g, 4.35, .18, 4.4, paper, side * 1.85, 2.15, -1.3); page.rotation.z = side * -.28;
-      for (let z = -2.9; z < .5; z += .55) { const rule = box(g, 2.8, .035, .05, blueInk, side * 1.8, 2.26, z); rule.rotation.z = side * -.28; }
-    }
-    const pencil = new THREE.Group(); pencil.position.set(4.6, 0, 2); pencil.rotation.z = -.09; g.add(pencil);
-    cylinder(pencil, .38, .38, 5.2, coral, 0, 2.6, 0, 12); mesh(pencil, new THREE.ConeGeometry(.38, 1.1, 12), material('pencil-wood', 0xf0c98f), 0, 5.75, 0); cylinder(pencil, .39, .39, .5, plum, 0, .25, 0, 12);
-    const quill = new THREE.Group(); quill.position.set(-4.6, 1, 2.1); quill.rotation.z = -.3; g.add(quill);
-    line(quill, V(0, 0, 0), V(0, 3.9, 0), .08, gold); for (let i = 0; i < 7; i++) { const feather = mesh(quill, new THREE.SphereGeometry(.32, 12, 7), i % 2 ? coral : plum, i % 2 ? .32 : -.32, 1.2 + i * .38, 0); feather.scale.set(1.15, .38, .42); feather.rotation.z = i % 2 ? -.55 : .55; }
-    const nodes = REGION_NODES.english.map(n => n.position.clone().sub(LOCATIONS.english));
-    nodes.forEach((node, i) => { this.fieldNode(g, node.x, node.z, i + 1, coral); this.missionOutpost(g, node, i, coral, 'E'); });
-  }
-
-  createPhysicsDistrict() {
-    const g = new THREE.Group(); g.position.copy(LOCATIONS.physics); this.group.add(g);
-    const violet = material('physics-violet', 0x7565e8, .12, .48), electric = material('physics-electric', 0x36c6e8, .05, .42), copper = material('physics-copper', 0xffb34e, .2, .48), white = material('physics-white', 0xeef4ff, .02, .75);
-    this.districtGarden(g, 0x8374f4);
-    cylinder(g, 3.45, 4, 1.3, white, -1, .72, -1.3, 32);
-    const core = mesh(g, new THREE.SphereGeometry(1.7, 28, 18), new THREE.MeshStandardMaterial({ color: 0x3b51a7, emissive: 0x25347a, emissiveIntensity: .5, roughness: .25 }), -1, 3.1, -1.3);
-    const orbit = new THREE.Group(); orbit.position.copy(core.position); g.add(orbit);
-    for (const angle of [0, Math.PI / 3, -Math.PI / 3]) { const ring = mesh(orbit, new THREE.TorusGeometry(2.45, .095, 10, 56), angle ? electric : copper); ring.rotation.set(Math.PI / 2, angle, angle * .7); }
-    for (let i = 0; i < 3; i++) { const electron = mesh(orbit, new THREE.SphereGeometry(.22, 14, 8), i === 1 ? copper : electric, Math.cos(i * 2.1) * 2.4, Math.sin(i * 1.7) * 1.2, Math.sin(i * 2.1) * 2.4); electron.castShadow = false; }
-    this.animatedProps.push({ kind: 'spin', object: orbit, speed: .28, phase: 0 });
-    const pendulum = new THREE.Group(); pendulum.position.set(4.5, 0, 2.2); g.add(pendulum);
-    for (const x of [-1.35, 1.35]) line(pendulum, V(x, 0, 0), V(x, 4.5, 0), .12, violet); line(pendulum, V(-1.55, 4.5, 0), V(1.55, 4.5, 0), .13, violet);
-    const arm = new THREE.Group(); arm.position.set(0, 4.4, 0); pendulum.add(arm); line(arm, V(), V(0, -3.2, 0), .045, white); mesh(arm, new THREE.SphereGeometry(.52, 18, 12), copper, 0, -3.25, 0); this.animatedProps.push({ kind: 'swing', object: arm, speed: 1.15, phase: 0, amp: .45 });
-    for (let i = 0; i < 5; i++) { const ray = box(g, .45, .03, 2.3, [material('rainbow-r',0xf25e62),material('rainbow-o',0xffae4b),material('rainbow-y',0xffdf63),material('rainbow-g',0x59cf8a),material('rainbow-b',0x51aee8)][i], -5 + i * .42, .18, 2.9); ray.rotation.y = -.28; }
-    const nodes = REGION_NODES.physics.map(n => n.position.clone().sub(LOCATIONS.physics));
-    nodes.forEach((node, i) => { this.fieldNode(g, node.x, node.z, i + 1, violet); this.missionOutpost(g, node, i, violet, 'P'); });
-  }
-
-  createChemistryDistrict() {
-    const g = new THREE.Group(); g.position.copy(LOCATIONS.chemistry); this.group.add(g);
-    const chem = material('chemistry-teal', 0x18bfa5, .05, .45), reaction = material('chemistry-lime', 0xbfe847, .03, .45), orange = material('chemistry-orange', 0xff8b55, .05, .5), cream = material('chemistry-cream', 0xf7f5dc, .02, .78);
-    this.districtGarden(g, 0x28d8bd);
-    cylinder(g, 3.5, 4, 1.3, cream, -1, .72, -1.2, 32);
-    const flask = new THREE.Group(); flask.position.set(-1, 1.25, -1.2); g.add(flask);
-    const flaskGlass = new THREE.MeshStandardMaterial({ color: 0x88f1e8, emissive: 0x1b8d82, emissiveIntensity: .35, transparent: true, opacity: .76, roughness: .2 });
-    mesh(flask, new THREE.SphereGeometry(2.05, 28, 18), flaskGlass, 0, 1.45, 0); cylinder(flask, .65, .85, 2.55, cream, 0, 3.2, 0, 22); cylinder(flask, .82, .82, .16, orange, 0, 4.5, 0, 22);
-    const liquid = mesh(flask, new THREE.SphereGeometry(1.83, 26, 14, 0, Math.PI * 2, Math.PI * .49, Math.PI * .5), reaction, 0, 1.38, 0); liquid.castShadow = false;
-    for (let i = 0; i < 11; i++) { const bubble = mesh(flask, new THREE.SphereGeometry(.11 + (i % 3) * .04, 12, 8), i % 2 ? orange : reaction, -.9 + (i % 5) * .42, 1.3 + (i % 4) * .48, -.35 + (i % 3) * .32); bubble.castShadow = false; this.animatedProps.push({ kind: 'bubble', object: bubble, baseY: bubble.position.y, range: 2.1, speed: .3 + (i % 4) * .07, phase: i * .17 }); }
-    for (const x of [3.3, 5]) { cylinder(g, .58, .78, 2.5 + (x - 3.3) * .45, x > 4 ? orange : chem, x, 1.35, 2.2, 22); cylinder(g, .18, .28, 1.1, cream, x, 3.1 + (x - 3.3) * .22, 2.2, 16); }
-    const molecule = new THREE.Group(); molecule.position.set(-4.8, 2.6, 2.8); g.add(molecule);
-    const atoms = [V(0, 0, 0), V(1.2, .7, 0), V(-.9, 1, .25), V(.15, 1.8, -.2)]; atoms.slice(1).forEach(point => line(molecule, V(), point, .1, cream)); atoms.forEach((point, i) => mesh(molecule, new THREE.SphereGeometry(i ? .34 : .5, 16, 10), [chem, orange, reaction][i % 3], point.x, point.y, point.z)); this.animatedProps.push({ kind: 'spin', object: molecule, speed: .18, phase: 0 });
-    const nodes = REGION_NODES.chemistry.map(n => n.position.clone().sub(LOCATIONS.chemistry));
-    nodes.forEach((node, i) => { this.fieldNode(g, node.x, node.z, i + 1, chem); this.missionOutpost(g, node, i, chem, 'C'); });
-  }
-  createScienceBase() {
-    const g = new THREE.Group(); g.position.copy(LOCATIONS.grove); this.group.add(g);
-    const leaf = material('bio-leaf', 0x66b94d, .03, .6), lime = material('bio-lime', 0xb9dc48, .03, .56), bark = material('bio-bark', 0x8c6748, .03, .76), flower = material('bio-flower', 0xffd54f, .02, .55), white = material('bio-white', 0xf3f4d9, .02, .78);
-    this.districtGarden(g, 0x9edb52);
-    cylinder(g, 3.7, 4.15, 1.2, white, -1.4, .67, -1.4, 32);
-    const tree = new THREE.Group(); tree.position.set(-1.4, .8, -1.4); g.add(tree);
-    cylinder(tree, .72, 1.12, 4.5, bark, 0, 2.25, 0, 18);
-    for (const [x,y,z,s] of [[0,4.7,0,2.25],[-1.4,4.1,.2,1.45],[1.3,4.2,-.3,1.55],[-.4,5.4,-.8,1.4],[.7,5.2,.8,1.3]] as any[]) { const crown = mesh(tree, new THREE.SphereGeometry(1, 18, 12), (x + z) > 0 ? lime : leaf, x, y, z); crown.scale.set(s, s * .72, s); }
-    const house = cylinder(tree, 1.2, 1.45, 1.25, material('treehouse', 0xffd68a, .02, .72), 0, 3.2, 0, 18); for (let i = 0; i < 7; i++) cylinder(tree, .07, .07, 1.1, bark, -1.3 + i * .42, 2.1 + i * .1, 1.1, 8).rotation.z = -.18;
-    const domeMat = new THREE.MeshStandardMaterial({ color: 0x75e1c3, emissive: 0x237d65, emissiveIntensity: .18, transparent: true, opacity: .68, roughness: .22 });
-    const dome = mesh(g, new THREE.SphereGeometry(2.35, 28, 14, 0, Math.PI * 2, 0, Math.PI / 2), domeMat, 4.2, .35, -1.8); dome.scale.y = .72; dome.castShadow = false;
-    for (const x of [3.4, 4.2, 5]) { cylinder(g, .09, .14, 1.5, bark, x, .9, -1.8, 10); const sprout = mesh(g, new THREE.SphereGeometry(.38, 12, 8), x === 4.2 ? flower : leaf, x + .2, 1.75, -1.8); sprout.scale.set(1.25, .45, .7); sprout.rotation.z = -.45; }
-    const dna = new THREE.Group(); dna.position.set(4.5, .3, 2.8); g.add(dna);
-    for (let i = 0; i < 12; i++) { const a = i * .7, y = i * .32; const p1 = V(Math.sin(a) * .72, y, Math.cos(a) * .72), p2 = V(-p1.x, y, -p1.z); mesh(dna, new THREE.SphereGeometry(.13, 10, 6), i % 2 ? lime : leaf, p1.x, p1.y, p1.z); mesh(dna, new THREE.SphereGeometry(.13, 10, 6), i % 2 ? leaf : lime, p2.x, p2.y, p2.z); line(dna, p1, p2, .035, white); }
-    this.animatedProps.push({ kind: 'spin', object: dna, speed: .16, phase: 0 });
-    const nodes = REGION_NODES.grove.map(n => n.position.clone().sub(LOCATIONS.grove));
-    nodes.forEach((node, i) => { this.fieldNode(g, node.x, node.z, i + 1, leaf); this.missionOutpost(g, node, i, leaf, 'L'); });
-    for (const [x, z, s] of [[8, -7, .65], [8.5, 1, .7], [-8, -1, .6], [-7, 6, .7]] as any[]) this.tree(LOCATIONS.grove.x + x, LOCATIONS.grove.z + z, s);
-  }
+  createHarbour() { this.scenery.campus('harbour'); }
+  createEnglishDistrict() { this.scenery.campus('english'); }
+  createPhysicsDistrict() { this.scenery.campus('physics'); }
+  createChemistryDistrict() { this.scenery.campus('chemistry'); }
+  createScienceBase() { this.scenery.campus('grove'); }
   stationNode(region: string, index: number) { return REGION_NODES[region]?.[index] || null; }
-  clearRoute() { while (this.routeLayer.children.length) this.routeLayer.remove(this.routeLayer.children[0]); }
+  clearRoute() { this.routeLayer.traverse((o: any) => { if (o.isMesh) o.geometry.dispose(); }); this.routeLayer.clear(); }
   stationRoute(region: string, end: any) {
     const start = this.tank.position.clone(); const hub = (LOCATIONS[region] || LOCATIONS.hq).clone().add(V(2.4, .02, 4.5)); const points = [start];
     if (start.distanceTo(hub) > 1.2 && end.distanceTo(hub) > 1.2) points.push(hub); points.push(end.clone()); return points;
@@ -671,7 +554,7 @@ export class ExpeditionWorld {
       const start = points[segment], end = points[segment + 1], distance = start.distanceTo(end); const count = Math.max(4, Math.floor(distance / 1.05));
       for (let i = segment ? 0 : 1; i < count; i++) {
         if (i % 2 === 0) continue;
-        const p = start.clone().lerp(end, i / count); const marker = cylinder(this.routeLayer, .15, .2, .07, routeMat, p.x, .24, p.z, 10); marker.castShadow = false;
+        const p = start.clone().lerp(end, i / count); const marker = cylinder(this.routeLayer, .15, .2, .07, routeMat, p.x, this.scenery.height(p.x, p.z) + .24, p.z, 10); marker.castShadow = false;
       }
     }
   }
@@ -706,7 +589,7 @@ export class ExpeditionWorld {
   }
   drive(region: string, callback: () => void) {
     const end = (LOCATIONS[region] || LOCATIONS.hq).clone().add(V(2.4, .02, 4.5));
-    this.beginTravel([this.tank.position.clone(), end], callback, { kind: 'region', region, label: REGION_LABELS[region] || 'Destination' });
+    this.beginTravel(this.scenery.roadPath(this.tank.position, region, this.currentArea), callback, { kind: 'region', region, label: REGION_LABELS[region] || 'Destination' });
   }
   driveToStation(region: string, index: number, callback: () => void) {
     const node = this.stationNode(region, index); if (!node) return;
@@ -747,7 +630,7 @@ export class ExpeditionWorld {
         while (segment < tr.lengths.length - 1 && remaining > tr.lengths[segment]) { remaining -= tr.lengths[segment]; segment++; }
         const a = tr.path[segment], b = tr.path[segment + 1] || tr.end; const segmentT = tr.lengths[segment] ? clamp(remaining / tr.lengths[segment], 0, 1) : 1;
         this.tank.position.lerpVectors(a, b, segmentT); this.tank.rotation.y = Math.atan2(b.x - a.x, b.z - a.z);
-        this.tank.position.y = .02 + (this.reduced ? 0 : Math.sin(this.clock * 22) * .013);
+        this.tank.position.y = this.scenery.height(this.tank.position.x, this.tank.position.z) + .085 + (this.reduced ? 0 : Math.sin(this.clock * 22) * .013);
         this.updateTracks(this.clock * 2.7); this.target.copy(this.tank.position).lerp(tr.end, .16).add(V(0, 1, 0)); this.radius = 42; this.elevation = 34; this.yaw = .22;
         const direction = b.clone().sub(a).normalize();
         this.dustPuffs.forEach((puff, i) => {
@@ -774,17 +657,20 @@ export class ExpeditionWorld {
       marker.halo.material.opacity = haloBase * (.86 + (pulse - 1) * 1.7);
       marker.beam.material.opacity = beamBase * (.82 + (pulse - 1) * 1.4);
     }
-    if (this.water && !this.reduced) this.water.position.y = -.12 + Math.sin(this.clock * .55) * .035;
+    if (this.water && !this.reduced) {
+      this.water.position.y = Math.sin(this.clock * .55) * .012;
+      if (this.water.material.normalMap) this.water.material.normalMap.offset.y = this.clock * .012;
+    }
     const mobile = this.width < 650; const strategic = this.view === 'map' || this.view === 'region';
-    const factor = mobile ? (this.view === 'map' ? 3 : this.view === 'region' ? 3 : this.view === 'travel' ? 1.8 : 1.32) : 1;
+    const factor = mobile ? (this.view === 'map' ? 2.73 : this.view === 'region' ? 3 : this.view === 'travel' ? 1.8 : 1.32) : 1;
     this.scene.fog.density = strategic || this.view === 'travel' ? .0015 : .009;
     this.cameraGoal.copy(this.target).add(V(Math.sin(this.yaw) * this.radius * factor, this.elevation * factor, Math.cos(this.yaw) * this.radius * factor));
     this.lookGoal.copy(this.target);
-    if (!strategic && this.view !== 'travel') {
+    if (!strategic && this.view !== 'travel' && this.view !== 'project') {
       if (mobile) this.lookGoal.y -= 7;
       else this.lookGoal.add(V(3.4, 0, -2.8));
     }
-    if (strategic) this.lookGoal.add(mobile ? this.view === 'map' ? V(0, -28, 0) : V(0, -8, 0) : this.view === 'map' ? V(0, 0, 0) : V(2, 0, 0));
+    if (strategic) this.lookGoal.add(mobile ? this.view === 'map' ? V(0, this.mapSelection ? -26 : 0, 0) : V(0, -8, 0) : this.view === 'map' ? V(0, 0, 0) : V(2, 0, 0));
     if (strategic) this.camera.position.copy(this.cameraGoal);
     else this.camera.position.lerp(this.cameraGoal, this.reduced ? 1 : 1 - Math.exp(-dt * 4));
     this.camera.lookAt(this.lookGoal); this.renderer.render(this.scene, this.camera);

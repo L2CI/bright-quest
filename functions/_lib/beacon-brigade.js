@@ -1,8 +1,17 @@
-import { CONTENT_VERSION, HQ_UPGRADES, QUESTION_TEMPLATES, REGIONS, STATION_REWARD,
+import { CONTENT_VERSION, HQ_UPGRADES, QUESTION_TEMPLATES, REGIONS,
   createQuestion } from "../../beacon-brigade/content.js";
+import { LOADOUTS, PROJECTS, getCampaign, getExpeditionCompletion } from "../../beacon-brigade/campaign.js";
 
 export const MAX_EXPEDITIONS = 100;
 export const MAX_WRONG_ATTEMPTS = 12;
+
+const HARBOUR_STATION_TEMPLATES = [
+  ["harbour-crate-reserve"],
+  ["harbour-delivery-total", "harbour-missing-supply"],
+  ["harbour-equal-packs"],
+  ["harbour-stock-left"],
+  ["harbour-place-value"]
+];
 
 export class BeaconError extends Error {
   constructor(code, message, status = 409) {
@@ -16,7 +25,7 @@ export class BeaconError extends Error {
 export function createState({ profileId = "local-preview" } = {}) {
   return { schemaVersion: 1, contentVersion: CONTENT_VERSION, profileId, version: 0,
     hqLevel: 1, wallet: { parts: 0, cores: 0 }, nextExpeditionNumber: 1,
-    activeExpedition: null, history: [], upgrades: [] };
+    activeExpedition: null, history: [], upgrades: [], campaign: { loadoutId: "balanced", projects: [] } };
 }
 
 // `at` is an optional trusted timestamp supplied by the API, never a clock read here.
@@ -37,16 +46,22 @@ export function applyAction(state, action) {
       const templates = QUESTION_TEMPLATES.filter((item) => item.regionId === region.id);
       const run = next.history.filter((item) => item.regionId === region.id).length;
       const id = `${next.profileId}:exp-${next.nextExpeditionNumber++}-${region.id}`;
+      const campaign = getCampaign(next);
       next.activeExpedition = { id, regionId: region.id, resource: region.resource,
+        loadoutId: campaign.loadoutId, loadout: campaign.loadout,
+        campaignBonuses: campaign.bonuses, modifiers: campaign.expeditionModifiers,
         startedAt: at, startedVersion: version, status: "active", earned: { parts: 0, cores: 0 },
         stations: Array.from({ length: region.stationNames.length }, (_, index) => {
-          const template = templates[(run * region.stationNames.length + index) % templates.length];
-          const variant = Math.floor(run * region.stationNames.length / templates.length) % template.instances.length;
+          // Keep each physical station on topic; only Addition Dispatch alternates templates.
+          const topics = region.id === "harbour" ? HARBOUR_STATION_TEMPLATES[index] : null;
+          const template = topics ? templates.find((item) => item.id === topics[run % topics.length]) : templates[index];
+          const variantRun = topics ? Math.floor(run / topics.length) : run;
+          const variant = variantRun % template.instances.length;
           return { id: `${id}:station-${index + 1}`, name: region.stationNames[index],
             question: createQuestion(template.id, variant), attempts: [], resolved: false,
             helpUsed: false, support: { stage: 0, hintAtAttempt: null, events: [], message: null },
             resolution: null, firstAttemptCorrect: null, lastFeedback: null,
-            reward: { resource: region.resource, amount: STATION_REWARD }, rewardGranted: false };
+            reward: { resource: region.resource, amount: campaign.stationRewardAmount }, rewardGranted: false };
         }) };
       break;
     }
@@ -100,8 +115,30 @@ export function applyAction(state, action) {
       expedition.status = action.type === "finish" ? "completed" : "ended";
       expedition.finishedAt = at;
       expedition.finishedVersion = version;
+      expedition.completion = getExpeditionCompletion(expedition);
       next.history.push(expedition);
       next.activeExpedition = null;
+      break;
+    }
+    case "equip": {
+      if (!LOADOUTS.some((item) => item.id === action.loadoutId)) fail("INVALID_LOADOUT", "Unknown expedition loadout.", 400);
+      if (next.activeExpedition) fail("EXPEDITION_ACTIVE", "End or finish the current expedition before changing loadout.");
+      next.campaign ??= { loadoutId: "balanced", projects: [] };
+      next.campaign.loadoutId = action.loadoutId;
+      break;
+    }
+    case "project": {
+      const project = PROJECTS.find((item) => item.id === action.projectId);
+      if (!project) fail("INVALID_PROJECT", "Unknown restoration project.", 400);
+      const progress = getCampaign(next).projects.find((item) => item.id === project.id);
+      if (progress.built) fail("PROJECT_BUILT", "This restoration project is already built.");
+      if (!progress.unlocked) fail("PROJECT_LOCKED", "Complete the required district expeditions before building this project.");
+      if (!progress.affordable) fail("INSUFFICIENT_RESOURCES", `This project needs ${project.cost.parts} parts and ${project.cost.cores} cores.`);
+      next.wallet.parts -= project.cost.parts;
+      next.wallet.cores -= project.cost.cores;
+      next.campaign ??= { loadoutId: "balanced", projects: [] };
+      next.campaign.projects.push({ projectId: project.id, cost: { ...project.cost }, at, version });
+      // An active expedition keeps its start-time modifiers and station rewards.
       break;
     }
     case "upgrade": {
@@ -143,18 +180,20 @@ export function publicState(state, { review = false } = {}) {
   result.limits = { maxExpeditions: MAX_EXPEDITIONS, expeditionsRemaining: MAX_EXPEDITIONS - result.history.length - (result.activeExpedition ? 1 : 0),
     maxWrongAttemptsPerStation: MAX_WRONG_ATTEMPTS, historyRetention: "No automatic deletion" };
   result.nextUpgrade = HQ_UPGRADES[state.hqLevel + 1] ? { level: state.hqLevel + 1, cost: { ...HQ_UPGRADES[state.hqLevel + 1] } } : null;
+  result.campaignProgress = getCampaign(state);
   return result;
 }
 
 function validateAction(action) {
   if (!action || typeof action !== "object" || Array.isArray(action)) fail("INVALID_ACTION", "An action object is required.", 400);
-  const fields = { start: ["regionId"], answer: ["stationId", "answer"], hint: ["stationId"], finish: [], upgrade: [], end: [], reset: [] };
+  const fields = { start: ["regionId"], answer: ["stationId", "answer"], hint: ["stationId"], finish: [], upgrade: [], end: [], reset: [],
+    equip: ["loadoutId"], project: ["projectId"] };
   if (typeof action.type !== "string" || !Object.hasOwn(fields, action.type)) fail("INVALID_ACTION", "Unknown action type.", 400);
   const allowed = ["type", "at", ...fields[action.type]];
   if (Object.keys(action).some((key) => !allowed.includes(key))) fail("INVALID_ACTION", "Unexpected action fields.", 400);
   if (fields[action.type].some((key) => !Object.hasOwn(action, key))) fail("INVALID_ACTION", "Required action fields are missing.", 400);
-  if (("stationId" in action && typeof action.stationId !== "string") || ("regionId" in action && typeof action.regionId !== "string")) {
-    fail("INVALID_ACTION", "Station and region IDs must be strings.", 400);
+  if (["stationId", "regionId", "loadoutId", "projectId"].some((key) => key in action && typeof action[key] !== "string")) {
+    fail("INVALID_ACTION", "Action IDs must be strings.", 400);
   }
   if ("at" in action && (typeof action.at !== "string" || !Number.isFinite(Date.parse(action.at)))) fail("INVALID_ACTION", "Invalid timestamp.", 400);
   if (action.type === "answer" && !((typeof action.answer === "string" && action.answer.length <= 120 && action.answer.trim())

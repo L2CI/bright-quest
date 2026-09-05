@@ -57,6 +57,29 @@ try {
       check(`Map ${label} ${region} pin works`, await page.locator('#game').getAttribute('data-view') === 'map' && await page.locator('[data-action="explore-region"]').isVisible() && await page.locator('[data-action="march-region"]').isVisible());
       await act('clear-region'); await page.waitForTimeout(300);
     }
+    for (const id of ['hq', 'harbour', 'english', 'physics', 'chemistry', 'grove']) {
+      await act('map'); await page.waitForTimeout(150);
+      const point = await page.evaluate(id => {
+        const w = window.__BEACON_QA__.world, callback = w.onDestinationPick;
+        const candidates = []; w.onDestinationPick = null;
+        try {
+          w.scenery.campuses.get(id).traverse(mesh => {
+            if (!mesh.isMesh) return;
+            mesh.geometry.computeBoundingSphere();
+            const p = mesh.localToWorld(mesh.geometry.boundingSphere.center.clone()).project(w.camera);
+            const x = (p.x + 1) / 2 * w.width, y = (1 - p.y) / 2 * w.height;
+            if (document.elementFromPoint(x, y)?.id === 'scene' && w.pickDestination(x, y) === id) candidates.push({ x, y });
+          });
+          return candidates[0];
+        } finally { w.onDestinationPick = callback; }
+      }, id);
+      check(`${label} ${id} has a directly tappable miniature`, Boolean(point));
+      await page.mouse.click(point.x, point.y); await ready();
+      check(`${label} tapping ${id} building opens its correct destination`, id === 'hq'
+        ? await page.locator('#game').getAttribute('data-view') === 'hq'
+        : await page.locator(`[data-pin="${id}"]`).getAttribute('aria-pressed') === 'true');
+    }
+    await act('map');
   }
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.locator('#location-pins [data-region="harbour"]').click(); await act('march-region');
@@ -107,9 +130,9 @@ try {
   await page.waitForTimeout(1800); await act('settings'); await page.keyboard.press('Escape');
   check('Dialog Escape returns focus', await page.locator('[data-action="settings"]').evaluate(el => el === document.activeElement));
   await act('hq'); await page.waitForFunction(() => window.__BEACON_QA__.view === 'hq');
-  const geometryCount = await page.evaluate(() => window.__BEACON_QA__.world.hq.children.length);
+  const geometryCount = await page.evaluate(() => { let count = 0; window.__BEACON_QA__.world.hq.traverse(o => { count += o.geometry?.attributes.position.count || 0; }); return count; });
   await page.evaluate(() => window.__BEACON_QA__.world.createBase(3)); await page.waitForTimeout(500); await shot('hq-level3-visual');
-  check('Final HQ has added visible structure', await page.evaluate(count => window.__BEACON_QA__.world.hq.children.length > count, geometryCount));
+  check('Final HQ has added visible structure', await page.evaluate(previous => { let count = 0; window.__BEACON_QA__.world.hq.traverse(o => { count += o.geometry?.attributes.position.count || 0; }); return count > previous; }, geometryCount));
   await page.setViewportSize({ width: 390, height: 844 }); await act('settings');
   await page.getByRole('link', { name: 'Return to Bright Quest' }).click();
   check('Mobile return opens Bright Quest', new URL(page.url()).pathname === '/');

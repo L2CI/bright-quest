@@ -207,7 +207,7 @@ try {
     const station = saved.history[0].stations[0];
     assert.deepEqual(station.attempts.map((attempt) => attempt.correct), [false, true]);
     assert.equal(station.resolution, "corrected");
-    assert.equal(saved.wallet.parts, 12);
+    assert.equal(saved.wallet.parts, 20);
   });
   await check("Science expedition seeded through API retains worked-guidance completion", async () => {
     await command({ type: "start", regionId: "grove" });
@@ -227,7 +227,7 @@ try {
     const station = saved.history[1].stations[0];
     assert.deepEqual(station.attempts.map((attempt) => attempt.helpStage), [0, 1, 2]);
     assert.equal(station.resolution, "assisted");
-    assert.equal(saved.wallet.cores, 12);
+    assert.equal(saved.wallet.cores, 20);
     await writeFile(resolve(out, "api-seed-operations.json"), JSON.stringify(operations, null, 2));
   });
   await check("Ephemeral D1 contains both expeditions and every operation receipt", async () => {
@@ -371,10 +371,10 @@ try {
     assert.match(text, /Corrected after feedback/);
     assert.match(text, /original incorrect answer retained/);
     const summary = await popup.locator(".bq-beacon-summary").nth(1).innerText();
-    assert.match(summary, /4 of 6/);
+    assert.match(summary, /8 of 10/);
     assert.match(summary, /2\s+Stations with incorrect answers/);
     assert.match(summary, /1\s+Completed with hints or guidance/);
-    assert.deepEqual(parentEvidence.state.wallet, { parts: 12, cores: 12 });
+    assert.deepEqual(parentEvidence.state.wallet, { parts: 20, cores: 20 });
   });
   for (const size of [
     { width: 1440, height: 900, name: "desktop" },
