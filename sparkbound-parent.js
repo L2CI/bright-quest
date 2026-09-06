@@ -1,3 +1,4 @@
+import { getHero } from './sparkbound/roster.js';
 let active = null;
 const escape = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const exact = (value) => JSON.stringify(value) ?? "Not recorded";
@@ -116,7 +117,7 @@ function answerLabel(q, value) {
 function renderQuestion({ match, question: q }) {
   const hints = Number(q.hintsUsed || 0);
   return `<article class="bq-spark-question ${missed(q) ? "missed" : ""}" data-spark-question="${escape(q.id)}">
-    <p class="bq-spark-context">Match ${escape(match.number)} &middot; ${escape(q.skill)} &middot; ${escape(q.completion || "Unfinished")}</p>
+    <p class="bq-spark-context">Match ${escape(match.number)} &middot; ${escape(getHero(match.heroId).name)} &middot; ${escape(q.difficulty || 'Foundation')} &middot; ${escape(q.skill)} &middot; ${escape(q.completion || "Unfinished")}</p>
     <h4>${escape(q.title)}</h4><p>${escape(q.prompt)}</p>
     ${q.choices?.length ? `<ul>${q.choices.map((choice) => `<li>${escape(choice.id)}: ${escape(choice.label)}</li>`).join("")}</ul>` : ""}
     ${q.evidence ? `<details><summary>Original task evidence</summary><pre>${escape(JSON.stringify(q.evidence, null, 2))}</pre></details>` : ""}

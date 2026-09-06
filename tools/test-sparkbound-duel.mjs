@@ -3,8 +3,17 @@ import test from 'node:test';
 import { duelCue, duelMoves, exchangeOutcome, roundReward } from '../sparkbound/src/duel.js';
 import { createState, applyAction, publicState, BATTLE_CONFIG } from '../functions/_lib/sparkbound.js';
 import { INTENTS, MOVES, QUESTION_BANK, selectQuestions } from '../functions/_lib/sparkbound-content.js';
+import { onRequest as denyToolAsset } from '../functions/tools/[[asset]].js';
 
 const intents = ['open', 'strike', 'guard', 'heavy'];
+test('Answer-checking development assets are not publicly served by Pages', async () => {
+  for (const method of ['GET', 'HEAD', 'POST']) {
+    const response = denyToolAsset({ request: new Request('https://example.invalid/tools/test-sparkbound-expansion-content.mjs', { method }) });
+    assert.equal(response.status, 404);
+    assert.equal(response.headers.get('cache-control'), 'no-store');
+    assert.equal(await response.text(), 'Not found');
+  }
+});
 const equipment = [
   { staff: false, pad: false, ids: ['strike', 'guard'] },
   { staff: true, pad: false, ids: ['strike', 'guard', 'break'] },
@@ -260,4 +269,28 @@ test('Suggested-move policy wins all three rounds for 120 seeds without support 
     assert.equal(state.wins, 1);
     assert.ok(state.match.questions.every(q => q.resolved && q.completion === 'independent'));
   }
+});
+
+test('Every hero can win using visible tactical suggestions across 30 seeds', () => {
+  for (const heroId of ['relay', 'helio', 'volt', 'bastion', 'zephyr', 'glacier']) for (let seed = 0; seed < 30; seed++) {
+    let s = applyAction(createState({ profileId: `hero-cues-${heroId}-${seed}` }), { type: 'start', heroId });
+    s.match.seed = seed;
+    for (let step = 0; step < 150 && s.match.phase !== 'victory'; step++) {
+      const m = s.match;
+      assert.notEqual(m.phase, 'defeat', `${heroId}/${seed} defeated at round ${m.round}`);
+      s = applyAction(s, m.phase === 'battle' ? { type: 'move', move: duelCue(m).suggested } :
+        m.phase === 'training' ? { type: 'answer', questionId: m.questions[m.questionIndex].id, answer: m.questions[m.questionIndex].answer } : { type: 'continue' });
+    }
+    assert.equal(s.match.phase, 'victory', `${heroId}/${seed} stalled`);
+  }
+});
+
+test('Hero weapon labels, guards and ability explanations match their contracts', () => {
+  const helio = duelCue(match({ heroId: 'helio', staff: true, energy: 2, intent: 'guard' }));
+  assert.match(helio.detail, /Prism Rail Laser/);
+  assert.equal(helio.badge, 'Laser');
+  assert.match(duelMoves(match({ heroId: 'volt', energy: 0, intent: 'heavy' })).find(m => m.id === 'guard').hint, /\+3/);
+  const explanation = 'Attacks deal 2 extra damage when Prism is open.';
+  const event = { kind: 'exchange', move: 'strike', intent: 'open', damage: 6, rivalDamage: 0, ability: { name: 'Perfect Focus', description: explanation } };
+  assert.equal(exchangeOutcome(event).abilityDescription, explanation);
 });

@@ -183,10 +183,10 @@ try {
   }
 
   await page.goto(`${harness.origin}/sparkbound/`); await settled();
-  assert.equal(await page.locator('.welcome').count(), 1, 'Expected new welcome screen in the built bundle');
-  const welcome = await page.locator('.welcome').innerText();
-  check('Welcome explicitly states mission, three rounds, maths and science upgrades', /city guardian/i.test(welcome) && /three rounds/i.test(welcome) && /maths/i.test(welcome) && /science/i.test(welcome));
-  for (const viewport of viewports) { await page.setViewportSize(viewport); await geometry(`welcome-${viewport.name}`, false); }
+  assert.equal(await page.locator('.hangar-panel').count(), 1, 'Expected the playable hero hangar');
+  check('Hangar offers six heroes, a playable start and mission guidance', await page.locator('.hero-tile').count() === 6 && await page.locator('[data-action="start"]').isEnabled() && await page.locator('[data-action="how"]').isVisible());
+  // The one-hero hangar, previews and guide have their own six-viewport expansion gate.
+  await canvasCheck('hangar');
   await click('how'); check('Mission explains both shield win/loss conditions', /Empty Prism's shield/i.test(await page.locator('dialog').innerText()) && /keeping your own above zero/i.test(await page.locator('dialog').innerText()));
   await click('close-dialog'); await click('start');
   const rounds = new Map(), training = new Map();

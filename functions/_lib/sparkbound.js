@@ -1,4 +1,5 @@
-import { selectQuestions, INTENTS, MOVES, BATTLE_CONFIG } from "./sparkbound-content.js";
+import { selectQuestions, selectExpandedQuestions, INTENTS, MOVES, BATTLE_CONFIG } from "./sparkbound-content.js";
+import { getHero, isHeroId, forgeSize } from "../../sparkbound/roster.js";
 export { INTENTS, MOVES, BATTLE_CONFIG };
 
 export class SparkError extends Error {
@@ -39,13 +40,15 @@ function validateState(state) {
       !["battle", "round_won", "rival_upgrade", "training", "player_upgrade", "defeat", "victory"].includes(m.phase) ||
       !Number.isSafeInteger(m.energy) || m.energy < 0 || m.energy > 4 ||
       ![m.playerHP, m.rivalHP, m.exchange].every((n) => Number.isSafeInteger(n) && n >= 0) ||
-      !Array.isArray(m.questions) || m.questions.length !== 4 ||
-      !Number.isSafeInteger(m.questionIndex) || m.questionIndex < 0 || m.questionIndex > 4 ||
+      !Array.isArray(m.questions) || ![4, 6].includes(m.questions.length) ||
+      !Number.isSafeInteger(m.questionIndex) || m.questionIndex < 0 || m.questionIndex > m.questions.length ||
+      (own(m, "heroId") && !isHeroId(m.heroId)) ||
+      (own(m, "learningLevel") && (!Number.isSafeInteger(m.learningLevel) || m.learningLevel < 1 || m.learningLevel > 3)) ||
       (m.phase === "battle" && !own(INTENTS, m.intent))))
     fail("INVALID_STATE", "The saved match is invalid.", 400);
 }
 const fields = {
-  start: [], move: ["move"], continue: [], answer: ["questionId", "answer"],
+  start: ["heroId"], move: ["move"], continue: [], answer: ["questionId", "answer"],
   hint: ["questionId"], retry: ["support"], reset: []
 };
 function validateAction(action) {
@@ -55,6 +58,8 @@ function validateAction(action) {
   }
   if (own(action, "expectedVersion") && (!Number.isSafeInteger(action.expectedVersion) || action.expectedVersion < 0))
     fail("INVALID_ACTION", "expectedVersion must be a nonnegative integer.", 400);
+  if (action.type === "start" && own(action, "heroId") && !isHeroId(action.heroId))
+    fail("INVALID_HERO", "Choose a hero from the roster.", 400);
   if (action.type === "move" && (typeof action.move !== "string" || !own(MOVES, action.move)))
     fail("INVALID_MOVE", "Choose Strike, Guard, Break or Special.", 400);
   if (["hint", "answer"].includes(action.type) && (typeof action.questionId !== "string" || !action.questionId.length || action.questionId.length > 100))
@@ -89,18 +94,21 @@ function prepareRound(match) {
 function archive(state, outcome) {
   if (state.match) state.history.push({ ...structuredClone(state.match), outcome });
 }
-function start(state) {
+function start(state, action) {
   if (state.match) requirePhase(state.match, "victory");
   if (state.nextMatchNumber >= Number.MAX_SAFE_INTEGER) fail("MATCH_LIMIT", "Match numbering has reached its safe limit.");
   archive(state, "victory");
   const number = state.nextMatchNumber++;
+  const learningLevel = Math.min(3, 1 + Math.floor(state.wins / 2));
   state.match = { id: `${state.profileId}:match-${number}`, number, round: 1,
     phase: "battle", playerHP: 0, rivalHP: 0, energy: 2, playerPower: 10, rivalPower: 10,
     intent: "open", staff: false, pad: false, exchange: 0, lastEvent: null,
-    questions: selectQuestions(number).map((question) => ({ ...question, attempts: [],
+    questions: (own(action, "heroId") ? selectExpandedQuestions(number, action.heroId, learningLevel) : selectQuestions(number))
+      .map((question) => ({ ...structuredClone(question), attempts: [],
       hintsUsed: 0, supportEvents: [], feedback: null, resolved: false, completion: null })),
     questionIndex: 0, seed: hash(`${state.profileId}:${number}`), roundAttempt: 1,
     assisted: false, rewardGranted: false, trainingStage: 0 };
+  if (own(action, "heroId")) Object.assign(state.match, { heroId: action.heroId, rulesVersion: 2, learningLevel });
   prepareRound(state.match);
   event(state, "match_started");
 }
@@ -113,12 +121,18 @@ function move(state, action) {
   if (match.energy < MOVES[name].cost) fail("INSUFFICIENT_ENERGY", "Build more energy first.");
   const intent = match.intent;
   const incoming = BATTLE_CONFIG.incoming[intent];
+  const hero = getHero(match.heroId);
   let damage = 0;
   let rivalDamage = incoming;
   let guardBroken = false;
+  let extraEnergy = 0;
   if (name === "guard") {
     rivalDamage = Math.floor(incoming / 5);
-    if (incoming > 0) match.energy = Math.min(4, match.energy + 2);
+    if (incoming > 0) {
+      const baseline = Math.min(4, match.energy + 2);
+      match.energy = Math.min(4, match.energy + (hero.id === "volt" ? 3 : 2));
+      extraEnergy = match.energy - baseline;
+    }
   } else if (name === "strike") {
     damage = intent === "guard" ? (match.round === 1 ? 2 : 0) : 4;
     match.energy = Math.min(4, match.energy + 1);
@@ -131,9 +145,23 @@ function move(state, action) {
     guardBroken = intent === "guard";
     match.energy = 0;
   }
-  if (match.assisted && rivalDamage > 0) rivalDamage = Math.floor(rivalDamage / 2);
+  const baselineDamage = damage;
+  const baselineIncoming = rivalDamage;
+  if (hero.id === "helio" && name !== "guard" && intent === "open") damage += 2;
+  if (hero.id === "bastion") rivalDamage = Math.max(0, rivalDamage - 1);
+  if (hero.id === "zephyr" && name === "strike" && intent === "strike") rivalDamage = Math.max(0, rivalDamage - 2);
+  if (hero.id === "glacier" && name === "special") rivalDamage = Math.floor(rivalDamage / 2);
+  const supported = (amount) => match.assisted ? Math.floor(amount / 2) : amount;
+  rivalDamage = supported(rivalDamage);
   const dealt = Math.min(match.rivalHP, damage);
   const received = Math.min(match.playerHP, rivalDamage);
+  // Compare actual HP/energy changes, so caps and support rounding cannot report a false benefit.
+  const extraDamage = dealt - Math.min(match.rivalHP, baselineDamage);
+  const prevented = Math.min(match.playerHP, supported(baselineIncoming)) - received;
+  const ability = extraEnergy > 0 || extraDamage > 0 || prevented > 0 ? {
+    id: hero.trait.id, name: hero.trait.name,
+    description: hero.trait.description
+  } : null;
   match.rivalHP -= dealt;
   match.playerHP -= received;
   match.exchange++;
@@ -141,7 +169,7 @@ function move(state, action) {
   else if (match.rivalHP === 0) match.phase = "round_won";
   match.intent = match.phase === "battle" ? intentAt(match) : null;
   event(state, "exchange", { move: name, intent, damage: dealt, rivalDamage: received,
-    guardBroken, phase: match.phase, exchange: match.exchange });
+    guardBroken, phase: match.phase, exchange: match.exchange, ...(ability ? { ability } : {}) });
 }
 function advance(state) {
   const match = state.match;
@@ -215,7 +243,7 @@ function answer(state, action) {
     question.completion = assistanceLevel === 2 ? "worked" : assistanceLevel === 1 ? "hinted" :
       question.attempts.length === 1 ? "independent" : "retried";
     match.questionIndex++;
-    if (match.questionIndex === match.trainingStage * 2) {
+    if (match.questionIndex === match.trainingStage * forgeSize(match)) {
       if (match.trainingStage === 1) match.staff = true;
       else match.pad = true;
       match.phase = "player_upgrade";
@@ -234,7 +262,7 @@ export function applyAction(state, action) {
   const next = structuredClone(state);
   next.version++;
   switch (action.type) {
-    case "start": start(next); break;
+    case "start": start(next, action); break;
     case "move": move(next, action); break;
     case "continue": advance(next); break;
     case "answer": answer(next, action); break;
@@ -281,7 +309,8 @@ export function publicState(state, { review = false } = {}) {
     return match;
   };
   if (result.match) result.match = project(result.match);
-  result.history = result.history.map(({ id, number, round, phase, outcome, assisted }) =>
-    ({ id, number, round, phase, outcome, assisted }));
+  result.history = result.history.map(({ id, number, round, phase, outcome, assisted, heroId, learningLevel }) =>
+    ({ id, number, round, phase, outcome, assisted, ...(heroId === undefined ? {} : { heroId }),
+      ...(learningLevel === undefined ? {} : { learningLevel }) }));
   return result;
 }

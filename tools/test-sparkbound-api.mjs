@@ -5,6 +5,7 @@ import { startSparkboundQa } from "./serve-sparkbound-qa.mjs";
 import { applyAction } from "../functions/_lib/sparkbound.js";
 import { onRequestGet, onRequestPost } from "../functions/api/sparkbound.js";
 import { renderSparkboundEvidence } from "../sparkbound-parent.js";
+import { HEROES } from "../sparkbound/roster.js";
 
 assert.ok(existsSync(new URL("../functions/_lib/sparkbound-content.js", import.meta.url)), "Answer bank must exist in the server-only Functions directory");
 assert.equal(existsSync(new URL("../sparkbound/content.js", import.meta.url)), false, "Answer bank must not exist in the public Pages asset tree");
@@ -177,6 +178,44 @@ try {
   assert.deepEqual(await privateState(), corrupt);
   await db.prepare("UPDATE sparkbound_states SET state_json=? WHERE child_id=?").bind(preserved, f.childId).run();
 
+  // Explicit hero requests opt into six questions without changing the legacy workflow above.
+  for (const heroId of [null, "Relay", "helio ", "constructor", {}, ["relay"]]) {
+    const invalid = await request("/api/sparkbound", { body: operation(reset.version, { type: "start", heroId }) });
+    assert.equal(invalid.status, 400);
+    assert.equal(invalid.body.code, "INVALID_HERO");
+    assert.deepEqual(await privateState(), reset);
+  }
+  for (const hero of HEROES) {
+    const before = await privateState();
+    const startOp = operation(before.version, { type: "start", heroId: hero.id });
+    const started = await request("/api/sparkbound", { body: startOp });
+    assert.equal(started.status, 200);
+    assert.equal(started.body.state.match.heroId, hero.id);
+    assert.equal(started.body.state.match.rulesVersion, 2);
+    assert.equal(started.body.state.match.learningLevel, 1);
+    assert.equal(started.body.state.match.questions.length, 6);
+    assertRedacted(started.body.state);
+    for (const q of started.body.state.match.questions) assert.deepEqual(Object.keys(q), ["id", "forge"]);
+    const saved = await privateState();
+    assert.deepEqual((await request("/api/sparkbound", { body: startOp })).body.state, started.body.state);
+    assert.deepEqual(await privateState(), saved);
+    const changedHero = await request("/api/sparkbound", { body: { ...startOp,
+      action: { type: "start", heroId: hero.id === "relay" ? "helio" : "relay" } } });
+    assert.equal(changedHero.body.code, "OPERATION_ID_REUSED");
+    const attack = await command({ type: "move", move: "strike" });
+    if (hero.id === "helio") assert.deepEqual(attack.match.lastEvent.ability, {
+      id: hero.trait.id, name: hero.trait.name, description: hero.trait.description
+    });
+    else assert.equal(Object.hasOwn(attack.match.lastEvent, "ability"), false);
+    const archived = await command({ type: "reset" });
+    assert.equal(archived.history.at(-1).heroId, hero.id);
+    assert.equal(archived.history.at(-1).learningLevel, 1);
+    assert.deepEqual((await review()).body.state.history.at(-1).questions, saved.match.questions);
+    const replayAfterReset = await request("/api/sparkbound", { body: startOp });
+    assert.equal(replayAfterReset.body.state.match, null);
+    assert.equal(replayAfterReset.body.state.version, archived.version);
+  }
+
   assert.equal((await request("/__sparkbound-qa__/fixture", { headers: {} })).status, 403);
   assert.equal((await request("/__sparkbound-qa__/fixture", { headers: { "x-bq-qa-control": harness.controlToken } })).body.otherFamily.children.length, 2);
   for (const path of ["/.git/config", "/functions/_lib/sparkbound.js", "/functions/_lib/sparkbound-content.js",
@@ -194,5 +233,5 @@ try {
   assert.ok(unlock.body.parentCapability);
   assert.ok(unlock.headers.get("set-cookie").includes("bq_session="));
   assert.equal((await review()).status, 401, "Rotated session cannot retain old Parent access");
-  console.log(`Sparkbound API QA passed: two-family auth/isolation, transactional replay/races/rollback, ${transitions} match transitions, exact evidence, redaction, retained history, unchanged child profiles, local-only harness.`);
+  console.log(`Sparkbound API QA passed: two-family auth/isolation, transactional replay/races/rollback, ${transitions} match transitions, 6 explicit hero starts/replays/resets, invalid hero rejection, exact evidence, redaction, retained history, unchanged child profiles, local-only harness.`);
 } finally { await harness.close(); }

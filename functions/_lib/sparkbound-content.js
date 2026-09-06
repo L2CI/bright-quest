@@ -151,3 +151,5 @@ export function selectQuestions(matchNumber) {
   return [0, 1, 2, 3].map((slot) => structuredClone(QUESTION_BANK.find((q) =>
     q.taskId === TASKS.filter((t) => t.slot === slot)[taskIndex].id && q.variant === variant)));
 }
+
+export { EXPANDED_QUESTION_BANK, selectExpandedQuestions } from "./sparkbound-expansion-content.js";

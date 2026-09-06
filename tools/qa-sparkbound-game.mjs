@@ -74,11 +74,25 @@ try {
       } else if (m.phase === 'defeat') { await click('retry-supported'); }
       else { await shot(`phase-${m.round}-${m.phase}`); await click('continue'); }
     }
-    check('Three rounds and four tasks reach victory', (await state()).match.phase === 'victory');
+    check('Three rounds and six tasks reach victory', (await state()).match.phase === 'victory' && (await state()).match.questions.length === 6);
     check('Blocked strike and guard-piercing staff exercised', guardProof && breakProof);
     await shot('victory');
     const saved = await state(); await page.reload(); await settled(); check('Victory survives refresh', (await state()).version === saved.version && (await state()).wins === saved.wins);
-    await click('review'); check('Completed training review has four tasks', await page.locator('.review-item').count() === 4);
+    const parent = await context.newPage();
+    await parent.goto(`${harness.origin}/sparkbound/`);
+    await parent.evaluate(async ({ cap, id }) => {
+      window.BrightQuestFamilyAuth = { requestHeaders: () => ({ 'x-bq-parent-capability': cap }) };
+      const module = await import('/sparkbound-parent.js');
+      module.openSparkboundReview({ profile: { id, name: 'Synthetic QA Explorer' }, opener: null, isCurrent: () => true });
+    }, { cap: f.parentCapability, id: f.legacyId });
+    await parent.locator('.bq-spark-question.missed').waitFor();
+    check('Parent popup includes six forge records, incorrect answers first', await parent.locator('.bq-spark-question').count() === 6 && await parent.locator('.bq-spark-question').first().evaluate(e => e.classList.contains('missed')));
+    check('Parent context names hero and challenge band', (await parent.locator('.bq-spark-context').first().textContent()).includes('Relay') && (await parent.locator('.bq-spark-context').first().textContent()).includes('Foundation'));
+    await parent.screenshot({ path: resolve(output, 'parent-expanded-review.png') });
+    await parent.locator('[data-spark-review-close]').click();
+    check('Parent popup closes cleanly', await parent.locator('#bqSparkboundReviewPopup').count() === 0);
+    await parent.close();
+    await click('review'); check('Completed training review has six tasks', await page.locator('.review-item').count() === 6);
     await page.goBack(); await settled(); check('Back returns to arena', await page.locator('.review-panel').count() === 0);
     await click('settings'); await click('restart'); await click('close-dialog'); check('Cancelled restart changes nothing', (await state()).version === saved.version);
     await click('settings'); await click('restart'); await click('confirm-restart');

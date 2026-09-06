@@ -3,12 +3,26 @@ type Voice = { source: AudioScheduledSourceNode; nodes: AudioNode[]; end: number
 type Space = { output: GainNode; room: ConvolverNode; wet: GainNode };
 
 const midi = (note: number) => 440 * 2 ** ((note - 69) / 12);
-// Original eight-bar harmonic journeys; motifs are revoiced on each pass.
+// Original 16-bar score: statement, answer, lifted reprise, then a breathing cadence.
 const harmony = {
-  battle: [[40, 3], [36, 4], [43, 4], [38, 4], [45, 3], [40, 3], [36, 4], [47, 3]],
-  forge: [[48, 4], [55, 4], [45, 3], [52, 3], [53, 4], [48, 4], [50, 3], [55, 4]],
-  victory: [[52, 4], [59, 4], [57, 4], [52, 4], [49, 3], [57, 4], [59, 4], [52, 4]],
+  battle: [[40, 3], [36, 4], [43, 4], [38, 4], [45, 3], [40, 3], [36, 4], [47, 4],
+    [40, 3], [43, 4], [38, 4], [45, 3], [36, 4], [45, 3], [47, 5], [47, 4]],
+  forge: [[48, 4], [53, 4], [45, 3], [55, 4], [48, 4], [52, 3], [53, 4], [55, 5],
+    [48, 4], [45, 3], [53, 4], [52, 3], [50, 3], [55, 4], [48, 4], [48, 4]],
+  victory: [[40, 4], [45, 4], [47, 4], [40, 4], [49, 3], [45, 4], [47, 5], [47, 4],
+    [40, 4], [44, 3], [45, 4], [40, 4], [45, 4], [47, 4], [40, 4], [40, 4]],
 } satisfies Record<MusicMode, number[][]>;
+
+// Colour changes orchestration, not tempo/key or six separate soundtracks.
+const heroColours = {
+  relay: { warmth: 1, shimmer: .16, pluck: 1, spread: .5 },
+  helio: { warmth: .92, shimmer: .42, pluck: .9, spread: .55 },
+  volt: { warmth: .96, shimmer: .23, pluck: 1.22, spread: .48 },
+  bastion: { warmth: .72, shimmer: .08, pluck: .82, spread: .38 },
+  zephyr: { warmth: 1.12, shimmer: .22, pluck: 1.08, spread: .68 },
+  glacier: { warmth: .85, shimmer: .36, pluck: .84, spread: .72 },
+};
+type HeroId = keyof typeof heroColours;
 
 /** Original Web Audio synthesis, not sampled effects or a recorded commercial score. */
 export class GameAudio {
@@ -17,15 +31,20 @@ export class GameAudio {
   private limiter: DynamicsCompressorNode | null = null;
   private output: GainNode | null = null;
   private impulse: AudioBuffer | null = null;
+  private musicImpulse: AudioBuffer | null = null;
   private spaces = new Map<boolean, Space>();
   private noiseBuffer: AudioBuffer | null = null;
   private voices = new Set<Voice>();
   private enabled = false;
+  private musicEnabled = true;
+  private effectsEnabled = true;
+  private hero: HeroId = 'relay';
   private unlocked = false;
   private volume = .55;
   private disposed = false;
   private timer: ReturnType<typeof setTimeout> | null = null;
   private mode: MusicMode | null = null;
+  private requestedMode: MusicMode | null = null;
   private nextBeat = 0;
   private beat = 0;
   private generation = 0;
@@ -74,6 +93,28 @@ export class GameAudio {
     this.applyVolume();
   }
 
+  /** Independent preference; never unlocks audio. Resume only the current, unpaused scene. */
+  setMusicEnabled(value: boolean) {
+    const enabled = Boolean(value);
+    if (this.musicEnabled === enabled) return;
+    this.musicEnabled = enabled;
+    if (!enabled) this.stopMusic();
+    else if (this.requestedMode) this.startMusic(this.requestedMode);
+  }
+
+  /** Cancels effects and their room tails without resetting or unducking the score. */
+  setEffectsEnabled(value: boolean) {
+    const enabled = Boolean(value);
+    if (this.effectsEnabled === enabled) return;
+    this.effectsEnabled = enabled;
+    if (!enabled) { this.stopVoices(false); this.clearSpace(false); this.lastEvent.clear(); }
+  }
+
+  /** Unknown IDs use Relay. Colour applies to future notes without restarting the phrase. */
+  setHero(id: string) {
+    this.hero = Object.prototype.hasOwnProperty.call(heroColours, id) ? id as HeroId : 'relay';
+  }
+
   setVolume(value: number) {
     if (!Number.isFinite(value)) return;
     this.volume = Math.max(0, Math.min(1, value));
@@ -87,7 +128,7 @@ export class GameAudio {
   }
 
   play(event: string) {
-    if (!this.ready()) return;
+    if (!this.ready() || !this.effectsEnabled) return;
     const t = this.context!.currentTime;
     if (t - (this.lastEvent.get(event) ?? -Infinity) < (event === 'step' ? .09 : .045)) return;
     this.lastEvent.set(event, t);
@@ -96,7 +137,9 @@ export class GameAudio {
     this.variants.set(event, take);
     const variation = 1 + Math.sin(take * 2.39996) * .045;
     const side = Math.sin(take * 2.39996) * .42;
-    if (['launch', 'strike', 'impact', 'break', 'special', 'round', 'victory'].includes(event)) this.duck(t);
+    if (['launch', 'strike', 'impact', 'break', 'special', 'round', 'victory',
+      'weapon-laser', 'weapon-arc', 'weapon-gravity', 'weapon-burst', 'weapon-frost',
+      'upgrade-assembly', 'upgrade-stage2'].includes(event)) this.duck(t);
     switch (event) {
       case 'select':
         this.tone(t, .065, 740 * variation, 630, .032, 'sine', .003, side, .04);
@@ -126,6 +169,29 @@ export class GameAudio {
         this.noise(t, .18, .19, 2200, 450, 'bandpass', .004, -.5, .12, .55);
         this.tone(t + .02, .3, 720, 260, .035, 'sine', .015, -.35, .2, .45);
         this.metal(t + .035, .15, 410, .025, -.35); break;
+      // All expansion cues are short muzzle/flight textures. No delayed contact, debris or sub hit.
+      case 'weapon-laser':
+        this.tone(t, .19, 1550 * variation, 580, .065, 'sine', .008, -.35, .08, .45);
+        this.tone(t + .012, .16, 2325 * variation, 870, .02, 'triangle', .009, .3, .1, -.1);
+        this.noise(t, .085, .055, 4800, 2100, 'bandpass', .006, -.2, .05, .3); break;
+      case 'weapon-arc':
+        [0, .028, .063].forEach((offset, i) => {
+          this.noise(t + offset, .052, .065 / (1 + i * .3), 3600 + i * 450, 1700, 'bandpass', .003, (i - 1) * .42, .07);
+          this.tone(t + offset, .075, (820 + i * 310) * variation, 510 + i * 160, .028, 'triangle', .005, (1 - i) * .3, .09);
+        }); break;
+      case 'weapon-gravity':
+        this.tone(t, .26, 220 * variation, 340, .07, 'sine', .035, -.25, .1, .25);
+        this.tone(t, .23, 331 * variation, 510, .025, 'triangle', .03, .3, .12, -.3);
+        this.noise(t, .21, .09, 650, 1600, 'bandpass', .025, -.45, .08, .4); break;
+      case 'weapon-burst':
+        [0, .043, .086].forEach((offset, i) => {
+          this.tone(t + offset, .07, (620 + i * 75) * variation, 310 + i * 35, .045, 'triangle', .004, -.25 + i * .25, .05);
+          this.noise(t + offset, .055, .075, 2800, 1100, 'bandpass', .004, -.4 + i * .4, .05);
+        }); break;
+      case 'weapon-frost':
+        this.noise(t, .22, .085, 3800, 6800, 'highpass', .018, -.45, .13, .4);
+        [1, 1.5, 2].forEach((ratio, i) => this.tone(t + i * .012, .2 - i * .025,
+          1250 * ratio * variation, 1500 * ratio, .024 / (1 + i), 'sine', .012, (i - 1) * .45, .15)); break;
       case 'impact':
         this.tone(t, .34, 102 * variation, 34, .29, 'sine');
         this.tone(t, .16, 195 * variation, 48, .13, 'triangle', .003, .12, .08);
@@ -162,6 +228,19 @@ export class GameAudio {
         this.noise(t, .3, .13, 1900, 350, 'bandpass');
         [164.81, 220, 329.63].forEach((f, i) => { this.metal(t + i * .13, .6, f, .045, (i - 1) * .4); });
         this.tone(t, .55, 80, 55, .14, 'sine'); break;
+      case 'upgrade-assembly':
+        // Earned equipment fitting: a small motor, two seated locks, then a warm confirmation.
+        this.noise(t, .24, .065, 1450, 520, 'bandpass', .025, -.3, .12, .25);
+        this.tone(t, .22, 210, 360, .025, 'triangle', .025, -.25, .1, .2);
+        [0, .11].forEach((offset, i) => this.metal(t + offset, .16, 480 + i * 160, .019, i ? .3 : -.3));
+        [52, 59, 64].forEach((note, i) => this.tone(t + .2 + i * .08, .48, midi(note), midi(note), .035 / (1 + i * .2), 'triangle', .028, (i - 1) * .3, .28)); break;
+      case 'upgrade-stage2':
+        // Fuller major-sixth resolution celebrates the second earned stage, not a louder impact.
+        this.noise(t, .32, .055, 1100, 2600, 'bandpass', .08, -.4, .2, .4);
+        [52, 59, 64, 68, 73, 76].forEach((note, i) => {
+          this.tone(t + i * .075, .85 - i * .045, midi(note), midi(note), .034 / (1 + i * .25), 'triangle', .04, (i % 2 ? 1 : -1) * .35, .32);
+          this.tone(t + .015 + i * .075, .45, midi(note + 12), midi(note + 12), .006, 'sine', .018, (i % 2 ? -1 : 1) * .45, .38);
+        }); break;
       case 'correct':
         this.noise(t, .075, .06, 1900, 800, 'bandpass');
         this.metal(t, .36, 329.63, .04, -.25); this.metal(t + .1, .4, 440, .04, .25); break;
@@ -184,6 +263,8 @@ export class GameAudio {
 
   startMusic(mode: MusicMode) {
     if (!this.ready() || !['battle', 'forge', 'victory'].includes(mode)) return;
+    this.requestedMode = mode;
+    if (!this.musicEnabled) return;
     if (this.mode === mode && this.timer !== null) return;
     this.stopMusic(); this.mode = mode; this.beat = 0; this.tension = this.intensity;
     this.nextBeat = this.context!.currentTime + .04;
@@ -193,6 +274,7 @@ export class GameAudio {
   /** Pause boundary: stops effects, future scheduled notes and all music scheduling. */
   stop() {
     this.generation++;
+    this.requestedMode = null;
     // Gate AFTER the compressor: even its look-ahead buffer must not leak on pause.
     if (this.output && this.context) {
       this.output.gain.cancelScheduledValues(this.context.currentTime);
@@ -215,7 +297,7 @@ export class GameAudio {
     window.removeEventListener('pagehide', this.pageHide);
     this.master?.disconnect(); this.limiter?.disconnect();
     if (this.context) { this.context.onstatechange = null; void this.context.close().catch(() => {}); }
-    this.context = null; this.master = null; this.limiter = null; this.noiseBuffer = null; this.impulse = null;
+    this.context = null; this.master = null; this.limiter = null; this.noiseBuffer = null; this.impulse = null; this.musicImpulse = null;
     this.variants.clear();
     this.unlocked = false;
   }
@@ -261,8 +343,25 @@ export class GameAudio {
         });
       }
     }
+    if (music && !this.musicImpulse) {
+      // A separate damped hall keeps the score spacious without lengthening muzzle cues.
+      this.musicImpulse = ctx.createBuffer(2, Math.ceil(ctx.sampleRate * 1.1), ctx.sampleRate);
+      let seed = 1709;
+      for (let channel = 0; channel < 2; channel++) {
+        const data = this.musicImpulse.getChannelData(channel); let smooth = 0;
+        for (let i = 0; i < data.length; i++) {
+          seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+          smooth = smooth * .75 + (seed / 2147483648 - 1) * .25;
+          const time = i / ctx.sampleRate;
+          data[i] = time < .025 ? 0 : smooth * .045 * Math.exp(-time * 6) * (1 - i / data.length);
+        }
+        [.029, .047, .083, .131].forEach((time, i) => {
+          data[Math.round((time + channel * .007) * ctx.sampleRate)] += .3 / (i + 1);
+        });
+      }
+    }
     const output = ctx.createGain(), room = ctx.createConvolver(), wet = ctx.createGain();
-    room.normalize = false; room.buffer = this.impulse; wet.gain.value = .65;
+    room.normalize = false; room.buffer = music ? this.musicImpulse : this.impulse; wet.gain.value = .65;
     room.connect(wet); wet.connect(output); output.connect(this.master!);
     const space = { output, room, wet };
     this.spaces.set(music, space);
@@ -341,61 +440,112 @@ export class GameAudio {
     [1, 1.483, 2.137, 3.19].forEach((ratio, i) => this.tone(t + i * .0015, duration / (1 + i * .4), fundamental * ratio, fundamental * ratio * .97, level / (1 + i * 1.5), 'sine', .003, Math.max(-1, Math.min(1, pan + (i % 2 ? .12 : -.12))), .26));
   }
 
+  private pad(t: number, duration: number, note: number, level: number, pan: number, warmth: number) {
+    const ctx = this.context!, frequency = midi(note);
+    [-1, 1].forEach(side => {
+      const source = ctx.createOscillator(), filter = ctx.createBiquadFilter(), gain = ctx.createGain();
+      source.type = 'sawtooth'; source.frequency.value = frequency;
+      source.detune.setValueAtTime(side * 4, t);
+      source.detune.linearRampToValueAtTime(side * 7, t + duration);
+      filter.type = 'lowpass'; filter.Q.value = .4;
+      filter.frequency.setValueAtTime(frequency * 1.4, t);
+      filter.frequency.linearRampToValueAtTime(frequency * (2.2 + warmth), t + duration * .35);
+      filter.frequency.exponentialRampToValueAtTime(frequency * 1.2, t + duration);
+      gain.gain.setValueAtTime(.0001, t);
+      gain.gain.linearRampToValueAtTime(level * .5, t + Math.min(.55, duration * .2));
+      gain.gain.linearRampToValueAtTime(level * .38, t + duration * .68);
+      gain.gain.exponentialRampToValueAtTime(.0001, t + duration);
+      source.connect(filter); filter.connect(gain);
+      this.track(source, [filter, gain, ...this.spatial(gain, t, duration, pan + side * .09, .48, pan)], t, duration);
+    });
+  }
+
+  private pluck(t: number, note: number, level: number, pan: number, duration = .48) {
+    const f = midi(note);
+    this.tone(t, duration, f * 1.003, f, level, 'triangle', .006, pan, .28);
+    this.tone(t, duration * .32, f * 2, f * 2, level * .23, 'sine', .004, pan, .32);
+  }
+
   private stopMusic() {
     if (this.timer !== null) clearTimeout(this.timer);
     this.timer = null; this.mode = null;
+    this.stopVoices(true);
+    this.clearSpace(true);
+  }
+
+  private stopVoices(music: boolean) {
     for (const voice of [...this.voices]) {
-      if (!voice.music) continue;
+      if (voice.music !== music) continue;
       try { voice.source.stop(); } catch {}
       this.release(voice);
     }
-    this.clearSpace(true);
   }
 
   private scheduleMusic = () => {
     if (!this.ready() || !this.mode) { this.stop(); return; }
+    if (!this.musicEnabled) { this.stopMusic(); return; }
     const ctx = this.context!, mode = this.mode;
     const step = mode === 'battle' ? .19 : mode === 'forge' ? .28 : .235;
     if (this.nextBeat < ctx.currentTime) this.nextBeat = ctx.currentTime + .025;
     this.schedulingMusic = true;
-    while (this.nextBeat < ctx.currentTime + .16) {
-      this.tension += (this.intensity - this.tension) * .18;
-      this.musicStep(this.nextBeat, this.beat, step, mode);
-      this.beat++; this.nextBeat += step;
-    }
-    this.schedulingMusic = false;
+    try {
+      while (this.nextBeat < ctx.currentTime + .16) {
+        this.tension += (this.intensity - this.tension) * .18;
+        this.musicStep(this.nextBeat, this.beat, step, mode);
+        this.beat++; this.nextBeat += step;
+      }
+    } finally { this.schedulingMusic = false; }
     this.timer = setTimeout(this.scheduleMusic, 70);
   };
 
   private musicStep(t: number, beat: number, step: number, mode: MusicMode) {
-    const bar = Math.floor(beat / 16), slot = beat % 16, pass = Math.floor(bar / 8);
-    const [rootNote, third] = harmony[mode][bar % 8], root = midi(rootNote);
+    const bar = Math.floor(beat / 16), slot = beat % 16, phrase = bar % 16, pass = Math.floor(bar / 16);
+    const [rootNote, third] = harmony[mode][phrase], root = midi(rootNote);
     const energy = mode === 'battle' ? this.tension : mode === 'forge' ? .15 : .55;
-    const breath = bar % 8 === 7;
+    const colour = heroColours[this.hero], lift = phrase >= 8 && phrase < 14;
+    const resolved = mode !== 'battle' && phrase >= 14;
+    const breath = phrase % 8 === 7 || resolved;
     if (slot === 0) {
-      const notes = [0, third + 12, 7, pass % 2 ? 14 : 12];
+      const notes = [12, third + 12, 19, resolved ? 24 : pass % 2 ? 26 : 24];
       notes.forEach((note, i) => {
-        const f = midi(rootNote + note), pan = [-.55, .5, -.28, .35][i];
-        this.tone(t + i * .018, step * (breath ? 13 : 18), f, f * (i % 2 ? 1.002 : .998),
-          .021 / (1 + i * .35), 'triangle', .32, pan, .42);
-        this.tone(t + .03, step * 15, f * 1.004, f * 1.002, .006, 'sine', .4, -pan, .4);
+        const pan = [-1, 1, -.5, .5][i] * colour.spread;
+        this.pad(t + i * .012, step * (resolved ? 16 : 18), rootNote + note,
+          (mode === 'forge' ? .022 : .026) / (1 + i * .3), pan, colour.warmth);
       });
-      this.noise(t, step * 12, .009, 480, 1000 + energy * 800, 'bandpass', .4, -.4, .3, .4);
+      this.tone(t, step * (resolved ? 13 : 7), root, root, .03 + energy * .012, 'sine', .055, 0, .12);
     }
-    // Call/response, displaced accents and deliberate rests keep the score from looping every bar.
-    const rhythms = [[2, 5, 9, 14], [1, 6, 10], [3, 7, 12, 15], [2, 8, 11]];
-    const rhythm = rhythms[(bar + pass) % rhythms.length], index = rhythm.indexOf(slot);
-    if (index >= 0 && !(breath && slot > 8) && (mode !== 'battle' || energy > .22 || index === 0)) {
-      const intervals = [12, third + 12, 19, 14, 24, third + 12];
-      const note = intervals[(index + bar + pass * 2) % intervals.length];
-      const f = midi(rootNote + note), pan = ((bar + index) % 2 ? 1 : -1) * .42;
-      this.tone(t + (index % 2) * .012, step * 2.8, f, f * .999, .019 + energy * .009, 'triangle', .009, pan, .32);
-      this.tone(t + .012, step * 1.7, f * 2, f * 2, .007, 'sine', .006, -pan, .4);
-      if (mode === 'forge' || mode === 'victory') this.metal(t, .7, f, .006, pan);
+
+    // The rising fifth, upper neighbour and descending answer recur as one recognisable theme.
+    const rhythms = [[0, 6, 8, 14], [0, 8, 12], [2, 6, 10], [0, 8]];
+    const contours = [[0, 7, 12, 7], [third, 2, 0], [7, 12, third + 12], [2, 0]];
+    const cell = phrase % 4, index = rhythms[cell].indexOf(slot);
+    if (index >= 0 && !(breath && slot > 0) && (mode !== 'forge' || cell % 2 === 0 || index === 0)) {
+      const interval = resolved ? 0 : contours[cell][index];
+      const note = rootNote + 24 + interval;
+      const f = midi(note), duration = step * (resolved ? 12 : index === rhythms[cell].length - 1 ? 4.5 : 3.2);
+      const level = (mode === 'forge' ? .017 : .029 + energy * .01) * (lift ? 1.08 : 1);
+      this.tone(t, duration, f * .999, f, level, 'triangle', .035, -.12, .4);
+      if (mode !== 'forge') this.tone(t + .009, duration * .9, f / 2, f / 2, level * .25, 'sawtooth', .06, .12, .35);
+      this.tone(t + .014, duration * .8, f * 2.001, f * 2, level * colour.shimmer, 'sine', .025, colour.spread, .48);
+      if (lift && energy > .5) this.pluck(t + step, note - 12, .009, -.45);
+    }
+
+    const pizzSlots = mode === 'forge' ? [2, 10] : lift ? [0, 3, 6, 8, 11, 14] : [0, 6, 8, 14];
+    if (pizzSlots.includes(slot) && !(breath && slot > 6) && !resolved) {
+      const chord = [12, 19, third + 12, 19];
+      this.pluck(t + .008, rootNote + chord[(pizzSlots.indexOf(slot) + pass) % 4],
+        (.014 + energy * .014) * colour.pluck, -.36, mode === 'forge' ? .7 : .4);
+    }
+    if (!breath && (mode === 'victory' || mode === 'battle' && energy > .4) && slot % 2 === 1) {
+      const arpeggio = [24, 19, third + 24, 19, 26, 24, third + 24, 31];
+      const note = rootNote + arpeggio[(Math.floor(slot / 2) + (lift ? 2 : 0) + pass) % 8];
+      this.pluck(t + .012, note, .008 + energy * .008, slot % 4 === 1 ? .48 : -.48, step * 1.8);
     }
     if (mode !== 'battle') {
-      if (slot === 0 || (slot === 10 && !breath)) this.tone(t, step * 5, root / 2, root / 2, .035, 'sine', .04, 0, .1);
-      if (mode === 'victory' && [0, 8, 14].includes(slot)) this.noise(t, .08, .025, 2300, 700, 'bandpass', .006, .25, .15);
+      if (mode === 'victory' && !breath && [0, 8].includes(slot)) {
+        this.tone(t, .25, 100, 55, .05, 'sine', .008, 0, .2);
+        this.noise(t, .09, .012, 2600, 900, 'bandpass', .008, .3, .22);
+      }
       return;
     }
     if (slot === 0 || slot === 8 || (!breath && energy > .55 && [6, 14].includes(slot))) {
