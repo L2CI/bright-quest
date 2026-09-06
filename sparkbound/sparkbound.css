@@ -16,3 +16,62 @@
 @media(max-width:600px) and (orientation:portrait){.forge-response .keypad button{height:44px}.forge-response .button{min-height:44px}.answer-option{min-height:44px}}
 @media(max-width:600px) and (orientation:portrait) and (max-height:750px){.forge-panel:has(.forge-brief){top:19%}}
 @media(max-width:600px) and (orientation:portrait) and (max-height:650px){#game{min-height:100dvh}.forge-panel:has(.forge-brief){top:68px;bottom:8px}.forge-brief{min-height:65px}}
+
+/* The duel prioritises the objective, shield and the next decision. */
+.shield-readout{display:flex;justify-content:space-between;align-items:center;margin:10px 0 7px;gap:10px}
+.shield-readout>span{display:flex;align-items:center;gap:6px;font-size:12px;color:#e0ece5}
+.shield-readout svg{width:15px;height:15px}.shield-readout b{font-size:26px;font-variant-numeric:tabular-nums}
+.shield-readout b small{font-size:13px;color:#c3d3d0}
+.shield-track{height:9px;background:#081a24aa;border-radius:3px;overflow:hidden}
+.shield-track span{height:100%;display:block;background:#ecc477;transition:width .3s ease}
+.rival .shield-track span{background:#99ded8}.low-shield .shield-track span{background:#ef9384}
+.round-chip{flex-wrap:wrap;justify-content:center;max-width:230px;gap:6px 9px}
+.round-chip strong{flex-basis:100%;font-size:12px;text-align:center;line-height:1.4;color:#f6e8bd}
+.mission-route{display:flex;align-items:center;gap:12px;margin:0 0 23px;color:#ffe5a4;font-size:12px;font-weight:700}
+.mission-route span{display:flex;align-items:center;gap:6px}.mission-route svg{width:18px;height:18px}
+.intent{padding:11px 16px;box-shadow:0 5px 22px #00121b44}.intent strong{font-size:15px}.intent small{font-size:12px;line-height:1.4}
+.intent-opening{border-color:#a9d9ae}.intent-opening svg{color:#d1ebaf}
+.intent-danger{border-color:#efb28c}.intent-danger svg{color:#ffb98c}
+.battle-console{width:min(670px,calc(100% - 40px));bottom:20px}
+.exchange-recap{min-height:48px;text-align:center;display:flex;flex-direction:column;justify-content:center;gap:5px;margin-bottom:13px;text-shadow:0 2px 8px #00131f}
+.exchange-recap strong{font-size:15px;color:#f9eee1}.exchange-recap span{font-size:12px;color:#dce5dd}.exchange-recap.positive strong{color:#c8edbd}
+.turn-status{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 10px;font-size:12px;font-weight:750}
+.turn-status>span{display:flex;align-items:center;gap:4px}.turn-status svg{width:16px;height:16px}
+.energy-meter{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:600}.energy-meter b{font-variant-numeric:tabular-nums}
+.energy-cells{display:flex;gap:4px}.energy-cells i{height:12px;width:15px;border:1px solid #adbdba70;border-radius:2px;background:#0a242f80}
+.energy-cells i.charged{background:#f0c46a;border-color:#ffe7ad;box-shadow:0 0 8px #ffe09b26}
+.moves{grid-template-columns:repeat(var(--move-count,4),minmax(0,1fr))}
+.move{height:109px;padding:10px 6px 6px;gap:5px;transition:background .16s,transform .16s,border-color .16s}
+.move b{font-size:16px}.move small{font-size:11px}.move-cue{height:15px;line-height:15px;font-size:10px;color:#ffdf96;font-weight:800}
+.move.suggested{border-color:#eed292;background:#2e4445ef;box-shadow:inset 0 0 0 1px #eed29238,0 8px 24px #03121944}
+.battle-console .save-state{margin-top:8px}.welcome{max-width:600px;bottom:3%}.welcome h1{font-size:38px;line-height:1.14;max-width:480px}.welcome p{max-width:450px;font-size:14px}
+#game[data-reduced=true] *,#game[data-reduced=true] *:before,#game[data-reduced=true] *:after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+@media(max-width:600px) and (orientation:portrait){
+  #topbar .icon-button{width:44px;height:44px;flex-shrink:0}
+  .shield-readout{margin:7px 0 6px;gap:4px}.shield-readout>span{font-size:10px;gap:4px}.shield-readout b{font-size:20px}.shield-readout b small{font-size:10px}.shield-track{height:7px}
+  .round-chip{top:80px;width:210px;max-width:210px;padding:5px 8px;gap:3px 7px}.round-chip strong{font-size:11px}
+  #scene-caption{top:200px}.intent{padding:8px 11px}.intent strong{font-size:13px}.intent small{font-size:11px}
+  .battle-console{width:calc(100% - 26px);bottom:13px}.exchange-recap{margin-bottom:8px;min-height:43px;gap:3px}.exchange-recap strong{font-size:12px}.exchange-recap span{font-size:11px;line-height:1.35}
+  .turn-status{font-size:11px;margin-bottom:8px;gap:6px}.energy-meter{gap:5px;font-size:10px}.energy-cells{gap:3px}.energy-cells i{width:12px;height:10px}
+  .move{height:104px;padding:8px 3px 5px;gap:4px}.move b{font-size:12px}.move small{font-size:10px;line-height:1.2;min-height:24px;display:flex;align-items:center;justify-content:center}.move-cue{font-size:9px;height:13px;line-height:13px}
+  .welcome h1{font-size:34px}.welcome p{font-size:14px;max-width:330px}.mission-route{margin-bottom:18px;gap:9px}
+}
+@media(max-width:600px) and (orientation:portrait) and (max-height:650px){
+  #game[data-phase=battle] #scene-caption{top:184px}.round-chip{top:73px;padding:4px 7px;gap:2px 7px}
+  #game[data-phase=battle] .intent small{display:none}#game[data-phase=battle] .intent strong{font-size:11px}#game[data-phase=battle] .intent{padding:6px 9px}
+  .battle-console{bottom:8px}.exchange-recap{min-height:34px;margin-bottom:5px}.exchange-recap strong,.exchange-recap span{font-size:10px}
+  .move{height:90px;gap:2px}.move svg{width:18px;height:18px}.move b{font-size:11px}.move small{font-size:9px;min-height:21px}.turn-status{margin-bottom:5px}
+}
+@media(max-width:350px) and (orientation:portrait){
+  #topbar{padding:8px 10px;gap:6px}.wordmark{font-size:12px;white-space:nowrap}.wordmark .brand-icon,.wordmark small{display:none}.top-actions{gap:3px}
+  .welcome{bottom:16px;left:18px;right:18px}.welcome h1{font-size:24px;margin:6px 0 9px}.welcome p{font-size:12px;margin-bottom:12px;line-height:1.5}.welcome .mission-route{display:none}.welcome .button{font-size:12px;padding:10px 13px}
+}
+@media(min-width:351px) and (max-width:380px) and (orientation:portrait){.wordmark{font-size:12px;gap:5px}.brand-icon{height:25px;width:25px}}
+@media(max-height:600px) and (orientation:landscape){
+  .welcome{left:28px;right:28px;bottom:12px;max-width:none}.welcome h1{font-size:24px;max-width:none;margin:5px 0 8px}.welcome p{font-size:12px;max-width:650px;margin-bottom:8px}.welcome .mission-route{display:none}.welcome .button{min-height:40px}
+  #game[data-phase=battle] #scene-caption{top:9px;max-width:42%;width:42%}#game[data-phase=battle] .intent small{display:none}
+  .shield-readout{margin:3px 0 4px}.shield-readout b{font-size:18px}.shield-readout>span{font-size:10px}.shield-track{height:5px}.round-chip strong{font-size:10px}
+  .battle-console{width:560px;bottom:7px;max-width:75%}.move{height:65px;gap:2px;padding:5px}.move b{font-size:12px}.move small{font-size:9px}.move svg{width:18px;height:18px}.move-cue{font-size:9px;height:11px;line-height:11px}
+  .exchange-recap{min-height:29px;margin-bottom:4px;gap:1px}.exchange-recap strong,.exchange-recap span{font-size:10px}.turn-status{font-size:10px;margin-bottom:5px}.battle-console .save-state{margin-top:4px;font-size:8px}
+  .intent strong{font-size:12px}.intent small{display:block;font-size:10px}.intent{padding:6px 10px}.mission-route{margin-bottom:10px}
+}

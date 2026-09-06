@@ -1,8 +1,9 @@
-import { createIcons, Shield, Swords, Zap, ArrowLeft, ArrowRight, Volume2, VolumeX, Settings, Pause, Play, X, Check, Lock, RotateCcw, Sparkles, ChevronRight, HelpCircle, Delete, Undo2, BookOpen, Cpu, Trophy, Hammer, Hand, CircleHelp, RefreshCw } from 'lucide';
+import { createIcons, Shield, Swords, Zap, ArrowLeft, ArrowRight, Volume2, VolumeX, Settings, Pause, Play, X, Check, Lock, RotateCcw, Sparkles, ChevronRight, HelpCircle, Delete, Undo2, BookOpen, Cpu, Trophy, Hammer, Hand, CircleHelp, RefreshCw, Target } from 'lucide';
 import { SparkWorld } from './world';
 import { GameAudio } from './sound';
+import { duelCue, duelMoves, exchangeOutcome, roundReward } from './duel.js';
 
-const icons = { Shield, Swords, Zap, ArrowLeft, ArrowRight, Volume2, VolumeX, Settings, Pause, Play, X, Check, Lock, RotateCcw, Sparkles, ChevronRight, HelpCircle, Delete, Undo2, BookOpen, Cpu, Trophy, Hammer, Hand, CircleHelp, RefreshCw };
+const icons = { Shield, Swords, Zap, ArrowLeft, ArrowRight, Volume2, VolumeX, Settings, Pause, Play, X, Check, Lock, RotateCcw, Sparkles, ChevronRight, HelpCircle, Delete, Undo2, BookOpen, Cpu, Trophy, Hammer, Hand, CircleHelp, RefreshCw, Target };
 const $ = (id: string) => document.getElementById(id)!;
 const escape = (x: any) => String(x ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 const icon = (name: string) => `<i data-lucide="${name}" aria-hidden="true"></i>`;
@@ -21,10 +22,6 @@ const draftKey = () => `bqSparkDraft:${profile.id}:${state.match?.id}:${state.ma
 const currentQuestion = () => state?.match?.questions?.[state.match?.questionIndex];
 const decorate = () => createIcons({ icons, attrs: { 'stroke-width': 1.9 } });
 const blocked = () => busy || acting || !!pending || !!earnedTask;
-const intentData: any = {
-  open: ['Open stance', 'Prism is recovering', 'Hand'], guard: ['Shield ready', 'The staff can pierce this guard', 'Shield'],
-  strike: ['Quick strike', 'A light hit is coming', 'Swords'], heavy: ['Power strike', 'A heavy hit is coming', 'Zap']
-};
 function toast(text: string) { $('toast').textContent = text; $('toast').classList.add('visible'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').classList.remove('visible'), 4800); }
 async function request(body?: any) {
   const cap = sessionStorage.getItem('brightQuestChildCapability');
@@ -39,6 +36,7 @@ function prepareDraft() {
 function saveDraft() { storage.set(draftKey(), draft); }
 async function perform(action: any) {
   if (blocked()) return; const before = structuredClone(state); busy = true; render();
+  if (action.type === 'move') audio.play('select');
   const body = { operationId: crypto.randomUUID(), version: state.version, action };
   storage.set(pendingKey(), body);
   try {
@@ -54,6 +52,7 @@ async function perform(action: any) {
       acting = false; visualMatch = null;
     } else if (state.match?.phase === 'rival_upgrade' && before.match?.phase !== 'rival_upgrade') audio.play('charge');
     else if (state.match?.phase === 'victory' && before.match?.phase !== 'victory') { audio.play('victory'); audio.startMusic('victory'); }
+    if (state.match?.phase === 'battle' && before.match?.phase !== 'battle') audio.play('round');
     if (action.type === 'answer' && currentQuestion()?.id !== action.questionId) draftQuestion = '';
     if (action.type === 'reset' || action.type === 'start') { draftQuestion = ''; view = 'arena'; history.replaceState({ view }, '', `${location.pathname}${location.search}#arena`); }
   } catch (e: any) {
@@ -71,25 +70,19 @@ function hud(m: any) {
   if (!m || view === 'review') return '';
   const roundConfig = state.configuration?.battle?.rounds?.[m.round - 1] || [{ playerHP: 24, rivalHP: 16 }, { playerHP: 26, rivalHP: 28 }, { playerHP: 24, rivalHP: 50 }][m.round - 1];
   const playerMax = m.maxPlayerHP || roundConfig.playerHP, rivalMax = m.maxRivalHP || roundConfig.rivalHP;
-  const powerMax = Math.max(m.playerPower, m.rivalPower, 32);
-  const hero = (name: string, power: number, hp: number, max: number, rival = false) => `<div class="hero-hud ${rival ? 'rival' : ''}"><div class="hero-title"><strong>${name}</strong><small>${rival ? 'YOUR RIVAL' : 'YOUR HERO'}</small></div><div class="power-readout"><span>POWER</span><b>${power}</b></div><div class="power-track"><span style="width:${Math.max(0, Math.min(100, power / powerMax * 100))}%"></span></div><div class="integrity">${icon('shield')}<span>Suit</span><div class="integrity-track"><i style="width:${Math.max(0, Math.min(100, hp / max * 100))}%"></i></div><b>${hp}/${max}</b></div></div>`;
-  return hero('RELAY', m.playerPower, m.playerHP, playerMax) + `<div class="round-chip"><div class="round-dots">${[1, 2, 3].map(n => `<i class="${n <= m.round ? 'done' : ''}"></i>`).join('')}</div>ROUND ${m.round} / 3</div>` + hero('PRISM', m.rivalPower, m.rivalHP, rivalMax, true);
+  const hero = (name: string, hp: number, max: number, rival = false) => `<div class="hero-hud ${rival ? 'rival' : ''} ${hp <= max * .3 ? 'low-shield' : ''}"><div class="hero-title"><strong>${name}</strong><small>${rival ? 'YOUR RIVAL' : 'YOUR HERO'}</small></div><div class="shield-readout"><span>${icon('shield')}${rival ? 'Rival shield' : 'Your shield'}</span><b>${hp}<small> / ${max}</small></b></div><div class="shield-track" role="progressbar" aria-label="${rival ? 'Prism' : 'Relay'} shield" aria-valuemin="0" aria-valuemax="${max}" aria-valuenow="${hp}"><span style="width:${Math.max(0, Math.min(100, hp / max * 100))}%"></span></div></div>`;
+  return hero('RELAY', m.playerHP, playerMax) + `<div class="round-chip"><div class="round-dots">${[1, 2, 3].map(n => `<i class="${n <= m.round ? 'done' : ''}"></i>`).join('')}</div><span>ROUND ${m.round} / 3</span><strong>Empty Prism's shield</strong></div>` + hero('PRISM', m.rivalHP, rivalMax, true);
 }
 function caption(m: any) {
   if (acting) return;
   if (!m || view === 'review') { $('scene-caption').innerHTML = ''; return; }
-  if (m.phase === 'battle') { const info = intentData[m.intent] || intentData.open; $('scene-caption').innerHTML = `<div class="intent">${icon(info[2].replace(/[A-Z]/g, (x: string) => '-' + x.toLowerCase()).replace(/^-/, ''))}<div class="intent-detail"><strong>${escape(info[0])}</strong><small>${m.intent === 'guard' && !m.staff ? 'Guard holds. Wait for an opening.' : escape(info[1])}</small></div></div>`; }
+  if (m.phase === 'battle') { const cue = duelCue(m); $('scene-caption').innerHTML = `<div class="intent intent-${cue.tone}">${icon(cue.icon)}<div class="intent-detail"><strong>${escape(cue.title)}</strong>${prefs.cues !== false ? `<small>${escape(cue.detail)}</small>` : ''}</div></div>`; }
   else if (m.phase === 'training') $('scene-caption').innerHTML = `<h2 class="scene-title">${m.trainingStage === 1 ? 'THE BREACH FORGE' : 'AEGIS WORKSHOP'}</h2><p class="scene-subtitle">${m.trainingStage === 1 ? 'Build a way through the guard' : 'Prepare for the final round'}</p>`;
   else $('scene-caption').innerHTML = '';
 }
 function battle(m: any) {
-  const moves = [
-    { id: 'strike', name: 'Strike', icon: 'swords', hint: '+1 energy', disabled: false },
-    { id: 'guard', name: 'Guard', icon: 'shield', hint: 'Absorb & charge', disabled: false },
-    { id: 'break', name: 'Break', icon: m.staff ? 'hammer' : 'lock', hint: m.staff ? '2 energy' : 'Forge unlock', disabled: !m.staff || m.energy < 2 },
-    { id: 'special', name: 'Special', icon: m.pad ? 'zap' : 'lock', hint: m.pad ? `${m.energy} / 4 energy` : 'Round 3', disabled: !m.pad || m.energy < 4 }
-  ];
-  return `<section class="battle-console"><p class="battle-hint">${acting ? 'Exchange in motion' : m.exchange === 0 && m.round === 1 ? 'Strike an opening. Guard a heavy hit.' : m.energy === 4 && m.pad ? 'Full charge. Make it count.' : 'Your move.'}</p><div class="moves">${moves.map(a => `<button type="button" class="move" data-action="move" data-move="${a.id}" ${a.disabled || blocked() ? 'disabled' : ''} title="${escape(a.name + ': ' + a.hint)}" aria-label="${escape(a.name + ', ' + a.hint)}">${icon(a.icon)}<b>${a.name}</b><small>${a.hint}</small>${a.id === 'special' ? `<span class="energy-fill" style="width:${m.energy / 4 * 100}%"></span>` : ''}</button>`).join('')}</div><p class="save-state">${busy ? 'Saving move' : acting ? ' ' : 'Progress saved'}</p></section>`;
+  const moves = duelMoves(m), cue = duelCue(m), outcome = !acting && !busy ? exchangeOutcome(m.lastEvent) : null;
+  return `<section class="battle-console"><div class="exchange-recap ${outcome?.positive ? 'positive' : ''}" role="status">${outcome ? `<strong>${escape(outcome.title)}</strong><span>${escape(outcome.detail)}</span>` : `<strong>${acting ? 'Duel in motion' : 'Win this round. Keep your shield above zero.'}</strong><span>${acting ? ' ' : escape(roundReward(m))}</span>`}</div><div class="turn-status"><span>${acting ? 'Resolving your move' : 'Your move'} ${!acting ? icon('chevron-right') : ''}</span><div class="energy-meter" aria-label="Energy ${m.energy} of 4"><span>Energy</span><div class="energy-cells">${[1,2,3,4].map(n => `<i class="${n <= m.energy ? 'charged' : ''}"></i>`).join('')}</div><b>${m.energy}/4</b></div></div><div class="moves" style="--move-count:${moves.length}">${moves.map(a => `<button type="button" class="move ${!blocked() && prefs.cues !== false && a.id === cue.suggested ? 'suggested' : ''}" data-action="move" data-move="${a.id}" ${a.disabled || blocked() ? 'disabled' : ''} title="${escape(a.name + ': ' + a.hint)}" aria-label="${escape(a.name + ', ' + a.hint)}">${icon(a.icon)}<b>${a.name}</b><small>${a.hint}</small><span class="move-cue">${prefs.cues !== false && a.id === cue.suggested && !blocked() ? escape(cue.badge) : ''}</span></button>`).join('')}</div><p class="save-state">${busy ? 'Saving move' : acting ? ' ' : 'Progress saved'}</p></section>`;
 }
 function evidence(q: any) {
   const e = q.evidence; if (!e) return '';
@@ -125,7 +118,7 @@ function training(m: any) {
   return `<section class="forge-panel"><div class="forge-top"><span class="eyebrow">${escape(q.title || 'Forge task')}</span><span class="forge-count">${m.questionIndex % 2 + 1} / 2</span></div><div class="forge-brief"><h2 tabindex="-1">${escape(q.prompt)}</h2>${evidence(q)}${feedbackText ? `<div class="feedback ${q.resolved ? '' : 'wrong'}" role="status"><strong>${q.resolved ? 'Ready' : q.hintsUsed >= 2 ? 'Worked support' : 'A useful clue'}</strong>${escape(feedbackText)}</div>` : ''}</div><div class="forge-response">${input}<div class="forge-actions">${button('answer', 'Confirm', 'check', 'primary', blocked() || !canSubmit)}${button('hint', q.hintsUsed >= 1 ? 'Show steps' : 'Clue', 'circle-help', 'quiet', blocked() || q.hintsUsed >= 2)}</div><p class="save-state">${busy ? 'Saving your answer' : 'Take your time. The battle is paused.'}</p></div></section>`;
 }
 function result(m: any) {
-  if (m.phase === 'round_won') return `<section class="result-panel"><span class="eyebrow">${m.round === 3 ? 'Final round' : 'Round ' + m.round}</span><h1>${m.round === 3 ? 'YOU BROKE THROUGH' : 'ROUND COMPLETE'}</h1><p>${m.round === 3 ? 'A worthy rival. A stronger team.' : 'Prism has something new. So will you.'}</p>${button('continue', m.round === 3 ? 'Become a guardian' : 'Meet the next challenge', 'arrow-right', 'primary', blocked())}</section>`;
+  if (m.phase === 'round_won') return `<section class="result-panel"><span class="eyebrow">${m.round === 3 ? 'Final round' : 'Round ' + m.round}</span><h1>${m.round === 3 ? 'TRIAL COMPLETE!' : 'YOU WON THIS ROUND!'}</h1><p>${m.round === 3 ? 'Three rounds won. Your City Guardian badge is ready.' : m.round === 1 ? 'Next mission: solve two maths challenges to build a staff that pierces shields.' : 'Next mission: solve two science challenges to build protection and unlock Overdrive.'}</p>${button('continue', m.round === 3 ? 'Claim guardian badge' : 'Build my next upgrade', 'arrow-right', 'primary', blocked())}</section>`;
   if (m.phase === 'rival_upgrade') return `<section class="result-panel"><span class="eyebrow">Prism evolves</span><h1>${m.round === 1 ? 'A GUARD TO BREAK' : 'A STRONGER PULSE'}</h1><p>${m.round === 1 ? 'The forge holds your next move: a staff that pierces the shield.' : 'Build an Aegis module. Keep your shield strong for the final round.'}</p>${button('continue', 'Enter the forge', 'hammer', 'primary', blocked())}</section>`;
   if (m.phase === 'player_upgrade') return `<section class="result-panel"><div class="result-tag">${icon(m.pad ? 'shield' : 'hammer')}${m.pad ? 'Aegis protection + Special charge' : 'Guard-piercing staff unlocked'}</div><h1>${m.pad ? 'BUILT TO HOLD' : 'BUILT TO BREAK THROUGH'}</h1><p>${m.pad ? 'Your protective module is fitted. Overdrive is ready.' : 'Your staff can do what the gauntlets could not.'}</p>${button('continue', `Ready for round ${m.round + 1}`, 'arrow-right', 'primary', blocked())}</section>`;
   if (m.phase === 'defeat') return `<section class="result-panel"><span class="eyebrow">Suit shield depleted</span><h1>RESET. RISE AGAIN.</h1><p>Your equipment and forge progress are safe. Try a different move when Prism winds up.</p><div class="actions">${button('retry', 'Try this round again', 'rotate-ccw', 'primary', blocked())}${button('retry-supported', 'Try with support', 'shield', '', blocked())}</div></section>`;
@@ -142,10 +135,12 @@ function render() {
   $('topbar').innerHTML = `<div class="wordmark"><span class="brand-icon">${icon('zap')}</span><div>SPARKBOUND<small>BRIGHT QUEST / HERO TRIALS</small></div></div><nav class="top-actions" aria-label="Game menu"><span class="profile-name">${escape(profile.name)}</span>${local ? '<span class="preview-tag">LOCAL QA</span>' : ''}${iconButton('sound', prefs.sound ? 'Mute sound' : 'Enable sound', prefs.sound ? 'volume-2' : 'volume-x')}${iconButton('settings', 'Settings', 'settings')}${iconButton('pause', 'Pause game', 'pause')}${iconButton('exit', 'Return to Bright Quest', 'arrow-left')}</nav>`;
   $('hud').innerHTML = hud(m); caption(m);
   $('interface').innerHTML = earnedTask && !acting ? `<section class="forge-panel earned-panel"><span class="result-tag">${icon('check')}COMPONENT READY</span><h2>${escape(earnedTask.outcome)}</h2><div class="feedback"><strong>${earnedTask.completion === 'independent' ? 'Solved independently' : 'Solved with practice'}</strong>${escape(earnedTask.feedback?.message || '')}</div>${button('acknowledge', state.match.phase === 'player_upgrade' ? 'See your upgrade' : 'Next component', 'arrow-right', 'primary full')}</section>` : view === 'review' ? review() : !m
-    ? `<section class="welcome"><span class="eyebrow">The guardian trials</span><h1>FORGE YOUR<br>COMEBACK.</h1><p>One rival. Three rounds.<br>Build the power that changes the fight.</p><div class="actions">${button('start', 'Enter the arena', 'swords', 'primary', blocked())}${iconButton('how', 'Meet the controls', 'circle-help')}</div>${state.wins ? `<p class="save-state">${state.wins} matches won / Tier ${state.tier}</p>` : ''}</section>`
+    ? `<section class="welcome"><span class="eyebrow">Your mission</span><h1>BECOME A CITY GUARDIAN.</h1><p>Win three rounds against Prism. Solve maths and science challenges to build stronger equipment between rounds.</p><div class="mission-route"><span>${icon('swords')}Duel</span>${icon('chevron-right')}<span>${icon('hammer')}Build</span>${icon('chevron-right')}<span>${icon('trophy')}Win</span></div><div class="actions">${button('start', 'Start my first duel', 'swords', 'primary', blocked())}${iconButton('how', 'Guardian mission', 'circle-help')}</div>${state.wins ? `<p class="save-state">${state.wins} matches won / Tier ${state.tier}</p>` : ''}</section>`
     : m.phase === 'battle' ? battle(m) : acting ? `<section class="result-panel"><span class="result-tag">${icon('cpu')}ASSEMBLING YOUR EQUIPMENT</span></section>` : m.phase === 'training' ? training(m) : result(m);
   $('connection').innerHTML = pending ? `<div class="connection-banner">Save pending ${button('reconnect', 'Reconnect', 'refresh-cw', '', busy)}</div>` : '';
   world.reduced = prefs.reduced; world.paused = paused || dialog.open || document.hidden;
+  $('game').dataset.reduced = String(prefs.reduced);
+  audio.setIntensity(m?.phase === 'battle' ? m.intent === 'heavy' || m.playerHP <= 8 ? .85 : m.round === 3 ? .65 : .35 : .15);
   audio.setEnabled(prefs.sound); audio.setVolume(prefs.volume); if (!paused && !dialog.open && !document.hidden && !pending) audio.startMusic(m?.phase === 'training' ? 'forge' : m?.phase === 'victory' ? 'victory' : 'battle');
   decorate();
   if (currentQuestion()?.feedback && !earnedTask) document.querySelector('.forge-brief .feedback')?.scrollIntoView({block:'nearest'});
@@ -153,16 +148,17 @@ function render() {
 function go(next: string) { view = next; history.pushState({ view }, '', `${location.pathname}${location.search}#${view}`); render(); }
 function openDialog(title: string, body: string) { focusReturn = document.activeElement as HTMLElement; dialog.innerHTML = `<div class="dialog-head"><h2 id="dialog-title">${escape(title)}</h2>${iconButton('close-dialog', 'Close dialog', 'x')}</div><div class="dialog-body">${body}</div>`; dialog.setAttribute('aria-labelledby', 'dialog-title'); dialog.showModal(); world.paused = true; audio.stop(); decorate(); }
 function closeDialog() { dialog.close(); paused = false; world.paused = document.hidden; focusReturn?.focus(); render(); }
-function settings() { openDialog('Arena settings', `<label class="setting">Sound<input type="checkbox" id="sound-setting" ${prefs.sound ? 'checked' : ''}></label><label class="setting">Volume<input type="range" id="volume-setting" min="0" max="1" step=".05" value="${prefs.volume}"></label><label class="setting">Reduced motion<input type="checkbox" id="motion-setting" ${prefs.reduced ? 'checked' : ''}></label><div class="dialog-actions">${button('save-settings', 'Done', 'check', 'primary')}${button('restart', 'Restart match', 'rotate-ccw', '', blocked())}</div>`); }
-function how() { openDialog('Your next move', '<p><strong>Strike</strong> an opening to deal damage and charge energy.</p><p><strong>Guard</strong> a heavy hit to protect your suit and charge faster.</p><p>The forge unlocks <strong>Break</strong>, then <strong>Special</strong>. Spend energy now, or save it for a bigger move.</p>' + button('close-dialog', 'Ready', 'check', 'primary full')); }
+function settings() { openDialog('Arena settings', `<label class="setting">Sound<input type="checkbox" id="sound-setting" ${prefs.sound ? 'checked' : ''}></label><label class="setting">Volume<input type="range" id="volume-setting" min="0" max="1" step=".05" value="${prefs.volume}"></label><label class="setting">Tactical cues<input type="checkbox" id="cues-setting" ${prefs.cues !== false ? 'checked' : ''}></label><label class="setting">Reduced motion<input type="checkbox" id="motion-setting" ${prefs.reduced ? 'checked' : ''}></label><div class="dialog-actions">${button('mission', 'Guardian mission', 'target')}${button('save-settings', 'Done', 'check', 'primary')}${button('restart', 'Restart match', 'rotate-ccw', '', blocked())}</div>`); }
+function how() { openDialog('The Guardian Trial', '<p><strong>Mission: win three rounds.</strong> Prism loses a round when its shield reaches zero. Keep your own shield above zero.</p><p><strong>Round 1:</strong> outlast Prism in the first duel.</p><p><strong>Round 2:</strong> build a piercing staff in the maths forge, then defeat the upgraded Prism.</p><p><strong>Round 3:</strong> build your science upgrade and win the final duel to earn your Guardian badge.</p>' + button('close-dialog', 'Return to arena', 'arrow-left', 'primary full')); }
 document.addEventListener('click', async e => {
   const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-action]'); if (!b || b.disabled) return;
   const action = b.dataset.action; if (!world) { if (action === 'reload') location.reload(); return; }
   if (action === 'acknowledge') { earnedTask = null; render(); return; }
   if (action === 'sound') { prefs.sound = !prefs.sound; storage.set('bqSparkSettings', prefs); if (prefs.sound) await audio.unlock(); else audio.stop(); render(); return; }
   if (action === 'settings') return settings(); if (action === 'how') return how();
+  if (action === 'mission') { dialog.close(); return how(); }
   if (action === 'close-dialog') return closeDialog();
-  if (action === 'save-settings') { prefs.sound = ($('sound-setting') as HTMLInputElement).checked; prefs.volume = Number(($('volume-setting') as HTMLInputElement).value); prefs.reduced = ($('motion-setting') as HTMLInputElement).checked; storage.set('bqSparkSettings', prefs); if (prefs.sound) await audio.unlock(); closeDialog(); return; }
+  if (action === 'save-settings') { prefs.sound = ($('sound-setting') as HTMLInputElement).checked; prefs.volume = Number(($('volume-setting') as HTMLInputElement).value); prefs.cues = ($('cues-setting') as HTMLInputElement).checked; prefs.reduced = ($('motion-setting') as HTMLInputElement).checked; storage.set('bqSparkSettings', prefs); if (prefs.sound) await audio.unlock(); closeDialog(); return; }
   if (action === 'pause') { paused = true; return openDialog('Match paused', `<p>Your current round and equipment are safe.</p><div class="dialog-actions">${button('close-dialog', 'Resume', 'play', 'primary')}${button('review-dialog', 'Review training', 'book-open')}</div><p><a class="button full" href="/">${icon('arrow-left')}Return to Bright Quest</a></p>`); }
   if (action === 'exit') return openDialog('Leave the arena?', `<p>${pending ? 'A save is waiting to reconnect. Reconnect before leaving.' : 'Your confirmed progress is saved. You can resume this match later.'}</p><div class="dialog-actions">${button('close-dialog', 'Keep playing', 'play', 'primary')}<a class="button" href="/">${icon('arrow-left')}Bright Quest</a></div>`);
   if (action === 'restart') return openDialog('Restart this match?', `<p>This starts over at round 1. Your completed learning evidence and previous wins stay in Parent review.</p><div class="dialog-actions">${button('close-dialog', 'Keep playing', 'arrow-left', 'primary')}${button('confirm-restart', 'Restart match', 'rotate-ccw', 'danger', blocked())}</div>`);

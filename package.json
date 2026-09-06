@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build:sparkbound": "node tools/build-sparkbound.mjs",
-    "test:sparkbound": "node --test tools/test-sparkbound-domain.mjs tools/test-sparkbound-content.mjs tools/test-sparkbound-api.mjs",
+    "test:sparkbound": "node --test tools/test-sparkbound-domain.mjs tools/test-sparkbound-content.mjs tools/test-sparkbound-api.mjs tools/test-sparkbound-duel.mjs",
     "build:beacon": "node tools/build-beacon.mjs",
     "test:beacon": "node --test tools/test-beacon-domain.mjs tools/test-beacon-api.mjs tools/test-beacon-campaign.mjs tools/test-beacon-content-age.mjs tools/test-beacon-activities.mjs",
     "serve": "node serve-static.mjs",
