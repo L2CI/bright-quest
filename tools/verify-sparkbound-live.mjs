@@ -49,7 +49,7 @@ try {
   }
   const version=latest.version;
   await page.locator('[data-action="settings"]').click();await page.locator('[data-action="path"]').click();assert((await page.locator('.stage-status').first().textContent()).includes('Equipped'));await page.locator('[data-action="path-back"]').click();assert.equal(latest.version,version);
-  await page.locator('[data-action="pause"]').click();await page.locator('[data-action="close-dialog"]').click();
+  await page.locator('[data-action="pause"]').click();await page.getByRole('button',{name:'Resume',exact:true}).click();
   await page.reload();await idle();assert.equal(latest.version,version);assert.equal(latest.match.heroId,'helio');report.checks.push('Live bundle resumes saved hero and supports guide return and pause');assert.deepEqual(report.errors,[]);
   await writeFile(resolve(output,'report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
 }finally{await browser?.close();await h?.close();}
