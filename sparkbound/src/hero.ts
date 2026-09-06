@@ -2,7 +2,7 @@ import * as THREE from '../../cave-river-quest/vendor/three.module.js';
 import { GLTFLoader } from '../assets/mechs/vendor/GLTFLoader.js';
 
 export type HeroKind = 'relay' | 'prism';
-export type HeroMotion = 'idle' | 'walk' | 'strike' | 'guard' | 'break' | 'hit' | 'special' | 'upgrade' | 'victory';
+export type HeroMotion = 'idle' | 'walk' | 'strike' | 'guard' | 'charge' | 'break' | 'hit' | 'special' | 'upgrade' | 'victory';
 export interface HeroKit { staff?: boolean; pad?: boolean; tier?: number }
 export interface PlayOptions {
   duration?: number;
@@ -23,9 +23,10 @@ export const HERO_MOTIONS = {
   walk: { clip: 'Walk', nativeDuration: 1.0416666269302368, duration: 1.2, impactFraction: null },
   strike: { clip: 'Punch', nativeDuration: 0.7083333134651184, duration: 1.02, impactFraction: 15 / 24 },
   guard: { clip: 'Shoot', nativeDuration: 0.625, duration: 0.625, impactFraction: null },
-  break: { clip: 'SwordSlash', nativeDuration: 0.75, duration: 1.35, impactFraction: 11 / 24 },
+  charge: { clip: 'Shoot', nativeDuration: 0.625, duration: 1.8, impactFraction: null },
+  break: { clip: 'Shoot', nativeDuration: 0.625, duration: 1.15, impactFraction: .32 },
   hit: { clip: 'HitRecieve_1', nativeDuration: 0.5833333134651184, duration: 0.72, impactFraction: null },
-  special: { clip: 'Kick', nativeDuration: 0.75, duration: 1.5, impactFraction: 16 / 24 },
+  special: { clip: 'Shoot', nativeDuration: 0.625, duration: 1.45, impactFraction: .32 },
   upgrade: { clip: 'Pickup', nativeDuration: 1.75, duration: 2.1, impactFraction: null },
   victory: { clip: 'Hello', nativeDuration: 1.875, duration: 2.3, impactFraction: null },
 } as const;
@@ -69,7 +70,15 @@ export class HeroRig {
   private equipmentReveals = new Map<THREE.Object3D, { scale: THREE.Vector3; elapsed: number }>();
   private tip = new THREE.Object3D();
   private fist: THREE.Object3D | null = null;
-  private kick: THREE.Object3D | null = null;
+  private launcherSlide = new THREE.Group();
+  private muzzleFlash = new THREE.Group();
+  private heavyParts: THREE.Object3D[] = [];
+  private chargeRing!: THREE.Mesh;
+  private chargeGlow!: THREE.Mesh;
+  private chargeAmount = 0;
+  private aimTarget: THREE.Vector3 | null = null;
+  private recoilTime = 10;
+  private launcherBind = new THREE.Quaternion();
   private disposed = false;
   private elapsed = 0;
   private duration = Infinity;
@@ -151,7 +160,7 @@ export class HeroRig {
       this.play(name,{fade:0,restart:true});
       this.action!.time=this.clips.get(HERO_MOTIONS[name].clip)!.duration*HERO_MOTIONS[name].impactFraction!;
       this.mixer.update(0);this.applyGrip();this.root.updateWorldMatrix(true,true);
-      const socket=name==='break'?this.tip:name==='special'?this.kick!:this.fist!;
+      const socket=name==='strike'?this.fist!:this.tip;
       this.contactProfiles.set(name,this.root.worldToLocal(socket.getWorldPosition(new THREE.Vector3())));
     }
     this.play(pending?.name || 'idle', pending?.options || {fade:0});
@@ -213,6 +222,14 @@ export class HeroRig {
     }
     const reactor = this.mesh(chest,new THREE.CylinderGeometry(.14,.14,.07,12),'Grey',0,-.09,.21); reactor.rotation.x=Math.PI/2;
     const core = this.mesh(chest,new THREE.CylinderGeometry(.092,.092,.08,12),'Eye',0,-.09,.25); core.rotation.x=Math.PI/2;
+    this.chargeRing=this.mesh(chest,new THREE.TorusGeometry(.4,.05,8,48),'Eye',0,-.09,.31);
+    // Sweep complete tube sections around the circle, rather than drawing long strips.
+    const indices=Array.from(this.chargeRing.geometry.index!.array),sweep:number[]=[];
+    for(let arc=0;arc<48;arc++)for(let tube=0;tube<8;tube++)sweep.push(...indices.slice((tube*48+arc)*6,(tube*48+arc+1)*6));
+    this.chargeRing.geometry.setIndex(sweep);this.chargeRing.rotation.z=Math.PI/2;
+    this.chargeRing.name='chest-charge-ring';this.chargeRing.visible=false;
+    this.chargeGlow=this.mesh(chest,new THREE.SphereGeometry(.18,12,8),'Eye',0,-.09,.32);
+    this.chargeGlow.visible=false;
     const abdomen=this.mount('Torso',new THREE.Vector3(0,.23,.39));
     for(let i=0;i<3;i++) this.plate(abdomen,i%2?'Black':'Grey',.46-i*.03,.12,.17,0,i*.14,0);
     const collar=this.mount('Neck',new THREE.Vector3(0,-.18,bulky?.59:.38));
@@ -270,11 +287,11 @@ export class HeroRig {
   }
 
   private addEquipment() {
-    // Capture the closed fingers and a forward-facing shaft from the authored
-    // SwordSlash contact pose. Only finger channels are held while equipped.
+    // Calibrate the forearm socket in the authored Shoot aim, facing local +Z.
+    // All dimensions are fictional visual proportions, not weapon engineering.
     this.mixer!.stopAllAction();
-    const slash=this.mixer!.clipAction(this.clips.get('SwordSlash')!);
-    slash.reset().play();slash.time=.75*HERO_MOTIONS.break.impactFraction;this.mixer!.update(0);
+    const shoot=this.mixer!.clipAction(this.clips.get('Shoot')!);
+    shoot.reset().play();shoot.time=.13;this.mixer!.update(0);
     this.body.updateMatrixWorld(true);
     const arm=this.bone('LowerArmR');
     const grip = new THREE.Vector3();
@@ -282,27 +299,65 @@ export class HeroRig {
     grip.multiplyScalar(1/3);
     this.model!.traverse(bone=>{if((bone as THREE.Bone).isBone&&/^(Palm|Index|Ring|Pinky|Thumb).*R$/.test(bone.name))this.gripPose.push({bone,position:bone.position.clone(),quaternion:bone.quaternion.clone()});});
     // Local bind coordinates make this socket independent of the arena's yaw.
-    this.staff.position.copy(grip);
-    this.staff.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),new THREE.Vector3(0,-.45,1).normalize());
+    this.staff.position.copy(grip).add(new THREE.Vector3(-.42,-.6,-.18));
     this.body.add(this.staff); this.staff.updateMatrixWorld(true); arm.attach(this.staff);
-    this.staff.name='right-hand-staff-socket';
-    this.mesh(this.staff,new THREE.CylinderGeometry(.048,.048,2.35,12),'Grey',0,.47,0);
-    this.mesh(this.staff,new THREE.CylinderGeometry(.076,.076,.42,12),'Black');
-    for(let i=0;i<5;i++) this.mesh(this.staff,new THREE.TorusGeometry(.078,.012,5,12),'Grey',0,-.16+i*.08,0).rotation.x=Math.PI/2;
-    for(const end of [-.68,1.62]) {
-      this.mesh(this.staff,new THREE.CylinderGeometry(.075,.075,.24,10),'Main',0,end,0);
-      this.mesh(this.staff,new THREE.CylinderGeometry(.061,.061,.13,10),'Eye',0,end,0);
+    this.launcherBind.copy(this.staff.quaternion);
+    this.staff.name='forearm-pulse-launcher';
+    this.plate(this.staff,'Black',.52,.24,.65,0,-.29,-.25);
+    this.plate(this.staff,'Grey',.16,.34,.24,0,-.48,-.12);
+    this.staff.add(this.launcherSlide);this.launcherSlide.name='launcher-recoil-carriage';
+    const housing=this.launcherSlide;
+    this.plate(housing,'Black',.72,.66,1.3,0,0,-.18);
+    this.plate(housing,'Main',.8,.49,1.07,0,.06,-.23);
+    for(const side of [-1,1]){
+      this.plate(housing,'Accent',.08,.3,.8,side*.43,.05,-.23);
+      for(let i=0;i<4;i++)this.plate(housing,'Black',.035,.19,.075,side*.48,.07,-.49+i*.18);
+      this.plate(housing,'Grey',.07,.075,.91,side*.31,-.27,-.12);
     }
-    this.tip.position.set(0,1.78,0);this.staff.add(this.tip);
-    this.fist=this.bone('Index1R');this.kick=this.bone('FootR');
+    const tube=(radius:number,length:number,z:number,material:string)=>{
+      const mesh=this.mesh(housing,new THREE.CylinderGeometry(radius,radius,length,16),material,0,0,z);
+      mesh.rotation.x=Math.PI/2;return mesh;
+    };
+    tube(.27,1.12,.62,'Grey');tube(.32,.19,.4,'Black');tube(.36,.26,1.17,'Accent');
+    // Recessed dark aperture and concentric energy lens make a readable muzzle.
+    tube(.282,.022,1.306,'Black');tube(.16,.024,1.322,'Eye');
+    this.mesh(housing,new THREE.TorusGeometry(.26,.025,6,24),'Eye',0,0,1.329);
+    for(const z of [.56,.79,.99])this.mesh(housing,new THREE.TorusGeometry(.275,.028,6,16),'Black',0,0,z);
+    this.plate(housing,'Black',.13,.19,.35,0,.4,-.2);
+    this.plate(housing,'Grey',.24,.15,.43,0,.54,-.14);
+    this.plate(housing,'Eye',.15,.07,.025,0,.54,.09);
+    this.plate(housing,'Grey',.35,.52,.42,.13,-.48,-.52);
+    this.plate(housing,'Eye',.25,.3,.035,.13,-.49,-.29);
+    for(let i=0;i<3;i++)this.plate(housing,'Black',.3,.04,.04,.13,-.6+i*.11,-.26);
+    this.tip.position.set(0,0,1.36);housing.add(this.tip);
+    this.tip.add(this.muzzleFlash);this.muzzleFlash.name='pulse-muzzle-flash';
+    this.mesh(this.muzzleFlash,new THREE.SphereGeometry(.29,12,8),'Eye',0,0,.08).scale.set(1,1,1.8);
+    this.mesh(this.muzzleFlash,new THREE.TorusGeometry(.39,.04,6,20),'Eye',0,0,.14);
+    this.muzzleFlash.visible=false;
+    this.fist=this.bone('Index1R');
     this.mixer!.stopAllAction();this.mixer!.clipAction(this.clips.get('Idle')!).reset().play();this.mixer!.update(0);
     this.pad=this.mount('LowerArmL',new THREE.Vector3(.12,-.13,.23));
     this.pad.name='left-forearm-guard';
-    this.plate(this.pad,'Grey',.86,1.02,.16);
-    this.plate(this.pad,'Main',.78,.92,.19,0,0,.08);
+    this.plate(this.pad,'Grey',1.02,1.2,.3);
+    this.plate(this.pad,'Main',.92,1.08,.3,0,0,.12);
     this.plate(this.pad,'Accent',.57,.7,.07,0,0,.22);
     this.plate(this.pad,'Eye',.05,.5,.024,0,0,.275);
     for(const side of [-1,1])this.plate(this.pad,'Black',.13,.4,.035,side*.17,0,.272);
+    for(const side of [-1,1]){
+      const pack=this.mount('Chest',new THREE.Vector3(side*.94,.8,-.52));
+      pack.name=`shoulder-power-cell-${side}`;
+      this.plate(pack,'Black',.58,1.02,.72);
+      this.plate(pack,'Accent',.63,.35,.8,0,.42,0);
+      this.plate(pack,'Main',.59,.52,.74,0,-.08,0);
+      const cell=this.mesh(pack,new THREE.CylinderGeometry(.21,.21,.98,12),'Grey',0,.12,.43);
+      cell.rotation.x=Math.PI/2;
+      const lens=this.mesh(pack,new THREE.CylinderGeometry(.14,.14,.05,12),'Eye',0,.12,.94);lens.rotation.x=Math.PI/2;
+      for(let i=0;i<3;i++)this.plate(pack,'Black',.44,.055,.04,0,-.24+i*.16,-.4);
+      this.heavyParts.push(pack);
+      const armour=this.mount(`UpperLeg${side===1?'L':'R'}`,new THREE.Vector3(side*.15,-.13,.33));
+      this.plate(armour,'Accent',.61,.7,.25);this.plate(armour,'Grey',.41,.5,.11,0,0,.19);
+      this.heavyParts.push(armour);
+    }
   }
 
   setKit(kit: HeroKit) {
@@ -311,6 +366,7 @@ export class HeroRig {
     if (Number.isFinite(kit.tier)) this.kit.tier=Math.max(1,Math.min(3,Math.floor(kit.tier!)));
     this.revealEquipment(this.staff,this.kit.staff,this.motion==='upgrade');
     this.revealEquipment(this.pad,this.kit.pad,this.motion==='upgrade');
+    for(const part of this.heavyParts)this.revealEquipment(part,this.kit.pad,this.motion==='upgrade');
     for(const part of this.tierParts) this.revealEquipment(part,this.kit.tier>=2,true);
     this.root.userData.kit={...this.kit};
     this.applyGrip();
@@ -327,7 +383,35 @@ export class HeroRig {
     part.visible=visible;
   }
 
-  private applyGrip() { if(this.kit.staff)for(const pose of this.gripPose){pose.bone.position.copy(pose.position);pose.bone.quaternion.copy(pose.quaternion);} }
+  private applyGrip() { if(this.kit.staff&&this.motion!=='strike')for(const pose of this.gripPose){pose.bone.position.copy(pose.position);pose.bone.quaternion.copy(pose.quaternion);} }
+
+  /** Presentation only: null releases aiming; charge never modifies the saved kit. */
+  setAim(target: THREE.Vector3 | null) { this.aimTarget=target?.clone()??null; }
+  setCharge(amount: number) { this.chargeAmount=Math.max(0,Math.min(1,amount)); }
+  firePulse() { this.recoilTime=0; }
+
+  private updateLauncher(dt: number) {
+    this.recoilTime+=dt;
+    const ranged=this.motion==='break'||this.motion==='special';
+    this.staff.visible=this.kit.staff||ranged;
+    this.staff.quaternion.copy(this.launcherBind);
+    if(this.aimTarget&&(ranged||this.motion==='charge')){
+      this.root.updateWorldMatrix(true,true);
+      const origin=this.staff.getWorldPosition(new THREE.Vector3());
+      const direction=this.aimTarget.clone().sub(origin).normalize();
+      const desired=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,0,1),direction);
+      this.staff.quaternion.copy(this.staff.parent!.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(desired));
+    }
+    this.launcherSlide.position.z=-.2*Math.exp(-this.recoilTime*13)*Math.sin(Math.min(1,this.recoilTime/.08)*Math.PI/2);
+    this.muzzleFlash.visible=this.recoilTime<.13;
+    this.muzzleFlash.scale.setScalar(1+this.recoilTime*5);
+    this.chargeRing.visible=this.chargeAmount>0;
+    this.chargeGlow.visible=this.chargeAmount>0;
+    const count=this.chargeRing.geometry.index!.count;
+    this.chargeRing.geometry.setDrawRange(0,Math.floor(count*this.chargeAmount/3)*3);
+    this.chargeGlow.scale.setScalar(.4+this.chargeAmount*1.3);
+    this.root.userData.charge=this.chargeAmount;
+  }
 
   play(name: HeroMotion, options: PlayOptions = {}) {
     if (!HERO_MOTIONS[name]) throw new Error(`Unknown hero motion: ${name}`);
@@ -358,8 +442,10 @@ export class HeroRig {
       // Hold the actual braced forearm pose from Shoot; no invented skeleton loop.
       action.time=.13;action.paused=true;
     }
+    if(name==='charge')action.paused=true;
     if(options.hold)action.paused=true;
     this.action=action;
+    if(name!=='charge')this.chargeAmount=0;
     this.mixer!.update(0);
     this.applyGrip();
     return this.currentTiming;
@@ -376,12 +462,22 @@ export class HeroRig {
     if(!this.ready||this.disposed||!Number.isFinite(dt)||dt<=0)return;
     if(!this.options.hold)this.elapsed+=dt;
     this.mixer!.update(dt);
+    if(this.motion==='charge'){
+      this.action!.time=.13*Math.min(1,this.elapsed/.55);
+      this.mixer!.update(0);
+    }
+    // Hold the authored aim through emission/flight; recoil is a separate carriage.
+    if(this.motion==='break'||this.motion==='special'){
+      this.action!.time=Math.min(.13,this.elapsed/this.duration*.625);
+      this.action!.paused=true;this.mixer!.update(0);
+    }
     for (const [part,reveal] of this.equipmentReveals) {
       reveal.elapsed+=dt; const t=Math.min(1,reveal.elapsed/.65), eased=t*t*(3-2*t);
       part.scale.copy(reveal.scale); part.scale.y*=.08+.92*eased;
       if(t===1)this.equipmentReveals.delete(part);
     }
     this.applyGrip();
+    this.updateLauncher(dt);
     this.root.updateWorldMatrix(true,true);
     if(this.options.hold)return;
     const spec=HERO_MOTIONS[this.motion];
@@ -393,12 +489,11 @@ export class HeroRig {
 
   get weaponTip(): THREE.Vector3 {
     this.root.updateWorldMatrix(true,true);
-    const socket=this.kit.staff?this.tip:this.fist;
+    const socket=this.kit.staff||this.motion==='break'||this.motion==='special'?this.tip:this.fist;
     return socket?socket.getWorldPosition(new THREE.Vector3()):this.root.getWorldPosition(new THREE.Vector3());
   }
 
   get contactPoint(): THREE.Vector3 {
-    if(this.motion==='special'&&this.kick){this.root.updateWorldMatrix(true,true);return this.kick.getWorldPosition(new THREE.Vector3());}
     if(this.motion==='strike'&&this.fist){this.root.updateWorldMatrix(true,true);return this.fist.getWorldPosition(new THREE.Vector3());}
     return this.weaponTip;
   }

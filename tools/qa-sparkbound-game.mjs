@@ -18,6 +18,7 @@ page.on('pageerror', e => errors.push(e.message));
 page.on('console', e => { if(e.type() === 'error') errors.push(e.text()); });
 page.on('response', r => { if(r.status() >= 400) errors.push(`${r.status()} ${r.url()}`); });
 await context.addCookies([{ name: 'bq_session', value: f.cookie.value, url: harness.origin }]);
+await context.addInitScript(id => localStorage.setItem(`bqSparkGuide:launcher-v1:${id}`, 'true'), f.childId);
 await context.addInitScript(cap => { sessionStorage.setItem('brightQuestChildCapability', cap); localStorage.setItem('bqSparkSettings', JSON.stringify({ sound: false, volume: 0, reduced: false })); }, f.childCapability);
 const check = (label, value = true) => { assert.ok(value, label); checks.push(label); };
 const settled = () => page.waitForFunction(() => window.__SPARK_QA__ && !window.__SPARK_QA__.acting && document.querySelector('#game').getAttribute('aria-busy') === 'false', { timeout: 20000 });

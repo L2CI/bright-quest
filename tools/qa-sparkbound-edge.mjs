@@ -11,6 +11,7 @@ const h=await startSparkboundQa({port:0}), f=h.fixture;
 const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true,args:['--mute-audio']});
 const context=await browser.newContext({viewport:{width:390,height:844}});
 await context.addCookies([{name:'bq_session',value:f.cookie.value,url:h.origin}]);
+await context.addInitScript(id=>localStorage.setItem(`bqSparkGuide:launcher-v1:${id}`,'true'),f.childId);
 await context.addInitScript(cap=>{sessionStorage.setItem('brightQuestChildCapability',cap);localStorage.setItem('bqSparkSettings',JSON.stringify({sound:false,volume:0,reduced:true}));},f.childCapability);
 const page=await context.newPage(), errors=[], checks=[];
 page.on('pageerror',e=>errors.push(e.message));

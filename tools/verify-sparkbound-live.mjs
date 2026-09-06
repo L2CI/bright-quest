@@ -20,6 +20,7 @@ try {
   browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true,args:['--mute-audio']});
   const gate=await browser.newPage();await gate.goto(origin+'/sparkbound/');await gate.getByText('Open Bright Quest and select your child profile to begin.').waitFor();await gate.screenshot({path:resolve(output,'auth-gate.png')});await gate.close();report.checks.push('Real sign-in gate and Bright Quest return');
   h=await startSparkboundQa({port:0});const context=await browser.newContext({viewport:{width:1440,height:1000}});let latest;
+  await context.addInitScript(id=>localStorage.setItem(`bqSparkGuide:launcher-v1:${id}`,'true'),h.fixture.childId);
   await context.route('**/*',async route=>{
     const request=route.request(),url=new URL(request.url());if(url.origin!==origin)return route.abort();
     if(url.pathname.startsWith('/api/')){assert.equal(url.pathname,'/api/sparkbound');const r=await fetch(h.origin+url.pathname,{method:request.method(),headers:{origin:h.origin,'content-type':'application/json',cookie:`bq_session=${h.fixture.cookie.value}`,'x-bq-child-capability':h.fixture.childCapability,'x-bq-child-id':h.fixture.childId},...(request.postData()?{body:request.postData()}:{})});const body=await r.text();assert.equal(r.status,200,body);latest=JSON.parse(body).state;return route.fulfill({status:r.status,contentType:'application/json',body});}

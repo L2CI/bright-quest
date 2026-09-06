@@ -75,3 +75,21 @@
   .exchange-recap{min-height:29px;margin-bottom:4px;gap:1px}.exchange-recap strong,.exchange-recap span{font-size:10px}.turn-status{font-size:10px;margin-bottom:5px}.battle-console .save-state{margin-top:4px;font-size:8px}
   .intent strong{font-size:12px}.intent small{display:block;font-size:10px}.intent{padding:6px 10px}.mission-route{margin-bottom:10px}
 }
+.guide-console{padding:14px 20px 12px;max-width:640px}
+/* Keep caption measurement independent of the preceding short intent label. */
+@media(min-width:601px) and (min-height:601px){#scene-caption{width:75%}}
+#game[data-guide]:not([data-guide=""]) .round-chip{display:none}
+#game[data-guide]:not([data-guide=""]) .hero-hud.rival{grid-column:-2/-1}
+.guide-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.guide-heading .button{min-height:44px;padding:8px 10px;font-size:12px}
+.guide-console h2{font-size:24px;line-height:1.15;margin:4px 0 8px;letter-spacing:0}
+.guide-console>p{font-size:15px;line-height:1.4;margin:0 0 14px;max-width:540px}
+.guide-console .save-state{display:block;font-size:11px;margin-top:8px;text-align:center}
+.guide-actions .button{min-height:52px}
+.guide-counter{box-shadow:0 0 0 2px #f7d38a,0 0 22px #f7d38a35}
+.guide-signal{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;background:#101b22ed;border:1px solid #70838a;color:#fff;font-size:13px}
+.guide-signal svg{width:18px;height:18px}.guide-signal.charging{border-color:#ffbd66;color:#ffdb9e}
+@media(max-width:600px){.guide-console{padding:10px 14px}.guide-console h2{font-size:20px}.guide-console>p{font-size:13px;line-height:1.35;margin-bottom:10px}.guide-heading .eyebrow{font-size:10px}.guide-signal{font-size:11px;padding:7px 9px}.guide-console .save-state{font-size:10px}}
+@media(max-width:600px) and (orientation:portrait){#game[data-guide]:not([data-guide=""]) #scene-caption{top:153px}}
+@media(max-height:650px) and (orientation:portrait){.guide-console h2{font-size:18px}.guide-console>p{font-size:12px}.guide-console .save-state{display:none}.guide-console .guide-heading .button{min-height:36px}.guide-console{padding:7px 12px}.guide-actions .button{min-height:44px}}
+@media(max-height:500px) and (orientation:landscape){.guide-console{max-width:520px;padding:6px 14px}.guide-heading{position:absolute;right:12px;top:4px}.guide-heading .eyebrow{display:none}.guide-console h2{font-size:18px;padding-right:100px;margin:5px 0}.guide-console>p{font-size:12px;margin-bottom:7px;max-width:400px}.guide-actions .button{min-height:44px;padding:8px}.guide-console .save-state{display:none}}

@@ -59,6 +59,7 @@ try {
   });
   const context = await browser.newContext({ viewport: viewports[0], deviceScaleFactor: 1 });
   await context.addCookies([{ name: 'bq_session', value: f.cookie.value, url: harness.origin }]);
+  await context.addInitScript(id => localStorage.setItem(`bqSparkGuide:launcher-v1:${id}`, 'true'), f.childId);
   await context.addInitScript(cap => {
     sessionStorage.setItem('brightQuestChildCapability', cap);
     // Initialise once so reload really exercises persisted cue preferences.
@@ -114,7 +115,7 @@ try {
         const range = document.createRange(); range.selectNodeContents(node);
         for (const r of range.getClientRects()) {
           if (!r.width || !r.height) continue;
-          const entry = { r, parent, text: node.textContent.trim() };
+          const entry = { r, parent, node, text: node.textContent.trim() };
           text.push(entry);
           if (!inside(r, viewport)) issues.push(`Text outside viewport: ${entry.text}`);
           const control = parent.closest('button,a');
@@ -123,7 +124,9 @@ try {
         }
       }
       for (let i = 0; i < text.length; i++) for (let j = i + 1; j < text.length; j++) {
-        if (overlap(text[i].r, text[j].r)) issues.push(`Text overlap: ${text[i].text} / ${text[j].text}`);
+        // Font bounding boxes on adjacent lines of one text node can overlap
+        // without painted glyphs overlapping. Compare independent text runs.
+        if (text[i].node !== text[j].node && overlap(text[i].r, text[j].r)) issues.push(`Text overlap: ${text[i].text} / ${text[j].text}`);
       }
       if (battle) {
         const regions = [...document.querySelectorAll('.hero-hud,.round-chip,.intent,.exchange-recap,.turn-status,.moves')].filter(visible);
@@ -184,7 +187,7 @@ try {
   const welcome = await page.locator('.welcome').innerText();
   check('Welcome explicitly states mission, three rounds, maths and science upgrades', /city guardian/i.test(welcome) && /three rounds/i.test(welcome) && /maths/i.test(welcome) && /science/i.test(welcome));
   for (const viewport of viewports) { await page.setViewportSize(viewport); await geometry(`welcome-${viewport.name}`, false); }
-  await click('how'); check('Mission explains both shield win/loss conditions', /shield reaches zero/i.test(await page.locator('dialog').innerText()) && /own shield above zero/i.test(await page.locator('dialog').innerText()));
+  await click('how'); check('Mission explains both shield win/loss conditions', /Empty Prism's shield/i.test(await page.locator('dialog').innerText()) && /keeping your own above zero/i.test(await page.locator('dialog').innerText()));
   await click('close-dialog'); await click('start');
   const rounds = new Map(), training = new Map();
   let fixture = await privateState();

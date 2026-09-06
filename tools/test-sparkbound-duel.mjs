@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { duelCue, duelMoves, exchangeOutcome, roundReward } from '../sparkbound/src/duel.js';
-import { createState, applyAction, BATTLE_CONFIG } from '../functions/_lib/sparkbound.js';
+import { createState, applyAction, publicState, BATTLE_CONFIG } from '../functions/_lib/sparkbound.js';
+import { INTENTS, MOVES, QUESTION_BANK, selectQuestions } from '../functions/_lib/sparkbound-content.js';
 
 const intents = ['open', 'strike', 'guard', 'heavy'];
 const equipment = [
@@ -66,12 +67,12 @@ test('Attack and heavy intent cues explain defending even with zero energy', () 
   assert.notEqual(duelCue(match({ intent: 'heavy' })).title, duelCue(match({ intent: 'strike' })).title);
 });
 
-test('Guard intent recommends charging until a staff is owned and affordable', () => {
+test('Guard intent recommends charging until a pulse launcher is owned and affordable', () => {
   for (const kit of equipment) for (let energy = 0; energy <= 4; energy++) {
     const cue = duelCue(match({ ...kit, intent: 'guard', energy }));
     assert.match(cue.title, /shield/i);
     assert.equal(cue.suggested, kit.staff && energy >= 2 ? 'break' : 'guard');
-    assert.match(cue.detail, kit.staff && energy >= 2 ? /staff|pierc|break/i : energy < 4 ? /energy/i : /shield safe.*opening/i);
+    assert.match(cue.detail, kit.staff && energy >= 2 ? /pulse launcher.*fire through/i : energy < 4 ? /energy/i : /shield safe.*opening/i);
   }
 });
 
@@ -176,9 +177,58 @@ test('Presentation helpers are pure and independent of the next intent or live r
 });
 
 test('Rewards state the next learning upgrade and final mission', () => {
-  assert.match(roundReward(match({ round: 1 })), /maths.*staff/i);
-  assert.match(roundReward(match({ round: 2 })), /science.*overdrive/i);
+  assert.match(roundReward(match({ round: 1 })), /maths.*pulse launcher/i);
+  assert.match(roundReward(match({ round: 2 })), /science.*bigger armour.*twin power cells.*overdrive/i);
   assert.match(roundReward(match({ round: 3 })), /win.*city guardian/i);
+});
+
+test('Pierce and Overdrive retain internal IDs and costs with ranged presentation', () => {
+  const moves = duelMoves(match({ staff: true, pad: true, energy: 4 }));
+  assert.equal(moves.find(move => move.id === 'break').name, 'Pierce');
+  assert.equal(moves.find(move => move.id === 'break').icon, 'target');
+  assert.equal(moves.find(move => move.id === 'special').name, 'Overdrive');
+  assert.equal(MOVES.break.label, 'Pierce');
+  assert.equal(MOVES.special.label, 'Overdrive');
+  assert.deepEqual(Object.entries(MOVES).map(([id, move]) => [id, move.cost, move.unlockRound]), [
+    ['strike', 0, 1], ['guard', 0, 1], ['break', 2, 2], ['special', 4, 3]
+  ]);
+  assert.match(INTENTS.guard.description, /pulse launcher.*Pierce/);
+});
+
+test('Future question and duel copy uses launcher wording without renaming legacy task IDs', () => {
+  assert.deepEqual(QUESTION_BANK.filter(q => q.taskId === 'staff-length').map(q => q.id), ['staff-length-v1', 'staff-length-v2']);
+  for (const question of QUESTION_BANK) {
+    const { title, prompt, outcome, hints, explanation, choices, evidence } = question;
+    assert.doesNotMatch(JSON.stringify({ title, prompt, outcome, hints, explanation, choices, evidence }), /\bstaff\b/i);
+    if (question.slot === 1) assert.match(outcome, /pulse launcher/i);
+    if (question.slot === 2) assert.match(outcome, /larger armour plates/i);
+    if (question.slot === 3) assert.match(outcome, /twin power cells.*Overdrive/i);
+  }
+  assert.doesNotMatch(JSON.stringify({ INTENTS, MOVES }), /\bstaff\b/i);
+  for (const kit of equipment) for (const intent of intents) for (let energy = 0; energy <= 4; energy++) {
+    const m = match({ ...kit, intent, energy });
+    assert.doesNotMatch(JSON.stringify([duelCue(m), duelMoves(m), ...[1, 2, 3].map(round => roundReward({ ...m, round }))]), /\bstaff\b/i);
+  }
+});
+
+test('Resuming and archiving a historical staff question preserves its saved copy', () => {
+  const saved = applyAction(createState({ profileId: 'legacy-launcher-copy' }), { type: 'start' });
+  Object.assign(saved.match.questions[0], {
+    prompt: 'Relay has 3 packs with 8 cells in each pack. How many cells can go into the staff cartridge?',
+    outcome: 'The staff cartridge receives its cells.'
+  });
+  const questions = structuredClone(saved.match.questions);
+  freeze(saved);
+  const resumed = applyAction(saved, { type: 'move', move: 'guard' });
+  assert.deepEqual(resumed.match.questions, questions);
+  assert.deepEqual(publicState(resumed, { review: true }).match.questions, questions);
+  const archived = applyAction(resumed, { type: 'reset' });
+  const fresh = applyAction(archived, { type: 'start' });
+  assert.deepEqual(fresh.history[0].questions, questions);
+  assert.deepEqual(publicState(fresh, { review: true }).history[0].questions, questions);
+  assert.deepEqual(saved.match.questions, questions);
+  assert.match(fresh.match.questions[0].prompt, /pulse launcher/i);
+  assert.match(selectQuestions(1)[0].prompt, /pulse launcher/i);
 });
 
 test('Full-energy tactical cues do not promise energy that cannot be gained', () => {

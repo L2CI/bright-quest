@@ -19,6 +19,11 @@ export class SparkWorld {
   private currentTier = 1; private upgradeReveal = false;
   private battleEnvelope = new THREE.Box3(); private battleFitKey = ''; private battleBandKey = '';
   private battleReservation: {key:string;top:number;bottom:number} | null = null;
+  private previewStep: 'relay'|'prism'|'charge'|'opening'|null = null;
+  private previewTime = 0;
+  private previewLight = new THREE.PointLight(0xbdf9ff,0,9);
+  private previewMarker = new THREE.Mesh(new THREE.RingGeometry(.95,1.08,48),new THREE.MeshBasicMaterial({color:0xbdf9ff,side:THREE.DoubleSide,transparent:true,opacity:.85,depthWrite:false}));
+  private bolt = new THREE.Group();
   constructor(public canvas: HTMLCanvasElement) {
     this.scene.background = new THREE.Color(0x9bb2b6); this.scene.fog = new THREE.FogExp2(0xabc0c1, .0035);
     this.camera = new THREE.PerspectiveCamera(38, 1, .1, 350); this.camera.position.copy(this.cameraGoal);
@@ -40,7 +45,14 @@ export class SparkWorld {
     this.shieldLines = new THREE.LineSegments(new THREE.EdgesGeometry(this.shield.geometry), new THREE.LineBasicMaterial({ color: 0xb2ffff, transparent: true, opacity: .8 })); this.shield.add(this.shieldLines); this.shield.visible = false;
     this.particles = new THREE.InstancedMesh(new THREE.BoxGeometry(.07, .045, .16), new THREE.MeshBasicMaterial({ color: 0xffd68b, transparent: true }), 110); this.particles.instanceMatrix.setUsage(THREE.DynamicDrawUsage); this.particles.frustumCulled = false; this.scene.add(this.particles);
     for (let i = 0; i < 110; i++) { this.particleDummy.scale.setScalar(0); this.particleDummy.updateMatrix(); this.particles.setMatrixAt(i, this.particleDummy.matrix); }
-    this.ready = Promise.all([this.relay.readyPromise || this.relay.ready, this.prism.readyPromise || this.prism.ready]).then(() => { this.relay.play('idle'); this.prism.play('idle'); this.resize(); });
+    this.previewMarker.rotation.x=-Math.PI/2;this.previewMarker.visible=false;
+    this.scene.add(this.previewMarker,this.previewLight,this.bolt);
+    this.bolt.name='travelling-pulse';this.bolt.visible=false;
+    const energy=new THREE.MeshBasicMaterial({color:0x92f6ff});
+    const core=new THREE.Mesh(new THREE.SphereGeometry(.17,12,8),energy);core.scale.z=2.7;this.bolt.add(core);
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(.25,.035,6,20),energy);this.bolt.add(ring);
+    const trail=new THREE.Mesh(new THREE.CylinderGeometry(.035,.13,.9,8),energy);trail.rotation.x=Math.PI/2;trail.position.z=-.55;this.bolt.add(trail);
+    this.ready = Promise.all([this.relay.readyPromise || this.relay.ready, this.prism.readyPromise || this.prism.ready]).then(() => { this.relay.play('idle'); this.prism.play('idle'); this.resize();if(this.previewStep)this.trainingPreview(this.previewStep); });
     this.resizeObserver = new ResizeObserver(() => this.resize()); this.resizeObserver.observe(canvas); this.resize();
     canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); this.paused = true; this.errors.push('WebGL context lost'); this.onBeat('Graphics paused. Reload to resume your saved match.'); });
     canvas.addEventListener('webglcontextrestored', () => location.reload());
@@ -91,7 +103,7 @@ export class SparkWorld {
 
   private fitHeroes(band = this.battleBand()) {
     if(!this.relay.ready||!this.prism.ready)return;
-    if(this.phase==='training'){this.fitForge();return;}
+    if(this.phase==='training'&&!this.previewStep){this.fitForge();return;}
     const bounds=this.relay.visualBounds().union(this.prism.visualBounds());if(bounds.isEmpty())return;
     const back=this.cameraGoal.clone().sub(this.target).normalize();
     const right=V().crossVectors(V(0,1,0),back).normalize();const up=V().crossVectors(back,right).normalize();
@@ -99,10 +111,11 @@ export class SparkWorld {
     const portrait=this.width/this.height<.85;
     if(band){
       const key=`${this.width}:${this.height}:${this.match?.id}:${this.match?.round}:${this.match?.staff}:${this.match?.pad}`;
-      // Keep the largest observed pose for this round/view, avoiding approach/recoil zoom pulses.
+      // Reserve one action's poses, not the union of every pose over a long match.
       const reset=key!==this.battleFitKey;
       if(reset){this.battleFitKey=key;this.battleEnvelope.makeEmpty();}
-      if(!this.battleEnvelope.containsBox(bounds))this.battleEnvelope.union(bounds.clone().expandByScalar(.22));
+      if(!this.animation)this.battleEnvelope.copy(bounds).expandByScalar(.15);
+      else this.battleEnvelope.union(bounds.clone().expandByScalar(.15));
       const centre=V(0,2.2,0),low=1-2*band.bottom/this.height,high=1-2*band.top/this.height,mid=(low+high)/2;
       let distance=15;
       const b=this.battleEnvelope;
@@ -136,7 +149,7 @@ export class SparkWorld {
       this.cameraGoal.copy(this.target).addScaledVector(back,distance);return;
     }
     const xMargin=.84,yMargin=portrait?.44:.65;
-    let distance=this.cameraGoal.distanceTo(this.target);
+    let distance=15;
     for(const x of [bounds.min.x,bounds.max.x])for(const y of [bounds.min.y,bounds.max.y])for(const z of [bounds.min.z,bounds.max.z]){
       const p=V(x,y,z).sub(this.target);const depth=p.dot(back);
       distance=Math.max(distance,depth+Math.abs(p.dot(right))/(tan*this.camera.aspect*xMargin),depth+Math.abs(p.dot(up))/(tan*yMargin));
@@ -162,7 +175,7 @@ export class SparkWorld {
   }
   private setCamera() {
     const portrait = this.width / this.height < .85; this.heroHome = portrait ? -2.25 : -3.4; this.rivalHome = -this.heroHome;
-    if (this.phase === 'training') {
+    if (this.phase === 'training'&&!this.previewStep) {
       this.target.set(portrait?-5.3:-4.3, 1.9, -1.5); this.cameraGoal.set(portrait ? -2 : 2, portrait ? 7 : 5.3, portrait ? 20 : 12.5);
       if (portrait) this.target.y = -1.1;
     } else {
@@ -171,8 +184,36 @@ export class SparkWorld {
       if (this.phase === 'welcome') { this.target.set(0, 2.2, 0); this.cameraGoal.set(portrait ? 2 : 5.5, 5.4, portrait ? 22 : 14.5); }
     }
   }
+  /** Visual-only guided intro. Does not mutate match, kit flags, HP or progress.
+   * charge spotlights Prism and loops its raised-arm tell; opening lowers its guard.
+   * null restores the latest sync() state. playEvent() clears previews automatically.
+   * Ignored during a replay: await playEvent before selecting the next preview.
+   */
+  trainingPreview(step: 'relay'|'prism'|'charge'|'opening'|null) {
+    if(this.animation)return;
+    if(step===this.previewStep)return;
+    this.previewStep=step;this.previewTime=0;
+    this.previewMarker.visible=!!step;this.previewLight.intensity=step?8:0;
+    if(!this.relay.ready||!this.prism.ready)return;
+    this.relay.setCharge(0);this.prism.setCharge(0);this.relay.setAim(null);this.prism.setAim(null);
+    if(!step){this.syncKey='';this.lastIntent='';this.sync(this.match,this.currentTier);return;}
+    this.setCamera();this.neutralRoots();
+    this.relay.root.position.set(this.heroHome,0,0);this.prism.root.position.set(this.rivalHome,0,0);
+    this.relay.play(step==='relay'?'victory':'idle',{restart:true});
+    this.prism.play(step==='charge'?'charge':step==='prism'?'guard':'idle',{restart:true});
+    if(step==='relay')this.relay.setFacing(.35);
+    if(step==='prism'||step==='opening'||step==='charge')this.prism.setFacing(-.35);
+    this.shield.visible=step==='prism';
+    this.shield.position.set(this.prism.root.position.x-.58,2.2,0);
+    const focus=step==='relay'?this.relay:this.prism;
+    this.previewMarker.position.copy(focus.root.position).y=.035;
+    this.previewLight.position.copy(focus.root.position).add(V(0,3.5,2));
+    this.fitHeroes();
+  }
+
   sync(match: any, tier = 1) {
     this.match = match; this.currentTier=tier; this.phase = match?.phase || 'welcome'; this.setCamera();
+    if(this.previewStep)return;
     if(this.phase!=='battle'){this.battleFitKey='';this.battleBandKey='';this.battleReservation=null;}
     const key = `${match?.id}:${match?.round}:${match?.phase}:${match?.staff}:${match?.pad}:${tier}`;
     if (this.animation) return;
@@ -192,7 +233,7 @@ export class SparkWorld {
     this.shield.position.set(this.prism.root.position.x - 1.25, 2.2, 0); this.shield.scale.setScalar(1);
     if (this.phase === 'battle' && (this.lastIntent !== match?.intent || this.prism.motion==='upgrade')) {
       const attacks=match.intent==='strike'||match.intent==='heavy';
-      this.prism.play(match.intent==='guard'?'guard':attacks?'strike':'idle',{startFraction:match.intent==='heavy'?.3:attacks?.15:0,hold:attacks,restart:true});this.lastIntent=match.intent;
+      this.prism.play(match.intent==='heavy'?'charge':match.intent==='guard'?'guard':attacks?'strike':'idle',{startFraction:match.intent==='strike'?.15:0,hold:match.intent==='strike',restart:true});this.lastIntent=match.intent;
       this.onBeat(match.intent==='guard'?'Prism is shielding':match.intent==='heavy'?'Prism is loading a heavy strike':match.intent==='open'?'Prism is open': 'Prism is ready to strike');
     }
     this.stage.setForgeProgress(this.phase === 'training' ? (match.questionIndex % 2) / 2 : match?.staff ? 1 : 0);
@@ -200,6 +241,7 @@ export class SparkWorld {
   }
   playEvent(event: any, after: any): Promise<void> {
     if (!event) return Promise.resolve();
+    if(this.previewStep)this.trainingPreview(null);
     if (this.animation) this.finishAnimation();
     const move = event.move || 'upgrade'; const isMove = event.kind === 'move' || !!event.move;
     this.animation = { event, after, move, duration:2.2, elapsed: 0, isMove, phase:'approach', phaseTime:0, hit:false, reply:false, resolve:null, source:[],destination:[], attackMotion:move };
@@ -209,13 +251,32 @@ export class SparkWorld {
       this.shield.visible = event.intent === 'guard';
       if(move==='guard'&&event.intent==='open'){
         this.animation.phase='holdGuard';this.relay.play('guard');this.prism.play('idle',{restart:true});
-      }else this.setApproach(move==='guard'?'rival':'player',move==='guard'?'strike':move);
-      this.onBeat(move === 'guard' ? event.intent==='open'?'You hold guard. Prism holds back.':'Brace for the strike' : move === 'break' ? event.intent==='guard'?'Break through the shield':'Bring the staff through' : move === 'special' ? 'Commit to overdrive' : event.intent==='open'?'Take the opening':'Step in and strike');
-    } else { this.animation.duration=this.relay.play('upgrade',{restart:true}).duration; this.onCue('upgrade'); this.onBeat(after?.staff && !after?.pad ? 'Assembling your breach staff' : after?.pad ? 'Fitting your guard module' : 'Building your power'); }
+      }else if(move==='break'||move==='special')this.startRanged(move);
+      else this.setApproach(move==='guard'?'rival':'player',move==='guard'?'strike':move);
+      this.onBeat(move === 'guard' ? event.intent==='open'?'You hold guard. Prism holds back.':'Brace for the strike' : move === 'break' ? 'Charging a shield-breaking pulse' : move === 'special' ? 'Charging overdrive' : event.intent==='open'?'Take the opening':'Step in and strike');
+    } else { this.animation.duration=this.relay.play('upgrade',{restart:true}).duration; this.onCue('upgrade'); this.onBeat(after?.staff && !after?.pad ? 'Assembling your pulse launcher' : after?.pad ? 'Fitting armour and twin power cells' : 'Building your power'); }
     return new Promise(resolve => { this.animation.resolve = resolve; });
   }
-  private finishAnimation() { const a = this.animation; if (!a) return; this.animation = null; this.syncKey = ''; this.lastIntent='';this.onBeat('');this.sync(a.after, this.currentTier); a.resolve?.(); }
+  private finishAnimation() { const a = this.animation; if (!a) return; this.bolt.visible=false;this.relay.setAim(null);this.relay.setCharge(0);this.prism.setCharge(0);this.animation = null; this.syncKey = ''; this.lastIntent='';this.onBeat('');this.sync(a.after, this.currentTier); a.resolve?.(); }
   stopAnimation() { this.finishAnimation(); }
+  private startRanged(motion:'break'|'special') {
+    const a=this.animation;
+    a.part='player';a.attackMotion=motion;a.phase='charge';a.phaseTime=0;
+    a.chargeDuration=motion==='special'?1.05:.65;
+    a.destination=[this.relay.root.position.clone(),this.prism.root.position.clone()];
+    a.target=this.prism.root.position.clone().add(V(-.58,2.35,0));
+    this.relay.play('charge',{restart:true,fade:.08});this.relay.setAim(a.target);
+    this.prism.play(a.event.intent==='guard'?'guard':'idle',{restart:true});
+    this.onCue('charge');
+  }
+  private emitPulse(a:any) {
+    if(this.animation!==a||a.launched)return;
+    a.launched=true;a.phase='flight';a.phaseTime=0;
+    a.origin=this.relay.weaponTip.clone();a.flightDuration=Math.max(.32,Math.min(.62,a.origin.distanceTo(a.target)/9));
+    this.bolt.position.copy(a.origin);this.bolt.lookAt(a.target);this.bolt.visible=true;
+    this.bolt.scale.setScalar(a.attackMotion==='special'?1.35:1);
+    this.relay.firePulse();this.onCue('launch');this.relay.setCharge(0);
+  }
   burst(position: any, colour = 0xffd082, amount = 50) {
     this.particles.material.color.setHex(colour); this.hitLight.color.setHex(colour); this.hitLight.position.copy(position); this.hitLight.intensity = this.reduced ? 0 : 11; this.shake = this.reduced ? 0 : .07;
     const count = this.reduced ? 9 : amount;
@@ -268,12 +329,12 @@ export class SparkWorld {
     this.onCue(a.attackMotion==='special'?'charge':'strike');
   }
 
-  private makeContact(a:any,part:'player'|'rival') {
+  private makeContact(a:any,part:'player'|'rival', arrival?:THREE.Vector3) {
     if(this.animation!==a||(part==='player'?a.hit:a.reply))return;
     if(part==='player')a.hit=true;else a.reply=true;
     const attacker=part==='player'?this.relay:this.prism;const defender=part==='player'?this.prism:this.relay;
     const blocked=part==='player'?a.event.intent==='guard'&&!a.event.guardBroken:a.move==='guard';
-    const point=attacker.contactPoint;
+    const point=arrival||attacker.contactPoint;
     this.burst(point,blocked?0x8ee9e6:a.attackMotion==='special'?0xf5e5ae:0xffd082,a.attackMotion==='special'?100:45);
     defender.play(blocked?'guard':'hit',{restart:true,fade:.035});
     this.onCue(blocked?'guard':a.attackMotion==='break'||a.attackMotion==='special'?'break':'impact');
@@ -299,8 +360,18 @@ export class SparkWorld {
   private animateAction(dt: number) {
     const a=this.animation;
     if(!a){
+      if(this.previewStep){
+        this.previewTime+=dt;
+        if(this.previewStep==='charge'){
+          const cycle=this.previewTime%2.3;
+          if(!this.reduced&&cycle<dt)this.prism.play('charge',{restart:true,fade:.15});
+          this.prism.setCharge(this.reduced?1:Math.min(1,cycle/1.7));
+        }
+        return;
+      }
       if(this.phase==='battle'){
         this.neutralRoots();
+        this.prism.setCharge(this.match?.intent==='heavy'?(this.reduced?1:.65+.35*(.5+.5*Math.sin(this.elapsed*2))):0);
         if(!this.reduced){
           this.relay.root.rotation.z=Math.sin(this.elapsed*1.7)*.008;
           this.prism.root.rotation.z=this.match?.intent==='heavy'?-.035:this.match?.intent==='guard'?.018:this.match?.intent==='open'?-.014:0;
@@ -321,11 +392,25 @@ export class SparkWorld {
     a.elapsed+=dt;a.phaseTime+=dt;
     if(!a.isMove){
       if(!a.hit&&a.elapsed>=a.duration*.43){a.hit=true;this.burst(this.relay.root.position.clone().add(V(0,2.5,0)),0xefd09a,70);this.relay.setKit({staff:!!a.after?.staff,pad:!!a.after?.pad,tier:this.currentTier});}
-      if(a.hit&&!a.revealed&&a.elapsed>=a.duration*.43+.65){a.revealed=true;this.onBeat(a.after?.pad?'Your guard module is ready':'Your breach staff is ready');}
+      if(a.hit&&!a.revealed&&a.elapsed>=a.duration*.43+.65){a.revealed=true;this.onBeat(a.after?.pad?'Armour and twin power cells ready':'Your pulse launcher is ready');}
       if(a.elapsed>=a.duration)this.finishAnimation();return;
     }
     this.shield.position.set(this.prism.root.position.x-.58,2.2,this.prism.root.position.z);
-    if(a.phase==='holdGuard'){if(a.phaseTime>=.7)this.finishAnimation();}
+    if(a.phase==='charge'){
+      this.relay.setCharge(Math.min(1,a.phaseTime/a.chargeDuration));
+      if(a.phaseTime>=a.chargeDuration){
+        a.phase='emit';a.phaseTime=0;
+        this.relay.play(a.attackMotion,{restart:true,fade:0,onImpact:()=>this.emitPulse(a)});
+      }
+    }else if(a.phase==='flight'){
+      const t=Math.min(1,a.phaseTime/a.flightDuration);
+      this.bolt.position.lerpVectors(a.origin,a.target,t);
+      if(t===1){
+        this.bolt.position.copy(a.target);
+        this.makeContact(a,'player',this.bolt.position.clone());
+        this.bolt.visible=false;a.phase='strike';a.phaseTime=0;a.contactAt=0;a.strikeDuration=.38;
+      }
+    }else if(a.phase==='holdGuard'){if(a.phaseTime>=.7)this.finishAnimation();}
     else if(a.phase==='approach'||a.phase==='retreat'){
       const approaching=a.phase==='approach';
       const wait=approaching?a.anticipation:0;
@@ -393,5 +478,5 @@ export class SparkWorld {
     }
     this.raf = requestAnimationFrame(t => this.tick(t));
   }
-  dispose() { this.disposed = true; cancelAnimationFrame(this.raf); this.stopAnimation(); this.resizeObserver.disconnect(); this.stage.dispose(); this.relay.dispose?.(); this.prism.dispose?.(); this.renderer.dispose(); }
+  dispose() { this.disposed = true; cancelAnimationFrame(this.raf); this.stopAnimation(); this.resizeObserver.disconnect(); this.stage.dispose(); this.relay.dispose?.(); this.prism.dispose?.();this.bolt.traverse(o=>{const m=o as THREE.Mesh;if(m.isMesh)m.geometry.dispose();});(this.bolt.children[0] as THREE.Mesh).material.dispose();this.previewMarker.geometry.dispose();this.previewMarker.material.dispose(); this.renderer.dispose(); }
 }

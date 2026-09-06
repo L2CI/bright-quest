@@ -96,7 +96,7 @@ export class GameAudio {
     this.variants.set(event, take);
     const variation = 1 + Math.sin(take * 2.39996) * .045;
     const side = Math.sin(take * 2.39996) * .42;
-    if (['strike', 'impact', 'break', 'special', 'round', 'victory'].includes(event)) this.duck(t);
+    if (['launch', 'strike', 'impact', 'break', 'special', 'round', 'victory'].includes(event)) this.duck(t);
     switch (event) {
       case 'select':
         this.tone(t, .065, 740 * variation, 630, .032, 'sine', .003, side, .04);
@@ -120,6 +120,12 @@ export class GameAudio {
         this.tone(t, .16, 240 * variation, 470, .025, 'sawtooth', .025, -.4, .08, .4);
         this.tone(t + .03, .16, 580 * variation, 320, .014, 'sine', .025, .35, .12, -.2);
         this.noise(t + .065, .16, .065, 2400, 700, 'bandpass', .025, .4, .18, -.15); break;
+      case 'launch':
+        // Muzzle discharge only; the separate impact cue follows projectile arrival.
+        this.tone(t, .24, 280 * variation, 65, .13, 'triangle', .007, -.4, .12, .35);
+        this.noise(t, .18, .19, 2200, 450, 'bandpass', .004, -.5, .12, .55);
+        this.tone(t + .02, .3, 720, 260, .035, 'sine', .015, -.35, .2, .45);
+        this.metal(t + .035, .15, 410, .025, -.35); break;
       case 'impact':
         this.tone(t, .34, 102 * variation, 34, .29, 'sine');
         this.tone(t, .16, 195 * variation, 48, .13, 'triangle', .003, .12, .08);

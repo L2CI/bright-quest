@@ -145,7 +145,7 @@ try {
   report.events = await page.evaluate(async () => {
     const results = [];
     for (const rate of [44100, 48000]) {
-      for (const event of ['strike', 'impact', 'guard', 'break', 'special', 'charge', 'upgrade', 'correct', 'wrong', 'victory', 'step', 'select', 'round', 'servo']) {
+      for (const event of ['launch', 'strike', 'impact', 'guard', 'break', 'special', 'charge', 'upgrade', 'correct', 'wrong', 'victory', 'step', 'select', 'round', 'servo']) {
         const h = makeOffline(3, rate); h.audio.play(event); const voices = h.audio.voices.size;
         const buffer = await h.ctx.startRendering();
         results.push({ event, sampleRate: rate, voices, ...metrics(buffer) }); h.dispose();
@@ -159,7 +159,7 @@ try {
     const h = makeOffline(4), audio = h.audio;
     audio.setVolume(1); audio.setIntensity(1); audio.startMusic('battle');
     clearTimeout(audio.timer); audio.timer = null;
-    for (const event of ['select', 'strike', 'impact', 'guard', 'break', 'special', 'charge', 'upgrade', 'correct', 'wrong', 'victory', 'step', 'round', 'servo']) audio.play(event);
+    for (const event of ['launch', 'select', 'strike', 'impact', 'guard', 'break', 'special', 'charge', 'upgrade', 'correct', 'wrong', 'victory', 'step', 'round', 'servo']) audio.play(event);
     const voices = audio.voices.size, buffer = await h.ctx.startRendering(); h.dispose();
     return { voices, ...metrics(buffer) };
   });
@@ -282,6 +282,7 @@ async function runIntegration(browser) {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   try {
     await context.addCookies([{ name: 'bq_session', value: fixture.cookie.value, url: harness.origin }]);
+    await context.addInitScript(id => localStorage.setItem(`bqSparkGuide:launcher-v1:${id}`, 'true'), fixture.childId);
     await context.addInitScript(cap => {
       sessionStorage.setItem('brightQuestChildCapability', cap);
       localStorage.setItem('bqSparkSettings', JSON.stringify({ sound: false, volume: .55, reduced: false }));
