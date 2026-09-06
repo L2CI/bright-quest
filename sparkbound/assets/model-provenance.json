@@ -1,0 +1,191 @@
+{
+  "author": "Quaternius",
+  "license": "CC0-1.0",
+  "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source": "https://quaternius.com/packs/animatedmech.html",
+  "verifiedOn": "2026-09-06",
+  "models": [
+    {
+      "name": "Mike",
+      "file": "mechs/mike.glb",
+      "url": "https://drive.google.com/uc?export=download&id=1QOp6GVyfby2xiwLWxXsRpArRYvCst_ES",
+      "bytes": 876580,
+      "sha256": "9b3a02bd273a75f368ed84163cfd654f30a56995d70a13f9c94b40312f704a2b",
+      "originalSha256": "6fec73fd1ba89524298dfa8d975d31d6fec10365f7fc0451f4e47115262bc61e",
+      "modifications": "Lossless embedded glTF to GLB packaging; authored skeleton and animation samples unchanged. Runtime materials and original bone-attached armour.",
+      "clips": [
+        {
+          "name": "Dance",
+          "duration": 1
+        },
+        {
+          "name": "Death",
+          "duration": 1.7916666666666667
+        },
+        {
+          "name": "Hello",
+          "duration": 1.875
+        },
+        {
+          "name": "HitRecieve_1",
+          "duration": 0.5833333333333334
+        },
+        {
+          "name": "HitRecieve_2",
+          "duration": 0.5833333333333334
+        },
+        {
+          "name": "Idle",
+          "duration": 4.166666666666667
+        },
+        {
+          "name": "Jump",
+          "duration": 1.0833333333333333
+        },
+        {
+          "name": "Kick",
+          "duration": 0.75
+        },
+        {
+          "name": "No",
+          "duration": 1.75
+        },
+        {
+          "name": "Pickup",
+          "duration": 1.75
+        },
+        {
+          "name": "Punch",
+          "duration": 0.7083333333333334
+        },
+        {
+          "name": "Run",
+          "duration": 1.0416666666666667
+        },
+        {
+          "name": "Run_Holding",
+          "duration": 1.0416666666666667
+        },
+        {
+          "name": "Shoot",
+          "duration": 0.625
+        },
+        {
+          "name": "SwordSlash",
+          "duration": 0.75
+        },
+        {
+          "name": "Walk",
+          "duration": 1.0416666666666667
+        },
+        {
+          "name": "Walk_Holding",
+          "duration": 1.0416666666666667
+        },
+        {
+          "name": "Yes",
+          "duration": 1.75
+        }
+      ]
+    },
+    {
+      "name": "Stan",
+      "file": "mechs/stan.glb",
+      "url": "https://drive.google.com/uc?export=download&id=1C-LshlvXt-egbENhWpbxR0BTIJMTRxk_",
+      "bytes": 886036,
+      "sha256": "aa0280ea7041b4bb8a0b0c0d7036a52a053e7c3357aa04b75008011bcfea961c",
+      "originalSha256": "c9a87e0dfe4e39e0c8d7dee7696758affc5b13d011d94a60acb1600a49045fe7",
+      "modifications": "Lossless embedded glTF to GLB packaging; authored skeleton and animation samples unchanged. Runtime materials and original bone-attached armour.",
+      "clips": [
+        {
+          "name": "Dance",
+          "duration": 1
+        },
+        {
+          "name": "Death",
+          "duration": 1.7916666666666667
+        },
+        {
+          "name": "Hello",
+          "duration": 1.875
+        },
+        {
+          "name": "HitRecieve_1",
+          "duration": 0.5833333333333334
+        },
+        {
+          "name": "HitRecieve_2",
+          "duration": 0.5833333333333334
+        },
+        {
+          "name": "Idle",
+          "duration": 4.166666666666667
+        },
+        {
+          "name": "Jump",
+          "duration": 1.0833333333333333
+        },
+        {
+          "name": "Kick",
+          "duration": 0.75
+        },
+        {
+          "name": "No",
+          "duration": 1.75
+        },
+        {
+          "name": "Pickup",
+          "duration": 1.75
+        },
+        {
+          "name": "Punch",
+          "duration": 0.7083333333333334
+        },
+        {
+          "name": "Run",
+          "duration": 1.0416666666666667
+        },
+        {
+          "name": "Run_Holding",
+          "duration": 1.0416666666666667
+        },
+        {
+          "name": "Shoot",
+          "duration": 0.625
+        },
+        {
+          "name": "SwordSlash",
+          "duration": 0.75
+        },
+        {
+          "name": "Walk",
+          "duration": 1.0416666666666667
+        },
+        {
+          "name": "Walk_Holding",
+          "duration": 1.0416666666666667
+        },
+        {
+          "name": "Yes",
+          "duration": 1.75
+        }
+      ]
+    }
+  ],
+  "vendor": [
+    {
+      "name": "GLTFLoader",
+      "version": "0.165.0",
+      "license": "MIT",
+      "url": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/loaders/GLTFLoader.js",
+      "modifications": "Relative local imports only"
+    },
+    {
+      "name": "BufferGeometryUtils",
+      "version": "0.165.0",
+      "license": "MIT",
+      "url": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/utils/BufferGeometryUtils.js",
+      "modifications": "Relative local imports only"
+    }
+  ]
+}

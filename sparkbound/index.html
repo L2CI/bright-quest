@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#172526">
+  <title>Sparkbound | Bright Quest</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./sparkbound.css?v=20260906-1">
+</head>
+<body>
+  <main id="game" aria-busy="true" data-phase="loading">
+    <canvas id="scene" aria-label="Relay and Prism in the Sparkbound training arena"></canvas>
+    <header id="topbar"></header>
+    <div id="hud"></div>
+    <div id="scene-caption" aria-live="polite"></div>
+    <section id="interface" aria-label="Game controls"></section>
+    <div id="connection" role="status"></div>
+    <div id="toast" role="status"></div>
+    <div id="loading"><span class="loading-mark"></span><h1>SPARKBOUND</h1><p id="loading-message">Preparing the arena</p></div>
+  </main>
+  <dialog id="dialog"></dialog>
+  <script type="module" src="./game.js?v=20260906-1"></script>
+</body>
+</html>

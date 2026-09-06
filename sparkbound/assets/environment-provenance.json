@@ -1,0 +1,39 @@
+{
+  "description": "Sparkbound original procedural industrial harbour arena with a generated production distant skyline matte. Runtime geometry, surface stencils and coherent wave/reflection shader are original project code in src/stage.ts. No franchise imagery or remote runtime assets.",
+  "files": [
+    {
+      "file": "environment/harbour-panorama.png",
+      "source": "OpenAI built-in image generation",
+      "asset": "Original industrial harbour city, quiet water and layered coastal mountains panorama, used as the in-game distant environment matte",
+      "licence": "Project-generated asset",
+      "generatedAt": "2026-09-06",
+      "sha256": "4723ddd8c95467ff6da9d080123fa935c7d0157b12d1ee1d1e3fd0dd4c80e583",
+      "prompt": "Production raster distant environment matte for an original premium 3D mech sparring game. Very wide panoramic 3:1 sunlit near-future industrial harbour beyond quiet water, layered rocky coastal mountains. Level camera across harbour. Silvery modular buildings, concrete marine infrastructure, tiny gantry cranes and docks. Physically credible detailed cinematic 3D environment, soft daylight upper left, low contrast distance. Cool neutral concrete grey, silver, desaturated eucalyptus mountains, subtle amber industry, grey teal water #78999a, pale grey-blue sky #abc0c1. Bottom 24 percent unbroken water, shoreline 25 percent from bottom, city 25-55 percent, mountains to 65 percent, upper 35 percent quiet sky with thin natural clouds. No robots, people, arena, foreground platforms, railings, text, logos, UI, neon, cyberpunk, purple, magic, bloom or blobs. Real image texture mapped behind the 3D scene."
+    },
+    {
+      "file": "environment/concrete-colour.jpg",
+      "copiedFrom": "beacon-brigade/assets/concrete-colour.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_floor_worn_001/concrete_floor_worn_001_diff_1k.jpg",
+      "asset": "https://polyhaven.com/a/concrete_floor_worn_001",
+      "author": "Poly Haven contributors",
+      "licence": "CC0",
+      "bytes": 118806,
+      "sha256": "6e40c0fc908f4d66431836f5abe203f3a4eb064e88824378a91a46a26e2f464c"
+    },
+    {
+      "file": "environment/concrete-normal.jpg",
+      "copiedFrom": "beacon-brigade/assets/concrete-normal.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_floor_worn_001/concrete_floor_worn_001_nor_gl_1k.jpg",
+      "asset": "https://polyhaven.com/a/concrete_floor_worn_001",
+      "author": "Poly Haven contributors",
+      "licence": "CC0",
+      "bytes": 110906,
+      "sha256": "523bd94a1be5dd2f11c2ae2b7d7c77445cf5bd9e41604db515a7c8364dcba067"
+    }
+  ],
+  "audio": {
+    "source": "Original Web Audio synthesis in src/sound.ts",
+    "description": "Layered filtered noise, pitch envelopes, inharmonic metallic resonators, bass impacts, mechanical servo tones, energy washes and restrained sequenced pads/percussion. No samples or commercial soundtrack. Not listening-reviewed; automated muted checks only.",
+    "licence": "Original project code"
+  }
+}

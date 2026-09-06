@@ -12,6 +12,7 @@
   let beaconReviewRequest = 0;
   let beaconReviewOpener = null;
   let beaconReviewBackground = [];
+  let sparkboundParent = null;
 
   const beaconStyles = document.createElement("link");
   beaconStyles.rel = "stylesheet";
@@ -337,6 +338,11 @@
               <strong>Beacon Brigade</strong>
               <span>Five subject expeditions</span>
             </button>
+            <button type="button" class="bq-module-card bq-beacon-launch" data-bq-action="sparkbound">
+              ${sparkboundLaunchArt()}
+              <strong>Sparkbound</strong>
+              <span>Hero duels and equipment training</span>
+            </button>
           </div>
         </article>
 
@@ -470,6 +476,12 @@
               <strong>Beacon Brigade</strong>
               <small>Five subject expeditions</small>
             </button>
+            <button type="button" class="bq-world-tile bq-beacon-launch" data-bq-action="sparkbound">
+              ${sparkboundLaunchArt()}
+              <span class="bq-world-status">Training arena</span>
+              <strong>Sparkbound</strong>
+              <small>Hero duels and equipment training</small>
+            </button>
           </div>
         </section>
 
@@ -494,6 +506,12 @@
   }
 
   function handleKidAction(action) {
+    if (action === "sparkbound") {
+      const url = new URL("/sparkbound/", window.location.href);
+      if (state.profile?.id) url.searchParams.set("profileId", state.profile.id);
+      window.location.href = url.toString();
+      return;
+    }
     if (action === "beacon-brigade") {
       window.location.href = beaconBrigadeUrl(state.profile);
       return;
@@ -621,6 +639,10 @@
 
   function beaconLaunchArt() {
     return `<img class="bq-beacon-preview" src="/beacon-brigade/assets/module-preview.jpg" alt="" width="1280" height="800" loading="lazy" decoding="async" />`;
+  }
+
+  function sparkboundLaunchArt() {
+    return `<img class="bq-beacon-preview" src="/sparkbound/assets/module-preview.jpg" alt="" width="1280" height="800" loading="lazy" decoding="async" />`;
   }
 
   function kidPageShell(title, copy, artName, body) {
@@ -963,12 +985,13 @@
   }
 
   function parentNavButton(route, label, activeRoute) {
-    const active = route === activeRoute || (route === "learning" && ["exam-results", "focus", "training", "chemistry", "physics", "icas", "winter-2026", "beacon-brigade"].includes(activeRoute)) || (route === "evidence" && ["writing", "records"].includes(activeRoute));
+    const active = route === activeRoute || (route === "learning" && ["exam-results", "focus", "training", "chemistry", "physics", "icas", "winter-2026", "beacon-brigade", "sparkbound"].includes(activeRoute)) || (route === "evidence" && ["writing", "records"].includes(activeRoute));
     return `<button type="button" class="${active ? "active" : ""}" data-parent-route="${route}" ${active ? 'aria-current="page"' : ""}>${label}</button>`;
   }
 
   function renderParentRoute(profile) {
     closeBeaconReviewPopup(false);
+    sparkboundParent?.closeSparkboundReview();
     parentProfileList.innerHTML = "";
     parentOverview.innerHTML = "";
     parentQuestionTable.innerHTML = "";
@@ -1011,6 +1034,7 @@
       chemistry: () => renderChemistryPage(metrics),
       physics: () => renderPhysicsPage(metrics),
       "beacon-brigade": () => renderBeaconPage(metrics),
+      sparkbound: () => renderSparkboundPage(metrics),
       icas: () => renderIcasPage(metrics),
       "winter-2026": () => renderWinterPage(metrics),
       records: () => renderRecordsPage(metrics)
@@ -1044,6 +1068,7 @@
         ${parentHubRow("chemistry", "Chemistry", `${chemistryProgress(metrics.profile).completed} of 11 chapters`, "Chapter tests and wrong answers", "chemistry")}
         ${parentHubRow("physics", "Physics", `${physicsProgress(metrics.profile).completed} of ${physicsProgress(metrics.profile).total} chapters`, "Cockpit Checks and wrong answers", "focus")}
         ${parentHubRow("beacon-brigade", "Beacon Brigade", "Five subject expeditions", "HQ and expedition evidence", "chart")}
+        ${parentHubRow("sparkbound", "Sparkbound", "Arena training", "Original answers and support used", "chart")}
         ${parentHubRow("evidence", "Evidence", `${metrics.questionStats.length} saved question records`, `${metrics.writing.length} writing samples`, "database")}
       </section>
     `, true);
@@ -1060,6 +1085,7 @@
         ${parentHubRow("chemistry", "Chemistry 101", `${chemistry.completed} of ${chemistry.total} chapters`, `${chemistry.tested} tests submitted`, "chemistry")}
         ${parentHubRow("physics", "Physics 101", `${physicsProgress(metrics.profile).completed} of ${physicsProgress(metrics.profile).total} chapters`, `${physicsProgress(metrics.profile).tests} Cockpit Checks submitted`, "focus")}
         ${parentHubRow("beacon-brigade", "Beacon Brigade", "Five subject expeditions", "HQ and expedition evidence", "chart")}
+        ${parentHubRow("sparkbound", "Sparkbound", "Arena training", "Original answers and support used", "chart")}
         ${parentHubLink(agmathsUrl("cockpit", metrics.profile, "parent/learning"), "Winter Maths", "Open linked AGMaths progress", "External course", "snow")}
       </section>
     `);
@@ -1078,10 +1104,32 @@
         ${parentHubRow("exam-results", "Attempts and answers", "Wrong answers first in each review", `${metrics.questionStats.length} question records`, "clipboard")}
         ${parentHubRow("icas", "ICAS answer evidence", "Wrong answers first in a popup", `${metrics.icasQuestions.length} question records`, "clipboard")}
         ${parentHubRow("beacon-brigade", "Beacon Brigade evidence", "Expeditions and original answers", "Corrections and support used", "chart")}
+        ${parentHubRow("sparkbound", "Sparkbound evidence", "Wrong answers first", "Original answers, hints and worked support", "chart")}
         ${parentHubRow("writing", "Writing evidence", "Saved responses and writing signals", `${metrics.writing.length} samples`, "writing")}
         ${parentHubRow("records", "All records", "Complete audit view", "Profiles, attempts, questions and training", "database")}
       </section>
     `);
+  }
+
+  function renderSparkboundPage(metrics) {
+    return parentPageShell("sparkbound", `<section class="bq-chemistry-review-panel">
+      <h3>Sparkbound</h3><p>Maths and science training records.</p>
+      <button class="button button-primary" type="button" data-sparkbound-review="${escapeAttr(metrics.profile.id)}">Review training</button>
+      <p data-sparkbound-open-status role="status"></p></section>`);
+  }
+
+  async function openSparkboundParentReview(opener) {
+    const profile = getParentProfile(Object.values(state.profiles || {}));
+    const isCurrent = () => profile && state.selectedRole === "parent"
+      && state.parentProfileId === profile.id && !screens.parent.classList.contains("hidden") && opener.isConnected;
+    if (!isCurrent()) return;
+    opener.disabled = true;
+    try {
+      sparkboundParent ||= await import("/sparkbound-parent.js");
+      if (isCurrent()) sparkboundParent.openSparkboundReview({ profile, opener, isCurrent });
+    } catch {
+      if (isCurrent()) parentRecommendation.querySelector("[data-sparkbound-open-status]").textContent = "Review could not open. Please try again.";
+    } finally { opener.disabled = false; }
   }
 
   function renderBeaconPage(metrics) {
@@ -1514,6 +1562,7 @@
           queryCard("chemistry", "Chemistry 101 Winter 2026", "Video chapters, tests, and course progress.", "chemistry"),
           queryCard("physics", "Physics 101: Advanced Grade 4", "Force-interaction lesson, Cockpit Check and saved evidence.", "focus"),
           queryCard("beacon-brigade", "Beacon Brigade", "Five subject expeditions, HQ progress and original answers.", "compass"),
+          queryCard("sparkbound", "Sparkbound", "Original training answers, corrections and support used.", "compass"),
           queryLinkCard(agmathsUrl("cockpit", metrics.profile, "parent/overview"), "Winter 2026 Training 1", "Open the AGMaths cockpit for this child.", "winter")
         ])}
         ${queryGroup("Play", "Reward games and motivation signals.", [
@@ -2196,6 +2245,7 @@
       chemistry: ["Bright Quest module", "Chemistry 101 Winter 2026", "Video chapter progress and chapter-test results."],
       physics: ["Bright Quest module", "Physics 101: Advanced Grade 4", "Six animated force chapters, Cockpit Checks and saved evidence reasoning."],
       "beacon-brigade": ["Bright Quest module", "Beacon Brigade", "Five subject expeditions"],
+      sparkbound: ["Bright Quest module", "Sparkbound", "Original training answers and support used"],
       icas: ["Bright Quest module", "ICAS Challenge Lab", "Grade 3 maths and spelling attempts with wrong-answer-first evidence."],
       "winter-2026": ["Linked module", "Winter 2026 Training 1", "Open AGMaths without moving its data."],
       records: ["Audit", "All Records", "Complete saved Bright Quest records remain accessible here."]
@@ -2222,6 +2272,9 @@
     });
     parentRecommendation.querySelectorAll("[data-beacon-review]").forEach((button) => {
       button.addEventListener("click", () => openBeaconReviewPopup(button));
+    });
+    parentRecommendation.querySelectorAll("[data-sparkbound-review]").forEach((button) => {
+      button.addEventListener("click", () => openSparkboundParentReview(button));
     });
   }
 
