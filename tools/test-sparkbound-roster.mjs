@@ -5,8 +5,19 @@ import { createState, applyAction, publicState, SparkError, MOVES, BATTLE_CONFIG
 import { HEROES, getHero, isHeroId, forgeSize, equipmentStage } from "../sparkbound/roster.js";
 import * as content from "../functions/_lib/sparkbound-content.js";
 
+const originalHeroes = HEROES.filter(hero => ["relay", "helio", "volt", "bastion", "zephyr", "glacier"].includes(hero.id));
 const fresh = (heroId, profileId = "roster-child") => applyAction(createState({ profileId }),
   { type: "start", ...(heroId === undefined ? {} : { heroId }) });
+function legacyFresh(heroId, profileId = "roster-child", initial) {
+  const state = applyAction(initial || createState({ profileId }), { type: "start" });
+  if (heroId === undefined) return state;
+  const learningLevel = Math.min(3, 1 + Math.floor(state.wins / 2));
+  Object.assign(state.match, { heroId, rulesVersion: 2, learningLevel,
+    questions: content.selectExpandedQuestions(state.match.number, heroId, learningLevel).map(q => ({
+      ...q, attempts: [], hintsUsed: 0, supportEvents: [], feedback: null, resolved: false, completion: null
+    })) });
+  return state;
+}
 const error = (fn, code) => assert.throws(fn, e => e instanceof SparkError && e.code === code && e.status === 400);
 const legacyPolicy = m => m.intent === "heavy" ? "guard" : m.pad && m.energy === 4 ? "special" :
   m.staff && m.intent === "guard" ? (m.energy >= 2 ? "break" : "guard") : "strike";
@@ -55,8 +66,8 @@ function assertRedacted(state) {
   for (const archived of projected.history) assert.equal(Object.hasOwn(archived, "questions"), false);
 }
 
-test("catalogue exposes six unique strict ids and legacy equipment/forge defaults", () => {
-  assert.deepEqual(HEROES.map(h => h.id), ["relay", "helio", "volt", "bastion", "zephyr", "glacier"]);
+test("catalogue exposes eleven unique strict ids and legacy equipment/forge defaults", () => {
+  assert.deepEqual(HEROES.map(h => h.id), ["relay", "helio", "volt", "bastion", "zephyr", "glacier", "ember", "tidal", "atlas", "nova", "echo"]);
   assert.equal(getHero(undefined).id, "relay");
   assert.equal(forgeSize(fresh().match), 2);
   assert.equal(forgeSize({ questions: Array(6) }), 3);
@@ -111,7 +122,7 @@ test("full legacy state/public/review snapshots remain byte-for-byte compatible 
   assert.equal(digest.digest("hex"), "40518290d80195b3a1e0bc8f55f6935eda6a0fa958222219c9545fa75293a6f5");
 });
 
-for (const hero of HEROES) {
+for (const hero of originalHeroes) {
   test(`${hero.id}: ability boundaries across all moves, intents, caps, clipping and support`, t => {
     const base = fresh();
     let cases = 0;
@@ -158,9 +169,9 @@ for (const hero of HEROES) {
   });
 }
 
-for (const hero of HEROES) for (let seed = 0; seed < 30; seed++) {
-  test(`${hero.id}: all three rounds unassisted with best-legal-action policy, seed ${seed}`, () => {
-    let state = fresh(hero.id, `roster-seed-${seed}`);
+for (const hero of originalHeroes) for (let seed = 0; seed < 30; seed++) {
+  test(`${hero.id}: saved v2 all three rounds unassisted with best-legal-action policy, seed ${seed}`, () => {
+    let state = legacyFresh(hero.id, `roster-seed-${seed}`);
     assert.equal(state.match.heroId, hero.id);
     assert.equal(state.match.rulesVersion, 2);
     assert.equal(state.match.questions.length, 6);
@@ -201,7 +212,7 @@ for (const hero of HEROES) for (let seed = 0; seed < 30; seed++) {
 
 test("saved four/six question arrays use their own length and reject out-of-range indices", () => {
   for (const heroId of [undefined, "relay"]) {
-    const state = fresh(heroId), length = state.match.questions.length;
+    const state = legacyFresh(heroId), length = state.match.questions.length;
     for (let questionIndex = 0; questionIndex <= length; questionIndex++) {
       const saved = structuredClone(state);
       saved.match.questionIndex = questionIndex;
@@ -266,8 +277,45 @@ test("expanded saved answers govern scoring; wrong answers, hints and replays ca
   assert.equal(state.match.phase, "player_upgrade");
 });
 
-for (const hero of HEROES) test(`${hero.id}: retry preserves hero, seed, equipment and learning without reroll`, () => {
-  const initial = until(fresh(hero.id), s => s.match.round === 3 && s.match.phase === "battle");
+test("reloaded v2 continues every phase with original six question snapshots and public per-question levels", () => {
+  const initial = createState({ profileId: "v2-json-resume" });
+  initial.wins = 2;
+  let state = legacyFresh("volt", initial.profileId, initial);
+  const snapshots = structuredClone(state.match.questions);
+  const visited = new Set();
+  for (let turn = 0; turn < 200 && state.match.phase !== "victory"; turn++) {
+    state = JSON.parse(JSON.stringify(state));
+    const m = state.match;
+    visited.add(m.phase);
+    assert.equal(m.rulesVersion, 2);
+    assert.equal(Object.hasOwn(m, "upgradeStage"), false);
+    assert.equal(m.questions.length, 6);
+    assert.deepEqual(publicState(state).configuration.battle.rounds, BATTLE_CONFIG.rounds);
+    if (m.phase === "training") {
+      const projected = publicState(state).match.questions[m.questionIndex];
+      assert.equal(projected.learningLevel, 2);
+      for (const key of ["answer", "hints", "explanation", "attempts", "supportEvents"])
+        assert.equal(Object.hasOwn(projected, key), false);
+    }
+    state = step(state);
+  }
+  assert.equal(state.match.phase, "victory");
+  assert.equal(state.match.round, 3);
+  assert.equal(state.wins, 3);
+  assert.ok(["battle", "round_won", "rival_upgrade", "training", "player_upgrade"].every(phase => visited.has(phase)));
+  for (const [i, q] of state.match.questions.entries()) {
+    assert.equal(q.learningLevel, 2);
+    for (const key of Object.keys(snapshots[i]).filter(k => !["attempts", "hintsUsed", "supportEvents", "feedback", "resolved", "completion"].includes(k)))
+      assert.deepEqual(q[key], snapshots[i][key]);
+  }
+  const next = applyAction(JSON.parse(JSON.stringify(state)), { type: "start", heroId: "ember" });
+  assert.deepEqual(next.history[0], { ...state.match, outcome: "victory" });
+  assert.equal(next.match.rulesVersion, 3);
+  assert.equal(next.match.questions.length, 15);
+});
+
+for (const hero of originalHeroes) test(`${hero.id}: saved v2 retry preserves hero, seed, equipment and learning without reroll`, () => {
+  const initial = until(legacyFresh(hero.id), s => s.match.round === 3 && s.match.phase === "battle");
   let defeated = structuredClone(initial);
   defeated.match.playerHP = 1;
   defeated.match.intent = "heavy";
@@ -297,10 +345,10 @@ for (const hero of HEROES) test(`${hero.id}: retry preserves hero, seed, equipme
 
 for (const [wins, learningLevel] of [[0, 1], [1, 1], [2, 2], [3, 2], [4, 3], [5, 3], [100, 3], [Number.MAX_SAFE_INTEGER - 1, 3]]) {
   test(`learning level: ${wins} wins selects band ${learningLevel}, independent of tier and attempts`, () => {
-    for (const hero of HEROES) {
+    for (const hero of originalHeroes) {
       const initial = createState({ profileId: "learning-threshold" });
       Object.assign(initial, { wins, tier: 900, nextMatchNumber: 123 });
-      const state = applyAction(freeze(initial), { type: "start", heroId: hero.id });
+      const state = legacyFresh(hero.id, initial.profileId, freeze(initial));
       assert.equal(state.match.learningLevel, learningLevel);
       assert.equal(publicState(state).match.learningLevel, learningLevel);
       const selected = content.selectExpandedQuestions(123, hero.id, learningLevel);
@@ -321,12 +369,12 @@ for (const [wins, learningLevel] of [[0, 1], [1, 1], [2, 2], [3, 2], [4, 3], [5,
   });
 }
 
-for (const hero of HEROES) for (const learningLevel of [2, 3]) {
-  test(`${hero.id}: band ${learningLevel} completes six matching-band tasks and earns upgrades sequentially`, () => {
+for (const hero of originalHeroes) for (const learningLevel of [2, 3]) {
+  test(`${hero.id}: saved v2 band ${learningLevel} completes six matching-band tasks and earns upgrades sequentially`, () => {
     const initial = createState({ profileId: `learning-duel-${hero.id}-${learningLevel}` });
     initial.wins = (learningLevel - 1) * 2;
     initial.tier = initial.wins + 1;
-    let state = applyAction(initial, { type: "start", heroId: hero.id });
+    let state = legacyFresh(hero.id, initial.profileId, initial);
     const answered = [], upgrades = [];
     for (let i = 0; i < 200 && state.match.phase !== "victory"; i++) {
       const m = state.match;
@@ -351,7 +399,7 @@ for (const hero of HEROES) for (const learningLevel of [2, 3]) {
   });
 }
 
-for (const [wins, learningLevel] of [[1, 1], [3, 2], [4, 3]]) {
+for (const [wins, learningLevel] of [[1, 2], [3, 3], [4, 3]]) {
   test(`learning level ${learningLevel}: repeated resets and supported retries cannot raise the band`, () => {
     let state = createState({ profileId: "learning-reset" });
     Object.assign(state, { wins, tier: wins + 1 });
@@ -388,7 +436,7 @@ test("learning band changes only on a new match after earned win thresholds, nev
     assert.equal(won.match.learningLevel, level);
     assert.equal(publicState(won).match.learningLevel, level);
     const next = applyAction(freeze(won), { type: "start", heroId: "relay" });
-    assert.equal(next.match.learningLevel, level + 1);
+    assert.equal(next.match.learningLevel, Math.min(3, level + 1));
     assert.equal(next.history.at(-1).learningLevel, level);
     assert.equal(publicState(next).history.at(-1).learningLevel, level);
     assert.deepEqual(next.history.at(-1).questions, won.match.questions);
@@ -406,7 +454,7 @@ test("learning level rejects client overrides and invalid saved values but accep
   }
   for (const field of ["learningLevel", "wins", "tier", "staff", "pad"])
     error(() => applyAction(createState({ profileId: "client-level" }), { type: "start", heroId: "relay", [field]: 3 }), "INVALID_ACTION");
-  const old = fresh("relay");
+  const old = legacyFresh("relay");
   delete old.match.learningLevel;
   assert.doesNotThrow(() => publicState(old));
   const next = applyAction(old, { type: "move", move: "strike" });

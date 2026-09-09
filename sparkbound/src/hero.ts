@@ -1,10 +1,11 @@
 import * as THREE from '../../cave-river-quest/vendor/three.module.js';
 import { GLTFLoader } from '../assets/mechs/vendor/GLTFLoader.js';
 import { HEROES, getHero } from '../roster.js';
+import { ImageActor } from './image-actor';
 
 export type HeroKind = 'relay' | 'prism';
 export type HeroMotion = 'idle' | 'walk' | 'strike' | 'guard' | 'charge' | 'break' | 'hit' | 'special' | 'upgrade' | 'victory';
-export interface HeroKit { staff?: boolean; pad?: boolean; tier?: number }
+export interface HeroKit { staff?: boolean; pad?: boolean; tier?: number; stage?: number }
 export interface PlayOptions {
   duration?: number;
   timeScale?: number;
@@ -40,6 +41,11 @@ const PALETTES = {
   bastion: { main: 0x78929e, accent: 0xc8d0cc, metal: 0x68747b, dark: 0x24282c, light: 0xdce4df, glow: 0xd39aff },
   zephyr: { main: 0x269fce, accent: 0xe3edf1, metal: 0x657e87, dark: 0x142830, light: 0xc3e6ed, glow: 0x79ddff },
   glacier: { main: 0xb1d2ed, accent: 0xf5fbff, metal: 0x7297a8, dark: 0x1d3540, light: 0xd5f3ff, glow: 0x9bfaff },
+  ember: { main: 0xc74030, accent: 0xffcf72, metal: 0x827871, dark: 0x252524, light: 0xe9d9be, glow: 0xffa43c },
+  tidal: { main: 0x168caa, accent: 0xd3fff1, metal: 0x77999d, dark: 0x153033, light: 0xb8ede8, glow: 0x62f4ff },
+  atlas: { main: 0x61724e, accent: 0xf0cc62, metal: 0x858a7e, dark: 0x242820, light: 0xd5ddc5, glow: 0xe8f69b },
+  nova: { main: 0xb03771, accent: 0xf1d2ef, metal: 0x92899b, dark: 0x28212d, light: 0xe9d8ed, glow: 0xff91df },
+  echo: { main: 0x6355ac, accent: 0xbff2ca, metal: 0x8d929c, dark: 0x24232f, light: 0xddddea, glow: 0x99ffc9 },
 };
 
 function plateGeometry(w: number, h: number, d: number) {
@@ -71,7 +77,7 @@ export class HeroRig {
   private body = new THREE.Group();
   private clips = new Map<string, THREE.AnimationClip>();
   private action: THREE.AnimationAction | null = null;
-  private kit: Required<HeroKit> = { staff: false, pad: false, tier: 1 };
+  private kit: Required<HeroKit> = { staff: false, pad: false, tier: 1, stage: 0 };
   private staff = new THREE.Group();
   private pad = new THREE.Group();
   private tierParts: THREE.Object3D[] = [];
@@ -105,12 +111,22 @@ export class HeroRig {
   private weapons = new Map<string, THREE.Group>();
   private weaponUpgrades = new Map<string, THREE.Group>();
   private pulseHousing = new THREE.Group();
+  private advancedParts = new Map<string, THREE.Group[]>();
+  private prismLoadouts: THREE.Group[] = [];
+  private muzzleCharge = new THREE.Group();
+  private imageActor: ImageActor;
 
   constructor(kind: HeroKind) {
     this.kind = kind;
     this.root.name = `sparkbound-${kind}`;
+    this.body.visible=false;
     this.root.add(this.body);
-    this.readyPromise = this.load().catch(error => {
+    this.imageActor=new ImageActor(this.root,kind==='prism');
+    this.readyPromise = Promise.all([this.load(),this.imageActor.ready]).then(()=>{
+      this.body.visible=false;this.root.userData.model='Generated 2.5D mech artwork';
+      this.imageActor.select(this.kind==='prism'?'prism':this.heroId);this.imageActor.setStage(this.kit.stage);
+      return this;
+    }).catch(error => {
       this.error = error instanceof Error ? error : new Error(String(error));
       this.root.userData.loadError = this.error.message;
       throw this.error;
@@ -124,7 +140,11 @@ export class HeroRig {
     // Stable relative to the document, including when esbuild bundles this module
     // into the arena's application bundle in sparkbound/.
     const base = new URL('./assets/mechs/', new URL('.', document.baseURI));
-    const gltf = await new GLTFLoader().loadAsync(new URL(this.kind === 'relay' ? 'stan.glb' : 'mike.glb', base).href);
+    const url = new URL(this.kind === 'relay' ? 'stan.glb' : 'mike.glb', base);
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Failed to load authored rig ${url.pathname}: HTTP ${response.status}`);
+    const buffer = await response.arrayBuffer();
+    const gltf = await new GLTFLoader().parseAsync(buffer, base.href);
     this.model = gltf.scene;
     this.body.add(this.model);
     for (const clip of gltf.animations) this.clips.set(clip.name, clip);
@@ -152,14 +172,11 @@ export class HeroRig {
       mesh.frustumCulled = false;
       this.meshes.push(mesh);
     });
-    this.addArmour();
-    this.body.updateMatrixWorld(true);
-    const dressedBounds = new THREE.Box3().setFromObject(this.body);
-    const correction = 4.4 / (dressedBounds.max.y - dressedBounds.min.y);
-    if(this.kind==='relay')this.addIdentityArmour();
-    this.body.scale.setScalar(correction);
-    this.body.position.y = -dressedBounds.min.y * correction;
-    this.addEquipment();
+    // Retain the authored skeleton and its clock without building hidden block armour.
+    this.fist=this.bone('Index1R');this.fist.add(this.staff);this.staff.add(this.launcherSlide);this.launcherSlide.add(this.tip);
+    this.tip.position.z=.5;this.staff.add(this.muzzleFlash,this.muzzleCharge);
+    this.chargeRing=this.mesh(this.body,new THREE.TorusGeometry(.1,.01,3,12),'Eye');
+    this.chargeGlow=this.mesh(this.body,new THREE.SphereGeometry(.05,4,3),'Eye');
     this.setHero(this.heroId);
     this.setKit(this.kit);
     this.root.add(this.body);
@@ -349,6 +366,10 @@ export class HeroRig {
     this.mesh(this.muzzleFlash,new THREE.SphereGeometry(.29,12,8),'Eye',0,0,.08).scale.set(1,1,1.8);
     this.mesh(this.muzzleFlash,new THREE.TorusGeometry(.39,.04,6,20),'Eye',0,0,.14);
     this.muzzleFlash.visible=false;
+    this.tip.add(this.muzzleCharge);this.muzzleCharge.name='muzzle-charge-cue';
+    this.mesh(this.muzzleCharge,new THREE.TorusGeometry(.3,.035,6,24),'Eye');
+    this.mesh(this.muzzleCharge,new THREE.SphereGeometry(.1,12,8),'Eye');
+    this.muzzleCharge.visible=false;
     this.fist=this.bone('Index1R');
     this.mixer!.stopAllAction();this.mixer!.clipAction(this.clips.get('Idle')!).reset().play();this.mixer!.update(0);
     this.pad=this.mount('LowerArmL',new THREE.Vector3(.12,-.13,.23));
@@ -373,7 +394,8 @@ export class HeroRig {
       this.plate(armour,'Accent',.61,.7,.25);this.plate(armour,'Grey',.41,.5,.11,0,0,.19);
       this.heavyParts.push(armour);
     }
-    if(this.kind==='relay')this.addRosterWeapons();
+    if(this.kind==='relay'){this.addRosterWeapons();this.addAdvancedEquipment();}
+    else this.addPrismLoadouts();
   }
 
   private tube(parent: THREE.Object3D, material: string, radius: number, length: number, x=0, y=0, z=0) {
@@ -390,14 +412,14 @@ export class HeroRig {
         const arm=side===1?'L':'R';
         const fist=this.mount(`LowerArm${arm}`,new THREE.Vector3(side*.13,-.47,.12));
         fist.name=`${id}-gauntlet-${arm}`;fists.push(fist);
-        const heavy=id==='bastion';
+        const heavy=id==='bastion'||id==='atlas';
         this.plate(fist,'Grey',heavy?.65:.46,heavy?.52:.35,.43);
         this.plate(fist,'Main',heavy?.69:.5,.23,.45,0,.08,.04);
         if(id==='helio'){
           this.tube(fist,'Eye',.16,.12,0,0,.3);
         }else if(id==='volt'){
           for(const y of [-.08,.08])this.mesh(fist,new THREE.TorusGeometry(.24,.045,6,12),'Eye',0,y,.03).rotation.x=Math.PI/2;
-        }else if(id==='bastion'){
+        }else if(id==='bastion'||id==='atlas'){
           for(const x of [-.22,.22])this.mesh(fist,new THREE.CylinderGeometry(.075,.075,.46,8),'LightGrey',x,0,.23);
         }else if(id==='zephyr'){
           const fin=this.plate(fist,'Accent',.12,.58,.34,side*.24,.1,0);fin.rotation.z=-side*.35;
@@ -405,7 +427,27 @@ export class HeroRig {
           for(const x of [-.15,0,.15])this.mesh(fist,new THREE.OctahedronGeometry(.13),'Eye',x,-.05,.3);
         }else for(const x of [-.15,0,.15])this.plate(fist,'Accent',.09,.14,.12,x,-.08,.28);
 
-        if(id==='volt'){
+        if(id==='ember'){
+          const vent=mount('Chest',side*.88,.67,-.36);
+          this.plate(vent,'Grey',.4,1.18,.5);this.plate(vent,'Main',.49,.22,.57,0,.57,0);
+          for(let n=0;n<5;n++){this.plate(vent,'Black',.34,.1,.06,0,-.34+n*.2,.29);this.plate(vent,'Eye',.26,.035,.04,0,-.31+n*.2,.33);}
+        }else if(id==='tidal'){
+          const tank=mount('Chest',side*.92,.65,-.5);
+          this.mesh(tank,new THREE.CapsuleGeometry(.29,.85,4,12),'Main');
+          for(const y of [-.35,.35])this.mesh(tank,new THREE.TorusGeometry(.3,.06,6,16),'Accent',0,y,0).rotation.x=Math.PI/2;
+          this.tube(tank,'Grey',.2,.45,0,-.5,.28);this.tube(tank,'Eye',.13,.04,0,-.5,.52);
+          this.plate(tank,'Eye',.13,.65,.07,0,0,.3);
+        }else if(id==='atlas'){
+          const piston=mount(`UpperArm${arm}`,side*.3,.12,.08);
+          this.plate(piston,'Main',1,.9,.8);
+          for(const x of [-.3,.3]){this.mesh(piston,new THREE.CylinderGeometry(.1,.1,1.08,10),'Grey',x,-.15,.44);this.mesh(piston,new THREE.CylinderGeometry(.16,.16,.42,10),'Accent',x,.12,.44);}
+          const brace=mount(`LowerLeg${arm}`,side*.12,-.2,.24);this.plate(brace,'Accent',.63,.9,.35);
+        }else if(id==='echo'){
+          const dish=mount('Chest',side*.94,.75,-.15);
+          this.mesh(dish,new THREE.CylinderGeometry(.46,.2,.23,20),'Grey').rotation.x=Math.PI/2;
+          this.mesh(dish,new THREE.TorusGeometry(.39,.055,8,24),'Accent',0,0,.14);
+          this.tube(dish,'Black',.29,.04,0,0,.13);this.tube(dish,'Eye',.14,.06,0,0,.18);
+        }else if(id==='volt'){
           const coil=mount('Chest',side*.8,1.02,-.32);
           this.mesh(coil,new THREE.CylinderGeometry(.12,.17,1.1,12),'Grey');
           for(let n=0;n<6;n++)this.mesh(coil,new THREE.TorusGeometry(.24,.05,6,16),'Eye',0,-.4+n*.16,0).rotation.x=Math.PI/2;
@@ -430,7 +472,12 @@ export class HeroRig {
           const hose=this.mesh(tank,new THREE.TorusGeometry(.35,.07,6,16,Math.PI),'Grey',0,-.55,.12);hose.rotation.z=side*Math.PI/2;
         }
       }
-      if(id==='helio'){
+      if(id==='nova'){
+        const ring=mount('Chest',0,.72,-.66);
+        this.mesh(ring,new THREE.TorusGeometry(1.05,.13,8,40),'Grey');
+        this.mesh(ring,new THREE.TorusGeometry(.93,.05,8,40),'Eye');
+        for(const side of [-1,1])this.plate(ring,'Accent',.36,.56,.28,side*.98,0,0);
+      }else if(id==='helio'){
         const optic=mount('Head',0,.27,.47);
         this.tube(optic,'Grey',.34,.17);this.tube(optic,'Eye',.255,.18,0,0,.07);
         this.mesh(optic,new THREE.TorusGeometry(.29,.06,8,24),'Accent',0,0,.16);
@@ -502,6 +549,142 @@ export class HeroRig {
         }
         this.tube(upgrade,'Grey',.48,.47,0,0,1.36);this.tube(upgrade,'Eye',.37,.03,0,0,1.61);
         for(let n=0;n<8;n++){const a=n*Math.PI/4;this.plate(upgrade,'Accent',.07,.16,.61,Math.cos(a)*.42,Math.sin(a)*.42,1.17).rotation.z=a;}
+      }else if(['ember','tidal','atlas','nova','echo'].includes(id)){
+        this.buildElementWeapon(gun,id,1.32);
+        this.buildElementWeapon(upgrade,id,1.62);
+      }
+    }
+  }
+
+  private buildElementWeapon(parent: THREE.Group, id: string, muzzle: number) {
+    const collar=muzzle-.2;
+    if(id==='ember'){
+      this.tube(parent,'Grey',.3,1.12,0,0,collar-.5);
+      this.tube(parent,'Black',.32,.18,0,0,collar);
+      this.tube(parent,'Eye',.19,.035,0,0,muzzle);
+      for(const x of [-.36,.36]){this.tube(parent,'Main',.13,.85,x,-.05,.4);for(let n=0;n<4;n++)this.plate(parent,'Accent',.08,.29,.08,x,0,.35+n*.2);}
+    }else if(id==='tidal'){
+      this.tube(parent,'Accent',.22,1.15,0,0,collar-.5);
+      this.mesh(parent,new THREE.CylinderGeometry(.37,.2,.4,16),'Grey',0,0,collar).rotation.x=Math.PI/2;
+      this.tube(parent,'Eye',.25,.025,0,0,muzzle);
+      for(const x of [-.34,.34])this.tube(parent,'Main',.21,.9,x,0,.3);
+    }else if(id==='atlas'){
+      this.plate(parent,'Grey',.66,.58,1.4,0,0,collar-.6);
+      this.plate(parent,'Accent',.9,.72,.26,0,0,muzzle-.12);
+      this.tube(parent,'Eye',.16,.04,0,0,muzzle+.03);
+      for(const x of [-.41,.41])this.tube(parent,'LightGrey',.085,1.1,x,0,.47);
+    }else if(id==='nova'){
+      this.tube(parent,'Black',.23,1.18,0,0,collar-.45);
+      for(const z of [.45,.85,collar]){this.mesh(parent,new THREE.TorusGeometry(.4,.07,8,24),'Accent',0,0,z);this.mesh(parent,new THREE.TorusGeometry(.29,.035,6,24),'Eye',0,0,z+.03);}
+      this.tube(parent,'Eye',.19,.045,0,0,muzzle);
+    }else{
+      this.tube(parent,'Grey',.19,1.1,0,0,collar-.4);
+      this.mesh(parent,new THREE.CylinderGeometry(.5,.19,.45,20),'Accent',0,0,muzzle-.22).rotation.x=Math.PI/2;
+      this.tube(parent,'Black',.39,.03,0,0,muzzle);this.tube(parent,'Eye',.19,.04,0,0,muzzle+.02);
+      this.mesh(parent,new THREE.TorusGeometry(.44,.045,6,24),'Grey',0,0,muzzle+.02);
+    }
+  }
+
+  private addAdvancedEquipment() {
+    // Three distinct assemblies: auxiliary rails, deployable vanes, then a reactor crown.
+    // The original stage-1/2 weapon remains recognisable inside each earned assembly.
+    for(const {id} of HEROES){
+      const levels:THREE.Group[]=[];this.advancedParts.set(id,levels);
+      for(let stage=3;stage<=5;stage++){
+        const group=new THREE.Group();group.name=`${id}-equipment-stage-${stage}`;
+        this.launcherSlide.add(group);levels.push(group);group.visible=false;
+        if(stage===3){
+          const battery=this.mount('Chest',new THREE.Vector3(0,.65,.02));
+          battery.name=`${id}-stage-3-battery`;group.userData.companion=battery;battery.visible=false;
+          for(const side of [-1,1]){
+            this.plate(battery,'Grey',.55,.86,.65,side*1.52,.43,0);
+            this.plate(battery,'Main',.61,.54,.68,side*1.52,.42,0);
+            this.plate(battery,'Accent',.63,.17,.71,side*1.52,.86,0);
+            for(const y of [.25,.54]){
+              this.tube(battery,'Black',.17,.07,side*1.52,y,.38);
+              this.tube(battery,'Eye',.11,.035,side*1.52,y,.43);
+            }
+          }
+          for(const side of [-1,1]){
+            const rail=this.plate(group,'Grey',.14,.22,1.5,side*.58,-.06,.72);
+            rail.rotation.z=side*.12;
+            if(id==='echo')this.mesh(group,new THREE.TorusGeometry(.24,.06,6,20),'Accent',side*.58,0,1.39);
+            else if(id==='atlas')this.plate(group,'Accent',.29,.52,.29,side*.58,0,1.32);
+            else this.tube(group,'Accent',.17,.49,side*.58,0,1.18);
+            this.tube(group,'Eye',.1,.04,side*.58,0,1.45);
+          }
+        }else if(stage===4){
+          const rails=this.mount('Chest',new THREE.Vector3(0,.63,-.85));
+          rails.name=`${id}-stage-4-rail-array`;group.userData.companion=rails;rails.visible=false;
+          for(const side of [-1,1]){
+            const rail=this.plate(rails,'Grey',.18,1.3,.27,side*1.06,.36,0);rail.rotation.z=-side*.26;
+            this.plate(rail,'Accent',.24,.43,.36,0,.42,0);this.plate(rail,'Eye',.06,.72,.03,0,.09,.2);
+          }
+          for(let n=0;n<4;n++){
+            const angle=n*Math.PI/2+Math.PI/4;
+            const vane=this.plate(group,'Main',.24,.58,.65,Math.cos(angle)*.65,Math.sin(angle)*.65,.63);vane.rotation.z=angle-Math.PI/2;
+            this.plate(vane,'Accent',.15,.4,.045,0,0,.36);
+            this.plate(vane,'Eye',.045,.28,.03,0,0,.39);
+          }
+          this.mesh(group,new THREE.TorusGeometry(.58,.075,8,24),'Grey',0,0,.42);
+        }else{
+          this.mesh(group,new THREE.TorusGeometry(.71,.11,8,32),'Accent',0,0,1.35);
+          for(let n=0;n<3;n++){
+            const angle=n*Math.PI*2/3;
+            this.tube(group,'Grey',.15,.8,Math.cos(angle)*.7,Math.sin(angle)*.7,.9);
+            this.tube(group,'Eye',.095,.045,Math.cos(angle)*.7,Math.sin(angle)*.7,1.32);
+          }
+          this.tube(group,'Black',.26,.35,0,0,1.62);this.tube(group,'Eye',.18,.04,0,0,1.8);
+          const crown=this.mount('Chest',new THREE.Vector3(0,.78,-.83));
+          crown.name=`${id}-stage-5-reactor-crown`;
+          this.mesh(crown,new THREE.TorusGeometry(.8,.11,8,32),'Grey');
+          for(const side of [-1,1]){const fin=this.plate(crown,'Accent',.27,.9,.19,side*.84,.48,0);fin.rotation.z=-side*.4;this.plate(fin,'Eye',.08,.64,.03,0,0,.12);}
+          // Keep independent bone sockets in the same visibility set.
+          group.userData.companion=crown;crown.visible=false;
+        }
+      }
+    }
+  }
+
+  private addPrismLoadouts() {
+    for(let stage=0;stage<=5;stage++){
+      const gun=new THREE.Group();gun.name=`prism-loadout-${stage}`;gun.visible=false;
+      this.prismLoadouts.push(gun);this.launcherSlide.add(gun);
+      if(stage===0)continue;
+      this.plate(gun,'Main',.72,.55,.91,0,0,-.16);
+      if(stage===1){this.tube(gun,'Grey',.27,1.32,0,0,.63);this.tube(gun,'Eye',.17,.04,0,0,1.32);}
+      else if(stage===2)this.buildElementWeapon(gun,'ember',1.62);
+      else if(stage===3){
+        const pods=this.mount('Chest',new THREE.Vector3(0,.88,-.52));
+        pods.name='prism-shoulder-rocket-battery';gun.userData.companion=pods;pods.visible=false;
+        for(const side of [-1,1]){
+          this.plate(pods,'Main',.69,.69,.8,side*.99,.12,0);
+          for(const x of [-.16,.16])for(const y of [-.15,.15]){this.tube(pods,'Black',.125,.1,side*.99+x,.12+y,.44);this.tube(pods,'Accent',.08,.05,side*.99+x,.12+y,.5);}
+        }
+        for(const x of [-.29,.29])for(const y of [-.22,.22]){
+          this.tube(gun,'Grey',.23,1.52,x,y,.63);this.tube(gun,'Black',.19,.04,x,y,1.41);
+          this.mesh(gun,new THREE.ConeGeometry(.14,.27,12),'Accent',x,y,1.43).rotation.x=Math.PI/2;
+        }
+      }else if(stage===4){
+        const rails=this.mount('Chest',new THREE.Vector3(0,.89,-.53));
+        rails.name='prism-arc-rail-capacitors';gun.userData.companion=rails;rails.visible=false;
+        for(const side of [-1,1]){this.plate(rails,'Grey',.19,1.42,.34,side*.98,.12,0);for(let n=0;n<4;n++)this.plate(rails,'Eye',.36,.07,.4,side*.98,-.4+n*.28,0);}
+        for(const x of [-.42,.42]){this.tube(gun,'Grey',.12,1.8,x,0,.65);for(let n=0;n<5;n++)this.mesh(gun,new THREE.TorusGeometry(.23,.055,6,16),'Eye',x,0,.2+n*.27);}
+        this.tube(gun,'Eye',.18,.06,0,0,1.65);
+      }else{
+        const array=this.mount('Chest',new THREE.Vector3(0,.88,-.69));
+        array.name='prism-solar-siege-array';gun.userData.companion=array;array.visible=false;
+        this.mesh(array,new THREE.TorusGeometry(1.13,.11,8,32),'Eye');
+        for(const side of [-1,1]){
+          const panel=this.plate(array,'Main',.52,1.28,.25,side*1.19,.13,0);panel.rotation.z=-side*.22;
+          for(let n=0;n<4;n++)this.plate(panel,'Accent',.4,.19,.04,0,-.43+n*.28,.15);
+        }
+        this.buildElementWeapon(gun,'nova',1.82);
+        for(let n=0;n<4;n++){
+          const angle=n*Math.PI/2+Math.PI/4;
+          const panel=this.plate(gun,'Accent',.37,.72,.18,Math.cos(angle)*.72,Math.sin(angle)*.72,.65);panel.rotation.z=angle;
+          this.plate(panel,'Eye',.2,.5,.04,0,0,.12);
+        }
       }
     }
   }
@@ -510,8 +693,9 @@ export class HeroRig {
   setHero(id: string) {
     if(this.kind!=='relay'||this.disposed)return;
     this.heroId=getHero(id).id;
+    this.imageActor.select(this.heroId);
     this.root.userData.heroId=this.heroId;
-    const p=PALETTES[this.heroId];
+    const p=PALETTES[this.heroId]||PALETTES.relay;
     if(this.materials.Main){
       for(const [key,value] of Object.entries({Main:p.main,Accent:p.accent,Grey:p.metal,LightGrey:p.light,Black:p.dark,Eye:p.glow}))this.materials[key].color.setHex(value);
       this.materials.Eye.emissive.setHex(p.glow);
@@ -520,7 +704,18 @@ export class HeroRig {
   }
 
   private applyIdentity() {
-    if(this.kind!=='relay')return;
+    const stage=this.kit.stage;
+    this.root.userData.equipmentStage=stage;
+    if(this.kind==='prism'){
+      this.pulseHousing.visible=false;
+      for(const [i,part] of this.prismLoadouts.entries()){
+        this.revealEquipment(part,i===stage,this.motion==='upgrade');
+        if(part.userData.companion)this.revealEquipment(part.userData.companion,i===stage,this.motion==='upgrade');
+      }
+      this.tip.position.z=stage===5?1.86:stage>=2?1.68:1.36;
+      this.root.userData.weapon=['Kinetic Gauntlets','Shield + Bolt','Flame Projector','Rocket Pods','Arc Cannon','Solar Siege Array'][stage];
+      return;
+    }
     const ranged=this.kit.staff||this.motion==='break'||this.motion==='special';
     for(const [id,parts] of this.identityParts)for(const part of parts){
       part.visible=id===this.heroId;
@@ -531,19 +726,28 @@ export class HeroRig {
     this.pulseHousing.visible=this.heroId==='relay';
     for(const [id,part] of this.weapons)part.visible=id===this.heroId;
     for(const [id,part] of this.weaponUpgrades)this.revealEquipment(part,id===this.heroId&&this.kit.pad,this.motion==='upgrade'&&!this.reduced);
-    this.tip.position.z=this.kit.pad?1.68:1.36;
-    this.root.userData.weapon=getHero(this.heroId).weapons[this.kit.pad?2:this.kit.staff?1:0].name;
+    for(const [id,parts] of this.advancedParts)for(const [index,part] of parts.entries()){
+      const visible=id===this.heroId&&stage>=index+3;
+      this.revealEquipment(part,visible,this.motion==='upgrade');
+      if(part.userData.companion)this.revealEquipment(part.userData.companion,visible,this.motion==='upgrade');
+    }
+    this.tip.position.z=stage===5?1.84:this.kit.pad?1.68:1.36;
+    const weapons=getHero(this.heroId).weapons;
+    this.root.userData.weapon=weapons[Math.min(stage,weapons.length-1)].name;
   }
 
   setKit(kit: HeroKit) {
     if (typeof kit.staff === 'boolean') this.kit.staff=kit.staff;
     if (typeof kit.pad === 'boolean') this.kit.pad=kit.pad;
+    this.kit.stage=Number.isFinite(kit.stage)?Math.max(0,Math.min(5,Math.floor(kit.stage!))):this.kit.pad?2:this.kit.staff?1:0;
+    if(Number.isFinite(kit.stage)){this.kit.staff=this.kit.stage>=1;this.kit.pad=this.kit.stage>=2||(this.kind==='prism'&&this.kit.stage>=1);}
     if (Number.isFinite(kit.tier)) this.kit.tier=Math.max(1,Math.min(3,Math.floor(kit.tier!)));
     this.revealEquipment(this.staff,this.kit.staff,this.motion==='upgrade');
     this.revealEquipment(this.pad,this.kit.pad,this.motion==='upgrade');
     for(const part of this.heavyParts)this.revealEquipment(part,this.kit.pad,this.motion==='upgrade');
     for(const part of this.tierParts) this.revealEquipment(part,this.kit.tier>=2,true);
     this.root.userData.kit={...this.kit};
+    this.imageActor.setStage(this.kit.stage);
     this.applyIdentity();
     this.applyGrip();
   }
@@ -563,8 +767,10 @@ export class HeroRig {
 
   /** Presentation only: null releases aiming; charge never modifies the saved kit. */
   setAim(target: THREE.Vector3 | null) { this.aimTarget=target?.clone()??null; }
-  setCharge(amount: number) { this.chargeAmount=Math.max(0,Math.min(1,amount)); }
-  firePulse() { this.recoilTime=0; }
+  setCharge(amount: number) { this.chargeAmount=Math.max(0,Math.min(1,amount));this.imageActor.setCharge(this.chargeAmount); }
+  firePulse() { this.recoilTime=0;this.imageActor.fire(); }
+  setCamera(camera: THREE.Camera) {this.imageActor.setCamera(camera);}
+  get imageActive() {return this.imageActor.active;}
 
   private updateLauncher(dt: number) {
     this.recoilTime+=dt;
@@ -581,6 +787,8 @@ export class HeroRig {
     this.launcherSlide.position.z=this.reduced?0:-.2*Math.exp(-this.recoilTime*13)*Math.sin(Math.min(1,this.recoilTime/.08)*Math.PI/2);
     this.muzzleFlash.visible=!this.reduced&&this.recoilTime<.13;
     this.muzzleFlash.scale.setScalar(1+this.recoilTime*5);
+    this.muzzleCharge.visible=this.chargeAmount>0&&this.staff.visible;
+    this.muzzleCharge.scale.setScalar(.35+.65*this.chargeAmount);
     this.chargeRing.visible=this.chargeAmount>0;
     this.chargeGlow.visible=this.chargeAmount>0;
     const count=this.chargeRing.geometry.index!.count;
@@ -625,6 +833,7 @@ export class HeroRig {
     this.mixer!.update(0);
     this.applyGrip();
     this.applyIdentity();
+    this.imageActor.play(name,this.duration,this.startTime,this.reduced);
     return this.currentTiming;
   }
 
@@ -655,6 +864,7 @@ export class HeroRig {
     }
     this.applyGrip();
     this.updateLauncher(dt);
+    this.imageActor.setCharge(this.chargeAmount);this.imageActor.update(dt,this.reduced);
     this.root.updateWorldMatrix(true,true);
     if(this.options.hold)return;
     const spec=HERO_MOTIONS[this.motion];
@@ -665,23 +875,27 @@ export class HeroRig {
   }
 
   get weaponTip(): THREE.Vector3 {
+    if(this.imageActor.active)return this.imageActor.socket('muzzle');
     this.root.updateWorldMatrix(true,true);
     const socket=this.kit.staff||this.motion==='break'||this.motion==='special'?this.tip:this.fist;
     return socket?socket.getWorldPosition(new THREE.Vector3()):this.root.getWorldPosition(new THREE.Vector3());
   }
 
   get contactPoint(): THREE.Vector3 {
+    if(this.imageActor.active)return this.imageActor.socket(this.motion==='strike'?'fist':'muzzle');
     if(this.motion==='strike'&&this.fist){this.root.updateWorldMatrix(true,true);return this.fist.getWorldPosition(new THREE.Vector3());}
     return this.weaponTip;
   }
 
   contactLocal(name: 'strike'|'break'|'special'): THREE.Vector3 {
+    if(this.imageActor.active)return this.root.worldToLocal(this.imageActor.socket(name==='strike'?'fist':'muzzle','firing'));
     const point=this.contactProfiles.get(name);
     if(!point)throw new Error('Await HeroRig.readyPromise before querying contact reach');
     return point.clone();
   }
 
   visualBounds(): THREE.Box3 {
+    if(this.imageActor.active)return this.imageActor.bounds();
     this.root.updateWorldMatrix(true,true);
     const bounds=new THREE.Box3();
     this.root.traverseVisible(object=>{
@@ -694,11 +908,18 @@ export class HeroRig {
   }
 
   setFacing(yaw: number) { if(Number.isFinite(yaw))this.root.rotation.y=yaw; }
+  get shieldPoint(): THREE.Vector3 {
+    return this.imageActor.active?this.imageActor.socket('shield'):this.root.position.clone().add(new THREE.Vector3(this.kind==='prism'?-.58:.58,2.35,0));
+  }
 
   dispose() {
     this.disposed=true;
+    this.imageActor.dispose();
     this.mixer?.stopAllAction();
     if(this.model)this.mixer?.uncacheRoot(this.model);
+    const skeletons=new Set<THREE.Skeleton>();
+    this.model?.traverse(object=>{if((object as THREE.SkinnedMesh).isSkinnedMesh)skeletons.add((object as THREE.SkinnedMesh).skeleton);});
+    for(const skeleton of skeletons)skeleton.dispose();
     const geometries=new Set(this.meshes.map(m=>m.geometry));
     for(const geometry of geometries)geometry.dispose();
     for(const material of Object.values(this.materials))material.dispose();

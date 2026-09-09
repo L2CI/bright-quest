@@ -176,6 +176,7 @@ const foundation = tasks.flatMap((entry) => entry.variants.map((variant, index) 
 })));
 
 function tierMath(base, level) {
+  if (level >= 4) return advancedMath(base, level);
   const v = base.variant - 1;
   const stretch = level === 3;
   const titles = ["Count the supplies", "Share the remaining tiles", "Work out the packs", "Plan equal rows",
@@ -285,6 +286,162 @@ function tierMath(base, level) {
   }
 }
 
+function advancedMath(base, level) {
+  const v = base.variant - 1, master = level === 5;
+  const make = (prompt, answer, clue, explanation) => ({
+    ...numeric("Solve the workshop puzzle", prompt, answer, clue, explanation, observation(prompt)),
+    outcome: "The workshop calculation is checked."
+  });
+  switch (base.taskId) {
+    case "expansion-supply-groups": {
+      if (master) {
+        const boxes = [6, 8][v], left = [28, 48][v], answer = left / 2 * 3 / boxes;
+        return make(`Boxes hold all the markers. Each box starts with the same number of markers. After using 1/3 of all the markers, ${left} remain. There were ${boxes} boxes. How many markers were in each box?`, answer,
+          "The remaining markers make two thirds. Find one third, then the whole, then one box.",
+          `${left} / 2 x 3 = ${left / 2 * 3} markers at first. ${left / 2 * 3} / ${boxes} = ${answer} per box.`);
+      }
+      const each = [8, 6][v], loose = [7, 9][v], used = [12, 14][v], left = [35, 43][v];
+      return make(`Boxes hold ${each} markers each. With ${loose} loose markers added, the class uses ${used} and has ${left} left. How many full boxes were there at first?`, (left + used - loose) / each,
+        "Undo the use first, remove the loose markers, then work out the number of boxes.",
+        `${left} + ${used} - ${loose} = ${left + used - loose} boxed markers. Divide by ${each}: ${(left + used - loose) / each} boxes.`);
+    }
+    case "expansion-tray-sharing": {
+      const total = master ? [71, 86][v] : [59, 74][v], aside = master ? [5, 7][v] : [8, 9][v];
+      const trays = master ? [8, 9][v] : [6, 8][v], move = [2, 3][v];
+      const remainder = (total - aside) % trays;
+      return master
+        ? make(`There are ${total} tiles. Keep ${aside} aside and share the rest equally among ${trays} trays, leaving any spare tiles out. Move ${move} tiles from each tray back out. How many tiles are now outside the trays?`, aside + remainder + move * trays,
+          "Count three outside groups: those set aside, the division remainder, and those moved back.",
+          `${total} - ${aside} = ${total - aside}; sharing leaves ${remainder} spare. Outside: ${aside} + ${remainder} + ${move} x ${trays} = ${aside + remainder + move * trays}.`)
+        : make(`There are ${total} tiles. Set aside ${aside}. Share the rest equally among ${trays} trays, putting as many as possible on each tray. How many of the tiles being shared are left over?`, remainder,
+          "Subtract those set aside. Find the largest whole number of equal shares and the remainder.",
+          `${total} - ${aside} = ${total - aside}. ${trays} x ${Math.floor((total - aside) / trays)} = ${total - aside - remainder}, leaving ${remainder} unshared.`);
+    }
+    case "expansion-pack-count": {
+      const need = master ? [68, 79][v] : [53, 67][v], have = master ? [11, 14][v] : [8, 10][v], size = [8, 9][v];
+      const packs = Math.ceil((need - have) / size), spare = have + packs * size - need;
+      return master
+        ? make(`A display needs ${need} badges and already has ${have}. Badges come only in full packs of ${size}. Buy the fewest packs that finish the display. How many badges will be spare?`, spare,
+          "Find the missing badges, round up to enough full packs, then count the unused badges.",
+          `Need ${need - have} more: ${packs} packs supply ${packs * size}. ${have} + ${packs * size} - ${need} = ${spare} spare.`)
+        : make(`A display needs ${need} badges and already has ${have}. Badges come only in full packs of ${size}. What is the fewest number of packs needed to finish the display?`, packs,
+          "After finding the gap, check whether the last partly needed pack must still be bought whole.",
+          `The gap is ${need} - ${have} = ${need - have}. ${packs - 1} packs are too few; ${packs} packs supply ${packs * size}, enough.`);
+    }
+    case "expansion-missing-group": {
+      const times = master ? [5, 4][v] : [6, 8][v], extra = [9, 11][v], removed = [12, 13][v];
+      if (master) return make(`The same number fills both blanks: (blank x 2) + ${extra} = (blank x ${times}) - ${removed}. What is the missing number?`, (extra + removed) / (times - 2),
+        "Add back the subtracted amount. Compare the extra equal groups on the two sides.",
+        `The extra ${times - 2} groups equal ${extra} + ${removed} = ${extra + removed}. Each is ${(extra + removed) / (times - 2)}.`);
+      const total = [51, 69][v], inside = [3, 4][v], answer = (total + extra) / times - inside;
+      return make(`A supply check reads: (blank + ${inside}) x ${times} - ${extra} = ${total}. Work inside the brackets first. What number replaces the blank?`, answer,
+        "Undo the subtraction, then the multiplication, then the addition inside the brackets.",
+        `${total} + ${extra} = ${total + extra}; divide by ${times} to get ${(total + extra) / times}. Subtract ${inside}: ${answer}.`);
+    }
+    case "expansion-digit-value": {
+      if (master) {
+        const hundreds = [4, 6][v], difference = [2, 4][v], sum = [12, 18][v];
+        const ones = (sum - hundreds - difference) / 2, tens = ones + difference;
+        return make(`A three-digit code has ${hundreds} in the hundreds place. Its tens digit is ${difference} more than its ones digit. Its three digits add to ${sum}. What is the code?`, hundreds * 100 + tens * 10 + ones,
+          "Remove the hundreds digit from the digit sum, then split the rest into two digits with the stated difference.",
+          `${sum} - ${hundreds} = ${sum - hundreds}. The digits ${tens} and ${ones} fit the sum and difference. The code is ${hundreds * 100 + tens * 10 + ones}.`);
+      }
+      const start = [472, 586][v], removed = [18, 24][v], end = [514, 632][v];
+      return make(`A counter starts at ${start}. Add some whole tens, then subtract ${removed}. It finishes at ${end}. How many tens were added?`, (end + removed - start) / 10,
+        "Undo the subtraction, compare with the starting number, then change the difference into tens.",
+        `${end} + ${removed} - ${start} = ${end + removed - start}. That is ${(end + removed - start) / 10} tens.`);
+    }
+    case "expansion-build-number": {
+      const hundreds = master ? [4, 5][v] : [3, 5][v], ones = [8, 6][v];
+      if (master) {
+        const tens = [16, 14][v], allTens = hundreds * 10 + tens;
+        return make(`A collection has ${hundreds} hundreds, ${tens} tens and ${ones} ones. Trade every hundred for tens. Remove half of all the tens but keep every one. What number remains?`, allTens / 2 * 10 + ones,
+          "Count all the tens after trading. Halve the tens only, then add back the untouched ones.",
+          `${hundreds} hundreds become ${hundreds * 10} tens: ${allTens} tens altogether. Half is ${allTens / 2} tens. ${allTens / 2 * 10} + ${ones} = ${allTens / 2 * 10 + ones}.`);
+      }
+      const target = [488, 676][v];
+      return make(`A collection has ${hundreds} hundreds, some tens and ${ones} ones. Its total value is ${target}. How many tens are in the collection? There may be more than ten tens.`, (target - hundreds * 100 - ones) / 10,
+        "Remove the known hundreds and ones from the total before counting the tens.",
+        `${target} - ${hundreds * 100} - ${ones} = ${target - hundreds * 100 - ones}. Divide by ten: ${(target - hundreds * 100 - ones) / 10} tens.`);
+    }
+    case "expansion-fraction-share": {
+      const numerator = [3, 2][v], denominator = [4, 3][v], used = [6, 5][v], left = [15, 19][v];
+      if (master) return make(`${numerator}/${denominator} of a bead collection is blue. After using ${used} blue beads, ${left} blue beads remain. How many beads of all colours were in the collection at first?`, (used + left) / numerator * denominator,
+        "Rebuild the blue group first. Find one fractional part, then rebuild the whole collection.",
+        `${used} + ${left} = ${used + left} blue beads. ${used + left} / ${numerator} x ${denominator} = ${(used + left) / numerator * denominator} beads altogether.`);
+      const first = [36, 30][v], second = [28, 24][v], answer = first * 2 / 3 - second * 3 / 4;
+      return make(`Bag A has ${first} beads; 2/3 are blue. Bag B has ${second} beads; 3/4 are blue. How many more blue beads are in A than B?`, answer,
+        "Find each blue amount separately. Comparing the fraction labels alone is not enough.",
+        `A: ${first} / 3 x 2 = ${first * 2 / 3}. B: ${second} / 4 x 3 = ${second * 3 / 4}. The difference is ${answer}.`);
+    }
+    case "expansion-fraction-rest": {
+      const first = master ? [3, 4][v] : [4, 3][v], second = master ? [2, 3][v] : [3, 4][v];
+      if (master) {
+        const left = [12, 20][v], middle = left * second / (second - 1), total = middle * first / (first - 1);
+        return make(`Use 1/${first} of all the flags. Then use 1/${second} of the flags that remain. There are now ${left} flags left. How many flags were there at first?`, total,
+          "Work backwards through the second fraction first, then through the first fraction.",
+          `Before the second use: ${left} / ${second - 1} x ${second} = ${middle}. Before the first: ${middle} / ${first - 1} x ${first} = ${total}.`);
+      }
+      const total = [48, 60][v], middle = total - total / first;
+      return make(`There are ${total} flags. Use 1/${first} of them. Then use 1/${second} of the remaining flags, not of the original total. How many flags are left?`, middle - middle / second,
+        "Find the first remainder. Use that smaller amount as the whole for the second fraction.",
+        `${total} - ${total / first} = ${middle} remain. Then ${middle} - ${middle / second} = ${middle - middle / second} remain.`);
+    }
+    case "expansion-length-sort": {
+      if (master) {
+        const cm = [125, 154][v], reserved = [150, 200][v], piece = [18, 20][v], trim = [2, 3][v];
+        const usable = cm - reserved / 10, size = piece + trim, answer = usable % size;
+        return make(`A ribbon is ${cm} cm long. Reserve ${reserved} mm. Each tag uses ${piece} cm plus ${trim} cm of trimming. Make as many tags as possible. How many usable centimetres are left, not counting the reserve? 10 mm = 1 cm.`, answer,
+          "Convert the reserve first. Each tag uses its ribbon plus its trimming; find the remainder after full tags.",
+          `${cm} - ${reserved / 10} = ${usable} usable cm. Each tag needs ${size} cm. ${Math.floor(usable / size)} tags use ${usable - answer} cm, leaving ${answer} cm.`);
+      }
+      const cm = [100, 120][v], count = [3, 4][v], piece = [18, 22][v], waste = [20, 30][v];
+      return make(`A ribbon is ${cm} cm long. Cut ${count} pieces of ${piece} cm each, and discard another ${waste} mm of frayed ribbon. How many centimetres remain? 10 mm = 1 cm.`, cm - count * piece - waste / 10,
+        "Count the length of all pieces. Convert the discarded millimetres before subtracting both amounts.",
+        `${cm} - ${count} x ${piece} - ${waste / 10} = ${cm - count * piece - waste / 10} cm.`);
+    }
+    case "expansion-number-pattern": {
+      if (master) {
+        const times = [2, 3][v], extra = [3, 2][v], end = [33, 71][v], answer = ((end - extra) / times - extra) / times;
+        return make(`A counter follows this rule: multiply by ${times}, then add ${extra}, and repeat. After 4 changes it shows ${end}. Count each multiplication or addition as one change. What number did it start on?`, answer,
+          "Undo the changes in reverse order: subtract, divide, subtract, divide.",
+          `${end} - ${extra} = ${end - extra}; divide by ${times}: ${(end - extra) / times}. Subtract ${extra}, then divide by ${times} to get ${answer}.`);
+      }
+      const start = [2, 4][v], extra = [3, 5][v], answer = ((start + extra) * 2 + extra) * 2 + extra;
+      return make(`A counter starts at ${start}. Its rule is add ${extra}, then double, and repeat. What number appears after 5 changes? Count each addition or doubling as one change.`, answer,
+        "Write each change separately and alternate the two rules; do not use just one repeated increase.",
+        `The readings are ${start + extra}, ${(start + extra) * 2}, ${(start + extra) * 2 + extra}, ${((start + extra) * 2 + extra) * 2}, ${answer}.`);
+    }
+    case "expansion-elapsed-time": {
+      if (master) {
+        const end = [10, 15][v], games = [3, 4][v], minutes = [20, 15][v], gap = 5, setup = [15, 20][v];
+        const needed = games * minutes + (games - 1) * gap + setup, answer = needed - (60 + end);
+        return make(`A club must finish by 4:${end} pm. It needs ${games} games of ${minutes} minutes, ${gap} minutes between games, and ${setup} minutes of setup before the first game. What is the minimum number of minutes before 3:00 pm that setup must start?`, answer,
+          "There is one fewer gap than games. Add all the time, then work backwards from the finish.",
+          `${games} x ${minutes} + ${games - 1} x ${gap} + ${setup} = ${needed} minutes. Only ${60 + end} minutes lie after 3:00 pm, so start ${answer} minutes before it.`);
+      }
+      const startHour = [1, 2][v], startMinute = [35, 45][v], endHour = [3, 4][v], endMinute = [5, 10][v], session = [35, 30][v];
+      const elapsed = (endHour - startHour) * 60 + endMinute - startMinute;
+      return make(`A workshop starts at ${startHour}:${startMinute} pm and ends at ${endHour}:${String(endMinute).padStart(2, "0")} pm. It has 2 working sessions of ${session} minutes each and one break. How many minutes is the break?`, elapsed - 2 * session,
+        "Measure the whole time across the hour, then remove the time spent in both working sessions.",
+        `${elapsed} minutes pass. Work takes 2 x ${session} = ${2 * session} minutes. The break is ${elapsed - 2 * session} minutes.`);
+    }
+    case "expansion-measure-difference": {
+      if (master) {
+        const times = [2, 3][v], moved = [120, 80][v], small = 2 * moved / (times - 1), answer = small * (times + 1);
+        return make(`Jug A starts with ${times} times as much water as jug B. Pour ${moved} mL from A into B, and the amounts become equal. How many millilitres of water are in both jugs altogether?`, answer,
+          "A loses the poured amount while B gains it, so the original gap was twice that amount.",
+          `The gap was ${2 * moved} mL, or ${times - 1} of B's starting amount. B held ${small} mL; A held ${small * times} mL. Total: ${answer} mL.`);
+      }
+      const a = [850, 900][v], b = [350, 420][v], used = [100, 120][v], answer = (a - used - b) / 2;
+      return make(`Jug A has ${a} mL; jug B has ${b} mL. Use ${used} mL from A. Then pour water from A into B until they hold equal amounts. How many millilitres must be poured?`, answer,
+        "Find the gap after the first use. Pouring closes that gap from both sides, so halve it.",
+        `A now holds ${a - used} mL. The gap is ${a - used - b} mL. Pour ${answer} mL: both then hold ${b + answer} mL.`);
+    }
+    default: throw new Error(`Uncalibrated advanced maths task ${base.taskId}`);
+  }
+}
+
 // Each row supplies a new observation and inference, not a harder label on a recall item.
 const reasoning = (description, question, correct, distractors, clue, explanation) => ({ description, question, correct, distractors, clue, explanation });
 const appliedScience = [
@@ -341,25 +498,79 @@ const stretchScience = [
   reasoning("Two recordings compare a drum heard nearby and farther away. The drum is also struck much harder in the farther recording.", "Why does this not fairly test distance alone?", "Both distance and the strength of the strike changed", ["Sound has no source", "Only distance can ever affect loudness", "A harder strike guarantees distance has no effect"], "Check whether the source sound stayed comparable when the listener's distance changed.", "The altered strike changes the source vibration as well as the distance. A distance comparison needs a comparable source sound and listening conditions.")
 ];
 
+const challengeScience = [
+  reasoning("A torch lights mirror A. A bright spot from A lands on mirror B. Turning B moves a spot on the wall; blocking the gap between A and B removes it.", "Which light path fits all these clues?", "Torch to A to B to wall", ["Torch straight to wall, missing both mirrors", "Torch to B to A to wall", "B to torch to A to wall"], "Follow the spots in order and use the gap that stopped the wall spot.", "A sends torch light to B. B redirects it to the wall; blocking A to B breaks that whole path."),
+  reasoning("A lamp lights a book. A card placed between book and eye hides the book, but the book stays lit. Another book beside it is still visible.", "Which part of the first book's light path was blocked?", "Reflected light travelling from book to eye", ["Light travelling directly from lamp to book","All light leaving the lamp in every direction","Light made by the book travelling to the eye"], "The first book remains lit, so distinguish light arriving at it from light leaving it.", "Light still reaches the book. The card blocks its reflected light on the way to the eye, not all the lamp's light."),
+  reasoning("Two lamps light a screen behind a card. At one patch, the card blocks lamp A but not B. Switching B off makes that patch darker.", "What explains the change at that patch?", "B supplied the light reaching that patch", ["Only A lit that patch","Switching B off enlarged the card's shadow","Both lamps were already blocked"], "Consider the light that could still reach the patch before lamp B was switched off.", "The card already blocked A at that patch. B supplied its remaining light, so switching B off made it darker."),
+  reasoning("Trial A: card near lamp, shadow 30 cm. B: card farther away, shadow 15 cm. Only card position changed. In C, both card and screen moved; shadow 10 cm.", "Which comparison isolates card position?", "A with B, because the other positions match", ["B with C, because the shadows differ most", "A with C, because C has the smallest shadow", "Any pair, because every trial uses a card"], "A useful pair changes only the position being investigated.", "A and B keep lamp and screen positions fixed. C changes the screen too, so it cannot isolate card position in those comparisons."),
+  reasoning("A screen must let light through but hide clear letters behind it. Sheet A passes light and blurs letters. B passes light and shows clear letters. C blocks light.", "Which sheet meets both requirements?", "A: it passes light while blurring letters", ["B: any light guarantees privacy","C: hiding letters is the only requirement","B and C: one requirement each"], "Check both conditions for each sheet, not just the amount of light or the privacy.", "A lets light through while blurring the view. B fails privacy; C fails the light requirement."),
+  reasoning("Two sheets are stacked together. Light passes through, but letters look blurred. One of the sheets is known to be clear plastic.", "What would best check whether the other sheet causes the blur?", "Test it alone, keeping letters and light unchanged", ["Add another clear sheet over both sheets","Keep both sheets but enlarge the letters behind them","Compare its colour with frosted plastic"], "Separate the possible cause while keeping the viewing test the same.", "Testing the unknown sheet alone checks its effect. Changing letter size or adding sheets changes the comparison instead."),
+  reasoning("A classroom magnet attracts iron, but not wood or copper. An unknown sample is also not attracted in the same test.", "Which conclusion is justified?", "Could be wood or copper", ["Wood: all metals attract","Only copper: it is a non-magnetic metal","Iron: no pull must mean repulsion"], "More than one known material gives the unknown sample's result.", "Both wood and copper were not attracted. The result cannot identify which of those materials the unknown sample might be."),
+  reasoning("A magnet attracts red iron and blue iron. It attracts neither red wood nor blue wood. The samples have the same shape and size.", "Which explanation best fits these four results?", "Material, not paint colour, explains these results", ["Paint colour alone determines attraction","Blue paint blocks every magnetic pull","Matching shapes guarantee matching pulls"], "Compare both colours within each material, then compare materials of the same colour.", "Iron is attracted in both colours and wood in neither. In these tests, changing paint colour does not change the result."),
+  reasoning("X and Y label ends of two bar magnets. X repels a labelled north pole. Y attracts X.", "Which pole and reasoning identify the other end of Y's bar?", "North: X is north, Y south, then opposite", ["North: X is south, Y north, then same","South: X is north, Y south, then same","South: X is south, Y north, then opposite"], "Identify X, infer the pole at Y, then switch to the opposite end of Y's bar.", "X is north because it repels north. Y is south because it attracts X. The other end of Y's magnet is north."),
+  reasoning("Two bar magnets attract with north facing south. Both magnets are then turned end for end, leaving their other ends facing each other.", "Which interaction and pole reasoning are correct after both turns?", "Attraction: both turns leave unlike poles facing", ["Repulsion: only one facing pole changes","Repulsion: unlike poles repel","Attraction: the two facing ends are now alike"], "Track both facing ends, not just the end of the first magnet.", "The north end is replaced by south and the south by north. The facing poles are still unlike, so they attract."),
+  reasoning("A hand pulls a trolley using a tight string without touching the trolley. In a separate test, a magnet pulls an iron clip across an empty gap.", "Which comparison describes the force paths?", "String: contact pull; magnet: pull across a gap", ["Both: non-contact because the hand misses the trolley","Both: contact because force always needs touching","String: non-contact; magnet: contact"], "Contact can pass through a connected string; compare that with the empty gap.", "The hand touches the string and the string touches the trolley. The magnet does not need that contact path to pull the clip."),
+  reasoning("The same car rolls on surface A: 40 cm from a high release and 20 cm from a low release. On B it rolls 30 cm from high and 10 cm from low.", "Which pair tests height without changing surface?", "A high with A low", ["A high with B low", "A low with B high", "A high with B high"], "To test height, keep the surface the same and change the release height.", "A high and A low change only height. A high with B high tests surface; the other pairs change both."),
+  reasoning("A uses car X on felt from a high mark. B uses X on plastic from the same mark. C uses car Y on plastic from a low mark. All are released without pushing.", "Which pair best tests the covering?", "A and B: only their coverings differ", ["B and C: matching plastic","A and C: different cars improve fairness","All three: releasing without pushing matches every condition"], "Match both car and release point before comparing different coverings.", "A and B change only the covering. C also changes car and release point, so it cannot give that same comparison."),
+  reasoning("A car's wheels get stickier as it is used. A class tests felt first every time, then plastic.", "Which plan reduces the risk of confusing use-order with covering?", "Test both orders with matched cars and releases", ["Repeat only felt-then-plastic more often","Keep the order but push harder on plastic","Use different car models on each covering"], "Do not let just one covering always get the fresher wheels.", "Testing both orders prevents one covering always coming later. Matching the other conditions keeps the surface comparison useful."),
+  reasoning("A roll starts at the 10 cm mark and ends at 40 cm. B starts at 0 cm and ends at 35 cm. The rest of the test is matched.", "Which roll travelled farther, and by how much?", "B by 5 cm", ["A by 5 cm", "A by 10 cm", "Both travelled the same distance"], "Subtract each starting reading before comparing the distances travelled.", "A travelled 40 - 10 = 30 cm. B travelled 35 - 0 = 35 cm, so B travelled 5 cm farther."),
+  reasoning("A measuring tool adds the same extra amount to every length. A known 20 cm strip reads 25 cm. A new strip reads 35 cm on repeated checks.", "What is the new strip's actual length?", "30 cm; subtract the tool's fixed error", ["35 cm; repeated agreement removes the measurement error","40 cm; add the tool's fixed error","25 cm; copy the reading from the known strip"], "Use the known strip to find the extra amount, then correct the new reading.", "The error is 25 - 20 = 5 cm. Subtract it from 35 cm to get 30 cm. Repeating the tool does not remove its fixed error."),
+  reasoning("The same 150 mL of water is poured from a narrow container into a wider one without spilling. Its surface is lower in the wider container.", "Which statement explains both the lower surface and the measurement?", "Same amount, different shape", ["Lower level means less water","Wider container means more water","The water's shape stayed fixed while its surface fell"], "Separate the height of the surface from the measured amount.", "Liquid water takes the container's shape. Spreading the same 150 mL more widely can lower its surface without removing water."),
+  reasoning("A sealed syringe contains air. Its plunger moves inward and the air takes less space. No air escapes; releasing the plunger lets it move back.", "Which explanation fits?", "Air compresses without escaping", ["Air slips past the seal and returns on release","The air amount halves whenever its space halves","The plunger's movement alone proves some air escaped"], "Use the no-escape clue and the return movement together.", "The air stays trapped while its space becomes smaller. Returning when released fits compression, not the air disappearing."),
+  reasoning("Ice plus jar A weighs 140 g; empty A weighs 100 g. The ice melts and all the water goes into jar B. Water plus B weighs 110 g; empty B weighs 70 g.", "What do the contents' masses show?", "Both have 40 g of water after subtracting jars", ["Water lost 30 g, matching the full readings' difference","Water gained 30 g: the jars differ","Water now weighs 110 g, including jar B"], "Remove each jar's mass before comparing its contents with the other contents.", "Before: 140 - 100 = 40 g of ice. After: 110 - 70 = 40 g of liquid water. Different jars explain the different full readings."),
+  reasoning("A record shows ice becoming liquid, then water vapour, then liquid drops on a cold window.", "Which two changes happen after the melting?", "Evaporation, then condensation", ["Condensation, then evaporation", "Freezing, then melting", "Evaporation, then freezing"], "Track the start and end states of each later step; the final drops are liquid.", "Liquid to vapour is evaporation. Vapour to liquid drops is condensation, not freezing."),
+  reasoning("Four dishes are compared: A is covered and warm, B open and warm, C covered and cool, D open and cool. Other conditions match.", "Which pair tests the cover while keeping temperature the same?", "A and B", ["A and D", "B and C", "A and C"], "Choose different cover conditions but matching temperatures.", "A and B are both warm and differ only in the cover. A and C keep the cover the same but change temperature."),
+  reasoning("A sealed cold cup with water gets drops outside. An empty, dry, sealed cold cup also gets outside drops. A matching warm cup stays dry in the same humid room.", "What best explains the outside drops?", "Air supplies vapour that condenses on cold cups", ["Water leaks from inside","Coldness turns the air itself into water","Sealed cups collect drops at every temperature"], "The empty cold cup rules out needing water inside, and the warm cup gives another check.", "Water vapour in the air condenses on both cold cups. The air itself does not turn into water. The empty cup rules out leaking water from inside."),
+  reasoning("The same drum is struck equally in two tests. A divider is added between drum and listener. The drum skin still vibrates, but the listener hears a quieter sound. Drum and listener stay put; only the divider changes.", "What change could explain the quieter sound?", "The divider reduces sound reaching the listener", ["The drum has stopped vibrating","The listener is now farther from the drum","The drum was struck more gently"], "The source action and positions match; look at the changed route to the listener.", "A divider can reduce sound reaching the listener while the source still vibrates. Quieter at the ear does not prove the source stopped."),
+  reasoning("A: listener near a drum, soft strike. B: listener far, hard strike. C: listener far, soft strike. Drum and room are unchanged.", "Which pair best tests distance alone?", "A and C", ["A and B", "B and C", "Any pair because the drum is the same"], "Match the strike strength before comparing near and far listening positions.", "A and C both use a soft strike and differ in distance. A and B change two things; B and C test strike strength."),
+];
+
+const masterScience = [
+  reasoning("A mirror is bright with only the torch on. It is also bright with only window light. When both light paths are blocked, it is dark.", "Which explanation fits all three tests?", "The mirror reflects light from either source", ["The torch is always needed","Both sources must reach the mirror together","The mirror shines using stored light"], "Check each claim against the torch-only, window-only and neither-source results.", "Each source works alone, so neither both sources together nor the torch alone is required. Darkness with neither fits reflection, not stored light."),
+  reasoning("A lamp lights a book. Blocking lamp-to-book hides it. In a separate test, blocking book-to-eye also hides it, although the book stays lit. Other objects remain visible.", "What do the two tests support together?", "Both light routes must stay clear", ["Only the lamp-to-book route matters","A lit book can be seen through any blocked viewing route","Blocking either route switches off all the lamp's light"], "Each separate test blocks a different part of the route while other light still exists.", "The first test checks light arriving at the book. The second checks reflected light reaching the eye. This view needs both parts."),
+  reasoning("Two lamps shine past a card onto a screen. Some patches lose light from just one lamp; an overlapping patch loses light from both lamps.", "Why is the overlap darkest?", "Neither lamp has an unblocked path to that patch", ["The overlap receives extra light from both lamps","Blocking one lamp blocks both","A card darkens every patch equally"], "Count the unblocked light sources at each kind of patch.", "A patch blocked from just one lamp can still receive light from the other. At the overlap, both lamp paths are blocked."),
+  reasoning("A: near card, bright lamp, shadow 20 cm. B: far card, dim lamp, shadow 10 cm. C: near card, dim lamp, shadow 20 cm. The screen stays fixed.", "Which conclusion is supported by a matched comparison?", "B versus C shows a position effect", ["A and B isolate brightness alone","A and C show a smaller shadow after dimming","B and C isolate brightness with matching card positions"], "Use C to separate the two things that changed between A and B.", "B and C share the dim lamp and fixed screen but change card position. A and C also show no size change for their brightness change."),
+  reasoning("An unknown sheet is inside a frosted cover. The pair passes light but blurs letters. Someone labels the unknown sheet frosted without taking it out.", "Which check is needed before that label is justified?", "Test the uncovered sheet", ["Repeat with both layers until the blur looks consistent","Brighten the lamp without removing either layer","Match the cover's and sheet's colours"], "A known source of blur is still present, so its effect has not been separated from the sheet's.", "The cover could cause the blur even if the sheet is clear. Testing the sheet alone separates the two possible causes."),
+  reasoning("A privacy cover must pass light, blur letters and stop water passing. A does all but stop water. B does all three. C stops water and passes light, but shows clear letters.", "Which choice meets the whole design requirement?", "B only", ["A and B: light passes","B and C: they stop water","C: it gives the clearest view of the letters"], "Keep all three requirements when checking each result.", "A fails the water requirement and C fails privacy. Only B meets all three, not just a convenient pair of them."),
+  reasoning("Two samples are either unmagnetised iron or bar magnets. A repels a labelled north pole. B is attracted by both poles of the labelled magnet.", "Which sample is proved to be a bar magnet?", "A only: ordinary iron attracts rather than repels", ["Both: either attraction or repulsion proves a magnet","B only: magnets always attract","Neither: iron and magnets both repel north"], "Compare the stronger evidence of repulsion with the attraction ordinary iron can also show.", "A's repulsion shows a magnetic pole acting against the labelled pole. B's attraction could come from ordinary iron, so that observation alone is not proof."),
+  reasoning("Red iron is attracted; blue copper is not. One claim says red paint causes the pull. Another says the iron causes it.", "Which new sample best separates those claims?", "Red copper, same size and shape", ["Red iron with more paint","The same red iron and blue copper, tested again","A larger red iron sample"], "Choose a sample for which the two claims predict different outcomes.", "The paint claim predicts red copper will be pulled; the iron claim does not. Another red iron sample fits both claims and cannot separate them."),
+  reasoning("X, Y and Z are ends of three bar magnets. X repels north. Y attracts X. Z repels Y.", "Which pole and reasoning identify the opposite end of Z's bar?", "North: X north, Y south, Z south, then opposite", ["North: X north, Y south, Z north, then same","South: X north, Y south, Z south, then same","South: X south, Y north, Z north, then opposite"], "Track X to Y to Z, then remember the opposite end has the opposite pole.", "X is north; Y must be south; Z is south because it repels Y. The other end of Z's bar is north."),
+  reasoning("A labelled north end repels the unknown facing end of another bar magnet. First the labelled magnet turns end for end, then the unknown magnet also turns end for end.", "Which interaction and pole reasoning are correct after both turns?", "Repulsion: south faces south", ["Attraction: south faces north","Attraction: north faces south","Repulsion: north faces north"], "Infer the unknown starting pole, then track each turn separately.", "Repulsion shows both starting ends were north. One turn briefly gives unlike poles; after both turns south faces south, so they repel again."),
+  reasoning("A magnet pulls a clip with a loose string attached. Removing the string does not stop the pull. Adding a fixed paper barrier with an air gap still lets the clip move towards the magnet.", "Which explanation fits all three tests?", "Magnetic pull crosses the gap without the string", ["The string carries every pull","The paper pushes the clip","The magnet must touch the clip"], "Use each changed setup to check which proposed force path can still be present.", "The string cannot explain the test without it. The remaining gap rules out a paper push or direct magnet contact; magnetic force can act across the gap."),
+  reasoning("With matched releases, car A rolls 80 cm on smooth ground and 30 cm on rough ground. B rolls 50 cm on smooth and 40 cm on rough.", "Which comparison fits all four distances?", "A wins on smooth; B wins on rough", ["A wins on smooth; A wins on rough","B wins on smooth; B wins on rough","B wins on smooth; A wins on rough"], "Compare the cars within each surface before making one overall winner claim.", "On smooth ground 80 exceeds 50, so A goes farther. On rough ground 40 exceeds 30, so B goes farther. One winner does not fit both surfaces."),
+  reasoning("Car A rolls 20 cm on felt and 35 cm on plastic. Car B rolls 30 cm on felt; its plastic result is missing. Release conditions match.", "What next comparison checks whether plastic also helps car B?", "B on plastic versus B on felt", ["B on plastic versus A on felt","A on plastic versus A on felt","A on plastic versus B on felt"], "The missing result must complete a same-car, same-release comparison.", "B on plastic supplies the missing matched result for B. A's result alone cannot settle whether B responds the same way."),
+  reasoning("Felt first: 40 cm; plastic second: 30 cm. In a matched repeat with order reversed, plastic first: 40 cm; felt second: 30 cm.", "Which conclusion best fits?", "First rolls go farther; neither covering leads at matching positions", ["Felt gives longer rolls, whatever the trial order","Plastic gives longer rolls, whatever the trial order","Equal totals prove covering cannot affect any future roll"], "Group the results by order as well as by covering, without making an always claim.", "Each covering gives 40 cm first and 30 cm second. The coverings tie when compared in the same turn. These results show an order pattern, not a lead for either covering."),
+  reasoning("Two rolls both start at the 5 cm mark. A ends at 37 cm and B at 32 cm. Someone records the end readings as distances, forgetting to subtract the start.", "What remains true after correcting the mistake?", "A travelled 5 cm farther", ["B travelled 5 cm farther","A travelled 10 cm farther","Both travelled the same distance"], "Subtract the same starting reading from each end, then compare the corrected results.", "A travelled 32 cm and B 27 cm. Their recorded distances were each 5 cm too large, but the difference is still 5 cm."),
+  reasoning("Ten trials use car A on felt from a high mark and car B on plastic from a low mark. A goes farther every time.", "What is still needed before blaming the covering?", "Match car and starting height", ["Repeat the same unmatched pair","Compare only each car's longest roll","Average ten trials to remove car and height differences"], "Repeating a comparison does not remove differences built into every trial.", "Car, height and covering all differ. Repeats can show a consistent pattern while leaving its cause unclear; a matched test must separate the covering."),
+  reasoning("A sealed syringe of air shrinks in volume under its plunger and expands again on release. A sealed syringe of water changes volume very little in the same kind of test.", "Which comparison is supported?", "Trapped air compresses more easily than trapped water", ["Less air space means less air remains inside","Both contents must compress equally","Returning air refills the syringe"], "A smaller volume need not mean less matter. Compare how both sealed contents respond.", "The seals keep the contents inside. Air is more easily compressed in this test; water's small volume change does not make it a solid."),
+  reasoning("A sealed flexible bag of air shrinks when cooled and grows again when warmed. Its mass stays the same and the seal does not leak.", "Which explanation fits the mass and volume evidence together?", "The same trapped air changes volume, not mass", ["Cooling made some air escape","Warming added extra air","Unchanged mass proves unchanged volume"], "Mass tracks how much is present; the observations separately show a change in space occupied.", "The unchanged mass and intact seal support the same amount of trapped air. Its volume can change without requiring air to enter or leave."),
+  reasoning("Ice in a sealed jar melts, keeps the same total mass, and later freezes back into ice. A pupil says the unchanged mass alone proves melting is reversible.", "Which evidence actually demonstrates the reversal?", "Refreezing shows the water returning to its earlier state", ["Unchanged mass proves reversal without needing to refreeze it","Keeping the jar sealed guarantees every change is reversible","Clear liquid proves the water has already changed back"], "Reversible means the state can change back; find the observation that shows it doing so.", "Refreezing shows the liquid returning to its earlier solid state. Unchanged mass alone does not show that a change can be reversed."),
+  reasoning("Inside a sealed jar, liquid at the bottom decreases while drops form on a cold lid. No liquid splashes up, and the jar's total mass stays the same. The water stays below boiling temperature.", "Which route explains the water reaching the lid?", "Liquid evaporates; vapour condenses at the cold lid", ["Liquid evaporates; vapour freezes into liquid at the lid","Liquid condenses; vapour evaporates at the cold lid","Liquid boils; steam must bubble up to the lid"], "Explain both the water's movement without splashing and the absence of extra total mass.", "Evaporation can put water vapour into the jar's air. Condensation at the cold lid returns it to liquid, moving existing water rather than creating more."),
+  reasoning("Dish A falls from 100 mL to 80 mL over 2 hours. B falls from 60 mL to 45 mL over 1 hour. Neither spills.", "Which has the greater water loss per hour over its recorded time?", "B: 15 mL per hour; A: 10", ["A: 20 mL per hour; B: 15","A: 80 mL per hour; B: 45","Both: the same loss per hour because each loses water"], "Find each lost amount, then account for the different recorded times.", "A loses 20 mL in 2 hours, or 10 mL per hour. B loses 15 mL in 1 hour, so its recorded loss per hour is greater."),
+  reasoning("Drop tests use A: cold glass in humid air; B: cold metal in humid air; C: warm metal in dry air. Cup shape and test time match.", "Which extra setup allows separate checks of temperature and air moisture?", "Warm metal in humid air", ["Warm glass in dry air","Cold glass in dry air","Cold glass in humid air"], "Find a setup that differs from B in only temperature and from C in only air moisture.", "Warm metal in humid air can pair with B to test temperature and C to test moisture. The other proposed setups do not provide both matched comparisons."),
+  reasoning("Matched drum strikes give meter A readings of 8 near and 4 far. Meter B gives 6 near and 2 far. The meters use different scales.", "What pattern do both meters support?", "Each meter reads higher near than far", ["Different scales prevent comparing near and far within either meter","Meter A reads higher far than near","Unequal near readings rule out distance effects"], "Compare near with far within each meter before comparing numbers between meters.", "A reads 8 above 4 and B reads 6 above 2. Both show the same near-far direction even though their scales give different numbers."),
+  reasoning("A soft drum strike without a screen gives a sound reading of 4. A hard strike with a screen also gives 4. Someone says the screen has no effect.", "Which extra trial best checks that claim?", "Soft strike with screen, at the same meter position", ["Hard strike with screen, repeated at the same meter position","Hard strike with screen, moving the meter much closer","Soft strike without screen, using a different drum"], "Equal readings can hide the effects of two simultaneous changes. Match the strike to test the screen.", "A soft strike with the screen can be compared with the first soft strike without it. The original pair changes both strike strength and screen, so equal readings do not isolate the screen."),
+];
+
 function tierScience(base, level, index) {
-  const row = (level === 2 ? appliedScience : stretchScience)[index];
+  const row = [appliedScience, stretchScience, challengeScience, masterScience][level - 2][index];
   const position = (index + level - 1) % 4;
   const labels = [...row.distractors];
   labels.splice(position, 0, row.correct);
   return mcq(base.title, `${row.description} ${row.question}`, labels, String.fromCharCode(97 + position), row.clue, row.explanation, row.description);
 }
 
-const higherBands = [2, 3].flatMap((level) => foundation.map((base, index) => ({
+const higherBands = [2, 3, 4, 5].flatMap((level) => foundation.map((base, index) => ({
   ...base, ...(base.forge === "maths" ? tierMath(base, level) : tierScience(base, level, index - 24)),
   id: `${base.taskId}-l${level}-v${base.variant}`, learningLevel: level,
   skill: base.taskId === "expansion-length-sort" ? "measurement-conversion" : base.skill,
-  difficulty: level === 2 ? "Applied" : "Stretch"
+  difficulty: ["Applied", "Stretch", "Challenge", "Master"][level - 2]
 })));
 export const EXPANDED_QUESTION_BANK = freeze([...foundation, ...higherBands]);
 
 // Keep this server-local list aligned with the public roster, without importing answers into that roster.
-const heroIds = ["relay", "helio", "volt", "bastion", "zephyr", "glacier"];
-const bands = [1, 2, 3].map((level) => Array.from({ length: 6 }, (_, slot) =>
+const heroIds = ["relay", "helio", "volt", "bastion", "zephyr", "glacier", "ember", "tidal", "atlas", "nova", "echo"];
+const bands = [1, 2, 3, 4, 5].map((level) => Array.from({ length: 6 }, (_, slot) =>
   EXPANDED_QUESTION_BANK.filter((q) => q.learningLevel === level && q.slot === slot)));
 
 export function selectExpandedQuestions(matchNumber, heroId = "relay", learningLevel = 1) {
@@ -371,4 +582,25 @@ export function selectExpandedQuestions(matchNumber, heroId = "relay", learningL
   const cycle = ((matchNumber - 1) % 8 + heroOffset) % 8;
   const variantIndex = Math.floor(cycle / 4);
   return bands[learningLevel - 1].map((questions, slot) => structuredClone(questions[((cycle + slot) % 4) * 2 + variantIndex]));
+}
+
+export function selectCampaignQuestions(matchNumber, heroId = "relay", learningLevel = 2) {
+  if (!Number.isInteger(learningLevel) || learningLevel < 2 || learningLevel > 3) throw new RangeError("Invalid campaign starting level");
+  // Reuse v2's validated, deterministic rotation without changing its saved-game contract.
+  selectExpandedQuestions(matchNumber, heroId, learningLevel);
+  const offset = ((matchNumber - 1) % 8 + heroIds.indexOf(heroId)) % 8;
+  const usedTasks = new Set();
+  return Array.from({ length: 5 }, (_, forgeIndex) => {
+    const level = Math.min(5, learningLevel + forgeIndex);
+    const firstSlot = forgeIndex % 2 === 0 ? 0 : 3;
+    return [0, 1, 2].map((position) => {
+      const candidates = bands[level - 1][firstSlot + position];
+      const start = (offset + position + forgeIndex) % candidates.length;
+      const question = Array.from({ length: candidates.length }, (_, i) => candidates[(start + i) % candidates.length])
+        .find((candidate) => !usedTasks.has(candidate.taskId));
+      if (!question) throw new RangeError("Campaign question bank exhausted");
+      usedTasks.add(question.taskId);
+      return { ...structuredClone(question), forgeStage: forgeIndex + 1 };
+    });
+  }).flat();
 }

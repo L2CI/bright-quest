@@ -13,7 +13,7 @@ const harmony = {
     [40, 4], [44, 3], [45, 4], [40, 4], [45, 4], [47, 4], [40, 4], [40, 4]],
 } satisfies Record<MusicMode, number[][]>;
 
-// Colour changes orchestration, not tempo/key or six separate soundtracks.
+// Colour changes orchestration, not tempo/key or separate hero soundtracks.
 const heroColours = {
   relay: { warmth: 1, shimmer: .16, pluck: 1, spread: .5 },
   helio: { warmth: .92, shimmer: .42, pluck: .9, spread: .55 },
@@ -21,8 +21,21 @@ const heroColours = {
   bastion: { warmth: .72, shimmer: .08, pluck: .82, spread: .38 },
   zephyr: { warmth: 1.12, shimmer: .22, pluck: 1.08, spread: .68 },
   glacier: { warmth: .85, shimmer: .36, pluck: .84, spread: .72 },
+  ember: { warmth: 1.08, shimmer: .18, pluck: .96, spread: .46 },
+  tidal: { warmth: .9, shimmer: .3, pluck: .86, spread: .7 },
+  atlas: { warmth: .76, shimmer: .1, pluck: .92, spread: .4 },
+  nova: { warmth: .95, shimmer: .38, pluck: 1.12, spread: .6 },
+  echo: { warmth: 1, shimmer: .26, pluck: 1.04, spread: .74 },
+  prism: { warmth: .98, shimmer: .4, pluck: 1.06, spread: .62 },
 };
 type HeroId = keyof typeof heroColours;
+
+// Plain effect IDs and equipment IDs share synthesis, variation and retrigger limits.
+const effectAliases: Readonly<Record<string, string>> = {
+  flame: 'weapon-flame', fire: 'weapon-flame', 'weapon-fire': 'weapon-flame',
+  water: 'weapon-water', seismic: 'weapon-seismic', plasma: 'weapon-plasma',
+  sonic: 'weapon-sonic', rocket: 'weapon-rocket', arc: 'weapon-arc', solar: 'weapon-solar',
+};
 
 /** Original Web Audio synthesis, not sampled effects or a recorded commercial score. */
 export class GameAudio {
@@ -129,6 +142,7 @@ export class GameAudio {
 
   play(event: string) {
     if (!this.ready() || !this.effectsEnabled) return;
+    if (Object.prototype.hasOwnProperty.call(effectAliases, event)) event = effectAliases[event];
     const t = this.context!.currentTime;
     if (t - (this.lastEvent.get(event) ?? -Infinity) < (event === 'step' ? .09 : .045)) return;
     this.lastEvent.set(event, t);
@@ -139,6 +153,7 @@ export class GameAudio {
     const side = Math.sin(take * 2.39996) * .42;
     if (['launch', 'strike', 'impact', 'break', 'special', 'round', 'victory',
       'weapon-laser', 'weapon-arc', 'weapon-gravity', 'weapon-burst', 'weapon-frost',
+      'weapon-flame', 'weapon-water', 'weapon-seismic', 'weapon-plasma', 'weapon-sonic', 'weapon-rocket', 'weapon-solar',
       'upgrade-assembly', 'upgrade-stage2'].includes(event)) this.duck(t);
     switch (event) {
       case 'select':
@@ -170,6 +185,39 @@ export class GameAudio {
         this.tone(t + .02, .3, 720, 260, .035, 'sine', .015, -.35, .2, .45);
         this.metal(t + .035, .15, 410, .025, -.35); break;
       // All expansion cues are short muzzle/flight textures. No delayed contact, debris or sub hit.
+      case 'weapon-flame':
+        // Warm, rounded breath with a rising ember, not crackling white noise.
+        this.noise(t, .23, .075, 620, 1400, 'bandpass', .025, -.3, .08, .25);
+        this.tone(t, .24, 260 * variation, 390, .045, 'triangle', .025, -.2, .1, .2);
+        this.tone(t + .025, .19, 520 * variation, 585, .016, 'sine', .02, .25, .1); break;
+      case 'weapon-water':
+        this.noise(t, .22, .05, 1700, 650, 'bandpass', .025, -.35, .1, .35);
+        [0, .035, .07].forEach((offset, i) => this.tone(t + offset, .17 - i * .025,
+          (560 + i * 140) * variation, 340 + i * 100, .035 / (1 + i * .4), 'sine', .014, (i - 1) * .3, .12)); break;
+      case 'weapon-seismic':
+        // A compact resonant motor pulse; contact and its bass transient stay with impact.
+        this.tone(t, .25, 220 * variation, 275, .065, 'sine', .025, -.18, .08, .18);
+        this.tone(t + .035, .2, 330 * variation, 412.5, .028, 'triangle', .024, .2, .1);
+        this.noise(t, .18, .05, 450, 850, 'bandpass', .022, -.2, .06, .2); break;
+      case 'weapon-plasma':
+        this.tone(t, .21, 880 * variation, 440, .05, 'sine', .012, -.3, .1, .25);
+        this.tone(t + .015, .22, 1320 * variation, 660, .024, 'triangle', .018, .3, .1, -.2);
+        this.noise(t, .12, .035, 2400, 1200, 'bandpass', .015, side, .06); break;
+      case 'weapon-sonic':
+        [0, .04, .08].forEach((offset, i) => {
+          const f = 440 * variation;
+          this.tone(t + offset, .18, f, f * 1.125, .046 / (1 + i * .65), 'sine', .018, (i - 1) * .35, .09);
+          this.tone(t + offset, .14, f * 1.5, f * 1.6875, .012 / (1 + i), 'sine', .02, (1 - i) * .25, .1);
+        }); break;
+      case 'weapon-rocket':
+        // Soft ignition and an ascending flight whistle; never a timed explosion.
+        this.noise(t, .25, .085, 700, 1900, 'bandpass', .018, -.35, .06, .4);
+        this.tone(t, .24, 240 * variation, 480, .052, 'triangle', .018, -.3, .08, .35);
+        this.tone(t + .035, .21, 600 * variation, 900, .018, 'sine', .025, -.2, .1, .4); break;
+      case 'weapon-solar':
+        [1, 1.5, 2].forEach((ratio, i) => this.tone(t + i * .02, .23 - i * .025,
+          392 * ratio * variation, 440 * ratio, .045 / (1 + i * .8), 'sine', .025, (i - 1) * .3, .12));
+        this.noise(t, .17, .028, 1200, 2200, 'bandpass', .03, -.2, .07, .2); break;
       case 'weapon-laser':
         this.tone(t, .19, 1550 * variation, 580, .065, 'sine', .008, -.35, .08, .45);
         this.tone(t + .012, .16, 2325 * variation, 870, .02, 'triangle', .009, .3, .1, -.1);

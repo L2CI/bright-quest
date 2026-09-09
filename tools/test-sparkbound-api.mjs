@@ -178,7 +178,7 @@ try {
   assert.deepEqual(await privateState(), corrupt);
   await db.prepare("UPDATE sparkbound_states SET state_json=? WHERE child_id=?").bind(preserved, f.childId).run();
 
-  // Explicit hero requests opt into six questions without changing the legacy workflow above.
+  // Explicit hero requests opt into v3 without changing the legacy workflow above.
   for (const heroId of [null, "Relay", "helio ", "constructor", {}, ["relay"]]) {
     const invalid = await request("/api/sparkbound", { body: operation(reset.version, { type: "start", heroId }) });
     assert.equal(invalid.status, 400);
@@ -191,9 +191,11 @@ try {
     const started = await request("/api/sparkbound", { body: startOp });
     assert.equal(started.status, 200);
     assert.equal(started.body.state.match.heroId, hero.id);
-    assert.equal(started.body.state.match.rulesVersion, 2);
-    assert.equal(started.body.state.match.learningLevel, 1);
-    assert.equal(started.body.state.match.questions.length, 6);
+    assert.equal(started.body.state.match.rulesVersion, 3);
+    assert.equal(started.body.state.match.learningLevel, 2);
+    assert.equal(started.body.state.match.questions.length, 15);
+    assert.equal(started.body.state.match.upgradeStage, 0);
+    assert.equal(started.body.state.configuration.battle.rounds.length, 6);
     assertRedacted(started.body.state);
     for (const q of started.body.state.match.questions) assert.deepEqual(Object.keys(q), ["id", "forge"]);
     const saved = await privateState();
@@ -203,13 +205,13 @@ try {
       action: { type: "start", heroId: hero.id === "relay" ? "helio" : "relay" } } });
     assert.equal(changedHero.body.code, "OPERATION_ID_REUSED");
     const attack = await command({ type: "move", move: "strike" });
-    if (hero.id === "helio") assert.deepEqual(attack.match.lastEvent.ability, {
+    if (["helio", "nova"].includes(hero.id)) assert.deepEqual(attack.match.lastEvent.ability, {
       id: hero.trait.id, name: hero.trait.name, description: hero.trait.description
     });
     else assert.equal(Object.hasOwn(attack.match.lastEvent, "ability"), false);
     const archived = await command({ type: "reset" });
     assert.equal(archived.history.at(-1).heroId, hero.id);
-    assert.equal(archived.history.at(-1).learningLevel, 1);
+    assert.equal(archived.history.at(-1).learningLevel, 2);
     assert.deepEqual((await review()).body.state.history.at(-1).questions, saved.match.questions);
     const replayAfterReset = await request("/api/sparkbound", { body: startOp });
     assert.equal(replayAfterReset.body.state.match, null);
@@ -233,5 +235,5 @@ try {
   assert.ok(unlock.body.parentCapability);
   assert.ok(unlock.headers.get("set-cookie").includes("bq_session="));
   assert.equal((await review()).status, 401, "Rotated session cannot retain old Parent access");
-  console.log(`Sparkbound API QA passed: two-family auth/isolation, transactional replay/races/rollback, ${transitions} match transitions, 6 explicit hero starts/replays/resets, invalid hero rejection, exact evidence, redaction, retained history, unchanged child profiles, local-only harness.`);
+  console.log(`Sparkbound API QA passed: two-family auth/isolation, transactional replay/races/rollback, ${transitions} match transitions, ${HEROES.length} explicit v3 hero starts/replays/resets, invalid hero rejection, exact evidence, redaction, retained history, unchanged child profiles, local-only harness.`);
 } finally { await harness.close(); }

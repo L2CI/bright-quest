@@ -4,6 +4,7 @@ import { duelCue, duelMoves, exchangeOutcome, roundReward } from '../sparkbound/
 import { createState, applyAction, publicState, BATTLE_CONFIG } from '../functions/_lib/sparkbound.js';
 import { INTENTS, MOVES, QUESTION_BANK, selectQuestions } from '../functions/_lib/sparkbound-content.js';
 import { onRequest as denyToolAsset } from '../functions/tools/[[asset]].js';
+import { HEROES, getWeapon, totalRounds, PRISM_KITS } from '../sparkbound/roster.js';
 
 const intents = ['open', 'strike', 'guard', 'heavy'];
 test('Answer-checking development assets are not publicly served by Pages', async () => {
@@ -272,16 +273,29 @@ test('Suggested-move policy wins all three rounds for 120 seeds without support 
 });
 
 test('Every hero can win using visible tactical suggestions across 30 seeds', () => {
-  for (const heroId of ['relay', 'helio', 'volt', 'bastion', 'zephyr', 'glacier']) for (let seed = 0; seed < 30; seed++) {
+  for (const { id: heroId } of HEROES) for (let seed = 0; seed < 30; seed++) {
     let s = applyAction(createState({ profileId: `hero-cues-${heroId}-${seed}` }), { type: 'start', heroId });
     s.match.seed = seed;
-    for (let step = 0; step < 150 && s.match.phase !== 'victory'; step++) {
+    for (let step = 0; step < 350 && s.match.phase !== 'victory'; step++) {
       const m = s.match;
       assert.notEqual(m.phase, 'defeat', `${heroId}/${seed} defeated at round ${m.round}`);
       s = applyAction(s, m.phase === 'battle' ? { type: 'move', move: duelCue(m).suggested } :
         m.phase === 'training' ? { type: 'answer', questionId: m.questions[m.questionIndex].id, answer: m.questions[m.questionIndex].answer } : { type: 'continue' });
     }
     assert.equal(s.match.phase, 'victory', `${heroId}/${seed} stalled`);
+    assert.equal(s.match.round, totalRounds(s.match));
+  }
+});
+
+test('Campaign cues name each Prism weapon and recommend an affordable counter at every stage', () => {
+  for (const hero of HEROES) for (let stage = 0; stage < 6; stage++) for (const intent of intents) for (let energy = 0; energy <= 4; energy++) {
+    const m = match({ rulesVersion: 3, upgradeStage: stage, round: stage + 1, heroId: hero.id, staff: stage > 0, pad: stage > 1, intent, energy });
+    const cue = duelCue(m), moves = duelMoves(m);
+    assert.ok(moves.some(move => move.id === cue.suggested && !move.disabled));
+    if (intent === 'heavy') assert.equal(cue.title, PRISM_KITS[stage].cue);
+    if (stage > 0) assert.equal(moves.find(move => move.id === 'break').name, getWeapon(m).shortName);
+    if (stage > 1) assert.equal(moves.find(move => move.id === 'special').name, getWeapon(m, true).shortName);
+    if (stage < 5) assert.match(roundReward(m), new RegExp(hero.weapons[stage + 1].name));
   }
 });
 
@@ -293,4 +307,9 @@ test('Hero weapon labels, guards and ability explanations match their contracts'
   const explanation = 'Attacks deal 2 extra damage when Prism is open.';
   const event = { kind: 'exchange', move: 'strike', intent: 'open', damage: 6, rivalDamage: 0, ability: { name: 'Perfect Focus', description: explanation } };
   assert.equal(exchangeOutcome(event).abilityDescription, explanation);
+});
+
+test('Tidal recap distinguishes incoming damage from shield recovery', () => {
+  const event = { kind: 'exchange', move: 'guard', intent: 'heavy', damage: 0, rivalDamage: 2, healing: 1 };
+  assert.equal(exchangeOutcome(event).detail, 'Prism lost 0 shield. You lost 2. Recovered 1 shield.');
 });

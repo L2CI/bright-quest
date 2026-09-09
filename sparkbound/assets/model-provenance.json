@@ -4,6 +4,7 @@
   "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
   "source": "https://quaternius.com/packs/animatedmech.html",
   "verifiedOn": "2026-09-06",
+  "runtimeUse": "Authored clips retain the battle event clock. From the Guardian campaign release, visible characters use generated 2.5D artwork documented in heroes/generated/README.md; the source GLB bodies and procedural armour are hidden.",
   "models": [
     {
       "name": "Mike",

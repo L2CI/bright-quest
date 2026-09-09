@@ -1,7 +1,7 @@
 import * as THREE from '../../cave-river-quest/vendor/three.module.js';
 import { HeroRig, HERO_MOTIONS } from './hero';
 import { ArenaStage } from './stage';
-import { getHero, forgeSize } from '../roster.js';
+import { getHero, forgeSize, equipmentStage, prismStage, PRISM_KITS } from '../roster.js';
 
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 const smooth = (x: number) => { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); };
@@ -27,6 +27,15 @@ export class SparkWorld {
   private bolt = new THREE.Group();
   private rosterPreview: {id:string;stage:number} | null = null;
   private effects = new Map<string, THREE.Group>();
+  private impactShell = new THREE.Group();
+  private impactAge = 10;
+  private effectTexture: THREE.CanvasTexture;
+  private contextLost = (e: Event) => {e.preventDefault();this.paused=true;this.errors.push('WebGL context lost');this.onBeat('Graphics paused. Reload to resume your saved match.');};
+  private contextRestored = () => location.reload();
+  private generatedJet: THREE.Mesh | null=null;
+  private generatedImpact: THREE.Mesh | null=null;
+  private generatedEffectTexture: THREE.Texture | null=null;
+  private assetsReady=false;
   constructor(public canvas: HTMLCanvasElement) {
     this.scene.background = new THREE.Color(0x9bb2b6); this.scene.fog = new THREE.FogExp2(0xabc0c1, .0035);
     this.camera = new THREE.PerspectiveCamera(38, 1, .1, 350); this.camera.position.copy(this.cameraGoal);
@@ -41,6 +50,7 @@ export class SparkWorld {
     this.hitLight = new THREE.PointLight(0xffd99a, 0, 10); this.hitLight.position.set(0, 2.5, 0); this.scene.add(this.hitLight);
     this.stage = new ArenaStage(this.scene); this.relay = new HeroRig('relay'); this.prism = new HeroRig('prism');
     this.scene.add(this.relay.root, this.prism.root); this.relay.root.position.set(this.heroHome, 0, 0); this.prism.root.position.set(this.rivalHome, 0, 0);
+    this.relay.setCamera(this.camera);this.prism.setCamera(this.camera);
     this.relay.root.rotation.y = Math.PI / 2; this.prism.root.rotation.y = -Math.PI / 2;
     const shieldShape = new THREE.Shape(); for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2 + Math.PI / 6; i ? shieldShape.lineTo(Math.cos(a) * 1.2, Math.sin(a) * 1.5) : shieldShape.moveTo(Math.cos(a) * 1.2, Math.sin(a) * 1.5); } shieldShape.closePath();
     this.shield = new THREE.Mesh(new THREE.ShapeGeometry(shieldShape), new THREE.MeshPhysicalMaterial({ color: 0x6ce3e1, emissive: 0x217781, emissiveIntensity: .7, transparent: true, opacity: .24, roughness: .2, metalness: .35, side: THREE.DoubleSide, depthWrite: false }));
@@ -57,15 +67,18 @@ export class SparkWorld {
     const trail=new THREE.Mesh(new THREE.CylinderGeometry(.035,.13,.9,8),energy);trail.rotation.x=Math.PI/2;trail.position.z=-.55;this.bolt.add(trail);
     const pulse=new THREE.Group();pulse.name='effect-pulse';pulse.add(...this.bolt.children.slice());this.bolt.add(pulse);this.effects.set('pulse',pulse);
     this.addEffects();
-    this.ready = Promise.all([this.relay.readyPromise || this.relay.ready, this.prism.readyPromise || this.prism.ready]).then(() => {
+    this.addShieldImpact();
+    this.ready = Promise.all([this.relay.readyPromise || this.relay.ready, this.prism.readyPromise || this.prism.ready,this.loadGeneratedEffects()]).then(async() => {
+      if(this.disposed)return;
+      await this.renderer.compileAsync(this.scene,this.camera);this.assetsReady=true;
       this.relay.play('idle'); this.prism.play('idle'); this.resize();
       if(this.rosterPreview){const p=this.rosterPreview;this.previewHero(p.id,p.stage);}
       else if(this.previewStep){const step=this.previewStep;this.previewStep=null;this.trainingPreview(step);}
       else {this.syncKey='';this.sync(this.match,this.currentTier);}
     });
     this.resizeObserver = new ResizeObserver(() => this.resize()); this.resizeObserver.observe(canvas); this.resize();
-    canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); this.paused = true; this.errors.push('WebGL context lost'); this.onBeat('Graphics paused. Reload to resume your saved match.'); });
-    canvas.addEventListener('webglcontextrestored', () => location.reload());
+    canvas.addEventListener('webglcontextlost', this.contextLost);
+    canvas.addEventListener('webglcontextrestored', this.contextRestored);
     this.raf = requestAnimationFrame(t => this.tick(t));
   }
   private resize() {
@@ -102,6 +115,8 @@ export class SparkWorld {
   }
 
   private fitHeroes(band = this.battleBand()) {
+    this.relay.setCamera(this.camera);this.prism.setCamera(this.camera);
+    if(this.prism.imageActive)this.shield.visible=false;
     if(!this.relay.ready||!this.prism.ready)return;
     if(this.rosterPreview&&this.canvas.closest('#game')?.getAttribute('data-view')==='hangar'){this.fitHangar();return;}
     if(this.phase==='training'&&!this.previewStep){this.fitForge();return;}
@@ -188,13 +203,13 @@ export class SparkWorld {
     const hangar=this.canvas.closest('#game')?.getAttribute('data-view')==='hangar';
     if(this.animation||this.previewStep||(!hangar&&this.phase!=='welcome'))return;
     const selected=getHero(id).id;
-    const level=Number.isFinite(stage)?Math.max(0,Math.min(2,Math.floor(stage))):0;
+    const level=Number.isFinite(stage)?Math.max(0,Math.min(5,Math.floor(stage))):0;
     this.rosterPreview={id:selected,stage:level};
     if(this.relay.heroId!==selected)this.relay.setHero(selected);
     this.prism.root.visible=!hangar;this.shield.visible=false;
     this.relay.setAim(null);this.relay.setCharge(0);this.relay.reduced=this.reduced;
     this.relay.play('idle',{restart:true,fade:0});
-    this.relay.setKit({staff:level>=1,pad:level>=2,tier:1});
+    this.relay.setKit({staff:level>=1,pad:level>=2,tier:1,stage:level});
     this.relay.root.position.set(hangar?0:this.heroHome,0,0);this.relay.root.rotation.set(0,hangar?.12:Math.PI/2,0);
     if(!this.relay.ready)return;
     this.relay.update(.001);this.fitHeroes();
@@ -219,6 +234,15 @@ export class SparkWorld {
   }
   private setCamera() {
     const portrait = this.width / this.height < .85; this.heroHome = portrait ? -2.25 : -3.4; this.rivalHome = -this.heroHome;
+    if(this.phase==='battle'&&this.relay.ready&&this.prism.ready){
+      const levels=[equipmentStage(this.match),prismStage({...this.match,phase:'battle'})];
+      if(levels.some(stage=>stage>0)){
+        const reach=[this.relay,this.prism].map((rig,i)=>rig.contactLocal(levels[i]>0?'special':'strike').z+(rig.imageActive?0:levels[i]>=5?.5:levels[i]>=2?.32:0));
+        // Keep a readable flight gap even when both long weapons are raised on phones.
+        const home=Math.max(this.rivalHome,(reach[0]+reach[1]+.9)/2);
+        this.heroHome=-home;this.rivalHome=home;
+      }
+    }
     if (this.phase === 'training'&&!this.previewStep) {
       this.target.set(portrait?-5.3:-4.3, 1.9, -1.5); this.cameraGoal.set(portrait ? -2 : 2, portrait ? 7 : 5.3, portrait ? 20 : 12.5);
       if (portrait) this.target.y = -1.1;
@@ -264,14 +288,14 @@ export class SparkWorld {
     if(this.previewStep)return;
     if(this.phase!=='battle'){this.battleFitKey='';this.battleBandKey='';this.battleReservation=null;}
     const heroId=getHero(match?.heroId).id;
-    const key = `${match?.id}:${heroId}:${match?.round}:${match?.phase}:${match?.staff}:${match?.pad}:${tier}`;
+    const key = `${match?.id}:${heroId}:${match?.round}:${match?.phase}:${match?.staff}:${match?.pad}:${equipmentStage(match)}:${tier}`;
     if (this.animation) return;
     if(this.relay.heroId!==heroId){this.relay.setHero(heroId);this.battleFitKey='';}
     if (key !== this.syncKey) {
       this.syncKey = key;
       this.onBeat('');this.lastIntent='';this.neutralRoots();
-      this.relay.setKit({ staff: !!match?.staff, pad: !!match?.pad, tier });
-      this.prism.setKit({ staff: false, pad: !!match && match.round > 1, tier:Math.max(tier,match?.round||1) });
+      this.relay.setKit({ staff: !!match?.staff, pad: !!match?.pad, tier, stage:equipmentStage(match) });
+      this.prism.setKit({ stage:prismStage(this.phase==='rival_upgrade'?{...match,phase:'battle'}:match), tier:Math.max(tier,match?.round||1) });
       if (this.phase === 'training') { this.relay.root.position.set(-4.1, 0, -2); this.relay.root.rotation.y = -.3; this.prism.root.position.set(4.2, 0, 0); this.prism.root.rotation.y = -.75; }
       else { this.relay.root.position.set(this.heroHome, 0, 0); this.prism.root.position.set(this.rivalHome, 0, 0); this.relay.root.rotation.y = Math.PI / 2; this.prism.root.rotation.y = -Math.PI / 2; }
       this.relay.play(this.phase === 'victory' ? 'victory' : 'idle');
@@ -304,34 +328,41 @@ export class SparkWorld {
       if(move==='guard'&&event.intent==='open'){
         this.animation.phase='holdGuard';this.relay.play('guard');this.prism.play('idle',{restart:true});
       }else if(move==='break'||move==='special')this.startRanged(move);
+      else if(move==='guard'&&prismStage(this.match)>0)this.startRanged('special','rival');
       else this.setApproach(move==='guard'?'rival':'player',move==='guard'?'strike':move);
-      this.onBeat(move === 'guard' ? event.intent==='open'?'You hold guard. Prism holds back.':'Brace for the strike' : move === 'break'||move==='special' ? `Charging ${getHero(this.relay.heroId).weapons[move==='special'?2:1].name}` : event.intent==='open'?'Take the opening':'Step in and strike');
-    } else { this.animation.duration=this.relay.play('upgrade',{restart:true}).duration; this.onCue(after?.pad?'upgrade-stage2':'upgrade-assembly'); this.onBeat(`Assembling ${getHero(after?.heroId||this.relay.heroId).weapons[after?.pad?2:after?.staff?1:0].name}`); }
+      this.onBeat(move === 'guard' ? event.intent==='open'?'You hold guard. Prism holds back.':'Brace for the strike' : move === 'break'||move==='special' ? `Charging ${this.relay.root.userData.weapon}` : event.intent==='open'?'Take the opening':'Step in and strike');
+    } else { this.animation.duration=this.relay.play('upgrade',{restart:true}).duration; this.onCue(after?.pad?'upgrade-stage2':'upgrade-assembly'); this.onBeat(`Assembling ${getHero(after?.heroId||this.relay.heroId).weapons[equipmentStage(after)].name}`); }
     return new Promise(resolve => { this.animation.resolve = resolve; });
   }
-  private finishAnimation() { const a = this.animation; if (!a) return; this.bolt.visible=false;this.relay.setAim(null);this.relay.setCharge(0);this.prism.setCharge(0);this.animation = null; this.syncKey = ''; this.lastIntent='';this.onBeat('');this.sync(a.after, this.currentTier); a.resolve?.(); }
+  private finishAnimation() { const a = this.animation; if (!a) return; this.bolt.visible=false;if(this.generatedJet)this.generatedJet.visible=false;this.relay.setAim(null);this.prism.setAim(null);this.relay.setCharge(0);this.prism.setCharge(0);this.animation = null; this.syncKey = ''; this.lastIntent='';this.onBeat('');if(!this.disposed)this.sync(a.after, this.currentTier); a.resolve?.(); }
   stopAnimation() { this.finishAnimation(); }
-  private startRanged(motion:'break'|'special') {
+  private startRanged(motion:'break'|'special',part:'player'|'rival'='player') {
     const a=this.animation;
-    a.part='player';a.attackMotion=motion;a.phase='charge';a.phaseTime=0;
+    const attacker=part==='player'?this.relay:this.prism,defender=part==='player'?this.prism:this.relay;
+    a.part=part;a.attackMotion=motion;a.phase='charge';a.phaseTime=0;a.launched=false;a.reaction=null;
     a.chargeDuration=motion==='special'?1.05:.65;
     a.destination=[this.relay.root.position.clone(),this.prism.root.position.clone()];
-    a.target=this.prism.root.position.clone().add(V(-.58,2.35,0));
-    this.relay.play('charge',{restart:true,fade:.08});this.relay.setAim(a.target);
-    this.prism.play(a.event.intent==='guard'?'guard':'idle',{restart:true});
+    a.target=defender.shieldPoint;
+    attacker.play('charge',{restart:true,fade:.08});attacker.setAim(a.target);
+    defender.play((part==='player'?a.event.intent==='guard':a.move==='guard')?'guard':'idle',{restart:true});
+    if(part==='rival')this.onBeat(`Prism is charging ${PRISM_KITS[prismStage(this.match)].name}`);
     this.onCue('charge');
   }
   private emitPulse(a:any) {
     if(this.animation!==a||a.launched)return;
     a.launched=true;a.phase='flight';a.phaseTime=0;
-    a.origin=this.relay.weaponTip.clone();a.flightDuration=Math.max(.32,Math.min(.62,a.origin.distanceTo(a.target)/9));
-    a.effect=getHero(this.relay.heroId).effect;
-    for(const [name,group] of this.effects)group.visible=name===a.effect;
+    const attacker=a.part==='rival'?this.prism:this.relay;
+    a.target=(a.part==='rival'?this.relay:this.prism).shieldPoint;
+    a.origin=attacker.weaponTip.clone();a.flightDuration=Math.max(.32,Math.min(.62,a.origin.distanceTo(a.target)/9));
+    const stage=equipmentStage(this.match),hero=getHero(this.relay.heroId);
+    const playerEffect=stage===3&&(hero.id==='relay'||hero.id==='zephyr')?'rocket':stage===4&&hero.id==='relay'?'laser':hero.effect;
+    a.effect=a.part==='rival'?PRISM_KITS[prismStage(this.match)].effect:playerEffect;
+    for(const [name,group] of this.effects)group.visible=name===a.effect&&!['flame','water','arc'].includes(a.effect);
     this.bolt.name=`travelling-${a.effect}`;this.bolt.userData.effect=a.effect;
     this.bolt.position.copy(a.origin);this.bolt.lookAt(a.target);this.bolt.visible=true;
     this.bolt.scale.setScalar(a.attackMotion==='special'?1.35:1);
     this.updateEffect(a,0);
-    this.relay.firePulse();this.onCue(a.effect==='pulse'?'launch':`weapon-${a.effect}`);this.relay.setCharge(0);
+    attacker.firePulse();this.onCue(a.effect==='pulse'?'launch':`weapon-${a.effect}`);attacker.setCharge(0);
   }
 
   private addEffects() {
@@ -359,10 +390,82 @@ export class SparkWorld {
         for(let i=0;i<9;i++){const a=i*2.4;mesh(new THREE.OctahedronGeometry(.07+(i%2)*.035),Math.cos(a)*.3,Math.sin(a)*.3,-.15-(i%3)*.2);}
       }
     }
+    // One soft sprite atlas and a fixed set of objects, allocated once per arena.
+    const canvas=document.createElement('canvas');canvas.width=64;canvas.height=64;
+    const context=canvas.getContext('2d')!,gradient=context.createRadialGradient(32,32,1,32,32,30);
+    gradient.addColorStop(0,'rgba(255,255,255,1)');gradient.addColorStop(.25,'rgba(255,255,255,.85)');gradient.addColorStop(.65,'rgba(255,255,255,.22)');gradient.addColorStop(1,'rgba(255,255,255,0)');
+    context.fillStyle=gradient;context.fillRect(0,0,64,64);this.effectTexture=new THREE.CanvasTexture(canvas);
+    const sphere=new THREE.SphereGeometry(.2,12,8),ring=new THREE.TorusGeometry(.35,.035,6,24);
+    for(const [id,colour] of Object.entries({flame:0xff873c,water:0x61e2ff,seismic:0xe3ef9a,plasma:0xff8bdf,sonic:0xabffd4,rocket:0xffc58b})){
+      const group=new THREE.Group();group.name=`effect-${id}`;group.visible=false;this.bolt.add(group);this.effects.set(id,group);
+      const material=new THREE.MeshBasicMaterial({color:colour,transparent:true,opacity:.85,depthWrite:false});
+      const glow=new THREE.SpriteMaterial({map:this.effectTexture,color:colour,transparent:true,opacity:.72,depthWrite:false,blending:THREE.AdditiveBlending});
+      if(id==='flame'){
+        for(let n=0;n<16;n++){const sprite=new THREE.Sprite(glow);sprite.userData.index=n;group.add(sprite);}
+        const core=new THREE.Mesh(sphere,material);core.scale.set(.3,.3,.5);group.add(core);
+      }else if(id==='water'){
+        for(let n=0;n<12;n++){const drop=new THREE.Mesh(sphere,material);drop.scale.setScalar(.3+(n%3)*.12);group.add(drop);}
+      }else if(id==='sonic'||id==='seismic'){
+        for(let n=0;n<5;n++){const wave=new THREE.Mesh(ring,material);wave.position.z=-n*.22;wave.scale.setScalar(1+n*.32);if(id==='seismic')wave.rotation.z=n*.3;group.add(wave);}
+        if(id==='seismic')group.add(new THREE.Mesh(new THREE.OctahedronGeometry(.3),material));
+      }else if(id==='plasma'){
+        const core=new THREE.Mesh(sphere,material);core.scale.setScalar(1.5);group.add(core);
+        for(const tilt of [-.7,.7]){const orbit=new THREE.Mesh(ring,material);orbit.scale.setScalar(1.5);orbit.rotation.x=tilt;group.add(orbit);}
+        const halo=new THREE.Sprite(glow);halo.scale.set(1.4,1.4,1);group.add(halo);
+      }else{
+        const casing=new THREE.Mesh(new THREE.CapsuleGeometry(.13,.48,4,10),material);casing.rotation.x=Math.PI/2;group.add(casing);
+        for(let n=0;n<4;n++){const fin=new THREE.Mesh(new THREE.BoxGeometry(.08,.26,.22),material);fin.rotation.z=n*Math.PI/2;fin.position.set(Math.sin(n*Math.PI/2)*.17,Math.cos(n*Math.PI/2)*.17,-.19);group.add(fin);}
+        for(let n=0;n<7;n++){const exhaust=new THREE.Sprite(glow);exhaust.position.z=-.4-n*.15;exhaust.scale.setScalar(.4-n*.035);group.add(exhaust);}
+      }
+    }
+  }
+
+  private addShieldImpact() {
+    this.impactShell.name='shield-contact-wave';this.impactShell.visible=false;this.scene.add(this.impactShell);
+    const material=new THREE.MeshBasicMaterial({color:0x9af6ef,transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false});
+    this.impactShell.add(new THREE.Mesh(new THREE.CircleGeometry(.65,6),material));
+    this.impactShell.add(new THREE.Mesh(new THREE.IcosahedronGeometry(.72,1),new THREE.MeshBasicMaterial({color:0xb5ffff,wireframe:true,transparent:true,opacity:.2,depthWrite:false})));
+    for(let i=0;i<3;i++){const ring=new THREE.Mesh(new THREE.TorusGeometry(.45+i*.23,.025,6,32),material);ring.position.z=.02*i;this.impactShell.add(ring);}
+  }
+
+  private async loadGeneratedEffects() {
+    const file=new URLSearchParams(location.search).has('prepareArt')?'combat-effects.png':'packed/combat-effects.webp';
+    const texture=await new THREE.TextureLoader().loadAsync(new URL(`./assets/heroes/generated/${file}`,new URL('.',document.baseURI)).href);
+    if(this.disposed){texture.dispose();return;}
+    texture.colorSpace=THREE.SRGBColorSpace;texture.minFilter=THREE.LinearFilter;texture.generateMipmaps=false;this.generatedEffectTexture=texture;
+    const material=()=>new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,toneMapped:false,
+      uniforms:{atlas:{value:texture},cell:{value:new THREE.Vector2(1,1)},opacity:{value:.8}},
+      vertexShader:'varying vec2 artUv; void main(){artUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+      fragmentShader:'uniform sampler2D atlas; uniform vec2 cell; uniform float opacity; varying vec2 artUv; void main(){vec4 art=texture2D(atlas,(cell+artUv)/vec2(3.,2.));vec2 edge=smoothstep(vec2(0.),vec2(.09),artUv)*(1.-smoothstep(vec2(.91),vec2(1.),artUv));gl_FragColor=vec4(art.rgb,art.a*edge.x*edge.y*opacity);\n#include <colorspace_fragment>\n}'
+    });
+    this.generatedJet=new THREE.Mesh(new THREE.PlaneGeometry(1,1),material());this.generatedJet.name='generated-muzzle-jet';this.generatedJet.visible=false;this.generatedJet.renderOrder=7;
+    this.generatedImpact=new THREE.Mesh(new THREE.PlaneGeometry(1,1),material());this.generatedImpact.name='generated-shield-impact';this.generatedImpact.visible=false;this.generatedImpact.renderOrder=8;
+    this.scene.add(this.generatedJet,this.generatedImpact);
+  }
+
+  private updateImpact(dt: number) {
+    this.impactAge+=dt;const t=this.impactAge/.7;this.impactShell.visible=t<1;
+    if(this.generatedImpact){this.generatedImpact.visible=t<1;this.generatedImpact.quaternion.copy(this.camera.quaternion);this.generatedImpact.scale.setScalar(this.reduced?.8:.65+smooth(t)*.95);(this.generatedImpact.material as THREE.ShaderMaterial).uniforms.opacity.value=(1-Math.min(1,t))*(this.reduced?.4:.7);}
+    if(t>=1)return;
+    this.impactShell.scale.setScalar(this.reduced?1:.65+smooth(t)*1.25);
+    (this.impactShell.children[0] as THREE.Mesh).material.opacity=(1-t)*.48;
+    (this.impactShell.children[1] as THREE.Mesh).material.opacity=(1-t)*.3;
   }
 
   private updateEffect(a:any,t:number) {
-    const group=this.effects.get(a.effect)!;
+    if(this.generatedJet){
+      this.generatedJet.visible=['flame','water','arc'].includes(a.effect);
+      if(this.generatedJet.visible){
+        const direction=a.target.clone().sub(a.origin).normalize(),middle=a.origin.clone().lerp(this.bolt.position,.5);
+        const normal=this.camera.position.clone().sub(middle);normal.addScaledVector(direction,-normal.dot(direction)).normalize();
+        const up=V().crossVectors(normal,direction).normalize();
+        this.generatedJet.position.copy(middle);this.generatedJet.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(direction,up,normal));
+        const length=Math.max(.025,a.origin.distanceTo(this.bolt.position));this.generatedJet.scale.set(length,this.reduced?.55:.65+length*.15,1);
+        const uniforms=(this.generatedJet.material as THREE.ShaderMaterial).uniforms;
+        uniforms.cell.value.set(a.effect==='water'?0:1,a.effect==='flame'?1:0);uniforms.opacity.value=this.reduced?.5:.9;
+      }
+    }
+    const group=this.effects.get(a.effect);if(!group)return;
     // Beam heads travel on the same clock as projectiles; the tail grows behind them.
     const length=a.origin.distanceTo(a.target)*t/this.bolt.scale.z;
     if(a.effect==='laser'){
@@ -374,6 +477,17 @@ export class SparkWorld {
       for(let i=0;i<3;i++){const angle=i*Math.PI*2/3;group.children[i].position.set(Math.cos(angle)*.23*(1-t),Math.sin(angle)*.23*(1-t),0);}
     }else if(a.effect==='gravity')group.rotation.z=this.reduced?0:t*2;
     else if(a.effect==='frost')for(let i=1;i<group.children.length;i++){const c=group.children[i],angle=(i-1)*2.4;c.position.x=Math.cos(angle)*(.15+t*.2);c.position.y=Math.sin(angle)*(.15+t*.2);c.visible=!this.reduced||i<4;}
+    else if(a.effect==='flame'){
+      for(let i=0;i<16;i++){
+        const p=group.children[i],u=i/15,spread=.05+u*.22;
+        p.position.set(Math.sin(i*2.4+t*3)*spread,Math.cos(i*1.7+t*3)*spread,-length*u);
+        p.scale.setScalar((.22+u*.52)*(1-.25*t));p.visible=!this.reduced||i%3===0;
+      }
+    }else if(a.effect==='water'){
+      for(let i=0;i<12;i++){const u=i/12;group.children[i].position.set(Math.sin(i*2.4)*.1,Math.cos(i*2.4)*.1-u*u*t*.18,-length*u);group.children[i].scale.z=1+length*.35;group.children[i].visible=!this.reduced||i<5;}
+    }else if(a.effect==='sonic'||a.effect==='seismic'){
+      for(let i=0;i<5;i++){group.children[i].position.z=-Math.min(length,1.7)*i/5;group.children[i].scale.setScalar(.65+i*.25+t*.55);}
+    }else if(a.effect==='plasma')group.rotation.z=this.reduced?0:t*2.2;
   }
   burst(position: any, colour = 0xffd082, amount = 50) {
     this.particles.material.color.setHex(colour); this.hitLight.color.setHex(colour); this.hitLight.position.copy(position); this.hitLight.intensity = this.reduced ? 0 : 11; this.shake = this.reduced ? 0 : .07;
@@ -433,8 +547,11 @@ export class SparkWorld {
     const attacker=part==='player'?this.relay:this.prism;const defender=part==='player'?this.prism:this.relay;
     const blocked=part==='player'?a.event.intent==='guard'&&!a.event.guardBroken:a.move==='guard';
     const point=arrival||attacker.contactPoint;
-    const effectColour=({laser:0xffee97,arc:0x78ffb9,gravity:0xd0a2ff,burst:0x76deff,frost:0xc7faff})[a.effect];
-    this.burst(point,blocked?0x8ee9e6:part==='player'&&effectColour?effectColour:a.attackMotion==='special'?0xf5e5ae:0xffd082,a.attackMotion==='special'?100:45);
+    const effectColour=({laser:0xffee97,arc:0x78ffb9,gravity:0xd0a2ff,burst:0x76deff,frost:0xc7faff,flame:0xffa154,water:0x61e2ff,seismic:0xe3ef9a,plasma:0xff8bdf,sonic:0xabffd4,rocket:0xffc58b})[a.effect];
+    this.burst(point,blocked?0x8ee9e6:effectColour||0xffd082,a.attackMotion==='special'?70:40);
+    this.impactAge=0;this.impactShell.position.copy(point);this.impactShell.lookAt(attacker.root.position.clone().add(V(0,2.35,0)));
+    if(this.generatedImpact){this.generatedImpact.position.copy(point);(this.generatedImpact.material as THREE.ShaderMaterial).uniforms.cell.value.set(2,a.effect==='flame'||a.effect==='rocket'?1:0);}
+    (this.impactShell.children[0] as THREE.Mesh).material.color.setHex(blocked?0x8ee9e6:effectColour||0xffd082);this.updateImpact(0);
     defender.play(blocked?'guard':'hit',{restart:true,fade:.035});
     this.onCue(blocked?'guard':a.attackMotion==='break'||a.attackMotion==='special'?'break':'impact');
     a.contactAt=a.phaseTime;
@@ -480,9 +597,9 @@ export class SparkWorld {
         this.demoTime+=dt;
         if(this.demoTime>=.9&&!this.prism.root.userData.revealApplied){
           this.prism.root.userData.revealApplied=true;
-          this.prism.setKit({staff:false,pad:true,tier:Math.max(this.currentTier,(this.match?.round||1)+1)});
+          this.prism.setKit({stage:prismStage(this.match),tier:Math.max(this.currentTier,(this.match?.round||1)+1)});
           this.burst(this.prism.root.position.clone().add(V(0,2.6,0)),0x9de5e3,65);
-          this.shield.visible=true;this.onBeat('Prism has a stronger shield');
+          this.shield.visible=true;this.onBeat(`Prism equipped ${PRISM_KITS[prismStage(this.match)].name}`);
         }
         if(this.demoTime>=HERO_MOTIONS.upgrade.duration){this.prism.play('guard');this.upgradeReveal=false;}
       }
@@ -490,16 +607,17 @@ export class SparkWorld {
     }
     a.elapsed+=dt;a.phaseTime+=dt;
     if(!a.isMove){
-      if(!a.hit&&a.elapsed>=a.duration*.43){a.hit=true;this.burst(this.relay.root.position.clone().add(V(0,2.5,0)),0xefd09a,70);this.relay.setKit({staff:!!a.after?.staff,pad:!!a.after?.pad,tier:this.currentTier});}
-      if(a.hit&&!a.revealed&&a.elapsed>=a.duration*.43+.65){a.revealed=true;this.onBeat(`${getHero(this.relay.heroId).weapons[a.after?.pad?2:1].name} ready`);}
+      if(!a.hit&&a.elapsed>=a.duration*.43){a.hit=true;this.burst(this.relay.root.position.clone().add(V(0,2.5,0)),0xefd09a,70);this.relay.setKit({staff:!!a.after?.staff,pad:!!a.after?.pad,tier:this.currentTier,stage:equipmentStage(a.after)});}
+      if(a.hit&&!a.revealed&&a.elapsed>=a.duration*.43+.65){a.revealed=true;this.onBeat(`${getHero(this.relay.heroId).weapons[equipmentStage(a.after)].name} ready`);}
       if(a.elapsed>=a.duration)this.finishAnimation();return;
     }
     this.shield.position.set(this.prism.root.position.x-.58,2.2,this.prism.root.position.z);
     if(a.phase==='charge'){
-      this.relay.setCharge(Math.min(1,a.phaseTime/a.chargeDuration));
+      const attacker=a.part==='rival'?this.prism:this.relay;
+      attacker.setCharge(Math.min(1,a.phaseTime/a.chargeDuration));
       if(a.phaseTime>=a.chargeDuration){
         a.phase='emit';a.phaseTime=0;
-        this.relay.play(a.attackMotion,{restart:true,fade:0,onImpact:()=>this.emitPulse(a)});
+        attacker.play(a.attackMotion,{restart:true,fade:0,onImpact:()=>this.emitPulse(a)});
       }
     }else if(a.phase==='flight'){
       const t=Math.min(1,a.phaseTime/a.flightDuration);
@@ -507,8 +625,9 @@ export class SparkWorld {
       this.updateEffect(a,t);
       if(t===1){
         this.bolt.position.copy(a.target);
-        this.makeContact(a,'player',this.bolt.position.clone());
+        this.makeContact(a,a.part,this.bolt.position.clone());
         this.bolt.visible=false;a.phase='strike';a.phaseTime=0;a.contactAt=0;a.strikeDuration=.38;
+        if(this.generatedJet)this.generatedJet.visible=false;
       }
     }else if(a.phase==='holdGuard'){if(a.phaseTime>=.7)this.finishAnimation();}
     else if(a.phase==='approach'||a.phase==='retreat'){
@@ -558,16 +677,20 @@ export class SparkWorld {
         rig.root.rotation.z=(r.part==='player'?1:-1)*weight*(r.blocked?.018:.045);
       }
       if((a.part==='player'?a.hit:a.reply)&&a.phaseTime>=Math.max(a.strikeDuration,a.contactAt+.28)){
-        if(a.part==='player'&&a.event.rivalDamage>0)this.setApproach('rival','strike');
+        if(a.part==='player'&&a.event.rivalDamage>0){
+          if(prismStage(this.match)>0)this.startRanged('special','rival');
+          else this.setApproach('rival','strike');
+        }
         else this.retreat();
       }
     }
   }
   private tick(ms: number) {
     if (this.disposed) return; const dt = Math.min(.045, Math.max(0, (ms - (this.lastTime || ms)) / 1000)); this.lastTime = ms;
-    if (!this.paused && !document.hidden) {
+    if (!this.paused && !document.hidden&&this.assetsReady) {
       this.relay.reduced=this.reduced;this.prism.reduced=this.reduced;
       this.elapsed += dt; this.clock += dt; this.animateAction(dt); this.relay.update(dt, this.elapsed); this.prism.update(dt, this.elapsed); this.stage.update(dt, this.elapsed);
+      this.updateImpact(dt);
       if(this.animation?.isMove)this.shield.position.set(this.prism.root.position.x-.58,2.2,this.prism.root.position.z);
       const band=this.battleBand();
       if(this.rosterPreview||this.frame%6===0||(band&&band.key!==this.battleBandKey))this.fitHeroes(band);
@@ -575,13 +698,15 @@ export class SparkWorld {
       for (let i = 0; i < 110; i++) { const p = this.particleData[i]; if (p) { p.life += dt; p.v.y -= dt * 9; p.p.addScaledVector(p.v, dt); this.particleDummy.position.copy(p.p); this.particleDummy.rotation.set(p.spin + p.life * 7, p.life * 9, p.spin); this.particleDummy.scale.setScalar(Math.max(0, 1 - p.life / p.max) * 1.1); } else this.particleDummy.scale.setScalar(0); this.particleDummy.updateMatrix(); this.particles.setMatrixAt(i, this.particleDummy.matrix); }
       this.particles.instanceMatrix.needsUpdate = true; this.hitLight.intensity *= Math.exp(-dt * 12); this.shake *= Math.exp(-dt * 15);
       const k = this.reduced ? 1 : 1 - Math.exp(-dt * 5); this.camera.position.lerp(this.cameraGoal, k); this.look.lerp(this.target, k); this.camera.lookAt(this.look.clone().add(V(Math.sin(this.clock * 80) * this.shake, Math.cos(this.clock * 95) * this.shake, 0)));
+      this.relay.setCamera(this.camera);this.prism.setCamera(this.camera);if(this.prism.imageActive)this.shield.visible=false;
       this.renderer.render(this.scene, this.camera); this.frame++;
     }
     this.raf = requestAnimationFrame(t => this.tick(t));
   }
   dispose() { this.disposed = true; cancelAnimationFrame(this.raf); this.stopAnimation(); this.resizeObserver.disconnect(); this.stage.dispose(); this.relay.dispose?.(); this.prism.dispose?.();
+    this.canvas.removeEventListener('webglcontextlost',this.contextLost);this.canvas.removeEventListener('webglcontextrestored',this.contextRestored);
     const geometries=new Set<THREE.BufferGeometry>(),materials=new Set<THREE.Material>();
-    this.bolt.traverse(o=>{const m=o as THREE.Mesh;if(m.geometry){geometries.add(m.geometry);for(const material of Array.isArray(m.material)?m.material:[m.material])materials.add(material);}});
+    this.scene.traverse(o=>{const m=o as THREE.Mesh;if(m.geometry)geometries.add(m.geometry);if(m.material)for(const material of Array.isArray(m.material)?m.material:[m.material])materials.add(material);if((o as THREE.Light).shadow)(o as THREE.Light).shadow.dispose();});
     for(const geometry of geometries)geometry.dispose();for(const material of materials)material.dispose();
-    this.previewMarker.geometry.dispose();this.previewMarker.material.dispose(); this.renderer.dispose(); }
+    this.effectTexture.dispose();this.generatedEffectTexture?.dispose();this.particleData=[];this.effects.clear();this.scene.clear();this.renderer.renderLists.dispose();this.renderer.dispose(); }
 }

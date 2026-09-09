@@ -23,30 +23,34 @@ try{
     const size=640;
     const renderer=new T.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:true});renderer.setSize(size,size);
     renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;
-    const back=new T.Vector3(5,2.4,12).normalize(),right=new T.Vector3().crossVectors(new T.Vector3(0,1,0),back).normalize(),up=new T.Vector3().crossVectors(back,right).normalize();
+    const back=new T.Vector3(0,0,1),right=new T.Vector3(1,0,0),up=new T.Vector3(0,1,0);
+    const camera=new T.OrthographicCamera(-3,3,3,-3,.1,100);camera.position.set(0,2.2,18);camera.lookAt(0,2.2,0);rig.setCamera(camera);
     const union=new T.Box3();rig.reduced=true;
-    const pose=(id,stage)=>{rig.setHero(id);rig.setKit({staff:stage>0,pad:stage>1,tier:1});rig.play('guard',{restart:true,fade:0});rig.update(.001);};
-    for(const hero of heroes)for(let stage=0;stage<3;stage++){pose(hero.id,stage);union.union(rig.visualBounds());}
+    const pose=(id,stage)=>{rig.setHero(id);rig.setKit({staff:stage>0,pad:stage>1,tier:1,stage});rig.play('idle',{restart:true,fade:0});rig.update(.001);rig.setCamera(camera);};
+    for(const hero of heroes)for(let stage=0;stage<hero.weapons.length;stage++){pose(hero.id,stage);union.union(rig.visualBounds());}
     const centre=union.getCenter(new T.Vector3());let extent=0;
     for(const x of [union.min.x,union.max.x])for(const y of [union.min.y,union.max.y])for(const z of [union.min.z,union.max.z]){const p=new T.Vector3(x,y,z).sub(centre);extent=Math.max(extent,Math.abs(p.dot(right)),Math.abs(p.dot(up)));}
     extent*=1.06;
-    const camera=new T.OrthographicCamera(-extent,extent,extent,-extent,.1,100);camera.position.copy(centre).addScaledVector(back,18);camera.lookAt(centre);
+    Object.assign(camera,{left:-extent,right:extent,top:extent,bottom:-extent});camera.updateProjectionMatrix();camera.position.copy(centre).addScaledVector(back,18);camera.lookAt(centre);
     const output=[];
-    for(const hero of heroes)for(let stage=0;stage<3;stage++){
-      pose(hero.id,stage);renderer.render(scene,camera);
+    for(const hero of heroes)for(let stage=0;stage<hero.weapons.length;stage++){
+      pose(hero.id,stage);
+      const layers=rig.imageActor.layers.map(layer=>({visible:layer.visible,opacity:layer.material.opacity}));
+      if(layers.filter(layer=>layer.visible&&layer.opacity>.001).length!==1||layers[1].opacity!==1)throw Error(`Unsettled generated portrait ${hero.id}:${stage}`);
+      renderer.render(scene,camera);
       const gl=renderer.getContext(),pixels=new Uint8Array(size*size*4);gl.readPixels(0,0,size,size,gl.RGBA,gl.UNSIGNED_BYTE,pixels);
       const colours=new Set();for(let i=0;i<pixels.length;i+=16)colours.add(pixels[i]+','+pixels[i+1]+','+pixels[i+2]);
-      output.push({id:hero.id,stage,size,data:renderer.domElement.toDataURL('image/jpeg',.88),colours:colours.size,camera:camera.position.toArray(),extent,clip:rig.currentTiming.clip});
+      output.push({id:hero.id,stage,size,data:renderer.domElement.toDataURL('image/jpeg',.88),colours:colours.size,camera:camera.position.toArray(),extent,clip:rig.currentTiming.clip,model:rig.root.userData.model,generated:rig.imageActive,layers});
     }
     rig.dispose();renderer.dispose();return output;
   },HEROES);
   for(const item of images){
-    assert(item.colours>100);const bytes=Buffer.from(item.data.split(',')[1],'base64');
+    assert(item.colours>100);assert(item.generated);const bytes=Buffer.from(item.data.split(',')[1],'base64');
     const path=resolve(destination,`${item.id}-${item.stage}.jpg`);await writeFile(path,bytes);
     portraits.push({...item,data:undefined,path,bytes:bytes.length});
   }
-  assert.equal(images.length,18);assert.deepEqual(errors,[]);assert.equal(before,await bundleHash());
-  await page.setContent(`<html><body style="margin:0;background:#fff;display:grid;grid-template-columns:repeat(6,1fr);font:14px Arial">${[0,1,2].flatMap(stage=>HEROES.map(h=>`<figure style="margin:6px"><img style="width:100%" src="${harness.origin}/sparkbound/assets/heroes/${h.id}-${stage}.jpg"><figcaption>${h.name} / ${stage}</figcaption></figure>`)).join('')}</body></html>`);
+  assert.equal(images.length,HEROES.reduce((n,h)=>n+h.weapons.length,0));assert.deepEqual(errors,[]);assert.equal(before,await bundleHash());
+  await page.setContent(`<html><body style="margin:0;background:#fff;display:grid;grid-template-columns:repeat(6,1fr);font:14px Arial">${HEROES.flatMap(h=>h.weapons.map((_,stage)=>`<figure style="margin:6px"><img style="width:100%" src="${harness.origin}/sparkbound/assets/heroes/${h.id}-${stage}.jpg"><figcaption>${h.name} / ${stage}</figcaption></figure>`)).join('')}</body></html>`);
   await page.setViewportSize({width:1440,height:850});await page.waitForFunction(()=>[...document.images].every(i=>i.complete&&i.naturalWidth===640));
   await page.screenshot({path:resolve(output,'portrait-contact-sheet.png'),fullPage:true});
   await writeFile(resolve(output,'portraits.json'),JSON.stringify({portraits,errors},null,2));
