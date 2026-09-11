@@ -1,0 +1,5467 @@
+{
+  "coordinateSystem": "THREE: +X right, +Y up, +Z forward",
+  "source": "tools/build-sparkbound-3d.py",
+  "heroes": {
+    "relay": {
+      "slots": {
+        "Head": {
+          "triangles": 972,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.392,
+              -0.12,
+              -0.187
+            ],
+            "max": [
+              0.392,
+              0.53,
+              0.428
+            ]
+          }
+        },
+        "Chest": {
+          "triangles": 1852,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.6,
+              -0.43,
+              -0.36
+            ],
+            "max": [
+              0.6,
+              0.43,
+              0.52
+            ]
+          }
+        },
+        "Torso": {
+          "triangles": 916,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.35,
+              -0.27,
+              -0.28
+            ],
+            "max": [
+              0.35,
+              0.2598,
+              0.3705
+            ]
+          }
+        },
+        "UpperArmL": {
+          "triangles": 612,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2648,
+              -0.43,
+              -0.3
+            ],
+            "max": [
+              0.398,
+              0.24,
+              0.331
+            ]
+          }
+        },
+        "UpperArmR": {
+          "triangles": 612,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.398,
+              -0.43,
+              -0.3
+            ],
+            "max": [
+              0.2648,
+              0.24,
+              0.331
+            ]
+          }
+        },
+        "LowerArmL": {
+          "triangles": 1004,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.205,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.205,
+              0.14965,
+              0.295
+            ]
+          }
+        },
+        "LowerArmR": {
+          "triangles": 1004,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.205,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.205,
+              0.14965,
+              0.295
+            ]
+          }
+        },
+        "UpperLegL": {
+          "triangles": 844,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.235,
+              -0.6356,
+              -0.2
+            ],
+            "max": [
+              0.235,
+              0.17155,
+              0.2865
+            ]
+          }
+        },
+        "UpperLegR": {
+          "triangles": 844,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.235,
+              -0.6356,
+              -0.2
+            ],
+            "max": [
+              0.235,
+              0.17155,
+              0.2865
+            ]
+          }
+        },
+        "LowerLegL": {
+          "triangles": 1056,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.235,
+              -0.7456,
+              -0.2
+            ],
+            "max": [
+              0.235,
+              0.17155,
+              0.3025
+            ]
+          }
+        },
+        "LowerLegR": {
+          "triangles": 1056,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.235,
+              -0.7456,
+              -0.2
+            ],
+            "max": [
+              0.235,
+              0.17155,
+              0.3025
+            ]
+          }
+        },
+        "FootL": {
+          "triangles": 848,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.254,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.254,
+              0.22,
+              0.6
+            ]
+          }
+        },
+        "FootR": {
+          "triangles": 848,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.254,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.254,
+              0.22,
+              0.6
+            ]
+          }
+        },
+        "HandL": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.18,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.27835,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "HandR": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.27835,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.18,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "Weapon1": {
+          "triangles": 1264,
+          "drawCalls": 5,
+          "markers": {
+            "relay__Muzzle1": [
+              0,
+              0.25,
+              1.39
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.287,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.287,
+              0.537,
+              1.39
+            ]
+          }
+        },
+        "Weapon2": {
+          "triangles": 1668,
+          "drawCalls": 5,
+          "markers": {
+            "relay__Muzzle2": [
+              0,
+              0.25,
+              1.505
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.32,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.32,
+              0.537,
+              1.505
+            ]
+          }
+        },
+        "Weapon3": {
+          "triangles": 3244,
+          "drawCalls": 5,
+          "markers": {
+            "relay__Muzzle3": [
+              0,
+              0.34,
+              1.48
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.13
+            ],
+            "max": [
+              0.47,
+              0.82,
+              1.48
+            ]
+          }
+        },
+        "Weapon4": {
+          "triangles": 2192,
+          "drawCalls": 7,
+          "markers": {
+            "relay__Muzzle4": [
+              0,
+              0.31,
+              2.01
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.455,
+              -0.19,
+              -0.17
+            ],
+            "max": [
+              0.455,
+              0.65,
+              2.01
+            ]
+          }
+        },
+        "Weapon5": {
+          "triangles": 4216,
+          "drawCalls": 5,
+          "markers": {
+            "relay__Muzzle5": [
+              0,
+              0.35,
+              2.0300000000000002
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.23
+            ],
+            "max": [
+              0.47,
+              0.89,
+              2.03
+            ]
+          }
+        },
+        "Back3": {
+          "triangles": 2464,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.94,
+              -0.35,
+              -0.85
+            ],
+            "max": [
+              0.94,
+              0.86,
+              0.09
+            ]
+          }
+        },
+        "Back4": {
+          "triangles": 1616,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.81,
+              -0.35,
+              -0.75
+            ],
+            "max": [
+              0.81,
+              1.34,
+              -0.31
+            ]
+          }
+        },
+        "Back5": {
+          "triangles": 3536,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -1.25,
+              -0.35,
+              -0.89
+            ],
+            "max": [
+              1.25,
+              1.34,
+              0.09
+            ]
+          }
+        },
+        "Shield": {
+          "triangles": 324,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.365,
+              -0.67,
+              -0.115
+            ],
+            "max": [
+              0.365,
+              0.25,
+              0.2375
+            ]
+          }
+        }
+      },
+      "bodyTriangles": 14916,
+      "visibleTrianglesByStage": [
+        15240,
+        16504,
+        16908,
+        20948,
+        19048,
+        22992
+      ],
+      "preferred40kBudgetPass": true
+    },
+    "helio": {
+      "slots": {
+        "Head": {
+          "triangles": 1040,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.392,
+              -0.12,
+              -0.187
+            ],
+            "max": [
+              0.392,
+              0.45,
+              0.41543
+            ]
+          }
+        },
+        "Chest": {
+          "triangles": 1780,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.513,
+              -0.43,
+              -0.36
+            ],
+            "max": [
+              0.513,
+              0.43,
+              0.48894
+            ]
+          }
+        },
+        "Torso": {
+          "triangles": 916,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.35,
+              -0.27,
+              -0.28
+            ],
+            "max": [
+              0.35,
+              0.2598,
+              0.3705
+            ]
+          }
+        },
+        "UpperArmL": {
+          "triangles": 512,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.23232,
+              -0.43,
+              -0.3
+            ],
+            "max": [
+              0.49,
+              0.4,
+              0.3
+            ]
+          }
+        },
+        "UpperArmR": {
+          "triangles": 512,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.49,
+              -0.43,
+              -0.3
+            ],
+            "max": [
+              0.23232,
+              0.4,
+              0.3
+            ]
+          }
+        },
+        "LowerArmL": {
+          "triangles": 1004,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.1845,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.1876,
+              0.13468,
+              0.295
+            ]
+          }
+        },
+        "LowerArmR": {
+          "triangles": 1004,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.1876,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.1845,
+              0.13468,
+              0.295
+            ]
+          }
+        },
+        "UpperLegL": {
+          "triangles": 844,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2115,
+              -0.6356,
+              -0.2
+            ],
+            "max": [
+              0.2115,
+              0.1544,
+              0.2865
+            ]
+          }
+        },
+        "UpperLegR": {
+          "triangles": 844,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2115,
+              -0.6356,
+              -0.2
+            ],
+            "max": [
+              0.2115,
+              0.1544,
+              0.2865
+            ]
+          }
+        },
+        "LowerLegL": {
+          "triangles": 1056,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2115,
+              -0.7456,
+              -0.2
+            ],
+            "max": [
+              0.2115,
+              0.1544,
+              0.3025
+            ]
+          }
+        },
+        "LowerLegR": {
+          "triangles": 1056,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2115,
+              -0.7456,
+              -0.2
+            ],
+            "max": [
+              0.2115,
+              0.1544,
+              0.3025
+            ]
+          }
+        },
+        "FootL": {
+          "triangles": 848,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.254,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.254,
+              0.22,
+              0.6
+            ]
+          }
+        },
+        "FootR": {
+          "triangles": 848,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.254,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.254,
+              0.22,
+              0.6
+            ]
+          }
+        },
+        "HandL": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.162,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.26035,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "HandR": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.26035,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.162,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "Weapon1": {
+          "triangles": 1212,
+          "drawCalls": 7,
+          "markers": {
+            "helio__Muzzle1": [
+              0,
+              0.27,
+              1.415
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.32,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.32,
+              0.505,
+              1.415
+            ]
+          }
+        },
+        "Weapon2": {
+          "triangles": 1212,
+          "drawCalls": 7,
+          "markers": {
+            "helio__Muzzle2": [
+              0,
+              0.27,
+              1.53
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.32,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.32,
+              0.505,
+              1.53
+            ]
+          }
+        },
+        "Weapon3": {
+          "triangles": 3484,
+          "drawCalls": 7,
+          "markers": {
+            "helio__Muzzle3": [
+              0,
+              0.34,
+              1.48
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.13
+            ],
+            "max": [
+              0.47,
+              0.82,
+              1.48
+            ]
+          }
+        },
+        "Weapon4": {
+          "triangles": 2248,
+          "drawCalls": 7,
+          "markers": {
+            "helio__Muzzle4": [
+              0,
+              0.31,
+              2.01
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.48,
+              -0.19,
+              -0.17
+            ],
+            "max": [
+              0.48,
+              0.65,
+              2.01
+            ]
+          }
+        },
+        "Weapon5": {
+          "triangles": 5176,
+          "drawCalls": 7,
+          "markers": {
+            "helio__Muzzle5": [
+              0,
+              0.35,
+              2.005962677830599
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.23
+            ],
+            "max": [
+              0.47,
+              0.89,
+              2.00596
+            ]
+          }
+        },
+        "Back3": {
+          "triangles": 1752,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -1.16,
+              -0.35,
+              -0.85
+            ],
+            "max": [
+              1.16,
+              0.86,
+              0.09829
+            ]
+          }
+        },
+        "Back4": {
+          "triangles": 1728,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -1.16,
+              -0.35,
+              -0.75
+            ],
+            "max": [
+              1.16,
+              1.34,
+              -0.31
+            ]
+          }
+        },
+        "Back5": {
+          "triangles": 2880,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -1.54,
+              -0.35,
+              -0.90231
+            ],
+            "max": [
+              1.54,
+              1.34,
+              0.09829
+            ]
+          }
+        },
+        "Shield": {
+          "triangles": 536,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.365,
+              -0.67,
+              -0.115
+            ],
+            "max": [
+              0.365,
+              0.25,
+              0.25902
+            ]
+          }
+        }
+      },
+      "bodyTriangles": 14712,
+      "visibleTrianglesByStage": [
+        15248,
+        16460,
+        16460,
+        20484,
+        19224,
+        23304
+      ],
+      "preferred40kBudgetPass": true
+    },
+    "volt": {
+      "slots": {
+        "Head": {
+          "triangles": 840,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.392,
+              -0.12,
+              -0.187
+            ],
+            "max": [
+              0.392,
+              0.65,
+              0.409
+            ]
+          }
+        },
+        "Chest": {
+          "triangles": 2652,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.613,
+              -0.43,
+              -0.36
+            ],
+            "max": [
+              0.613,
+              0.43,
+              0.52
+            ]
+          }
+        },
+        "Torso": {
+          "triangles": 916,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.35,
+              -0.27,
+              -0.28
+            ],
+            "max": [
+              0.35,
+              0.2598,
+              0.3705
+            ]
+          }
+        },
+        "UpperArmL": {
+          "triangles": 1208,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.23557,
+              -0.43,
+              -0.3
+            ],
+            "max": [
+              0.395,
+              0.48239,
+              0.3
+            ]
+          }
+        },
+        "UpperArmR": {
+          "triangles": 1208,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.395,
+              -0.43,
+              -0.3
+            ],
+            "max": [
+              0.23557,
+              0.48239,
+              0.3
+            ]
+          }
+        },
+        "LowerArmL": {
+          "triangles": 1004,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.18655,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.18924,
+              0.13618,
+              0.295
+            ]
+          }
+        },
+        "LowerArmR": {
+          "triangles": 1004,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.18924,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.18655,
+              0.13618,
+              0.295
+            ]
+          }
+        },
+        "UpperLegL": {
+          "triangles": 844,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.21385,
+              -0.6356,
+              -0.2
+            ],
+            "max": [
+              0.21385,
+              0.15611,
+              0.2865
+            ]
+          }
+        },
+        "UpperLegR": {
+          "triangles": 844,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.21385,
+              -0.6356,
+              -0.2
+            ],
+            "max": [
+              0.21385,
+              0.15611,
+              0.2865
+            ]
+          }
+        },
+        "LowerLegL": {
+          "triangles": 1056,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.21385,
+              -0.7456,
+              -0.2
+            ],
+            "max": [
+              0.21385,
+              0.15611,
+              0.3025
+            ]
+          }
+        },
+        "LowerLegR": {
+          "triangles": 1056,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.21385,
+              -0.7456,
+              -0.2
+            ],
+            "max": [
+              0.21385,
+              0.15611,
+              0.3025
+            ]
+          }
+        },
+        "FootL": {
+          "triangles": 848,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.254,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.254,
+              0.22,
+              0.6
+            ]
+          }
+        },
+        "FootR": {
+          "triangles": 848,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.254,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.254,
+              0.22,
+              0.6
+            ]
+          }
+        },
+        "HandL": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.1638,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.26215,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "HandR": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.26215,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.1638,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "Weapon1": {
+          "triangles": 1628,
+          "drawCalls": 6,
+          "markers": {
+            "volt__Muzzle1": [
+              0,
+              0.27,
+              1.4549832959267872
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.374,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.374,
+              0.485,
+              1.45498
+            ]
+          }
+        },
+        "Weapon2": {
+          "triangles": 1628,
+          "drawCalls": 6,
+          "markers": {
+            "volt__Muzzle2": [
+              0,
+              0.27,
+              1.5699832959267872
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.374,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.374,
+              0.485,
+              1.56998
+            ]
+          }
+        },
+        "Weapon3": {
+          "triangles": 4000,
+          "drawCalls": 6,
+          "markers": {
+            "volt__Muzzle3": [
+              0,
+              0.34,
+              1.48
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.13
+            ],
+            "max": [
+              0.47,
+              0.839,
+              1.48
+            ]
+          }
+        },
+        "Weapon4": {
+          "triangles": 2912,
+          "drawCalls": 7,
+          "markers": {
+            "volt__Muzzle4": [
+              0,
+              0.31,
+              2.01
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.46,
+              -0.19,
+              -0.17
+            ],
+            "max": [
+              0.46,
+              0.65,
+              2.01
+            ]
+          }
+        },
+        "Weapon5": {
+          "triangles": 4376,
+          "drawCalls": 5,
+          "markers": {
+            "volt__Muzzle5": [
+              0,
+              0.35,
+              2.0532058148033268
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.23
+            ],
+            "max": [
+              0.47,
+              0.89,
+              2.05321
+            ]
+          }
+        },
+        "Back3": {
+          "triangles": 1832,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.985,
+              -0.35,
+              -0.85
+            ],
+            "max": [
+              0.985,
+              0.98,
+              0.04
+            ]
+          }
+        },
+        "Back4": {
+          "triangles": 2576,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.81,
+              -0.35,
+              -0.806
+            ],
+            "max": [
+              0.81,
+              1.34,
+              -0.31
+            ]
+          }
+        },
+        "Back5": {
+          "triangles": 3864,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -1.295,
+              -0.35,
+              -0.89
+            ],
+            "max": [
+              1.295,
+              1.34,
+              0.04
+            ]
+          }
+        },
+        "Shield": {
+          "triangles": 324,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.365,
+              -0.67,
+              -0.115
+            ],
+            "max": [
+              0.365,
+              0.25,
+              0.2375
+            ]
+          }
+        }
+      },
+      "bodyTriangles": 16776,
+      "visibleTrianglesByStage": [
+        17100,
+        18728,
+        18728,
+        22932,
+        22588,
+        25340
+      ],
+      "preferred40kBudgetPass": true
+    },
+    "bastion": {
+      "slots": {
+        "Head": {
+          "triangles": 784,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.4176,
+              -0.12,
+              -0.187
+            ],
+            "max": [
+              0.4176,
+              0.45,
+              0.409
+            ]
+          }
+        },
+        "Chest": {
+          "triangles": 1896,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.7254,
+              -0.43,
+              -0.36
+            ],
+            "max": [
+              0.7254,
+              0.44,
+              0.52
+            ]
+          }
+        },
+        "Torso": {
+          "triangles": 916,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.36855,
+              -0.27,
+              -0.28
+            ],
+            "max": [
+              0.36855,
+              0.2598,
+              0.3705
+            ]
+          }
+        },
+        "UpperArmL": {
+          "triangles": 664,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.32002,
+              -0.43,
+              -0.3
+            ],
+            "max": [
+              0.44441,
+              0.24,
+              0.35
+            ]
+          }
+        },
+        "UpperArmR": {
+          "triangles": 664,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.44441,
+              -0.43,
+              -0.3
+            ],
+            "max": [
+              0.32002,
+              0.24,
+              0.35
+            ]
+          }
+        },
+        "LowerArmL": {
+          "triangles": 1108,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.23985,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.23985,
+              0.17509,
+              0.3085
+            ]
+          }
+        },
+        "LowerArmR": {
+          "triangles": 1108,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.23985,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.23985,
+              0.17509,
+              0.3085
+            ]
+          }
+        },
+        "UpperLegL": {
+          "triangles": 948,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.27495,
+              -0.6356,
+              -0.20071
+            ],
+            "max": [
+              0.27495,
+              0.20071,
+              0.3085
+            ]
+          }
+        },
+        "UpperLegR": {
+          "triangles": 948,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.27495,
+              -0.6356,
+              -0.20071
+            ],
+            "max": [
+              0.27495,
+              0.20071,
+              0.3085
+            ]
+          }
+        },
+        "LowerLegL": {
+          "triangles": 1160,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.27495,
+              -0.7456,
+              -0.20071
+            ],
+            "max": [
+              0.27495,
+              0.20071,
+              0.3085
+            ]
+          }
+        },
+        "LowerLegR": {
+          "triangles": 1160,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.27495,
+              -0.7456,
+              -0.20071
+            ],
+            "max": [
+              0.27495,
+              0.20071,
+              0.3085
+            ]
+          }
+        },
+        "FootL": {
+          "triangles": 848,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2908,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.2908,
+              0.22,
+              0.6
+            ]
+          }
+        },
+        "FootR": {
+          "triangles": 848,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2908,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.2908,
+              0.22,
+              0.6
+            ]
+          }
+        },
+        "HandL": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2106,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.30895,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "HandR": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.30895,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.2106,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "Weapon1": {
+          "triangles": 1264,
+          "drawCalls": 5,
+          "markers": {
+            "bastion__Muzzle1": [
+              0,
+              0.25,
+              1.39
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.312,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.312,
+              0.562,
+              1.39
+            ]
+          }
+        },
+        "Weapon2": {
+          "triangles": 1264,
+          "drawCalls": 5,
+          "markers": {
+            "bastion__Muzzle2": [
+              0,
+              0.25,
+              1.505
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.312,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.312,
+              0.562,
+              1.505
+            ]
+          }
+        },
+        "Weapon3": {
+          "triangles": 3244,
+          "drawCalls": 5,
+          "markers": {
+            "bastion__Muzzle3": [
+              0,
+              0.34,
+              1.48
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.13
+            ],
+            "max": [
+              0.47,
+              0.82,
+              1.48
+            ]
+          }
+        },
+        "Weapon4": {
+          "triangles": 2192,
+          "drawCalls": 7,
+          "markers": {
+            "bastion__Muzzle4": [
+              0,
+              0.31,
+              2.01
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.455,
+              -0.19,
+              -0.17
+            ],
+            "max": [
+              0.455,
+              0.65,
+              2.01
+            ]
+          }
+        },
+        "Weapon5": {
+          "triangles": 3124,
+          "drawCalls": 5,
+          "markers": {
+            "bastion__Muzzle5": [
+              0,
+              0.35,
+              2.02
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.23
+            ],
+            "max": [
+              0.47,
+              0.89,
+              2.02
+            ]
+          }
+        },
+        "Back3": {
+          "triangles": 2464,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.94,
+              -0.35,
+              -0.85
+            ],
+            "max": [
+              0.94,
+              0.86,
+              0.09
+            ]
+          }
+        },
+        "Back4": {
+          "triangles": 1616,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.81,
+              -0.35,
+              -0.75
+            ],
+            "max": [
+              0.81,
+              1.16,
+              -0.31
+            ]
+          }
+        },
+        "Back5": {
+          "triangles": 3536,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -1.25,
+              -0.35,
+              -0.89
+            ],
+            "max": [
+              1.25,
+              1.16,
+              0.09
+            ]
+          }
+        },
+        "Shield": {
+          "triangles": 324,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.4015,
+              -0.67,
+              -0.115
+            ],
+            "max": [
+              0.4015,
+              0.25,
+              0.2375
+            ]
+          }
+        }
+      },
+      "bodyTriangles": 15500,
+      "visibleTrianglesByStage": [
+        15824,
+        17088,
+        17088,
+        21532,
+        19632,
+        22484
+      ],
+      "preferred40kBudgetPass": true
+    },
+    "zephyr": {
+      "slots": {
+        "Head": {
+          "triangles": 840,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.4,
+              -0.12,
+              -0.187
+            ],
+            "max": [
+              0.4,
+              0.49,
+              0.409
+            ]
+          }
+        },
+        "Chest": {
+          "triangles": 1908,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.66,
+              -0.43,
+              -0.36
+            ],
+            "max": [
+              0.66,
+              0.43,
+              0.52
+            ]
+          }
+        },
+        "Torso": {
+          "triangles": 916,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.35,
+              -0.27,
+              -0.28
+            ],
+            "max": [
+              0.35,
+              0.2598,
+              0.3705
+            ]
+          }
+        },
+        "UpperArmL": {
+          "triangles": 512,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.19659,
+              -0.43,
+              -0.3
+            ],
+            "max": [
+              0.68,
+              0.4,
+              0.3
+            ]
+          }
+        },
+        "UpperArmR": {
+          "triangles": 512,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.68,
+              -0.43,
+              -0.3
+            ],
+            "max": [
+              0.19659,
+              0.4,
+              0.3
+            ]
+          }
+        },
+        "LowerArmL": {
+          "triangles": 1032,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.16195,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.30195,
+              0.11822,
+              0.295
+            ]
+          }
+        },
+        "LowerArmR": {
+          "triangles": 1032,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.30195,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.16195,
+              0.11822,
+              0.295
+            ]
+          }
+        },
+        "UpperLegL": {
+          "triangles": 872,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.18565,
+              -0.6356,
+              -0.2
+            ],
+            "max": [
+              0.32565,
+              0.13552,
+              0.2865
+            ]
+          }
+        },
+        "UpperLegR": {
+          "triangles": 872,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.32565,
+              -0.6356,
+              -0.2
+            ],
+            "max": [
+              0.18565,
+              0.13552,
+              0.2865
+            ]
+          }
+        },
+        "LowerLegL": {
+          "triangles": 1084,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.18565,
+              -0.7456,
+              -0.2
+            ],
+            "max": [
+              0.32565,
+              0.13552,
+              0.3025
+            ]
+          }
+        },
+        "LowerLegR": {
+          "triangles": 1084,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.32565,
+              -0.7456,
+              -0.2
+            ],
+            "max": [
+              0.18565,
+              0.13552,
+              0.3025
+            ]
+          }
+        },
+        "FootL": {
+          "triangles": 848,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2195,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.2195,
+              0.22,
+              0.6
+            ]
+          }
+        },
+        "FootR": {
+          "triangles": 848,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2195,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.2195,
+              0.22,
+              0.6
+            ]
+          }
+        },
+        "HandL": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.1422,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.24055,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "HandR": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.24055,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.1422,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "Weapon1": {
+          "triangles": 1952,
+          "drawCalls": 5,
+          "markers": {
+            "zephyr__Muzzle1": [
+              0,
+              0.26,
+              1.41
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.3,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.3,
+              0.56,
+              1.41
+            ]
+          }
+        },
+        "Weapon2": {
+          "triangles": 1952,
+          "drawCalls": 5,
+          "markers": {
+            "zephyr__Muzzle2": [
+              0,
+              0.26,
+              1.525
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.3,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.3,
+              0.56,
+              1.525
+            ]
+          }
+        },
+        "Weapon3": {
+          "triangles": 3244,
+          "drawCalls": 5,
+          "markers": {
+            "zephyr__Muzzle3": [
+              0,
+              0.34,
+              1.48
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.13
+            ],
+            "max": [
+              0.47,
+              0.82,
+              1.48
+            ]
+          }
+        },
+        "Weapon4": {
+          "triangles": 2248,
+          "drawCalls": 7,
+          "markers": {
+            "zephyr__Muzzle4": [
+              0,
+              0.31,
+              2.01
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.48,
+              -0.19,
+              -0.17
+            ],
+            "max": [
+              0.48,
+              0.65,
+              2.01
+            ]
+          }
+        },
+        "Weapon5": {
+          "triangles": 5396,
+          "drawCalls": 5,
+          "markers": {
+            "zephyr__Muzzle5": [
+              0,
+              0.35,
+              2.035
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.23
+            ],
+            "max": [
+              0.47,
+              0.89,
+              2.035
+            ]
+          }
+        },
+        "Back3": {
+          "triangles": 2576,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -1.16,
+              -0.35,
+              -0.85
+            ],
+            "max": [
+              1.16,
+              0.86,
+              0.09
+            ]
+          }
+        },
+        "Back4": {
+          "triangles": 1728,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -1.16,
+              -0.35,
+              -0.75
+            ],
+            "max": [
+              1.16,
+              1.34,
+              -0.31
+            ]
+          }
+        },
+        "Back5": {
+          "triangles": 3648,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -1.54,
+              -0.35,
+              -0.89
+            ],
+            "max": [
+              1.54,
+              1.34,
+              0.09
+            ]
+          }
+        },
+        "Shield": {
+          "triangles": 324,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.3139,
+              -0.67,
+              -0.115
+            ],
+            "max": [
+              0.3139,
+              0.25,
+              0.2375
+            ]
+          }
+        }
+      },
+      "bodyTriangles": 14808,
+      "visibleTrianglesByStage": [
+        15132,
+        17084,
+        17084,
+        20952,
+        19108,
+        24176
+      ],
+      "preferred40kBudgetPass": true
+    },
+    "glacier": {
+      "slots": {
+        "Head": {
+          "triangles": 840,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.392,
+              -0.12,
+              -0.187
+            ],
+            "max": [
+              0.392,
+              0.65,
+              0.409
+            ]
+          }
+        },
+        "Chest": {
+          "triangles": 1936,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.618,
+              -0.43,
+              -0.36
+            ],
+            "max": [
+              0.618,
+              0.54,
+              0.52
+            ]
+          }
+        },
+        "Torso": {
+          "triangles": 916,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.35,
+              -0.27,
+              -0.28
+            ],
+            "max": [
+              0.35,
+              0.2598,
+              0.3705
+            ]
+          }
+        },
+        "UpperArmL": {
+          "triangles": 640,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.27454,
+              -0.43,
+              -0.3
+            ],
+            "max": [
+              0.40619,
+              0.47,
+              0.331
+            ]
+          }
+        },
+        "UpperArmR": {
+          "triangles": 640,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.40619,
+              -0.43,
+              -0.3
+            ],
+            "max": [
+              0.27454,
+              0.47,
+              0.331
+            ]
+          }
+        },
+        "LowerArmL": {
+          "triangles": 1032,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.21115,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.35115,
+              0.15414,
+              0.295
+            ]
+          }
+        },
+        "LowerArmR": {
+          "triangles": 1032,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.35115,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.21115,
+              0.15414,
+              0.295
+            ]
+          }
+        },
+        "UpperLegL": {
+          "triangles": 872,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.24205,
+              -0.6356,
+              -0.2
+            ],
+            "max": [
+              0.38205,
+              0.1767,
+              0.2865
+            ]
+          }
+        },
+        "UpperLegR": {
+          "triangles": 872,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.38205,
+              -0.6356,
+              -0.2
+            ],
+            "max": [
+              0.24205,
+              0.1767,
+              0.2865
+            ]
+          }
+        },
+        "LowerLegL": {
+          "triangles": 1084,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.24205,
+              -0.7456,
+              -0.2
+            ],
+            "max": [
+              0.38205,
+              0.1767,
+              0.3025
+            ]
+          }
+        },
+        "LowerLegR": {
+          "triangles": 1084,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.38205,
+              -0.7456,
+              -0.2
+            ],
+            "max": [
+              0.24205,
+              0.1767,
+              0.3025
+            ]
+          }
+        },
+        "FootL": {
+          "triangles": 848,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.254,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.254,
+              0.22,
+              0.6
+            ]
+          }
+        },
+        "FootR": {
+          "triangles": 848,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.254,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.254,
+              0.22,
+              0.6
+            ]
+          }
+        },
+        "HandL": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.1854,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.28375,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "HandR": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.28375,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.1854,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "Weapon1": {
+          "triangles": 1592,
+          "drawCalls": 5,
+          "markers": {
+            "glacier__Muzzle1": [
+              0,
+              0.26,
+              1.41
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.41,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.41,
+              0.51,
+              1.41
+            ]
+          }
+        },
+        "Weapon2": {
+          "triangles": 1592,
+          "drawCalls": 5,
+          "markers": {
+            "glacier__Muzzle2": [
+              0,
+              0.26,
+              1.525
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.41,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.41,
+              0.51,
+              1.525
+            ]
+          }
+        },
+        "Weapon3": {
+          "triangles": 3244,
+          "drawCalls": 5,
+          "markers": {
+            "glacier__Muzzle3": [
+              0,
+              0.34,
+              1.48
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.13
+            ],
+            "max": [
+              0.47,
+              0.82,
+              1.48
+            ]
+          }
+        },
+        "Weapon4": {
+          "triangles": 2192,
+          "drawCalls": 7,
+          "markers": {
+            "glacier__Muzzle4": [
+              0,
+              0.31,
+              2.01
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.455,
+              -0.19,
+              -0.17
+            ],
+            "max": [
+              0.455,
+              0.65,
+              2.01
+            ]
+          }
+        },
+        "Weapon5": {
+          "triangles": 3348,
+          "drawCalls": 5,
+          "markers": {
+            "glacier__Muzzle5": [
+              0,
+              0.35,
+              2.02
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.23
+            ],
+            "max": [
+              0.47,
+              0.89,
+              2.02
+            ]
+          }
+        },
+        "Back3": {
+          "triangles": 1712,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.94,
+              -0.35,
+              -0.895
+            ],
+            "max": [
+              0.94,
+              1.12,
+              0.04
+            ]
+          }
+        },
+        "Back4": {
+          "triangles": 1672,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.98,
+              -0.35,
+              -0.895
+            ],
+            "max": [
+              0.98,
+              1.34,
+              -0.31
+            ]
+          }
+        },
+        "Back5": {
+          "triangles": 2784,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -1.25,
+              -0.35,
+              -0.895
+            ],
+            "max": [
+              1.25,
+              1.34,
+              0.04
+            ]
+          }
+        },
+        "Shield": {
+          "triangles": 324,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.365,
+              -0.67,
+              -0.115
+            ],
+            "max": [
+              0.365,
+              0.25,
+              0.2375
+            ]
+          }
+        }
+      },
+      "bodyTriangles": 15092,
+      "visibleTrianglesByStage": [
+        15416,
+        17008,
+        17008,
+        20372,
+        19280,
+        21548
+      ],
+      "preferred40kBudgetPass": true
+    },
+    "ember": {
+      "slots": {
+        "Head": {
+          "triangles": 972,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.392,
+              -0.12,
+              -0.187
+            ],
+            "max": [
+              0.392,
+              0.53,
+              0.428
+            ]
+          }
+        },
+        "Chest": {
+          "triangles": 1852,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.582,
+              -0.43,
+              -0.36
+            ],
+            "max": [
+              0.582,
+              0.43,
+              0.52
+            ]
+          }
+        },
+        "Torso": {
+          "triangles": 916,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.35,
+              -0.27,
+              -0.28
+            ],
+            "max": [
+              0.35,
+              0.2598,
+              0.3705
+            ]
+          }
+        },
+        "UpperArmL": {
+          "triangles": 864,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.25506,
+              -0.43,
+              -0.35
+            ],
+            "max": [
+              0.41,
+              0.44,
+              0.3
+            ]
+          }
+        },
+        "UpperArmR": {
+          "triangles": 864,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.41,
+              -0.43,
+              -0.35
+            ],
+            "max": [
+              0.25506,
+              0.44,
+              0.3
+            ]
+          }
+        },
+        "LowerArmL": {
+          "triangles": 1064,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.19885,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.23985,
+              0.14516,
+              0.295
+            ]
+          }
+        },
+        "LowerArmR": {
+          "triangles": 1064,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.23985,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.19885,
+              0.14516,
+              0.295
+            ]
+          }
+        },
+        "UpperLegL": {
+          "triangles": 904,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.22795,
+              -0.6356,
+              -0.2
+            ],
+            "max": [
+              0.26895,
+              0.1664,
+              0.2865
+            ]
+          }
+        },
+        "UpperLegR": {
+          "triangles": 904,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.26895,
+              -0.6356,
+              -0.2
+            ],
+            "max": [
+              0.22795,
+              0.1664,
+              0.2865
+            ]
+          }
+        },
+        "LowerLegL": {
+          "triangles": 1116,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.22795,
+              -0.7456,
+              -0.2
+            ],
+            "max": [
+              0.26895,
+              0.1664,
+              0.3025
+            ]
+          }
+        },
+        "LowerLegR": {
+          "triangles": 1116,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.26895,
+              -0.7456,
+              -0.2
+            ],
+            "max": [
+              0.22795,
+              0.1664,
+              0.3025
+            ]
+          }
+        },
+        "FootL": {
+          "triangles": 848,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.254,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.254,
+              0.22,
+              0.6
+            ]
+          }
+        },
+        "FootR": {
+          "triangles": 848,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.254,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.254,
+              0.22,
+              0.6
+            ]
+          }
+        },
+        "HandL": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.1746,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.27295,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "HandR": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.27295,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.1746,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "Weapon1": {
+          "triangles": 1524,
+          "drawCalls": 5,
+          "markers": {
+            "ember__Muzzle1": [
+              0,
+              0.26,
+              1.44
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.41,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.41,
+              0.5128,
+              1.44
+            ]
+          }
+        },
+        "Weapon2": {
+          "triangles": 2276,
+          "drawCalls": 5,
+          "markers": {
+            "ember__Muzzle2": [
+              0,
+              0.26,
+              1.555
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.41,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.41,
+              0.485,
+              1.555
+            ]
+          }
+        },
+        "Weapon3": {
+          "triangles": 3244,
+          "drawCalls": 5,
+          "markers": {
+            "ember__Muzzle3": [
+              0,
+              0.34,
+              1.48
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.13
+            ],
+            "max": [
+              0.47,
+              0.82,
+              1.48
+            ]
+          }
+        },
+        "Weapon4": {
+          "triangles": 2312,
+          "drawCalls": 7,
+          "markers": {
+            "ember__Muzzle4": [
+              0,
+              0.31,
+              2.01
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.455,
+              -0.19,
+              -0.17
+            ],
+            "max": [
+              0.455,
+              0.65,
+              2.01
+            ]
+          }
+        },
+        "Weapon5": {
+          "triangles": 4368,
+          "drawCalls": 5,
+          "markers": {
+            "ember__Muzzle5": [
+              0,
+              0.35,
+              2.035
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.23
+            ],
+            "max": [
+              0.47,
+              0.89,
+              2.035
+            ]
+          }
+        },
+        "Back3": {
+          "triangles": 2784,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.94,
+              -0.35,
+              -0.85
+            ],
+            "max": [
+              0.94,
+              1.05,
+              0.09
+            ]
+          }
+        },
+        "Back4": {
+          "triangles": 1936,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.855,
+              -0.35,
+              -0.80084
+            ],
+            "max": [
+              0.855,
+              1.34,
+              -0.31
+            ]
+          }
+        },
+        "Back5": {
+          "triangles": 3856,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -1.25,
+              -0.35,
+              -0.89
+            ],
+            "max": [
+              1.25,
+              1.34,
+              0.09
+            ]
+          }
+        },
+        "Shield": {
+          "triangles": 324,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.365,
+              -0.67,
+              -0.115
+            ],
+            "max": [
+              0.365,
+              0.25,
+              0.2375
+            ]
+          }
+        }
+      },
+      "bodyTriangles": 15780,
+      "visibleTrianglesByStage": [
+        16104,
+        17628,
+        18380,
+        22132,
+        20352,
+        24328
+      ],
+      "preferred40kBudgetPass": true
+    },
+    "tidal": {
+      "slots": {
+        "Head": {
+          "triangles": 1040,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.392,
+              -0.12,
+              -0.187
+            ],
+            "max": [
+              0.392,
+              0.45,
+              0.41543
+            ]
+          }
+        },
+        "Chest": {
+          "triangles": 1780,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.5814,
+              -0.43,
+              -0.36
+            ],
+            "max": [
+              0.5814,
+              0.43,
+              0.48894
+            ]
+          }
+        },
+        "Torso": {
+          "triangles": 916,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.35,
+              -0.27,
+              -0.28
+            ],
+            "max": [
+              0.35,
+              0.2598,
+              0.3705
+            ]
+          }
+        },
+        "UpperArmL": {
+          "triangles": 820,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2713,
+              -0.43,
+              -0.376
+            ],
+            "max": [
+              0.426,
+              0.33,
+              0.3
+            ]
+          }
+        },
+        "UpperArmR": {
+          "triangles": 820,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.426,
+              -0.43,
+              -0.376
+            ],
+            "max": [
+              0.2713,
+              0.33,
+              0.3
+            ]
+          }
+        },
+        "LowerArmL": {
+          "triangles": 1064,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2091,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.2501,
+              0.15264,
+              0.295
+            ]
+          }
+        },
+        "LowerArmR": {
+          "triangles": 1064,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2501,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.2091,
+              0.15264,
+              0.295
+            ]
+          }
+        },
+        "UpperLegL": {
+          "triangles": 904,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2397,
+              -0.6356,
+              -0.2
+            ],
+            "max": [
+              0.2807,
+              0.17498,
+              0.2865
+            ]
+          }
+        },
+        "UpperLegR": {
+          "triangles": 904,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2807,
+              -0.6356,
+              -0.2
+            ],
+            "max": [
+              0.2397,
+              0.17498,
+              0.2865
+            ]
+          }
+        },
+        "LowerLegL": {
+          "triangles": 1116,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2397,
+              -0.7456,
+              -0.2
+            ],
+            "max": [
+              0.2807,
+              0.17498,
+              0.3025
+            ]
+          }
+        },
+        "LowerLegR": {
+          "triangles": 1116,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2807,
+              -0.7456,
+              -0.2
+            ],
+            "max": [
+              0.2397,
+              0.17498,
+              0.3025
+            ]
+          }
+        },
+        "FootL": {
+          "triangles": 848,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.254,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.254,
+              0.22,
+              0.6
+            ]
+          }
+        },
+        "FootR": {
+          "triangles": 848,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.254,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.254,
+              0.22,
+              0.6
+            ]
+          }
+        },
+        "HandL": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.1836,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.28195,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "HandR": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.28195,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.1836,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "Weapon1": {
+          "triangles": 1464,
+          "drawCalls": 5,
+          "markers": {
+            "tidal__Muzzle1": [
+              0,
+              0.26,
+              1.41
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.41,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.41,
+              0.485,
+              1.41
+            ]
+          }
+        },
+        "Weapon2": {
+          "triangles": 1464,
+          "drawCalls": 5,
+          "markers": {
+            "tidal__Muzzle2": [
+              0,
+              0.26,
+              1.525
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.41,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.41,
+              0.485,
+              1.525
+            ]
+          }
+        },
+        "Weapon3": {
+          "triangles": 3328,
+          "drawCalls": 6,
+          "markers": {
+            "tidal__Muzzle3": [
+              0,
+              0.34,
+              1.48
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.13
+            ],
+            "max": [
+              0.47,
+              0.845,
+              1.48
+            ]
+          }
+        },
+        "Weapon4": {
+          "triangles": 2312,
+          "drawCalls": 7,
+          "markers": {
+            "tidal__Muzzle4": [
+              0,
+              0.31,
+              2.01
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.455,
+              -0.19,
+              -0.17
+            ],
+            "max": [
+              0.455,
+              0.65,
+              2.01
+            ]
+          }
+        },
+        "Weapon5": {
+          "triangles": 3372,
+          "drawCalls": 5,
+          "markers": {
+            "tidal__Muzzle5": [
+              0,
+              0.35,
+              2.02
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.23
+            ],
+            "max": [
+              0.47,
+              0.89,
+              2.02
+            ]
+          }
+        },
+        "Back3": {
+          "triangles": 1656,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.94,
+              -0.35,
+              -0.85
+            ],
+            "max": [
+              0.94,
+              0.97,
+              0.04
+            ]
+          }
+        },
+        "Back4": {
+          "triangles": 1616,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.81,
+              -0.35,
+              -0.75
+            ],
+            "max": [
+              0.81,
+              1.34,
+              -0.31
+            ]
+          }
+        },
+        "Back5": {
+          "triangles": 2728,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -1.25,
+              -0.35,
+              -0.89
+            ],
+            "max": [
+              1.25,
+              1.34,
+              0.04
+            ]
+          }
+        },
+        "Shield": {
+          "triangles": 536,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.365,
+              -0.67,
+              -0.115
+            ],
+            "max": [
+              0.365,
+              0.25,
+              0.25902
+            ]
+          }
+        }
+      },
+      "bodyTriangles": 15688,
+      "visibleTrianglesByStage": [
+        16224,
+        17688,
+        17688,
+        21208,
+        20152,
+        22324
+      ],
+      "preferred40kBudgetPass": true
+    },
+    "atlas": {
+      "slots": {
+        "Head": {
+          "triangles": 812,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.4176,
+              -0.12,
+              -0.187
+            ],
+            "max": [
+              0.4176,
+              0.45,
+              0.409
+            ]
+          }
+        },
+        "Chest": {
+          "triangles": 1896,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.7564,
+              -0.43,
+              -0.36
+            ],
+            "max": [
+              0.7564,
+              0.44,
+              0.52
+            ]
+          }
+        },
+        "Torso": {
+          "triangles": 916,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.3843,
+              -0.27,
+              -0.28
+            ],
+            "max": [
+              0.3843,
+              0.2598,
+              0.3705
+            ]
+          }
+        },
+        "UpperArmL": {
+          "triangles": 988,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.33626,
+              -0.43,
+              -0.3
+            ],
+            "max": [
+              0.45626,
+              0.424,
+              0.36
+            ]
+          }
+        },
+        "UpperArmR": {
+          "triangles": 988,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.45626,
+              -0.43,
+              -0.3
+            ],
+            "max": [
+              0.33626,
+              0.424,
+              0.36
+            ]
+          }
+        },
+        "LowerArmL": {
+          "triangles": 1108,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2501,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.2501,
+              0.18257,
+              0.3085
+            ]
+          }
+        },
+        "LowerArmR": {
+          "triangles": 1108,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2501,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.2501,
+              0.18257,
+              0.3085
+            ]
+          }
+        },
+        "UpperLegL": {
+          "triangles": 948,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2867,
+              -0.6356,
+              -0.20929
+            ],
+            "max": [
+              0.2867,
+              0.20929,
+              0.3085
+            ]
+          }
+        },
+        "UpperLegR": {
+          "triangles": 948,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2867,
+              -0.6356,
+              -0.20929
+            ],
+            "max": [
+              0.2867,
+              0.20929,
+              0.3085
+            ]
+          }
+        },
+        "LowerLegL": {
+          "triangles": 1160,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2867,
+              -0.7456,
+              -0.20929
+            ],
+            "max": [
+              0.2867,
+              0.20929,
+              0.3085
+            ]
+          }
+        },
+        "LowerLegR": {
+          "triangles": 1160,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2867,
+              -0.7456,
+              -0.20929
+            ],
+            "max": [
+              0.2867,
+              0.20929,
+              0.3085
+            ]
+          }
+        },
+        "FootL": {
+          "triangles": 1376,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.3338,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.3338,
+              0.22,
+              0.605
+            ]
+          }
+        },
+        "FootR": {
+          "triangles": 1376,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.3338,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.3338,
+              0.22,
+              0.605
+            ]
+          }
+        },
+        "HandL": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2196,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.31795,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "HandR": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.31795,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.2196,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "Weapon1": {
+          "triangles": 1448,
+          "drawCalls": 5,
+          "markers": {
+            "atlas__Muzzle1": [
+              0,
+              0.25,
+              1.415
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.31,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.31,
+              0.535,
+              1.415
+            ]
+          }
+        },
+        "Weapon2": {
+          "triangles": 1448,
+          "drawCalls": 5,
+          "markers": {
+            "atlas__Muzzle2": [
+              0,
+              0.25,
+              1.53
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.31,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.31,
+              0.535,
+              1.53
+            ]
+          }
+        },
+        "Weapon3": {
+          "triangles": 3244,
+          "drawCalls": 5,
+          "markers": {
+            "atlas__Muzzle3": [
+              0,
+              0.34,
+              1.48
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.13
+            ],
+            "max": [
+              0.47,
+              0.82,
+              1.48
+            ]
+          }
+        },
+        "Weapon4": {
+          "triangles": 2192,
+          "drawCalls": 7,
+          "markers": {
+            "atlas__Muzzle4": [
+              0,
+              0.31,
+              2.01
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.455,
+              -0.19,
+              -0.17
+            ],
+            "max": [
+              0.455,
+              0.65,
+              2.01
+            ]
+          }
+        },
+        "Weapon5": {
+          "triangles": 3604,
+          "drawCalls": 5,
+          "markers": {
+            "atlas__Muzzle5": [
+              0,
+              0.35,
+              2.0219
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.23
+            ],
+            "max": [
+              0.47,
+              0.89,
+              2.0219
+            ]
+          }
+        },
+        "Back3": {
+          "triangles": 2944,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.94,
+              -0.35,
+              -0.85
+            ],
+            "max": [
+              0.94,
+              0.98,
+              0.09
+            ]
+          }
+        },
+        "Back4": {
+          "triangles": 2096,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.87,
+              -0.35,
+              -0.78
+            ],
+            "max": [
+              0.87,
+              1.16,
+              -0.31
+            ]
+          }
+        },
+        "Back5": {
+          "triangles": 4016,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -1.25,
+              -0.35,
+              -0.89
+            ],
+            "max": [
+              1.25,
+              1.16,
+              0.09
+            ]
+          }
+        },
+        "Shield": {
+          "triangles": 324,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.4015,
+              -0.67,
+              -0.115
+            ],
+            "max": [
+              0.4015,
+              0.25,
+              0.2375
+            ]
+          }
+        }
+      },
+      "bodyTriangles": 17232,
+      "visibleTrianglesByStage": [
+        17556,
+        19004,
+        19004,
+        23744,
+        21844,
+        25176
+      ],
+      "preferred40kBudgetPass": true
+    },
+    "nova": {
+      "slots": {
+        "Head": {
+          "triangles": 1220,
+          "drawCalls": 7,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.399,
+              -0.15294,
+              -0.187
+            ],
+            "max": [
+              0.399,
+              0.63294,
+              0.41543
+            ]
+          }
+        },
+        "Chest": {
+          "triangles": 1780,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.5358,
+              -0.43,
+              -0.36
+            ],
+            "max": [
+              0.5358,
+              0.43,
+              0.48894
+            ]
+          }
+        },
+        "Torso": {
+          "triangles": 916,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.35,
+              -0.27,
+              -0.28
+            ],
+            "max": [
+              0.35,
+              0.2598,
+              0.3705
+            ]
+          }
+        },
+        "UpperArmL": {
+          "triangles": 756,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.24531,
+              -0.43,
+              -0.3
+            ],
+            "max": [
+              0.53216,
+              0.4166,
+              0.3
+            ]
+          }
+        },
+        "UpperArmR": {
+          "triangles": 756,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.53216,
+              -0.43,
+              -0.3
+            ],
+            "max": [
+              0.24531,
+              0.4166,
+              0.3
+            ]
+          }
+        },
+        "LowerArmL": {
+          "triangles": 1004,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.1927,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.19416,
+              0.14067,
+              0.295
+            ]
+          }
+        },
+        "LowerArmR": {
+          "triangles": 1004,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.19416,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.1927,
+              0.14067,
+              0.295
+            ]
+          }
+        },
+        "UpperLegL": {
+          "triangles": 844,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2209,
+              -0.6356,
+              -0.2
+            ],
+            "max": [
+              0.2209,
+              0.16126,
+              0.2865
+            ]
+          }
+        },
+        "UpperLegR": {
+          "triangles": 844,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2209,
+              -0.6356,
+              -0.2
+            ],
+            "max": [
+              0.2209,
+              0.16126,
+              0.2865
+            ]
+          }
+        },
+        "LowerLegL": {
+          "triangles": 1056,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2209,
+              -0.7456,
+              -0.2
+            ],
+            "max": [
+              0.2209,
+              0.16126,
+              0.3025
+            ]
+          }
+        },
+        "LowerLegR": {
+          "triangles": 1056,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2209,
+              -0.7456,
+              -0.2
+            ],
+            "max": [
+              0.2209,
+              0.16126,
+              0.3025
+            ]
+          }
+        },
+        "FootL": {
+          "triangles": 848,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.254,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.254,
+              0.22,
+              0.6
+            ]
+          }
+        },
+        "FootR": {
+          "triangles": 848,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.254,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.254,
+              0.22,
+              0.6
+            ]
+          }
+        },
+        "HandL": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.1692,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.26755,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "HandR": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.26755,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.1692,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "Weapon1": {
+          "triangles": 2112,
+          "drawCalls": 7,
+          "markers": {
+            "nova__Muzzle1": [
+              0,
+              0.26,
+              1.375
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.309,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.309,
+              0.56125,
+              1.375
+            ]
+          }
+        },
+        "Weapon2": {
+          "triangles": 2112,
+          "drawCalls": 7,
+          "markers": {
+            "nova__Muzzle2": [
+              0,
+              0.26,
+              1.4899999999999998
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.309,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.309,
+              0.56125,
+              1.49
+            ]
+          }
+        },
+        "Weapon3": {
+          "triangles": 4000,
+          "drawCalls": 6,
+          "markers": {
+            "nova__Muzzle3": [
+              0,
+              0.34,
+              1.48
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.13
+            ],
+            "max": [
+              0.47,
+              0.839,
+              1.48
+            ]
+          }
+        },
+        "Weapon4": {
+          "triangles": 2912,
+          "drawCalls": 7,
+          "markers": {
+            "nova__Muzzle4": [
+              0,
+              0.31,
+              2.01
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.46,
+              -0.19,
+              -0.17
+            ],
+            "max": [
+              0.46,
+              0.65,
+              2.01
+            ]
+          }
+        },
+        "Weapon5": {
+          "triangles": 4912,
+          "drawCalls": 6,
+          "markers": {
+            "nova__Muzzle5": [
+              0,
+              0.35,
+              2.005962677830599
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.23
+            ],
+            "max": [
+              0.47,
+              0.89,
+              2.00596
+            ]
+          }
+        },
+        "Back3": {
+          "triangles": 1832,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.985,
+              -0.35,
+              -0.85
+            ],
+            "max": [
+              0.985,
+              0.98,
+              0.04
+            ]
+          }
+        },
+        "Back4": {
+          "triangles": 1616,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.81,
+              -0.35,
+              -0.75
+            ],
+            "max": [
+              0.81,
+              1.34,
+              -0.31
+            ]
+          }
+        },
+        "Back5": {
+          "triangles": 2960,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -1.295,
+              -0.35,
+              -0.90231
+            ],
+            "max": [
+              1.295,
+              1.34,
+              0.04
+            ]
+          }
+        },
+        "Shield": {
+          "triangles": 536,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.365,
+              -0.67,
+              -0.115
+            ],
+            "max": [
+              0.365,
+              0.25,
+              0.25902
+            ]
+          }
+        }
+      },
+      "bodyTriangles": 15380,
+      "visibleTrianglesByStage": [
+        15916,
+        18028,
+        18028,
+        21748,
+        20444,
+        23788
+      ],
+      "preferred40kBudgetPass": true
+    },
+    "echo": {
+      "slots": {
+        "Head": {
+          "triangles": 1256,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.43212,
+              -0.12,
+              -0.187
+            ],
+            "max": [
+              0.43212,
+              0.45,
+              0.409
+            ]
+          }
+        },
+        "Chest": {
+          "triangles": 1900,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.513,
+              -0.43,
+              -0.36
+            ],
+            "max": [
+              0.513,
+              0.43,
+              0.49712
+            ]
+          }
+        },
+        "Torso": {
+          "triangles": 916,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.35,
+              -0.27,
+              -0.28
+            ],
+            "max": [
+              0.35,
+              0.2598,
+              0.3705
+            ]
+          }
+        },
+        "UpperArmL": {
+          "triangles": 784,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.23232,
+              -0.43,
+              -0.3
+            ],
+            "max": [
+              0.43,
+              0.27423,
+              0.35712
+            ]
+          }
+        },
+        "UpperArmR": {
+          "triangles": 784,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.43,
+              -0.43,
+              -0.3
+            ],
+            "max": [
+              0.23232,
+              0.27423,
+              0.35712
+            ]
+          }
+        },
+        "LowerArmL": {
+          "triangles": 1004,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.1845,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.1876,
+              0.13468,
+              0.295
+            ]
+          }
+        },
+        "LowerArmR": {
+          "triangles": 1004,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.1876,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.1845,
+              0.13468,
+              0.295
+            ]
+          }
+        },
+        "UpperLegL": {
+          "triangles": 844,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2115,
+              -0.6356,
+              -0.2
+            ],
+            "max": [
+              0.2115,
+              0.1544,
+              0.2865
+            ]
+          }
+        },
+        "UpperLegR": {
+          "triangles": 844,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2115,
+              -0.6356,
+              -0.2
+            ],
+            "max": [
+              0.2115,
+              0.1544,
+              0.2865
+            ]
+          }
+        },
+        "LowerLegL": {
+          "triangles": 1056,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2115,
+              -0.7456,
+              -0.2
+            ],
+            "max": [
+              0.2115,
+              0.1544,
+              0.3025
+            ]
+          }
+        },
+        "LowerLegR": {
+          "triangles": 1056,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.2115,
+              -0.7456,
+              -0.2
+            ],
+            "max": [
+              0.2115,
+              0.1544,
+              0.3025
+            ]
+          }
+        },
+        "FootL": {
+          "triangles": 848,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.254,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.254,
+              0.22,
+              0.6
+            ]
+          }
+        },
+        "FootR": {
+          "triangles": 848,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.254,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.254,
+              0.22,
+              0.6
+            ]
+          }
+        },
+        "HandL": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.162,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.26035,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "HandR": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.26035,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.162,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "Weapon1": {
+          "triangles": 1436,
+          "drawCalls": 5,
+          "markers": {
+            "echo__Muzzle1": [
+              0,
+              0.25,
+              1.3687764129073787
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.35714,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.35714,
+              0.60714,
+              1.36878
+            ]
+          }
+        },
+        "Weapon2": {
+          "triangles": 1436,
+          "drawCalls": 5,
+          "markers": {
+            "echo__Muzzle2": [
+              0,
+              0.25,
+              1.4837764129073787
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.35769,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.35769,
+              0.60769,
+              1.48378
+            ]
+          }
+        },
+        "Weapon3": {
+          "triangles": 3448,
+          "drawCalls": 5,
+          "markers": {
+            "echo__Muzzle3": [
+              0,
+              0.34,
+              1.4961679607770175
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.13
+            ],
+            "max": [
+              0.47,
+              0.82,
+              1.49617
+            ]
+          }
+        },
+        "Weapon4": {
+          "triangles": 2192,
+          "drawCalls": 7,
+          "markers": {
+            "echo__Muzzle4": [
+              0,
+              0.31,
+              2.01
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.455,
+              -0.19,
+              -0.17
+            ],
+            "max": [
+              0.455,
+              0.65,
+              2.01
+            ]
+          }
+        },
+        "Weapon5": {
+          "triangles": 4556,
+          "drawCalls": 5,
+          "markers": {
+            "echo__Muzzle5": [
+              0,
+              0.35,
+              2.0349721868421984
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.23
+            ],
+            "max": [
+              0.47,
+              0.89,
+              2.03497
+            ]
+          }
+        },
+        "Back3": {
+          "triangles": 1496,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.95,
+              -0.35,
+              -0.85
+            ],
+            "max": [
+              0.95,
+              0.86,
+              0.09378
+            ]
+          }
+        },
+        "Back4": {
+          "triangles": 1616,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.81,
+              -0.35,
+              -0.75
+            ],
+            "max": [
+              0.81,
+              1.34,
+              -0.31
+            ]
+          }
+        },
+        "Back5": {
+          "triangles": 2624,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -1.26,
+              -0.35,
+              -0.90231
+            ],
+            "max": [
+              1.26,
+              1.34,
+              0.09378
+            ]
+          }
+        },
+        "Shield": {
+          "triangles": 536,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.365,
+              -0.67,
+              -0.115
+            ],
+            "max": [
+              0.365,
+              0.25,
+              0.25902
+            ]
+          }
+        }
+      },
+      "bodyTriangles": 15592,
+      "visibleTrianglesByStage": [
+        16128,
+        17564,
+        17564,
+        21072,
+        19936,
+        23308
+      ],
+      "preferred40kBudgetPass": true
+    },
+    "prism": {
+      "slots": {
+        "Head": {
+          "triangles": 688,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.392,
+              -0.12,
+              -0.187
+            ],
+            "max": [
+              0.392,
+              0.65,
+              0.395
+            ]
+          }
+        },
+        "Chest": {
+          "triangles": 1852,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.642,
+              -0.43,
+              -0.36
+            ],
+            "max": [
+              0.642,
+              0.43,
+              0.52
+            ]
+          }
+        },
+        "Torso": {
+          "triangles": 916,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.35,
+              -0.27,
+              -0.28
+            ],
+            "max": [
+              0.35,
+              0.2598,
+              0.3705
+            ]
+          }
+        },
+        "UpperArmL": {
+          "triangles": 612,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.28754,
+              -0.43,
+              -0.3
+            ],
+            "max": [
+              0.41711,
+              0.24,
+              0.331
+            ]
+          }
+        },
+        "UpperArmR": {
+          "triangles": 612,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.41711,
+              -0.43,
+              -0.3
+            ],
+            "max": [
+              0.28754,
+              0.24,
+              0.331
+            ]
+          }
+        },
+        "LowerArmL": {
+          "triangles": 1032,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.21935,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.35935,
+              0.16013,
+              0.295
+            ]
+          }
+        },
+        "LowerArmR": {
+          "triangles": 1032,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.35935,
+              -0.5656,
+              -0.2
+            ],
+            "max": [
+              0.21935,
+              0.16013,
+              0.295
+            ]
+          }
+        },
+        "UpperLegL": {
+          "triangles": 872,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.25145,
+              -0.6356,
+              -0.2
+            ],
+            "max": [
+              0.39145,
+              0.18356,
+              0.2865
+            ]
+          }
+        },
+        "UpperLegR": {
+          "triangles": 872,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.39145,
+              -0.6356,
+              -0.2
+            ],
+            "max": [
+              0.25145,
+              0.18356,
+              0.2865
+            ]
+          }
+        },
+        "LowerLegL": {
+          "triangles": 1084,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.25145,
+              -0.7456,
+              -0.2
+            ],
+            "max": [
+              0.39145,
+              0.18356,
+              0.3025
+            ]
+          }
+        },
+        "LowerLegR": {
+          "triangles": 1084,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.39145,
+              -0.7456,
+              -0.2
+            ],
+            "max": [
+              0.25145,
+              0.18356,
+              0.3025
+            ]
+          }
+        },
+        "FootL": {
+          "triangles": 848,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.254,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.254,
+              0.22,
+              0.6
+            ]
+          }
+        },
+        "FootR": {
+          "triangles": 848,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.254,
+              -0.19,
+              -0.19
+            ],
+            "max": [
+              0.254,
+              0.22,
+              0.6
+            ]
+          }
+        },
+        "HandL": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.1926,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.29095,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "HandR": {
+          "triangles": 1224,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.29095,
+              -0.244,
+              -0.14
+            ],
+            "max": [
+              0.1926,
+              0.17,
+              0.24438
+            ]
+          }
+        },
+        "Weapon1": {
+          "triangles": 1264,
+          "drawCalls": 5,
+          "markers": {
+            "prism__Muzzle1": [
+              0,
+              0.25,
+              1.39
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.287,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.287,
+              0.537,
+              1.39
+            ]
+          }
+        },
+        "Weapon2": {
+          "triangles": 2276,
+          "drawCalls": 5,
+          "markers": {
+            "prism__Muzzle2": [
+              0,
+              0.26,
+              1.555
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.41,
+              -0.19,
+              -0.16
+            ],
+            "max": [
+              0.41,
+              0.485,
+              1.555
+            ]
+          }
+        },
+        "Weapon3": {
+          "triangles": 3244,
+          "drawCalls": 5,
+          "markers": {
+            "prism__Muzzle3": [
+              0,
+              0.34,
+              1.48
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.13
+            ],
+            "max": [
+              0.47,
+              0.82,
+              1.48
+            ]
+          }
+        },
+        "Weapon4": {
+          "triangles": 2192,
+          "drawCalls": 7,
+          "markers": {
+            "prism__Muzzle4": [
+              0,
+              0.31,
+              2.01
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.455,
+              -0.19,
+              -0.17
+            ],
+            "max": [
+              0.455,
+              0.65,
+              2.01
+            ]
+          }
+        },
+        "Weapon5": {
+          "triangles": 4912,
+          "drawCalls": 6,
+          "markers": {
+            "prism__Muzzle5": [
+              0,
+              0.35,
+              2.005962677830599
+            ]
+          },
+          "bounds": {
+            "min": [
+              -0.47,
+              -0.19,
+              -0.23
+            ],
+            "max": [
+              0.47,
+              0.89,
+              2.00596
+            ]
+          }
+        },
+        "Back3": {
+          "triangles": 2520,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.94,
+              -0.35,
+              -0.895
+            ],
+            "max": [
+              0.94,
+              1.12,
+              0.09
+            ]
+          }
+        },
+        "Back4": {
+          "triangles": 1672,
+          "drawCalls": 5,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.98,
+              -0.35,
+              -0.895
+            ],
+            "max": [
+              0.98,
+              1.34,
+              -0.31
+            ]
+          }
+        },
+        "Back5": {
+          "triangles": 3592,
+          "drawCalls": 6,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -1.25,
+              -0.35,
+              -0.895
+            ],
+            "max": [
+              1.25,
+              1.34,
+              0.09
+            ]
+          }
+        },
+        "Shield": {
+          "triangles": 324,
+          "drawCalls": 4,
+          "markers": {},
+          "bounds": {
+            "min": [
+              -0.365,
+              -0.67,
+              -0.115
+            ],
+            "max": [
+              0.365,
+              0.25,
+              0.2375
+            ]
+          }
+        }
+      },
+      "bodyTriangles": 14800,
+      "visibleTrianglesByStage": [
+        15124,
+        16388,
+        17400,
+        20888,
+        18988,
+        23628
+      ],
+      "preferred40kBudgetPass": true
+    }
+  },
+  "totalTriangles": 437468,
+  "blenderVersion": "4.5.3 LTS",
+  "export": {
+    "bytes": 10076856,
+    "sha256": "97c6eb4c81242153282005915679ef640511a2c013597c8dfd659a69fbbe6c3a",
+    "rootGroups": 12,
+    "socketGroups": 288,
+    "materials": [
+      "Accent",
+      "Black",
+      "Grey",
+      "LightGrey",
+      "Main",
+      "Eye",
+      "Glass"
+    ],
+    "identitySocketTransforms": true,
+    "muzzleMarkers": 60,
+    "oneMeshPerMaterialPerSlot": true,
+    "triangles": 437468,
+    "exportedNormals": true
+  },
+  "shading": {
+    "method": "Blender Weighted Normal; FACE_AREA_WITH_ANGLE",
+    "weight": 50,
+    "sharpAngleDegrees": 55,
+    "appliedOnExport": true
+  },
+  "gzip": {
+    "file": "guardian-library.glb.gz",
+    "bytes": 2362915,
+    "sha256": "f70a6a1a22d8f0ebd2012f4075d7c81b1e4eceaa8af5a4c2e7e32da5d8ebbf45",
+    "compressionLevel": 9,
+    "mtime": 0,
+    "roundTripVerified": true
+  },
+  "generatorSha256": "fc86c284f74499de5f183bfb6afa83d2d18e88b209d9fb5c0251256a420952d9"
+}

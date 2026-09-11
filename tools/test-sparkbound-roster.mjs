@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { createState, applyAction, publicState, SparkError, MOVES, BATTLE_CONFIG } from "../functions/_lib/sparkbound.js";
-import { HEROES, getHero, isHeroId, forgeSize, equipmentStage } from "../sparkbound/roster.js";
+import { HEROES, getHero, isHeroId, forgeSize, equipmentStage, getWeapon, getUpgradeRules, upgradeDescription, totalRounds, getHeroTrait } from "../sparkbound/roster.js";
 import * as content from "../functions/_lib/sparkbound-content.js";
 
 const originalHeroes = HEROES.filter(hero => ["relay", "helio", "volt", "bastion", "zephyr", "glacier"].includes(hero.id));
@@ -74,6 +74,35 @@ test("catalogue exposes eleven unique strict ids and legacy equipment/forge defa
   assert.equal(equipmentStage({}), 0);
   assert.equal(equipmentStage({ staff: true }), 1);
   assert.equal(equipmentStage({ staff: true, pad: true }), 2);
+});
+
+test("v4 stage descriptions and retained salvo distinguish new equipment from saved legacy labels", () => {
+  const oldDetails = [
+    'Shoulder batteries and reinforced armour support a stronger piercing shot.',
+    'A dorsal rail assembly and stabilisers channel a more powerful shot.',
+    'The complete siege rig combines its shoulder battery, rail and arm cannon.'
+  ];
+  for (const hero of HEROES) for (const rulesVersion of [1, 2, 3, 4]) for (let stage = 0; stage <= 5; stage++) {
+    const match = { heroId: hero.id, rulesVersion, upgradeStage: stage, staff: stage >= 1, pad: stage >= 2 };
+    assert.equal(equipmentStage(match), rulesVersion >= 3 ? stage : Math.min(stage, 2));
+    assert.equal(totalRounds(match), rulesVersion >= 3 ? 6 : 3);
+    assert.equal(getUpgradeRules(match) !== null, rulesVersion === 4);
+    if (rulesVersion === 4 && stage >= 3) {
+      assert.equal(getWeapon(match).name, hero.weapons[3].name);
+      assert.equal(getWeapon(match).shortName, "Salvo");
+      assert.equal(getWeapon(match, true).name, hero.weapons[stage].name);
+      assert.equal(getWeapon(match, true).shortName, ["Full Salvo", "Rail Shot", "Arsenal"][stage - 3]);
+      assert.equal(upgradeDescription(match), hero.weapons[stage].detail);
+      assert.equal(Object.isFrozen(getUpgradeRules(match)), true);
+    } else if (rulesVersion === 3 && stage >= 3) {
+      assert.equal(getWeapon(match).shortName, hero.weapons[stage].shortName);
+      assert.equal(getWeapon(match, true).shortName, `${hero.weapons[stage].shortName} +`);
+      assert.equal(getWeapon(match).detail, oldDetails[stage - 3]);
+      assert.equal(upgradeDescription(match), oldDetails[stage - 3]);
+    }
+  }
+  assert.match(getHeroTrait({ rulesVersion: 4, heroId: "glacier" }).description, /Every special/);
+  assert.match(getHeroTrait({ rulesVersion: 3, heroId: "glacier" }).description, /Avalanche/);
 });
 
 for (const [index, heroId] of [undefined, null, "", "Relay", "HELIO", "helio ", " helio", "relay\n", "constructor",
@@ -310,7 +339,7 @@ test("reloaded v2 continues every phase with original six question snapshots and
   }
   const next = applyAction(JSON.parse(JSON.stringify(state)), { type: "start", heroId: "ember" });
   assert.deepEqual(next.history[0], { ...state.match, outcome: "victory" });
-  assert.equal(next.match.rulesVersion, 3);
+  assert.equal(next.match.rulesVersion, 4);
   assert.equal(next.match.questions.length, 15);
 });
 

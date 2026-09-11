@@ -1,6 +1,6 @@
 import { selectQuestions, INTENTS, MOVES, BATTLE_CONFIG } from "./sparkbound-content.js";
 import { selectCampaignQuestions } from "./sparkbound-expansion-content.js";
-import { getHero, isHeroId, forgeSize } from "../../sparkbound/roster.js";
+import { getHero, getHeroTrait, isHeroId, forgeSize, isCampaign, getUpgradeRules, moveEnergyCost, getWeapon } from "../../sparkbound/roster.js";
 export { INTENTS, MOVES, BATTLE_CONFIG };
 
 export const CAMPAIGN_ROUNDS = Object.freeze([
@@ -11,7 +11,7 @@ export const CAMPAIGN_ROUNDS = Object.freeze([
   { playerHP: 32, rivalHP: 64, playerPower: 42, rivalPower: 42 },
   { playerHP: 34, rivalHP: 76, playerPower: 50, rivalPower: 50 }
 ].map(Object.freeze));
-const campaign = (match) => match?.rulesVersion === 3;
+const campaign = isCampaign;
 const rounds = (match) => campaign(match) ? CAMPAIGN_ROUNDS : BATTLE_CONFIG.rounds;
 const trainingSize = (match) => campaign(match) ? 3 : forgeSize(match);
 
@@ -54,7 +54,7 @@ function validateState(state) {
       !Number.isSafeInteger(m.energy) || m.energy < 0 || m.energy > 4 ||
       ![m.playerHP, m.rivalHP, m.exchange].every((n) => Number.isSafeInteger(n) && n >= 0) ||
       !Array.isArray(m.questions) || !(campaign(m) ? m.questions.length === 15 : [4, 6].includes(m.questions.length)) ||
-      (own(m, "rulesVersion") && ![1, 2, 3].includes(m.rulesVersion)) ||
+      (own(m, "rulesVersion") && ![1, 2, 3, 4].includes(m.rulesVersion)) ||
       (m.rulesVersion === 1 && m.questions.length !== 4) || (m.rulesVersion === 2 && m.questions.length !== 6) ||
       !Number.isSafeInteger(m.questionIndex) || m.questionIndex < 0 || m.questionIndex > m.questions.length ||
       (own(m, "heroId") && !isHeroId(m.heroId)) ||
@@ -141,7 +141,7 @@ function start(state, action) {
       hintsUsed: 0, supportEvents: [], feedback: null, resolved: false, completion: null })),
     questionIndex: 0, seed: hash(`${state.profileId}:${number}`), roundAttempt: 1,
     assisted: false, rewardGranted: false, trainingStage: 0 };
-  if (own(action, "heroId")) Object.assign(state.match, { heroId: action.heroId, rulesVersion: 3, learningLevel, upgradeStage: 0 });
+  if (own(action, "heroId")) Object.assign(state.match, { heroId: action.heroId, rulesVersion: 4, learningLevel, upgradeStage: 0 });
   prepareRound(state.match);
   event(state, "match_started");
 }
@@ -154,7 +154,8 @@ function move(state, action) {
       (name === "special" && (campaign(match) ? stage < 2 : !match.pad)))
     fail("MOVE_LOCKED", "Complete the forge for this technique.");
   const hero = getHero(match.heroId);
-  const cost = hero.id === "echo" && name === "break" ? 1 : MOVES[name].cost;
+  const upgrade = getUpgradeRules(match);
+  const cost = moveEnergyCost(match, name);
   if (match.energy < cost) fail("INSUFFICIENT_ENERGY", "Build more energy first.");
   const intent = match.intent;
   const incoming = BATTLE_CONFIG.incoming[intent] + (intent === "open" ? 0 : Math.floor(stage / 2));
@@ -180,9 +181,18 @@ function move(state, action) {
   } else {
     damage = 12;
     guardBroken = intent === "guard";
-    match.energy = 0;
+    match.energy = upgrade ? match.energy - cost : 0;
   }
   if (damage > 0) damage += stage;
+  // Version 4 equipment resolves before hero traits; older saves never enter this branch.
+  if (upgrade) {
+    if (name === "guard" && incoming > 0) damage = upgrade.guardCounter;
+    if (name === "special") {
+      if (intent === "open") damage += upgrade.openingBonus;
+      if (stage >= 4 && intent === "guard") rivalDamage = 0;
+      rivalDamage = Math.floor(rivalDamage / upgrade.incomingDivisor);
+    }
+  }
   const baselineDamage = damage;
   const baselineIncoming = rivalDamage;
   if (hero.id === "helio" && name !== "guard" && intent === "open") damage += 2;
@@ -190,7 +200,7 @@ function move(state, action) {
   if (hero.id === "zephyr" && name === "strike" && intent === "strike") rivalDamage = Math.max(0, rivalDamage - 2);
   if (hero.id === "glacier" && name === "special") rivalDamage = Math.floor(rivalDamage / 2);
   if (hero.id === "ember" && name === "break" && intent === "guard") damage += 2;
-  if (hero.id === "atlas" && name === "special") damage += 2;
+  if (hero.id === "atlas" && name === "special" && (!upgrade || cost === 4)) damage += 2;
   if (hero.id === "nova" && name === "strike" && intent !== "guard") damage += 1;
   const supported = (amount) => match.assisted ? Math.floor(amount / 2) : amount;
   rivalDamage = supported(rivalDamage);
@@ -201,10 +211,26 @@ function move(state, action) {
   // Compare actual HP/energy changes, so caps and support rounding cannot report a false benefit.
   const extraDamage = dealt - Math.min(match.rivalHP, baselineDamage);
   const prevented = Math.min(match.playerHP, supported(baselineIncoming)) - received;
+  const trait = getHeroTrait(match);
   const ability = extraEnergy > 0 || extraDamage > 0 || prevented > 0 || healing > 0 ? {
-    id: hero.trait.id, name: hero.trait.name,
-    description: hero.trait.description
+    id: trait.id, name: trait.name,
+    description: trait.description
   } : null;
+  let technique;
+  if (upgrade && ((name === "special" && stage >= 2) || (name === "break" && stage >= 3) ||
+      (name === "guard" && damage > 0))) {
+    const id = name === "guard" ? "counter" : name === "break" ? "salvo" : upgrade.id;
+    const count = name === "break" ? 2 : name === "special" ? upgrade.specialShots : 1;
+    let remaining = dealt;
+    // Clip each shot against the remaining shield. Traits apply once to the whole move.
+    const shots = Array.from({ length: count }, (_, i) => {
+      const shot = Math.min(remaining, Math.floor(damage / count) + (i < damage % count ? 1 : 0));
+      remaining -= shot;
+      return shot;
+    });
+    technique = { id, name: { counter: "Shield counter", salvo: "Twin salvo", blast: "Heavy blast", rail: "Rail shot", arsenal: "Guardian arsenal" }[id],
+      energySpent: cost, shots };
+  }
   match.rivalHP -= dealt;
   match.playerHP += healing - received;
   match.exchange++;
@@ -212,7 +238,8 @@ function move(state, action) {
   else if (match.rivalHP === 0) match.phase = "round_won";
   match.intent = match.phase === "battle" ? intentAt(match) : null;
   event(state, "exchange", { move: name, intent, damage: dealt, rivalDamage: received,
-    guardBroken, phase: match.phase, exchange: match.exchange, ...(ability ? { ability } : {}), ...(healing ? { healing } : {}) });
+    guardBroken, phase: match.phase, exchange: match.exchange, ...(ability ? { ability } : {}), ...(healing ? { healing } : {}),
+    ...(technique ? { technique } : {}) });
 }
 function advance(state) {
   const match = state.match;
@@ -346,6 +373,18 @@ export function publicState(state, { review = false } = {}) {
   if (campaign(state.match) && state.match.heroId === "echo") Object.assign(result.configuration.moves.break, {
     cost: 1, description: "Spend 1 energy. Fire the pulse launcher through Prism's shield."
   });
+  const upgrade = getUpgradeRules(state.match);
+  if (upgrade) {
+    result.configuration.upgrade = structuredClone(upgrade);
+    result.configuration.trait = structuredClone(getHeroTrait(state.match));
+    for (const name of ["break", "special"]) {
+      const weapon = getWeapon(state.match, name === "special");
+      Object.assign(result.configuration.moves[name], { cost: moveEnergyCost(state.match, name), label: weapon.shortName,
+        description: name === "break" ? `Spend ${moveEnergyCost(state.match, name)} energy. Fire ${state.match.upgradeStage >= 3 ? 'two shots' : 'a piercing shot'} through a raised shield. Strongest against shields.` :
+          state.match.upgradeStage < 3 ? "Spend 4 energy on a heavy blast that pierces shields. Incoming hits still hurt." : upgrade.description });
+    }
+    if (upgrade.guardCounter) result.configuration.moves.guard.description += " Hit back for 2 damage when a hit arrives.";
+  }
   if (review) return result;
   const project = (match) => {
     delete match.seed;

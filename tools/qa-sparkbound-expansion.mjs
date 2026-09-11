@@ -9,10 +9,13 @@ import { startSparkboundQa } from './serve-sparkbound-qa.mjs';
 import { HEROES } from '../sparkbound/roster.js';
 import { createState, applyAction, publicState } from '../functions/_lib/sparkbound.js';
 import { EXPANDED_QUESTION_BANK, selectExpandedQuestions } from '../functions/_lib/sparkbound-expansion-content.js';
+import { inspectTrue3dRig, assertTrue3dRig, TRUE3D_MODEL } from './qa-sparkbound-true3d.mjs';
 const require = createRequire(import.meta.url);
 export const repo = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const VIEWPORTS = [['desktop',1440,1000],['tablet',1024,768],['phone',390,844],['small-phone',320,568],['wide-phone',430,932],['landscape',844,390]];
 export const CAMPAIGN = { heroes: 11, stages: 6, locked: 5, questions: 15, rounds: 6 };
+export const CURRENT_RULES_VERSION = applyAction(createState({ profileId: 'synthetic-qa-version' }), { type: 'start', heroId: 'relay' }).match.rulesVersion;
+assert.ok([3, 4].includes(CURRENT_RULES_VERSION), 'Review QA campaign expectations for an unknown rules version');
 export const CHALLENGE_BANDS = Object.freeze(['Foundation', 'Applied', 'Stretch', 'Challenge', 'Master']);
 const bandName = level => CHALLENGE_BANDS[level - 1];
 export function dependency(name) {
@@ -24,7 +27,10 @@ async function main() {
 assert.ok(process.argv.includes('--bundle-ready'), 'Wait for the user to confirm bundle ready, then pass --bundle-ready. This script never builds.');
 const { chromium } = dependency('playwright');
 const campaignOnly = process.argv.includes('--campaign-only');
-const output = resolve(repo, `../outputs/sparkbound-build/${campaignOnly ? 'expansion-campaign-qa' : 'expansion-qa'}`);
+const nonCampaignOnly = process.argv.includes('--non-campaign-only');
+assert.ok(!(campaignOnly && nonCampaignOnly), 'Choose only one partial UI scope');
+const scope = campaignOnly ? 'campaign-and-recovery' : nonCampaignOnly ? 'non-campaign' : 'full';
+const output = resolve(repo, `../outputs/sparkbound-build/${campaignOnly ? 'expansion-campaign-qa' : nonCampaignOnly ? 'expansion-non-campaign-qa' : 'expansion-qa'}`);
 const startedAt = new Date().toISOString();
 const bundleHash = () => readFile(resolve(repo, 'sparkbound/game.js')).then(bytes => createHash('sha256').update(bytes).digest('hex'));
 const bundleSha256 = await bundleHash();
@@ -45,7 +51,12 @@ await context.addInitScript(({ id, cap }) => {
 }, { id: f.childId, cap: f.childCapability });
 page = await context.newPage();
 page.on('pageerror', e => errors.push(e.message));
-page.on('console', e => { if (e.type() === 'error') (expectedFailure && e.text().includes('Failed to load resource') ? expectedErrors : errors).push(e.text()); });
+page.on('console', e => {
+  if (e.type() !== 'error') return;
+  const message = e.text();
+  const syntheticBootOutage = message.startsWith('Sparkbound boot failed ') && message.includes('Synthetic boot outage');
+  (expectedFailure && (message.includes('Failed to load resource') || syntheticBootOutage) ? expectedErrors : errors).push(message);
+});
 page.on('response', r => { if (r.status() >= 400) (expectedFailure && new URL(r.url()).pathname === '/api/sparkbound' ? expectedErrors : errors).push(`${r.status()} ${r.url()}`); });
 page.on('requestfailed', r => errors.push(`${r.failure()?.errorText} ${r.url()}`));
 const check = (name, value = true) => { assert.ok(value, name); checks.push(name); };
@@ -89,22 +100,18 @@ async function layout(name) {
     await page.locator(`[data-hero="${hero.id}"]`).click();
     for (let stage = 0; stage < CAMPAIGN.stages; stage++) {
       await page.locator(`[data-stage="${stage}"]`).click();
-      await page.waitForFunction(({ id, stage }) => {
+      await page.waitForFunction(({ id, stage, model }) => {
         const relay = window.__SPARK_QA__?.world?.relay;
-        const actor = relay?.root.getObjectByName('generated-image-actor');
-        return relay?.imageActive === true && actor?.userData.art?.id === id && actor.userData.stage === stage;
-      }, { id: hero.id, stage }, { timeout: 45000 });
-      const art = await page.evaluate(() => {
-        const relay = window.__SPARK_QA__.world.relay;
-        const actor = relay.root.getObjectByName('generated-image-actor');
-        return { imageActive: relay.imageActive, id: actor.userData.art?.id, stage: actor.userData.stage,
-          source: actor.userData.art?.source, alphaPixels: actor.userData.art?.alphaPixels,
-          visible: relay.root.visible && actor.visible, bodyAccessible: !!relay.body, bodyVisible: relay.body?.visible ?? null };
-      });
+        return relay?.ready && relay.imageActive === false && relay.root.userData.model === model
+          && relay.root.userData.heroId === id && relay.root.userData.equipmentStage === stage;
+      }, { id: hero.id, stage, model: TRUE3D_MODEL }, { timeout: 45000 });
+      const rigHandle = await page.evaluateHandle(() => window.__SPARK_QA__.world.relay);
+      let art;
+      try { art = await rigHandle.evaluate(inspectTrue3dRig); }
+      finally { await rigHandle.dispose(); }
       previewEvidence.push({ hero: hero.id, previewStage: stage, screenshot: `${hero.id}-preview-${stage}.png`, ...art });
-      check(`${hero.id} preview ${stage}: selected generated actor is active and visible`, art.imageActive === true && art.visible === true && art.id === hero.id && art.stage === stage && art.source === 'generated-atlas');
-      check(`${hero.id} preview ${stage}: all four generated poses have positive alpha coverage`, Array.isArray(art.alphaPixels) && art.alphaPixels.length === 4 && art.alphaPixels.every(n => Number.isFinite(n) && n > 0));
-      if (art.bodyAccessible) check(`${hero.id} preview ${stage}: legacy body is hidden`, art.bodyVisible === false);
+      assertTrue3dRig(art, check, `${hero.id} preview ${stage}`, { id: hero.id, stage });
+      if (stage > 0) check(`${hero.id} preview ${stage}: equipment geometry changes`, previewEvidence.at(-2).geometrySignature !== art.geometrySignature);
       check(`${hero.id} preview stage ${stage} is render-only`, !(await state()).match && await page.evaluate(id => window.__SPARK_QA__.world.relay.heroId === id, hero.id)
         && (await page.locator('.preview-name').textContent()).includes(hero.weapons[stage].name)
         && await page.locator(`[data-stage="${stage}"]`).getAttribute('aria-pressed') === 'true');
@@ -118,10 +125,11 @@ async function layout(name) {
     await click('path-back');
     console.log(`Six previews and path passed: ${hero.id}`);
   }
-  check('All 66 generated actor previews have identity and pose evidence', previewEvidence.length === CAMPAIGN.heroes * CAMPAIGN.stages);
+  check('All 66 articulated hero previews have identity and volumetric geometry evidence', previewEvidence.length === CAMPAIGN.heroes * CAMPAIGN.stages);
   for (const [name, width, height] of VIEWPORTS) {
     await page.setViewportSize({ width, height }); await page.waitForTimeout(350);
     await layout(`${name} hangar`); await shot(`${name}-hangar`);
+    if (['desktop', 'tablet', 'phone'].includes(name)) await verifyInspectionControls({ page, state, check, shot, label: name, touch: name !== 'desktop' });
     await click('path'); await layout(`${name} path`); await shot(`${name}-path`);
     await click('path-back');
     await click('settings'); await assertPanelFits(page, 'dialog', check, `${name} settings`); await shot(`${name}-settings`); await click('save-settings');
@@ -131,8 +139,8 @@ async function layout(name) {
   for (const hero of HEROES) {
     await page.locator(`[data-hero="${hero.id}"]`).click(); await click('start');
     const s = await state();
-    check(`${hero.id}: real v3 match starts at base stage with fifteen questions and six rounds`, s.match.heroId === hero.id && s.match.rulesVersion === 3 && s.match.upgradeStage === 0 && s.match.questions.length === CAMPAIGN.questions && s.configuration.battle.rounds.length === CAMPAIGN.rounds && !s.match.staff && !s.match.pad);
-    check(`${hero.id}: zero-win v3 starts at Applied`, s.match.learningLevel === 2);
+    check(`${hero.id}: real v${CURRENT_RULES_VERSION} match starts at base stage with fifteen questions and six rounds`, s.match.heroId === hero.id && s.match.rulesVersion === CURRENT_RULES_VERSION && s.match.upgradeStage === 0 && s.match.questions.length === CAMPAIGN.questions && s.configuration.battle.rounds.length === CAMPAIGN.rounds && !s.match.staff && !s.match.pad);
+    check(`${hero.id}: zero-win current campaign starts at Applied`, s.match.learningLevel === 2);
     assertLearnerPrivacy(s, check, `${hero.id} fresh match`);
     check(`${hero.id}: attack and shield immediately available`, await page.locator('[data-move]').count() === 2);
     check(`${hero.id}: HUD names selected hero`, await page.locator('.hero-hud:not(.rival) strong').textContent() === hero.name.toUpperCase());
@@ -187,13 +195,14 @@ async function layout(name) {
     check(`${hero.id}: stage five has all four moves and six round indicators`, await page.locator('[data-move]').count() === 4 && await page.locator('.round-dots i').count() === CAMPAIGN.rounds);
     await shot(`${hero.id}-advanced-phone`);
   }
+  await verifyLegacyV3Save({ page, seed, state, settled, check, shot, profileId: f.childId });
   for (const level of [1, 2, 3]) for (const type of ['numeric', 'order', 'mcq']) {
     const candidates = EXPANDED_QUESTION_BANK.filter(q => q.learningLevel === level && q.type === type);
     if (!candidates.length) continue;
     const q = candidates.sort((a,b) => (b.prompt.length + b.choices.map(c => c.label).join('').length) - (a.prompt.length + a.choices.map(c => c.label).join('').length))[0];
     const base = createState({ profileId: f.childId }); base.wins = (level - 1) * 2;
     const s = applyAction(base, { type: 'start' });
-    // Preserve the original six-question v2 long-prompt regression, not an invalid v3 campaign.
+    // Preserve the original six-question v2 long-prompt regression, not an invalid current campaign.
     Object.assign(s.match, { heroId: 'helio', rulesVersion: 2, learningLevel: level,
       questions: selectExpandedQuestions(1, 'helio', level).map(question => ({ ...structuredClone(question), attempts: [], hintsUsed: 0, supportEvents: [], feedback: null, resolved: false, completion: null })) });
     Object.assign(s.match, { phase: 'training', trainingStage: q.forge === 'maths' ? 1 : 2, questionIndex: q.slot });
@@ -221,6 +230,12 @@ async function layout(name) {
     }
     await exerciseAnswerControls(page, q, settled, check, `v2 ${level} ${type}`);
   }
+  }
+  if (nonCampaignOnly) {
+    check('No browser or asset errors', errors.length === 0);
+    check('Tested bundle stayed unchanged throughout the run', await bundleHash() === bundleSha256);
+    console.log(JSON.stringify({ scope, checks: checks.length, errors, output }, null, 2));
+    return;
   }
   await verifyHarderCampaignForms({ page, seed, state, settled, check, shot, profileId: f.childId });
   for (const action of ['retry', 'retry-supported']) {
@@ -269,13 +284,13 @@ async function layout(name) {
   check('Tested bundle stayed unchanged throughout the run', await bundleHash() === bundleSha256);
   console.log(JSON.stringify({ checks: checks.length, errors, output }, null, 2));
 } catch (error) { errors.push(error.stack); await page?.screenshot({ path: resolve(output, 'failure.png') }).catch(() => {}); throw error; }
-finally { await browser?.close(); await harness.close(); await writeFile(resolve(output, 'report.json'), JSON.stringify({ scope: campaignOnly ? 'campaign-and-recovery' : 'full', startedAt, finishedAt: new Date().toISOString(), bundleSha256, checks, errors, expectedErrors, previewEvidence, campaign: CAMPAIGN }, null, 2)); }
+finally { await browser?.close(); await harness.close(); await writeFile(resolve(output, 'report.json'), JSON.stringify({ scope, startedAt, finishedAt: new Date().toISOString(), bundleSha256, checks, errors, expectedErrors, previewEvidence, campaign: CAMPAIGN }, null, 2)); }
 }
 
 // Only fixture preparation uses domain actions. The full journey below clicks the shipped UI.
 export const campaignMove = m => m.intent === 'heavy' ? 'guard' : m.pad && m.energy === 4 ? 'special' :
   m.staff && m.intent === 'guard' && m.energy >= (m.heroId === 'echo' ? 1 : 2) ? 'break' : 'strike';
-function campaignAt(profileId, heroId, predicate, { wins = 0, number = 1 } = {}) {
+export function campaignAt(profileId, heroId, predicate, { wins = 0, number = 1 } = {}) {
   const base = createState({ profileId });
   Object.assign(base, { wins, tier: wins + 1, nextMatchNumber: number });
   let s = applyAction(base, { type: 'start', heroId });
@@ -322,14 +337,81 @@ function longFormCampaignFixture(profileId, template) {
   assert.fail(`Could not isolate the longest ${template.difficulty} ${template.type} task`);
 }
 
+export async function verifyLegacyV3Save({ page, seed, state, settled, check, shot, profileId }) {
+  const saved = applyAction(createState({ profileId }), { type: 'start', heroId: 'relay' });
+  saved.match.rulesVersion = 3;
+  // Legacy battle values are snapshotted, not recalculated using the new campaign table.
+  Object.assign(saved.match, { playerHP: 24, maxPlayerHP: 24, rivalHP: 16, playerPower: 10, rivalPower: 10, intent: 'strike' });
+  publicState(saved);
+  const questionIds = saved.match.questions.map(q => q.id);
+  await seed(saved); await page.reload(); await settled();
+  let loaded = await state();
+  check('Legacy v3 survives reload without upgrade or task replacement', loaded.match.rulesVersion === 3 && JSON.stringify(loaded.match.questions.map(q => q.id)) === JSON.stringify(questionIds));
+  const expected = applyAction(saved, { type: 'move', move: 'guard' });
+  await page.locator('[data-move="guard"]').click(); await settled();
+  loaded = await state();
+  check('Legacy v3 accepts a move and retains snapshotted combat results', loaded.match.rulesVersion === 3 && ['playerHP', 'rivalHP', 'energy', 'phase', 'round'].every(key => loaded.match[key] === expected.match[key]));
+  await page.reload(); await settled();
+  check('Legacy v3 move survives a second reload', (await state()).match.rulesVersion === 3 && (await state()).version === expected.version);
+  await shot('legacy-v3-preserved');
+}
+
+export async function verifyInspectionControls({ page, state, check, shot, label, touch = false, hook = true }) {
+  const before = JSON.stringify(await state());
+  const selection = await page.locator('[data-stage][aria-pressed="true"]').getAttribute('data-stage');
+  const yaw = () => page.evaluate(() => window.__SPARK_QA__?.world.relay.root.rotation.y ?? null);
+  const turn = async (action, delta) => {
+    const old = await yaw(); await page.locator(`[data-action="${action}"]`).click();
+    if (hook) check(`${label}: ${action} rotates geometry by ${delta}`, Math.abs((await yaw()) - old - delta) < .001);
+    await shot(`${label}-${action}`);
+  };
+  await page.locator('[data-action="rotate-reset"]').click(); const reset = await yaw();
+  await turn('rotate-left', -.5); await turn('rotate-right', .5);
+  if (hook) check(`${label}: opposite rotations restore orientation`, Math.abs((await yaw()) - reset) < .001);
+  await turn('rotate-right', .5);
+  await page.locator('[data-action="rotate-reset"]').click();
+  if (hook) check(`${label}: reset restores default orientation`, Math.abs((await yaw()) - reset) < .001);
+  const points = await page.locator('#scene').evaluate(canvas => {
+    const b = canvas.getBoundingClientRect();
+    for (let y = Math.max(60, b.top + 30); y < Math.min(innerHeight, b.bottom) - 30; y += 25) {
+      for (let x = Math.max(20, b.left + 20); x < Math.min(innerWidth, b.right) - 100; x += 25) {
+        if ([0, 25, 50, 75].every(dx => document.elementFromPoint(x + dx, y) === canvas)) return { x, y, endX: x + 75 };
+      }
+    }
+    return null;
+  });
+  check(`${label}: exposed canvas has a reachable drag area`, points !== null);
+  if (points) {
+    const old = await yaw();
+    if (touch) {
+      const cdp = await page.context().newCDPSession(page);
+      try {
+        await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: points.x, y: points.y, id: 1 }] });
+        for (let i = 1; i <= 6; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: points.x + (points.endX - points.x) * i / 6, y: points.y, id: 1 }] });
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+      } finally { await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: false }); await cdp.detach(); }
+    } else {
+      await page.mouse.move(points.x, points.y); await page.mouse.down();
+      await page.mouse.move(points.endX, points.y, { steps: 8 }); await page.mouse.up();
+    }
+    if (hook) check(`${label}: real ${touch ? 'touch' : 'mouse'} drag rotates geometry`, Math.abs((await yaw()) - old) > .1);
+    await shot(`${label}-${touch ? 'touch' : 'mouse'}-drag`);
+    const released = await yaw(); await page.mouse.move(points.endX + 15, points.y + 10);
+    if (hook) check(`${label}: released drag stops rotating`, Math.abs((await yaw()) - released) < .001);
+  }
+  await page.locator('[data-action="rotate-reset"]').click();
+  check(`${label}: rotation leaves save and equipment selection unchanged`, JSON.stringify(await state()) === before && await page.locator('[data-stage][aria-pressed="true"]').getAttribute('data-stage') === selection);
+}
+
 export async function verifyHarderCampaignForms({ page, seed, state, settled, check, shot, profileId }) {
   for (const wins of [0, 1, 2, 4, 20]) {
     const base = createState({ profileId }); Object.assign(base, { wins, tier: wins + 1 });
     const fresh = applyAction(base, { type: 'start', heroId: 'helio' });
-    check(`V3 start at ${wins} wins stays in bands 2..3`, fresh.match.learningLevel >= 2 && fresh.match.learningLevel <= 3);
-    if (wins === 0) check('New v3 starts at Applied, never Foundation', fresh.match.learningLevel === 2);
-    if (wins >= 4) check(`Experienced v3 start is capped at Stretch (${wins} wins)`, fresh.match.learningLevel === 3);
-    check(`V3 ${wins} wins: fifteen questions use bands 2..5`, fresh.match.questions.length === CAMPAIGN.questions && fresh.match.questions.every(q => q.learningLevel >= 2 && q.learningLevel <= 5 && q.difficulty === bandName(q.learningLevel)));
+    check(`V${CURRENT_RULES_VERSION} start at ${wins} wins stays in bands 2..3`, fresh.match.learningLevel >= 2 && fresh.match.learningLevel <= 3);
+    if (wins === 0) check('New current campaign starts at Applied, never Foundation', fresh.match.learningLevel === 2);
+    if (wins >= 4) check(`Experienced current campaign start is capped at Stretch (${wins} wins)`, fresh.match.learningLevel === 3);
+    check(`V${CURRENT_RULES_VERSION} ${wins} wins: fifteen questions use bands 2..5`, fresh.match.questions.length === CAMPAIGN.questions && fresh.match.questions.every(q => q.learningLevel >= 2 && q.learningLevel <= 5 && q.difficulty === bandName(q.learningLevel)));
   }
   for (const level of [2, 3, 4, 5]) for (const type of ['numeric', 'order', 'mcq']) {
     const candidates = EXPANDED_QUESTION_BANK.filter(q => q.learningLevel === level && q.type === type);
@@ -342,32 +424,32 @@ export async function verifyHarderCampaignForms({ page, seed, state, settled, ch
     const q = candidates.sort((a, b) => length(b) - length(a))[0];
     const fixture = longFormCampaignFixture(profileId, q);
     await seed(fixture);
-    check(`${bandName(level)} ${type}: valid v3 fifteen-question fixture`, (await state()).match.rulesVersion === 3 && (await state()).match.questions.length === CAMPAIGN.questions);
+    check(`${bandName(level)} ${type}: valid v${CURRENT_RULES_VERSION} fifteen-question fixture`, (await state()).match.rulesVersion === CURRENT_RULES_VERSION && (await state()).match.questions.length === CAMPAIGN.questions);
     assertLearnerPrivacy(await state(), check, `${bandName(level)} ${type} fixture`);
     await assertCurrentBand(page, await state(), q, check, `${bandName(level)} ${type}`);
     for (const [name, width, height] of VIEWPORTS) {
       await page.setViewportSize({ width, height });
-      await assertPanelFits(page, '.forge-panel', check, `v3 ${bandName(level)} ${type} ${name}`);
-      check(`v3 ${level} ${type} ${name}: prompt is not nested-clipped`, await page.locator('.forge-brief').evaluate(e => e.scrollHeight <= e.clientHeight + 2));
+      await assertPanelFits(page, '.forge-panel', check, `v${CURRENT_RULES_VERSION} ${bandName(level)} ${type} ${name}`);
+      check(`v${CURRENT_RULES_VERSION} ${level} ${type} ${name}: prompt is not nested-clipped`, await page.locator('.forge-brief').evaluate(e => e.scrollHeight <= e.clientHeight + 2));
       const target = page.locator(type === 'numeric' ? '[data-key="1"]' : type === 'order' ? '[data-action="order"]:not(:disabled)' : '[data-action="choose"]').last();
       await target.scrollIntoViewIfNeeded(); const scrollTop = await page.locator('.forge-panel').evaluate(e => e.scrollTop);
       await target.click(); await settled();
-      check(`v3 ${level} ${type} ${name}: choosing preserves scroll`, Math.abs(await page.locator('.forge-panel').evaluate(e => e.scrollTop) - scrollTop) < 3);
+      check(`v${CURRENT_RULES_VERSION} ${level} ${type} ${name}: choosing preserves scroll`, Math.abs(await page.locator('.forge-panel').evaluate(e => e.scrollTop) - scrollTop) < 3);
       if (type === 'order') { await page.locator('[data-action="clear-order"]').click(); await settled(); }
       await page.locator('[data-action="answer"]').scrollIntoViewIfNeeded();
-      check(`v3 ${level} ${type} ${name}: confirm reachable`, await page.locator('[data-action="answer"]').isVisible());
-      await shot(`v3-level-${level}-${type}-${name}`);
+      check(`v${CURRENT_RULES_VERSION} ${level} ${type} ${name}: confirm reachable`, await page.locator('[data-action="answer"]').isVisible());
+      await shot(`v${CURRENT_RULES_VERSION}-level-${level}-${type}-${name}`);
     }
     await page.locator('[data-action="hint"]').click(); await settled();
     await page.locator('[data-action="hint"]').click(); await settled();
     for (const [name, width, height] of VIEWPORTS.filter(([name]) => ['small-phone', 'landscape'].includes(name))) {
       await page.setViewportSize({ width, height });
-      await assertPanelFits(page, '.forge-panel', check, `v3 ${level} ${type} ${name} worked steps`);
+      await assertPanelFits(page, '.forge-panel', check, `v${CURRENT_RULES_VERSION} ${level} ${type} ${name} worked steps`);
       check(`${bandName(level)} ${type}: full worked steps remain readable`, (await page.locator('.feedback').textContent()).includes(q.hints[1]));
-      await shot(`v3-level-${level}-${type}-${name}-worked`);
+      await shot(`v${CURRENT_RULES_VERSION}-level-${level}-${type}-${name}-worked`);
     }
     assertLearnerPrivacy(await state(), check, `${bandName(level)} ${type} after hints`);
-    await exerciseAnswerControls(page, q, settled, check, `v3 ${level} ${type}`);
+    await exerciseAnswerControls(page, q, settled, check, `v${CURRENT_RULES_VERSION} ${level} ${type}`);
     await enterAnswer(page, q, q.answer);
     await page.locator('[data-action="answer"]').click(); await settled();
     check(`${bandName(level)} ${type}: answer saves and acknowledgement is offered`, await page.locator('[data-action="acknowledge"]').count() === 1);
@@ -440,8 +522,8 @@ async function enterAnswer(page, q, value) {
 export async function runCampaignJourney({ page, settled, state, privateState, check, shot }) {
   const click = async action => { await page.locator(`[data-action="${action}"]`).first().click(); await settled(); };
   const initial = await privateState(), rounds = new Set(), upgrades = new Set(), answered = new Set(), moves = new Set(), exercised = new Set();
-  check('Fresh journey is a fifteen-question six-round v3 campaign', initial.match.rulesVersion === 3 && initial.match.questions.length === CAMPAIGN.questions && initial.match.round === 1);
-  check('V3 journey starts in bands 2..3 and never exceeds Master', initial.match.learningLevel >= 2 && initial.match.learningLevel <= 3 && initial.match.questions.every(q => q.learningLevel >= 2 && q.learningLevel <= 5 && q.difficulty === bandName(q.learningLevel)));
+  check(`Fresh journey is a fifteen-question six-round v${CURRENT_RULES_VERSION} campaign`, initial.match.rulesVersion === CURRENT_RULES_VERSION && initial.match.questions.length === CAMPAIGN.questions && initial.match.round === 1);
+  check('Current campaign journey starts in bands 2..3 and never exceeds Master', initial.match.learningLevel >= 2 && initial.match.learningLevel <= 3 && initial.match.questions.every(q => q.learningLevel >= 2 && q.learningLevel <= 5 && q.difficulty === bandName(q.learningLevel)));
   check('Experienced journey exercises Challenge and Master', initial.wins < 4 || [4, 5].every(level => initial.match.questions.some(q => q.learningLevel === level)));
   let wrongId = null;
   for (let n = 0; n < 400; n++) {

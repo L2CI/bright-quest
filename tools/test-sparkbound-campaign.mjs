@@ -1,10 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { inspect } from "node:util";
+import { createHash } from "node:crypto";
 import { createState, applyAction, publicState, CAMPAIGN_ROUNDS, BATTLE_CONFIG } from "../functions/_lib/sparkbound.js";
 import { HEROES, equipmentStage, forgeSize, totalRounds } from "../sparkbound/roster.js";
 import { renderSparkboundEvidence } from "../sparkbound-parent.js";
 import { EXPANDED_QUESTION_BANK } from "../functions/_lib/sparkbound-expansion-content.js";
+import { duelCue, duelMoves, exchangeOutcome } from "../sparkbound/src/duel.js";
 
 const heroIds = ["relay", "helio", "volt", "bastion", "zephyr", "glacier", "ember", "tidal", "atlas", "nova", "echo"];
 function fresh(heroId = "relay", seed = 0, level = 2) {
@@ -31,6 +33,33 @@ function until(state, predicate) {
   assert.fail("Campaign did not reach target in 400 actions");
 }
 const rejects = (state, action, code) => assert.throws(() => applyAction(state, action), error => error.code === code);
+
+test("saved v3 domain, public and Parent review outcomes retain their original digest", () => {
+  const digest = createHash("sha256");
+  const record = state => digest.update(JSON.stringify([state, publicState(state), publicState(state, { review: true })]));
+  for (const heroId of heroIds) {
+    let state = fresh(heroId);
+    state.match.rulesVersion = 3;
+    for (let stage = 0; stage <= 5; stage++) {
+      state = until(state, s => s.match.round === stage + 1 && s.match.phase === "battle");
+      record(state);
+      for (const move of ["strike", "guard", "break", "special"]) for (const intent of ["open", "guard", "strike", "heavy"])
+        for (const energy of [0, 1, 2, 3, 4]) for (const assisted of [false, true]) for (const hp of [1, 30]) {
+          const fixture = structuredClone(state);
+          Object.assign(fixture.match, { intent, energy, assisted, playerHP: hp, rivalHP: hp });
+          try { record(applyAction(fixture, { type: "move", move })); }
+          catch (error) {
+            assert.ok(["MOVE_LOCKED", "INSUFFICIENT_ENERGY"].includes(error.code));
+            digest.update(error.code);
+          }
+        }
+    }
+    state = until(state, s => s.match.phase === "victory");
+    record(state);
+    record(applyAction(state, { type: "reset" }));
+  }
+  assert.equal(digest.digest("hex"), "d66c7d03e86ba1b0c21acd833ee62df50fdd1dee70573996155980e765eada89");
+});
 function assertRedacted(state) {
   const visible = publicState(state);
   assert.equal(visible.match?.seed, undefined);
@@ -47,7 +76,7 @@ function assertRedacted(state) {
 test("campaign contract and public configuration are isolated from legacy", () => {
   assert.deepEqual(HEROES.map(h => h.id), heroIds);
   const state = fresh();
-  assert.equal(state.match.rulesVersion, 3);
+  assert.equal(state.match.rulesVersion, 4);
   assert.equal(state.match.upgradeStage, 0);
   assert.equal(state.match.questions.length, 15);
   assert.equal(totalRounds(state.match), 6);
@@ -60,6 +89,90 @@ test("campaign contract and public configuration are isolated from legacy", () =
   assert.equal(Object.hasOwn(legacy.match, "rulesVersion"), false);
   assert.deepEqual(publicState(legacy).configuration.battle.rounds, BATTLE_CONFIG.rounds);
   assertRedacted(state);
+});
+
+test("v4 salvo, rail and arsenal have distinct costs, openings, protection and clipped shot records", () => {
+  let state = fresh();
+  for (let stage = 0; stage <= 5; stage++) {
+    state = until(state, s => s.match.round === stage + 1 && s.match.phase === "battle");
+    for (const heroId of heroIds) for (const intent of ["open", "guard", "strike", "heavy"])
+      for (const energy of [0, 1, 2, 3, 4]) for (const assisted of [false, true]) for (const hp of [1, 30]) {
+        const fixture = structuredClone(state);
+        Object.assign(fixture.match, { heroId, intent, energy, assisted, playerHP: hp, rivalHP: hp });
+        const projected = publicState(fixture);
+        const moves = duelMoves(projected.match);
+        assert.ok(moves.some(m => m.id === duelCue(projected.match).suggested && !m.disabled));
+        for (const move of moves) {
+          const cost = move.id === "break" ? heroId === "echo" ? 1 : 2 : move.id === "special" ? stage === 3 ? 3 : 4 : 0;
+          assert.equal(projected.configuration.moves[move.id].cost, cost);
+          assert.equal(move.disabled, energy < cost);
+          if (move.disabled) {
+            rejects(fixture, { type: "move", move: move.id }, "INSUFFICIENT_ENERGY");
+            continue;
+          }
+          const next = applyAction(fixture, { type: "move", move: move.id });
+          const event = next.match.lastEvent;
+          const incoming = intent === "open" ? 0 : BATTLE_CONFIG.incoming[intent] + Math.floor(stage / 2);
+          let damage = move.id === "guard" ? stage === 5 && incoming ? 2 : 0 :
+            move.id === "strike" ? intent === "guard" ? stage === 0 ? 2 : 0 : 4 :
+              move.id === "break" ? intent === "guard" ? 10 : 6 : 12;
+          if (move.id !== "guard" && damage > 0) damage += stage;
+          if (move.id === "special" && stage >= 4 && intent === "open") damage += 4;
+          if (heroId === "helio" && move.id !== "guard" && intent === "open") damage += 2;
+          if (heroId === "ember" && move.id === "break" && intent === "guard") damage += 2;
+          if (heroId === "atlas" && move.id === "special" && cost === 4) damage += 2;
+          if (heroId === "nova" && move.id === "strike" && intent !== "guard") damage += 1;
+          let received = move.id === "guard" ? Math.floor(incoming / 5) : incoming;
+          if (move.id === "special" && stage >= 4 && intent === "guard") received = 0;
+          if (move.id === "special" && stage === 5) received = Math.floor(received / 2);
+          if (heroId === "bastion") received = Math.max(0, received - 1);
+          if (heroId === "zephyr" && move.id === "strike" && intent === "strike") received = Math.max(0, received - 2);
+          if (heroId === "glacier" && move.id === "special") received = Math.floor(received / 2);
+          if (assisted) received = Math.floor(received / 2);
+          assert.equal(event.damage, Math.min(hp, damage), `${heroId}/${stage}/${intent}/${move.id}`);
+          assert.equal(event.rivalDamage, Math.min(hp, received));
+          assert.equal(event.guardBroken, intent === "guard" && ["break", "special"].includes(move.id));
+          assert.equal(next.match.phase, next.match.playerHP === 0 ? "defeat" : next.match.rivalHP === 0 ? "round_won" : "battle");
+          const gained = move.id === "strike" ? 1 : move.id === "guard" && incoming > 0 ? heroId === "volt" ? 3 : 2 : 0;
+          assert.equal(next.match.energy, Math.min(4, energy - cost + gained));
+          if (event.technique) {
+            const shots = move.id === "break" ? 2 : move.id === "special" ? stage === 3 ? 2 : stage === 5 ? 3 : 1 : 1;
+            assert.equal(event.technique.shots.length, shots);
+            assert.equal(event.technique.shots.reduce((a, b) => a + b, 0), event.damage);
+            assert.equal(event.technique.energySpent, cost);
+            assert.ok(event.technique.shots.every(n => Number.isInteger(n) && n >= 0));
+            if (hp === 1) assert.deepEqual(event.technique.shots, [1, ...Array(shots - 1).fill(0)]);
+          }
+          if (move.id === "guard" && stage === 5) {
+            assert.equal(event.technique?.id, incoming > 0 ? "counter" : undefined);
+            assert.match(exchangeOutcome(event).title, incoming > 0 ? /hit back/ : /resting/);
+          }
+          assert.deepEqual(applyAction(JSON.parse(JSON.stringify(fixture)), { type: "move", move: move.id }), next);
+        }
+      }
+  }
+});
+
+test("v4 does not alter persisted v3 rules when resuming, retrying or archiving", () => {
+  let old = fresh("echo");
+  old.match.rulesVersion = 3;
+  old = until(old, s => s.match.round === 4 && s.match.phase === "battle");
+  old.match.energy = 3;
+  rejects(old, { type: "move", move: "special" }, "INSUFFICIENT_ENERGY");
+  const current = structuredClone(old);
+  current.match.rulesVersion = 4;
+  assert.equal(applyAction(current, { type: "move", move: "special" }).match.energy, 0);
+  old.match.playerHP = 1;
+  old.match.intent = "heavy";
+  const defeated = applyAction(old, { type: "move", move: "strike" });
+  const retried = applyAction(defeated, { type: "retry", support: true });
+  assert.equal(retried.match.rulesVersion, 3);
+  assert.deepEqual(retried.match.questions, old.match.questions);
+  const won = until(retried, s => s.match.phase === "victory");
+  const next = applyAction(won, { type: "start", heroId: "echo" });
+  assert.equal(next.match.rulesVersion, 4);
+  assert.deepEqual(next.history[0], { ...won.match, outcome: "victory" });
+  assert.equal(publicState(next, { review: true }).history[0].rulesVersion, 3);
 });
 
 for (const heroId of heroIds) test(`${heroId}: six-round fifteen-question unassisted journeys at both starting levels and varied seeds`, t => {
@@ -194,6 +307,7 @@ test("new starts adapt from Applied to Stretch, capped at three, while questions
 
 test("old v3 snapshots keep their original ids, answers and lower learning bands through victory", () => {
   let state = fresh();
+  state.match.rulesVersion = 3;
   state.match.learningLevel = 1;
   state.match.questions = state.match.questions.map((q, index) => ({ ...q,
     ...structuredClone(EXPANDED_QUESTION_BANK.find(old => old.taskId === q.taskId && old.variant === q.variant &&
@@ -300,7 +414,7 @@ test("new abilities honour intent, health/energy caps, support rounding and actu
         const next = applyAction(fixture, { type: "move", move });
         const event = next.match.lastEvent;
         const bonus = heroId === "ember" && move === "break" && intent === "guard" ? 2 :
-          heroId === "atlas" && move === "special" ? 2 : heroId === "nova" && move === "strike" && intent !== "guard" ? 1 : 0;
+          heroId === "atlas" && move === "special" && normal.match.lastEvent.technique.energySpent === 4 ? 2 : heroId === "nova" && move === "strike" && intent !== "guard" ? 1 : 0;
         const expectedDamage = Math.min(rivalHP, normal.match.lastEvent.damage + bonus);
         assert.equal(event.damage, expectedDamage);
         assert.equal(event.rivalDamage, normal.match.lastEvent.rivalDamage);

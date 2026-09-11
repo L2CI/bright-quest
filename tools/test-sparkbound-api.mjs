@@ -178,7 +178,7 @@ try {
   assert.deepEqual(await privateState(), corrupt);
   await db.prepare("UPDATE sparkbound_states SET state_json=? WHERE child_id=?").bind(preserved, f.childId).run();
 
-  // Explicit hero requests opt into v3 without changing the legacy workflow above.
+  // Explicit hero requests opt into v4 without changing the legacy workflow above.
   for (const heroId of [null, "Relay", "helio ", "constructor", {}, ["relay"]]) {
     const invalid = await request("/api/sparkbound", { body: operation(reset.version, { type: "start", heroId }) });
     assert.equal(invalid.status, 400);
@@ -191,7 +191,7 @@ try {
     const started = await request("/api/sparkbound", { body: startOp });
     assert.equal(started.status, 200);
     assert.equal(started.body.state.match.heroId, hero.id);
-    assert.equal(started.body.state.match.rulesVersion, 3);
+    assert.equal(started.body.state.match.rulesVersion, 4);
     assert.equal(started.body.state.match.learningLevel, 2);
     assert.equal(started.body.state.match.questions.length, 15);
     assert.equal(started.body.state.match.upgradeStage, 0);
@@ -235,5 +235,5 @@ try {
   assert.ok(unlock.body.parentCapability);
   assert.ok(unlock.headers.get("set-cookie").includes("bq_session="));
   assert.equal((await review()).status, 401, "Rotated session cannot retain old Parent access");
-  console.log(`Sparkbound API QA passed: two-family auth/isolation, transactional replay/races/rollback, ${transitions} match transitions, ${HEROES.length} explicit v3 hero starts/replays/resets, invalid hero rejection, exact evidence, redaction, retained history, unchanged child profiles, local-only harness.`);
+  console.log(`Sparkbound API QA passed: two-family auth/isolation, transactional replay/races/rollback, ${transitions} match transitions, ${HEROES.length} explicit v4 hero starts/replays/resets, invalid hero rejection, exact evidence, redaction, retained history, unchanged child profiles, local-only harness.`);
 } finally { await harness.close(); }

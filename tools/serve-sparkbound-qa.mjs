@@ -31,7 +31,7 @@ const MIME = new Map(Object.entries({
   ".css": "text/css; charset=utf-8", ".json": "application/json", ".webmanifest": "application/manifest+json",
   ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".avif": "image/avif",
   ".svg": "image/svg+xml", ".ico": "image/x-icon", ".glb": "model/gltf-binary", ".gltf": "model/gltf+json",
-  ".bin": "application/octet-stream", ".wasm": "application/wasm", ".woff": "font/woff", ".woff2": "font/woff2",
+  ".bin": "application/octet-stream", ".gz": "application/gzip", ".wasm": "application/wasm", ".woff": "font/woff", ".woff2": "font/woff2",
   ".mp3": "audio/mpeg", ".wav": "audio/wav", ".ogg": "audio/ogg", ".mp4": "video/mp4", ".webm": "video/webm", ".vtt": "text/vtt"
 }));
 

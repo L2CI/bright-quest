@@ -1,6 +1,7 @@
 import * as THREE from '../../cave-river-quest/vendor/three.module.js';
 import { HeroRig, HERO_MOTIONS } from './hero';
 import { ArenaStage } from './stage';
+import { guardianEnvironment } from './lighting';
 import { getHero, forgeSize, equipmentStage, prismStage, PRISM_KITS } from '../roster.js';
 
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
@@ -27,6 +28,7 @@ export class SparkWorld {
   private bolt = new THREE.Group();
   private rosterPreview: {id:string;stage:number} | null = null;
   private effects = new Map<string, THREE.Group>();
+  private salvo: THREE.Group[]=[];
   private impactShell = new THREE.Group();
   private impactAge = 10;
   private effectTexture: THREE.CanvasTexture;
@@ -36,6 +38,24 @@ export class SparkWorld {
   private generatedImpact: THREE.Mesh | null=null;
   private generatedEffectTexture: THREE.Texture | null=null;
   private assetsReady=false;
+  private environment: THREE.WebGLRenderTarget;
+  private previewYaw=.12;
+  private orbitDrag: {pointer:number;x:number;yaw:number}|null=null;
+  private orbitStart=(event:PointerEvent)=>{
+    if(this.canvas.closest('#game')?.getAttribute('data-view')!=='hangar'||event.button!==0)return;
+    this.orbitDrag={pointer:event.pointerId,x:event.clientX,yaw:this.previewYaw};
+    this.canvas.setPointerCapture(event.pointerId);
+  };
+  private orbitMove=(event:PointerEvent)=>{
+    if(this.orbitDrag?.pointer!==event.pointerId)return;
+    this.previewYaw=this.orbitDrag.yaw+(event.clientX-this.orbitDrag.x)*.009;
+    this.relay.root.rotation.y=this.previewYaw;this.fitHangar();
+  };
+  private orbitEnd=(event:PointerEvent)=>{
+    if(this.orbitDrag?.pointer!==event.pointerId)return;
+    this.orbitDrag=null;
+    if(this.canvas.hasPointerCapture(event.pointerId))this.canvas.releasePointerCapture(event.pointerId);
+  };
   constructor(public canvas: HTMLCanvasElement) {
     this.scene.background = new THREE.Color(0x9bb2b6); this.scene.fog = new THREE.FogExp2(0xabc0c1, .0035);
     this.camera = new THREE.PerspectiveCamera(38, 1, .1, 350); this.camera.position.copy(this.cameraGoal);
@@ -43,6 +63,7 @@ export class SparkWorld {
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.7)); this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping; this.renderer.toneMappingExposure = 1.15;
     this.renderer.shadowMap.enabled = true; this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.environment=guardianEnvironment(this.renderer);this.scene.environment=this.environment.texture;
     this.scene.add(new THREE.HemisphereLight(0xd9edf4, 0x546056, 2.3));
     const sun = new THREE.DirectionalLight(0xffefce, 3.5); sun.position.set(-12, 24, 14); sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -16, right: 16, top: 15, bottom: -15, near: 1, far: 60 }); sun.shadow.bias = -.0004; sun.shadow.normalBias = .045; this.scene.add(sun);
@@ -67,6 +88,11 @@ export class SparkWorld {
     const trail=new THREE.Mesh(new THREE.CylinderGeometry(.035,.13,.9,8),energy);trail.rotation.x=Math.PI/2;trail.position.z=-.55;this.bolt.add(trail);
     const pulse=new THREE.Group();pulse.name='effect-pulse';pulse.add(...this.bolt.children.slice());this.bolt.add(pulse);this.effects.set('pulse',pulse);
     this.addEffects();
+    for(let i=0;i<2;i++){
+      const companion=new THREE.Group();companion.name=`salvo-shot-${i+2}`;companion.visible=false;
+      for(const [id,effect] of this.effects){const copy=effect.clone(true);copy.name=id;companion.add(copy);}
+      this.scene.add(companion);this.salvo.push(companion);
+    }
     this.addShieldImpact();
     this.ready = Promise.all([this.relay.readyPromise || this.relay.ready, this.prism.readyPromise || this.prism.ready,this.loadGeneratedEffects()]).then(async() => {
       if(this.disposed)return;
@@ -79,6 +105,9 @@ export class SparkWorld {
     this.resizeObserver = new ResizeObserver(() => this.resize()); this.resizeObserver.observe(canvas); this.resize();
     canvas.addEventListener('webglcontextlost', this.contextLost);
     canvas.addEventListener('webglcontextrestored', this.contextRestored);
+    canvas.style.touchAction='none';
+    canvas.addEventListener('pointerdown',this.orbitStart);canvas.addEventListener('pointermove',this.orbitMove);
+    canvas.addEventListener('pointerup',this.orbitEnd);canvas.addEventListener('pointercancel',this.orbitEnd);
     this.raf = requestAnimationFrame(t => this.tick(t));
   }
   private resize() {
@@ -199,6 +228,12 @@ export class SparkWorld {
   }
 
   /** Render-only hangar inspection. sync() always restores the real match and rival. */
+  turnPreview(amount:number|null) {
+    if(this.canvas.closest('#game')?.getAttribute('data-view')!=='hangar')return;
+    this.previewYaw=amount===null?.12:this.previewYaw+amount;
+    this.relay.root.rotation.y=this.previewYaw;this.fitHangar();
+    this.renderer.render(this.scene,this.camera);
+  }
   previewHero(id: string, stage = 0) {
     const hangar=this.canvas.closest('#game')?.getAttribute('data-view')==='hangar';
     if(this.animation||this.previewStep||(!hangar&&this.phase!=='welcome'))return;
@@ -210,7 +245,7 @@ export class SparkWorld {
     this.relay.setAim(null);this.relay.setCharge(0);this.relay.reduced=this.reduced;
     this.relay.play('idle',{restart:true,fade:0});
     this.relay.setKit({staff:level>=1,pad:level>=2,tier:1,stage:level});
-    this.relay.root.position.set(hangar?0:this.heroHome,0,0);this.relay.root.rotation.set(0,hangar?.12:Math.PI/2,0);
+    this.relay.root.position.set(hangar?0:this.heroHome,0,0);this.relay.root.rotation.set(0,hangar?this.previewYaw:Math.PI/2,0);
     if(!this.relay.ready)return;
     this.relay.update(.001);this.fitHeroes();
     this.renderer.render(this.scene,this.camera);
@@ -334,13 +369,13 @@ export class SparkWorld {
     } else { this.animation.duration=this.relay.play('upgrade',{restart:true}).duration; this.onCue(after?.pad?'upgrade-stage2':'upgrade-assembly'); this.onBeat(`Assembling ${getHero(after?.heroId||this.relay.heroId).weapons[equipmentStage(after)].name}`); }
     return new Promise(resolve => { this.animation.resolve = resolve; });
   }
-  private finishAnimation() { const a = this.animation; if (!a) return; this.bolt.visible=false;if(this.generatedJet)this.generatedJet.visible=false;this.relay.setAim(null);this.prism.setAim(null);this.relay.setCharge(0);this.prism.setCharge(0);this.animation = null; this.syncKey = ''; this.lastIntent='';this.onBeat('');if(!this.disposed)this.sync(a.after, this.currentTier); a.resolve?.(); }
+  private finishAnimation() { const a = this.animation; if (!a) return; this.bolt.visible=false;for(const shot of this.salvo)shot.visible=false;if(this.generatedJet)this.generatedJet.visible=false;this.relay.setAim(null);this.prism.setAim(null);this.relay.setCharge(0);this.prism.setCharge(0);this.animation = null; this.syncKey = ''; this.lastIntent='';this.onBeat('');if(!this.disposed)this.sync(a.after, this.currentTier); a.resolve?.(); }
   stopAnimation() { this.finishAnimation(); }
   private startRanged(motion:'break'|'special',part:'player'|'rival'='player') {
     const a=this.animation;
     const attacker=part==='player'?this.relay:this.prism,defender=part==='player'?this.prism:this.relay;
     a.part=part;a.attackMotion=motion;a.phase='charge';a.phaseTime=0;a.launched=false;a.reaction=null;
-    a.chargeDuration=motion==='special'?1.05:.65;
+    a.chargeDuration=a.event.technique?.id==='counter'&&part==='player'?.2:motion==='special'?1.05:.65;
     a.destination=[this.relay.root.position.clone(),this.prism.root.position.clone()];
     a.target=defender.shieldPoint;
     attacker.play('charge',{restart:true,fade:.08});attacker.setAim(a.target);
@@ -355,12 +390,19 @@ export class SparkWorld {
     a.target=(a.part==='rival'?this.relay:this.prism).shieldPoint;
     a.origin=attacker.weaponTip.clone();a.flightDuration=Math.max(.32,Math.min(.62,a.origin.distanceTo(a.target)/9));
     const stage=equipmentStage(this.match),hero=getHero(this.relay.heroId);
-    const playerEffect=stage===3&&(hero.id==='relay'||hero.id==='zephyr')?'rocket':stage===4&&hero.id==='relay'?'laser':hero.effect;
+    const playerEffect=a.event.technique?.id==='counter'?'pulse':a.event.technique?.id==='rail'?'laser':stage>=3&&(hero.id==='relay'||hero.id==='zephyr')?'rocket':hero.effect;
     a.effect=a.part==='rival'?PRISM_KITS[prismStage(this.match)].effect:playerEffect;
     for(const [name,group] of this.effects)group.visible=name===a.effect&&!['flame','water','arc'].includes(a.effect);
     this.bolt.name=`travelling-${a.effect}`;this.bolt.userData.effect=a.effect;
     this.bolt.position.copy(a.origin);this.bolt.lookAt(a.target);this.bolt.visible=true;
     this.bolt.scale.setScalar(a.attackMotion==='special'?1.35:1);
+    a.shotCount=a.part==='player'?Math.max(1,a.event.technique?.shots?.length||1):prismStage(this.match)===3?3:1;
+    this.bolt.userData.shotCount=a.shotCount;
+    for(const [i,shot] of this.salvo.entries()){
+      shot.visible=i<a.shotCount-1;shot.scale.copy(this.bolt.scale);
+      shot.position.copy(a.origin);shot.lookAt(a.target);
+      for(const effect of shot.children)effect.visible=effect.name===a.effect;
+    }
     this.updateEffect(a,0);
     attacker.firePulse();this.onCue(a.effect==='pulse'?'launch':`weapon-${a.effect}`);attacker.setCharge(0);
   }
@@ -622,11 +664,18 @@ export class SparkWorld {
     }else if(a.phase==='flight'){
       const t=Math.min(1,a.phaseTime/a.flightDuration);
       this.bolt.position.lerpVectors(a.origin,a.target,t);
+      for(const [i,shot] of this.salvo.entries())if(shot.visible){
+        shot.position.lerpVectors(a.origin,a.target,t);
+        const arc=Math.sin(t*Math.PI)*(i===0?.48:-.48);
+        shot.position.y+=arc;shot.position.z+=Math.sin(t*Math.PI)*.25;
+        shot.lookAt(a.target);
+      }
       this.updateEffect(a,t);
       if(t===1){
         this.bolt.position.copy(a.target);
         this.makeContact(a,a.part,this.bolt.position.clone());
         this.bolt.visible=false;a.phase='strike';a.phaseTime=0;a.contactAt=0;a.strikeDuration=.38;
+        for(const shot of this.salvo)shot.visible=false;
         if(this.generatedJet)this.generatedJet.visible=false;
       }
     }else if(a.phase==='holdGuard'){if(a.phaseTime>=.7)this.finishAnimation();}
@@ -677,7 +726,9 @@ export class SparkWorld {
         rig.root.rotation.z=(r.part==='player'?1:-1)*weight*(r.blocked?.018:.045);
       }
       if((a.part==='player'?a.hit:a.reply)&&a.phaseTime>=Math.max(a.strikeDuration,a.contactAt+.28)){
-        if(a.part==='player'&&a.event.rivalDamage>0){
+        if(a.part==='rival'&&a.event.technique?.id==='counter'&&!a.hit){
+          this.startRanged('break','player');this.onBeat('Shield counter: return pulse');
+        }else if(a.part==='player'&&a.event.rivalDamage>0&&!a.reply){
           if(prismStage(this.match)>0)this.startRanged('special','rival');
           else this.setApproach('rival','strike');
         }
@@ -704,7 +755,10 @@ export class SparkWorld {
     this.raf = requestAnimationFrame(t => this.tick(t));
   }
   dispose() { this.disposed = true; cancelAnimationFrame(this.raf); this.stopAnimation(); this.resizeObserver.disconnect(); this.stage.dispose(); this.relay.dispose?.(); this.prism.dispose?.();
+    this.environment.dispose();
     this.canvas.removeEventListener('webglcontextlost',this.contextLost);this.canvas.removeEventListener('webglcontextrestored',this.contextRestored);
+    this.canvas.removeEventListener('pointerdown',this.orbitStart);this.canvas.removeEventListener('pointermove',this.orbitMove);
+    this.canvas.removeEventListener('pointerup',this.orbitEnd);this.canvas.removeEventListener('pointercancel',this.orbitEnd);
     const geometries=new Set<THREE.BufferGeometry>(),materials=new Set<THREE.Material>();
     this.scene.traverse(o=>{const m=o as THREE.Mesh;if(m.geometry)geometries.add(m.geometry);if(m.material)for(const material of Array.isArray(m.material)?m.material:[m.material])materials.add(material);if((o as THREE.Light).shadow)(o as THREE.Light).shadow.dispose();});
     for(const geometry of geometries)geometry.dispose();for(const material of materials)material.dispose();

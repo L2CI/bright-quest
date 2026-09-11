@@ -23,7 +23,7 @@ try{
     const size=640;
     const renderer=new T.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:true});renderer.setSize(size,size);
     renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;
-    const back=new T.Vector3(0,0,1),right=new T.Vector3(1,0,0),up=new T.Vector3(0,1,0);
+    const back=new T.Vector3(.36,.14,1).normalize(),right=new T.Vector3().crossVectors(new T.Vector3(0,1,0),back).normalize(),up=new T.Vector3().crossVectors(back,right).normalize();
     const camera=new T.OrthographicCamera(-3,3,3,-3,.1,100);camera.position.set(0,2.2,18);camera.lookAt(0,2.2,0);rig.setCamera(camera);
     const union=new T.Box3();rig.reduced=true;
     const pose=(id,stage)=>{rig.setHero(id);rig.setKit({staff:stage>0,pad:stage>1,tier:1,stage});rig.play('idle',{restart:true,fade:0});rig.update(.001);rig.setCamera(camera);};
@@ -35,17 +35,17 @@ try{
     const output=[];
     for(const hero of heroes)for(let stage=0;stage<hero.weapons.length;stage++){
       pose(hero.id,stage);
-      const layers=rig.imageActor.layers.map(layer=>({visible:layer.visible,opacity:layer.material.opacity}));
-      if(layers.filter(layer=>layer.visible&&layer.opacity>.001).length!==1||layers[1].opacity!==1)throw Error(`Unsettled generated portrait ${hero.id}:${stage}`);
+      const bounds=rig.visualBounds(),depth=bounds.max.z-bounds.min.z;
+      if(rig.imageActive||depth<.4)throw Error(`Missing volumetric portrait ${hero.id}:${stage}`);
       renderer.render(scene,camera);
       const gl=renderer.getContext(),pixels=new Uint8Array(size*size*4);gl.readPixels(0,0,size,size,gl.RGBA,gl.UNSIGNED_BYTE,pixels);
       const colours=new Set();for(let i=0;i<pixels.length;i+=16)colours.add(pixels[i]+','+pixels[i+1]+','+pixels[i+2]);
-      output.push({id:hero.id,stage,size,data:renderer.domElement.toDataURL('image/jpeg',.88),colours:colours.size,camera:camera.position.toArray(),extent,clip:rig.currentTiming.clip,model:rig.root.userData.model,generated:rig.imageActive,layers});
+      output.push({id:hero.id,stage,size,data:renderer.domElement.toDataURL('image/jpeg',.88),colours:colours.size,camera:camera.position.toArray(),extent,clip:rig.currentTiming.clip,model:rig.root.userData.model,volumetric:!rig.imageActive,depth});
     }
     rig.dispose();renderer.dispose();return output;
   },HEROES);
   for(const item of images){
-    assert(item.colours>100);assert(item.generated);const bytes=Buffer.from(item.data.split(',')[1],'base64');
+    assert(item.colours>100);assert(item.volumetric);const bytes=Buffer.from(item.data.split(',')[1],'base64');
     const path=resolve(destination,`${item.id}-${item.stage}.jpg`);await writeFile(path,bytes);
     portraits.push({...item,data:undefined,path,bytes:bytes.length});
   }

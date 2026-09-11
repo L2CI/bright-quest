@@ -98,8 +98,19 @@ const stageDetails = [
   'A dorsal rail assembly and stabilisers channel a more powerful shot.',
   'The complete siege rig combines its shoulder battery, rail and arm cannon.'
 ];
+export const UPGRADE_RULES = freeze([
+  { id: 'base', description: 'Attack builds 1 energy. Shield blocks most of an incoming hit.' },
+  { id: 'pierce', description: 'Unlock a piercing shot. It is strongest against a raised shield.' },
+  { id: 'blast', description: 'Spend 4 energy on a heavy blast that pierces shields. Incoming hits still hurt.' },
+  { id: 'salvo', specialCost: 3, specialShots: 2,
+    description: 'Fire two shots together. The special uses 3 energy, so a full charge leaves 1 energy.' },
+  { id: 'rail', openingBonus: 4,
+    description: 'Keep your two-shot salvo. Spend 4 energy on a rail shot: 4 extra damage when Prism is open, and no return hit from a raised shield.' },
+  { id: 'arsenal', specialShots: 3, openingBonus: 4, incomingDivisor: 2, guardCounter: 2,
+    description: 'Keep your salvo. The 4-energy arsenal fires three shots, gains 4 damage when Prism is open, stops shield return hits and halves other incoming hits. Shield also hits back for 2 when blocking.' }
+].map(rule => ({ specialCost: 4, specialShots: 1, openingBonus: 0, incomingDivisor: 1, guardCounter: 0, ...rule })));
 export const HEROES = freeze(roster.map(hero => ({ ...hero, weapons: [...hero.weapons,
-  ...advanced[hero.id].map(([name, shortName, icon], i) => ({ name, shortName, icon, detail: stageDetails[i] }))] })));
+  ...advanced[hero.id].map(([name, shortName, icon], i) => ({ name, shortName, icon, detail: UPGRADE_RULES[i + 3].description }))] })));
 export const STAGE_NAMES = freeze(['Base suit', 'Specialist', 'Advanced', 'Elite', 'Master', 'Guardian']);
 export const PRISM_KITS = freeze([
   { name: 'Training Gauntlets', effect: 'pulse', cue: 'Prism is charging a BIG hit', detail: 'Watch the raised arm. Block the charge, then attack an opening.' },
@@ -111,13 +122,26 @@ export const PRISM_KITS = freeze([
 ]);
 export const isHeroId = id => typeof id === 'string' && HEROES.some(hero => hero.id === id);
 export const getHero = id => HEROES.find(hero => hero.id === id) || HEROES[0];
-export const forgeSize = match => match?.rulesVersion === 3 || match?.questions?.length === 6 ? 3 : 2;
-export const equipmentStage = match => match?.rulesVersion === 3 ? Math.max(0, Math.min(5, match.upgradeStage || 0)) : match?.pad ? 2 : match?.staff ? 1 : 0;
-export const totalRounds = match => match?.rulesVersion === 3 ? 6 : 3;
+export const getHeroTrait = match => match?.rulesVersion === 4 && match.heroId === 'glacier' ?
+  { ...getHero('glacier').trait, description: 'Every special halves the incoming hit on that exchange.' } : getHero(match?.heroId).trait;
+export const isCampaign = match => match?.rulesVersion === 3 || match?.rulesVersion === 4;
+export const forgeSize = match => isCampaign(match) || match?.questions?.length === 6 ? 3 : 2;
+export const equipmentStage = match => isCampaign(match) ? Math.max(0, Math.min(5, match.upgradeStage || 0)) : match?.pad ? 2 : match?.staff ? 1 : 0;
+export const totalRounds = match => isCampaign(match) ? 6 : 3;
+export const getUpgradeRules = match => match?.rulesVersion === 4 ? UPGRADE_RULES[equipmentStage(match)] : null;
+export const moveEnergyCost = (match, move) => move === 'break' ? match?.heroId === 'echo' ? 1 : 2 :
+  move === 'special' ? getUpgradeRules(match)?.specialCost ?? 4 : 0;
+export const upgradeDescription = match => getUpgradeRules(match)?.description ??
+  (equipmentStage(match) >= 3 ? stageDetails[equipmentStage(match) - 3] : getHero(match?.heroId).weapons[equipmentStage(match)].detail);
 export const prismStage = match => Math.max(0, Math.min(totalRounds(match) - 1, (match?.round || 1) - 1 + (match?.phase === 'rival_upgrade' || match?.phase === 'training' || match?.phase === 'player_upgrade' ? 1 : 0)));
 export const forgeSubject = stage => stage % 2 ? 'maths' : 'science';
 export const getWeapon = (match, special = false) => {
   const stage = equipmentStage(match), hero = getHero(match?.heroId);
+  if (match?.rulesVersion === 4 && stage >= 3) {
+    const weapon = hero.weapons[special ? stage : 3];
+    return { ...weapon, shortName: special ? stage === 3 ? 'Full Salvo' : stage === 4 ? 'Rail Shot' : 'Arsenal' : 'Salvo',
+      detail: special ? UPGRADE_RULES[stage].description : `Spend ${moveEnergyCost(match, 'break')} energy on two shots. Strongest against a raised shield.` };
+  }
   const weapon = hero.weapons[stage >= 3 ? stage : special ? 2 : 1];
-  return special && stage >= 3 ? { ...weapon, shortName: `${weapon.shortName} +` } : weapon;
+  return stage >= 3 ? { ...weapon, detail: stageDetails[stage - 3], ...(special ? { shortName: `${weapon.shortName} +` } : {}) } : weapon;
 };

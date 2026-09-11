@@ -2,10 +2,12 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFile, mkdir, readdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { gunzipSync } from 'node:zlib';
+import { get as httpsGet } from 'node:https';
 import { startSparkboundQa } from './serve-sparkbound-qa.mjs';
 import { HEROES } from '../sparkbound/roster.js';
 import { createState, publicState } from '../functions/_lib/sparkbound.js';
-import { CAMPAIGN, VIEWPORTS, repo, dependency, assertPanelFits, assertLearnerPrivacy, verifyHarderCampaignForms, runCampaignJourney, verifyParentEvidence } from './qa-sparkbound-expansion.mjs';
+import { CAMPAIGN, CURRENT_RULES_VERSION, VIEWPORTS, repo, dependency, assertPanelFits, assertLearnerPrivacy, verifyHarderCampaignForms, verifyLegacyV3Save, verifyInspectionControls, runCampaignJourney, verifyParentEvidence } from './qa-sparkbound-expansion.mjs';
 
 assert.ok(process.argv.includes('--approved-deploy'), 'Run only after the user confirms an approved deployment, with --approved-deploy.');
 const { chromium } = dependency('playwright'), sharp = dependency('sharp');
@@ -14,46 +16,66 @@ await mkdir(output, { recursive: true });
 const report = { at: new Date().toISOString(), boundary: 'Production static assets and real unauthenticated gate. Gameplay and parent-review API requests intercepted into ephemeral local D1; no production writes.', assets: [], checks: [], errors: [], previewEvidence: [] };
 const hash = b => createHash('sha256').update(b).digest('hex');
 const check = (name, passed = true) => { assert.ok(passed, name); report.checks.push(name); };
-const packedDirectory = 'sparkbound/assets/heroes/generated/packed';
-async function generatedRuntimeFiles(directory = packedDirectory) {
-  const files = [];
-  for (const entry of await readdir(resolve(repo, directory), { withFileTypes: true })) {
-    const path = `${directory}/${entry.name}`;
-    if (entry.isDirectory()) files.push(...await generatedRuntimeFiles(path));
-    else if (entry.isFile() && /\.(png|webp|json)$/i.test(entry.name)) files.push(path);
+const guardianLibrary = 'sparkbound/assets/mechs/guardian-library.glb';
+const packedGuardianLibrary = `${guardianLibrary}.gz`;
+// Combat effects remain textured; image-actor pose atlases are no longer character runtime assets.
+const combatEffects = 'sparkbound/assets/heroes/generated/packed/combat-effects.webp';
+const runtimePaths = [packedGuardianLibrary, 'sparkbound/assets/mechs/stan.glb', 'sparkbound/assets/mechs/mike.glb', combatEffects];
+async function releaseBytes(path) {
+  if (!path.endsWith('.gz')) {
+    const response = await fetch(`${origin}/${path}`, { cache: 'no-store' });
+    return { status: response.status, bytes: Buffer.from(await response.arrayBuffer()) };
   }
-  return files.sort();
+  // Fetch transparently decodes Content-Encoding. Inspect raw transport bytes for the gzip SHA.
+  return new Promise((resolveBytes, reject) => {
+    const request = httpsGet(`${origin}/${path}`, { headers: { 'accept-encoding': 'identity', 'cache-control': 'no-cache' } }, response => {
+      const chunks = []; let size = 0;
+      response.on('data', chunk => {
+        size += chunk.length;
+        if (size > 50 * 1024 * 1024) return request.destroy(new Error('Unexpectedly large compressed model response'));
+        chunks.push(chunk);
+      });
+      response.on('error', reject);
+      response.on('end', () => resolveBytes({ status: response.statusCode, bytes: Buffer.concat(chunks) }));
+    });
+    request.setTimeout(30000, () => request.destroy(new Error('Compressed model verification timed out')));
+    request.on('error', reject);
+  });
 }
 let browser, h;
 try {
   check('Expected campaign roster', HEROES.length === CAMPAIGN.heroes && HEROES.every(hero => hero.weapons.length === CAMPAIGN.stages));
   const models = JSON.parse(await readFile(resolve(repo, 'sparkbound/assets/model-provenance.json'), 'utf8'));
   const environment = JSON.parse(await readFile(resolve(repo, 'sparkbound/assets/environment-provenance.json'), 'utf8'));
-  // Only prepared runtime assets are release requirements; raw source images and README files are excluded.
-  const generatedAssets = await generatedRuntimeFiles();
-  const manifestPath = `${packedDirectory}/manifest.json`;
-  check('Packed actor coordinate manifest is included', generatedAssets.includes(manifestPath));
-  const packedManifest = JSON.parse(await readFile(resolve(repo, manifestPath), 'utf8'));
-  check('Every packed manifest image is included in release verification', Array.isArray(packedManifest.files)
-    && packedManifest.files.length > 0
-    && packedManifest.files.every(file => typeof file === 'string' && /\.(png|webp)$/i.test(file) && generatedAssets.includes(`${packedDirectory}/${file}`)));
-  check('Generated actor runtime images exist for release verification', generatedAssets.some(path => /\.(png|webp)$/i.test(path)));
-  report.generatedAssets = generatedAssets;
-  const files = ['sparkbound/index.html', 'sparkbound/game.js', 'sparkbound/sparkbound.css', 'sparkbound/roster.js', 'sparkbound/assets/module-preview.jpg', 'sparkbound-parent.js', 'sparkbound-parent.css', 'bright-quest-shell-merge.js',
+  const glb = await readFile(resolve(repo, guardianLibrary));
+  const packedGlb = await readFile(resolve(repo, packedGuardianLibrary));
+  const guardianReportPath = 'sparkbound/assets/mechs/guardian-library.report.json';
+  const guardianReport = JSON.parse(await readFile(resolve(repo, guardianReportPath), 'utf8'));
+  check('Guardian provenance names the expected local generator', guardianReport.source === 'tools/build-sparkbound-3d.py');
+  check('Guardian provenance matches generator, source GLB and gzip SHA-256', guardianReport.generatorSha256 === hash(await readFile(resolve(repo, 'tools/build-sparkbound-3d.py')))
+    && guardianReport.export.sha256 === hash(glb) && guardianReport.gzip.sha256 === hash(packedGlb));
+  check('Gzip expands to the exact source GLB', hash(gunzipSync(packedGlb)) === hash(glb));
+  check('Guardian library is a complete glTF 2 binary', glb.length >= 20 && glb.readUInt32LE(0) === 0x46546c67 && glb.readUInt32LE(4) === 2 && glb.readUInt32LE(8) === glb.length && glb.readUInt32LE(16) === 0x4e4f534a);
+  const library = JSON.parse(glb.subarray(20, 20 + glb.readUInt32LE(12)).toString());
+  const nodes = new Set((library.nodes || []).map(node => node.name));
+  check('Guardian library contains twelve hero templates and five weapon stages each', [...HEROES.map(hero => hero.id), 'prism'].every(id => nodes.has(`${id}__Head`) && nodes.has(`${id}__Chest`) && [1, 2, 3, 4, 5].every(stage => nodes.has(`${id}__Weapon${stage}`))));
+  report.runtimeAssets = runtimePaths;
+  report.rulesVersion = CURRENT_RULES_VERSION;
+  const files = [...new Set(['sparkbound/index.html', 'sparkbound/game.js', 'sparkbound/sparkbound.css', 'sparkbound/roster.js', 'sparkbound/assets/module-preview.jpg', 'sparkbound-parent.js', 'sparkbound-parent.css', 'bright-quest-shell-merge.js',
     ...HEROES.flatMap(hero => Array.from({ length: CAMPAIGN.stages }, (_, stage) => `sparkbound/assets/heroes/${hero.id}-${stage}.jpg`)),
-    ...generatedAssets, ...models.models.map(m => 'sparkbound/assets/' + m.file), ...environment.files.map(m => 'sparkbound/assets/' + m.file)];
+    guardianLibrary, guardianReportPath, ...runtimePaths, ...models.models.map(m => 'sparkbound/assets/' + m.file), ...environment.files.map(m => 'sparkbound/assets/' + m.file)])];
   for (const path of files) {
-    const r = await fetch(`${origin}/${path}`, { cache: 'no-store' }); assert.equal(r.status, 200, path);
-    const live = Buffer.from(await r.arrayBuffer()), local = await readFile(resolve(repo, path));
+    const r = await releaseBytes(path); assert.equal(r.status, 200, path);
+    const live = r.bytes, local = await readFile(resolve(repo, path));
     const normal = b => /\.(js|css|html|json)$/.test(path) ? Buffer.from(b.toString().replaceAll('\r\n', '\n')) : b;
     assert.equal(hash(normal(live)), hash(normal(local)), path);
     report.assets.push({ path, sha256: hash(normal(live)), bytes: live.length });
   }
-  check('All 66 portraits, generated runtime assets and retained models match local release bytes');
+  check('All 66 portraits, guardian library, combat effects and retained skeletons match local release bytes');
   assert.equal((await fetch(origin + '/api/sparkbound', { cache: 'no-store' })).status, 401); check('Production API requires authentication');
   assert.equal((await fetch(origin + '/sparkbound/content.js')).status, 404); check('Answer bank is not published');
   const campaignTools = (await readdir(resolve(repo, 'tools'))).filter(name => /sparkbound.*campaign.*\.mjs$/.test(name));
-  const privateTools = new Set(['test-sparkbound-expansion-content.mjs', 'test-sparkbound-roster.mjs', 'test-sparkbound-campaign.mjs', 'qa-sparkbound-audio-campaign.mjs', 'qa-sparkbound-expansion.mjs', 'verify-sparkbound-live.mjs', ...campaignTools]);
+  const privateTools = new Set(['test-sparkbound-expansion-content.mjs', 'test-sparkbound-roster.mjs', 'test-sparkbound-campaign.mjs', 'qa-sparkbound-audio-campaign.mjs', 'qa-sparkbound-expansion.mjs', 'qa-sparkbound-true3d.mjs', 'verify-sparkbound-live.mjs', ...campaignTools]);
   for (const name of privateTools) assert.equal((await fetch(`${origin}/tools/${name}`, { cache: 'no-store' })).status, 404, name);
   check('Production blocks existing and new campaign development fixtures');
   browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true, args: ['--mute-audio'] });
@@ -92,7 +114,7 @@ try {
     } catch (error) { report.errors.push(error.stack); await route.abort(); }
   });
   const page = await context.newPage();
-  const generatedBrowserLoads = new Map();
+  const runtimeBrowserLoads = new Map(), obsoleteActorLoads = new Set();
   const observe = p => {
     p.on('pageerror', e => report.errors.push(e.message));
     p.on('console', m => { if (m.type() === 'error') report.errors.push(m.text()); });
@@ -100,7 +122,8 @@ try {
     p.on('response', r => {
       if (r.status() >= 400) report.errors.push(`${r.status()} ${r.url()}`);
       const path = new URL(r.url()).pathname.slice(1);
-      if (path.startsWith(`${packedDirectory}/`)) generatedBrowserLoads.set(path,
+      if (path.startsWith('sparkbound/assets/heroes/generated/packed/') && path !== combatEffects) obsoleteActorLoads.add(path);
+      if (runtimePaths.includes(path)) runtimeBrowserLoads.set(path,
         r.finished().then(error => ({ path, status: r.status(), complete: !error, error: error?.message ?? null }),
           error => ({ path, status: r.status(), complete: false, error: String(error) })));
     });
@@ -117,14 +140,13 @@ try {
     await page.reload(); await idle();
   };
   await page.goto(origin + '/sparkbound/'); await idle();
-  const runtimePaths = [manifestPath, ...packedManifest.files.map(file => `${packedDirectory}/${file}`)];
   await page.waitForFunction(paths => {
     const completed = new Set(performance.getEntriesByType('resource').filter(entry => entry.responseEnd > 0).map(entry => new URL(entry.name).pathname.slice(1)));
     return paths.every(path => completed.has(path));
   }, runtimePaths, { timeout: 45000 });
-  report.generatedBrowserLoads = await Promise.all(runtimePaths.map(path => generatedBrowserLoads.get(path) ?? { path, complete: false, error: 'Browser response not observed' }));
-  check('Browser fully loads packed coordinate manifest and every generated actor image', report.generatedBrowserLoads.every(load => load.status === 200 && load.complete));
-  report.previewEvidenceBoundary = 'Live checks use UI selection, completed asset loads, canvas pixels and screenshots; they do not assert internal actor identity without the local QA hook.';
+  report.runtimeBrowserLoads = await Promise.all(runtimePaths.map(path => runtimeBrowserLoads.get(path) ?? { path, complete: false, error: 'Browser response not observed' }));
+  check('Browser fully loads guardian library, both authored skeletons and combat effects', report.runtimeBrowserLoads.every(load => load.status === 200 && load.complete));
+  report.previewEvidenceBoundary = 'Live checks use real UI rotation/selection, completed GLB loads, canvas pixels and screenshots. Internal mesh identity, drag rotation angle and socket assertions require the local true3D/expansion suites; manual review is required for live rotation evidence.';
   check('Eleven live heroes', await page.locator('.hero-tile').count() === CAMPAIGN.heroes);
   for (const hero of HEROES) {
     await page.locator(`[data-hero="${hero.id}"]`).click();
@@ -147,16 +169,18 @@ try {
   check('All 66 live previews have canvas and screenshot evidence', report.previewEvidence.length === CAMPAIGN.heroes * CAMPAIGN.stages);
   for (const [name, width, height] of VIEWPORTS) {
     await page.setViewportSize({ width, height }); await assertPanelFits(page, '.hangar-panel', check, `${name} live hangar`); await shot(`${name}-hangar`);
+    if (['desktop', 'tablet', 'phone'].includes(name)) await verifyInspectionControls({ page, state: async () => latest, check, shot, label: `${name}-live`, touch: name !== 'desktop', hook: false });
     await click('path'); await assertPanelFits(page, '.path-panel', check, `${name} live path`); await shot(`${name}-path`); await click('path-back');
     const stats = await sharp(await page.locator('#scene').screenshot()).stats(); check(`${name}: nonblank live canvas`, stats.channels.slice(0, 3).every(c => c.stdev > 12));
   }
   await page.locator('[data-hero="echo"]').click(); await click('start');
   check('Live selected hero starts with fifteen questions, six rounds and Shield available', latest.match.heroId === 'echo' && latest.match.questions.length === CAMPAIGN.questions && latest.configuration.battle.rounds.length === CAMPAIGN.rounds && await page.locator('[data-move="guard"]').count() === 1);
-  check('Fresh live v3 starts at Applied', latest.match.rulesVersion === 3 && latest.match.learningLevel === 2);
+  check(`Fresh live v${CURRENT_RULES_VERSION} starts at Applied`, latest.match.rulesVersion === CURRENT_RULES_VERSION && latest.match.learningLevel === 2);
+  await verifyLegacyV3Save({ page, seed, state: async () => latest, settled: idle, check, shot, profileId: h.fixture.childId });
   await verifyHarderCampaignForms({ page, seed, state: async () => latest, settled: idle, check, shot, profileId: h.fixture.childId });
   const journeyBase = createState({ profileId: h.fixture.childId }); Object.assign(journeyBase, { wins: 4, tier: 5 });
   await seed(journeyBase); await page.locator('[data-hero="echo"]').click(); await click('start');
-  check('Experienced live v3 starts at Stretch, capped at band 3', latest.match.learningLevel === 3);
+  check(`Experienced live v${CURRENT_RULES_VERSION} starts at Stretch, capped at band 3`, latest.match.rulesVersion === CURRENT_RULES_VERSION && latest.match.learningLevel === 3);
   const completed = await runCampaignJourney({ page, settled: idle, state: async () => latest, privateState, check, shot });
   const parent = await context.newPage(); observe(parent);
   await verifyParentEvidence({ page: parent, origin, fixture: h.fixture, completed, check, shot: name => parent.screenshot({ path: resolve(output, `${name}.png`) }) }); await parent.close();
@@ -171,6 +195,7 @@ try {
   const reset = await privateState();
   check('Live reset archives fifteen records and preserves wins', !reset.match && reset.wins === completed.wins && JSON.stringify(reset.history.at(-1).questions) === JSON.stringify(completed.match.questions));
   await page.reload(); await idle(); check('Live reset and wins survive refresh', !latest.match && latest.wins === completed.wins);
+  check('Character pose atlases are not loaded by the true3D release', obsoleteActorLoads.size === 0);
   assert.deepEqual(report.errors, []); check('No browser or asset errors');
 } catch (error) { report.errors.push(error.stack); process.exitCode = 1; }
 finally {
