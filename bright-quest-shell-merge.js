@@ -38,6 +38,10 @@
 
   const previousOpenGamesList = openGamesList;
   openGamesList = function shellMergeOpenGamesList(...args) {
+    if (window.BrightQuestChildExperience && state.profile && document.body.classList.contains("bq-child-uplift")) {
+      window.BrightQuestChildExperience.navigate("play");
+      return;
+    }
     const result = previousOpenGamesList.apply(this, args);
     requestAnimationFrame(() => {
       addDragonForgeKidCard();
@@ -47,8 +51,6 @@
   };
 
   renderParentDashboard = function shellMergeParentDashboard() {
-    dedupeSameNameProfiles();
-    normalizeProfiles();
     document.querySelector("#parentScreen")?.classList.add("parent-cockpit-redesign", "parent-page-cockpit");
     const profiles = Object.values(state.profiles);
     const profile = getParentProfile(profiles);
@@ -59,7 +61,6 @@
   function handleKidConfirmation(event) {
     if (state.selectedRole !== "kid") return;
     if (modePassword.value !== "abcde") return;
-    dedupeSameNameProfiles();
     const profiles = Object.values(state.profiles);
     const profile = confirmationProfile(profiles);
     if (!profile) return;
@@ -366,6 +367,14 @@
   }
 
   function renderKidMissionControl(ref) {
+    if (window.BrightQuestChildExperience) {
+      window.BrightQuestChildExperience.render(ref, {
+        handleAction: handleKidAction, physicsProgress, nextChemistryChapterNumber,
+        beaconLaunchArt, sparkboundLaunchArt,
+        renderExams: renderCityExamPrepPage, renderWinter: renderWinterTrainingPage
+      });
+      return;
+    }
     const profile = state.profile;
     const attempts = profile.attempts || [];
     const icasAttempts = profile.icasAttempts || [];
@@ -506,6 +515,7 @@
   }
 
   function handleKidAction(action) {
+    if (document.body.classList.contains("bq-child-uplift") && window.BrightQuestChildExperience?.handleAction(action)) return;
     if (action === "sparkbound") {
       const url = new URL("/sparkbound/", window.location.href);
       if (state.profile?.id) url.searchParams.set("profileId", state.profile.id);
@@ -676,6 +686,7 @@
         button.setAttribute("aria-expanded", String(expanded));
       });
     });
+    if (document.body.classList.contains("bq-child-uplift")) window.BrightQuestChildExperience?.decorateSubpage(ref, "learn");
     return ref;
   }
 
@@ -695,19 +706,20 @@
         ${levels.map((level, index) => {
           const attempt = latest[level.level];
           const status = attempt ? `${attempt.percent}% ${scoreLabel(attempt.percent)}` : "Pending";
+          const saved = String(state.profile?.activeDraft?.level) === String(level.level);
           const isRecommended = level.level === recommended;
           return `
             <button type="button" class="bq-path-node ${attempt ? "done" : "pending"} ${isRecommended ? "current" : ""} ${index >= currentIndex && index <= currentIndex + 2 ? "nearby" : ""}" data-start-level="${escapeAttr(level.level)}">
               <span class="bq-path-marker">${attempt ? "Done" : String(level.level).padStart(2, "0")}</span>
-              <span class="bq-path-copy"><strong>${escapeHtml(level.name)}</strong><small>${escapeHtml(level.challengeLabel || level.difficulty || "City School Prep")}</small></span>
-              <span class="bq-path-status">${isRecommended ? "Start next" : escapeHtml(status)}</span>
+              <span class="bq-path-copy"><strong>${escapeHtml(level.name)}</strong><small>${level.minutes} minutes · ${level.questions.length} questions · ${escapeHtml(level.challengeLabel || level.difficulty || "Exam practice")}</small></span>
+              <span class="bq-path-status">${saved ? "Resume saved test" : isRecommended ? "Start next" : escapeHtml(status)}</span>
             </button>
           `;
         }).join("")}
       </section>
       <button class="button button-soft bq-course-path-toggle" type="button" data-course-path-toggle aria-expanded="false">View full expedition</button>
     `;
-    kidPageShell("City School Exam Prep", "Choose a set, see what is done, and start the real test only when ready.", "school", body);
+    kidPageShell("Exam Expedition", "Choose a set when you are ready. The timer starts when you select it; unfinished tests can be saved and resumed.", "school", body);
   }
 
   function renderWinterTrainingPage() {
@@ -730,7 +742,7 @@
       </section>
       <button class="button button-soft bq-course-path-toggle" type="button" data-course-path-toggle aria-expanded="false">View full workshop map</button>
     `;
-    kidPageShell("Winter 2026 Training 1", "Training done and test taken are shown on every topic.", "book", body);
+    kidPageShell("Winter Maths Workshop", "Winter 2026 · guided lessons and topic tests in AGMaths.", "book", body);
     requestAnimationFrame(loadWinterTrainingStatus);
   }
 
@@ -768,8 +780,8 @@
     const studentId = agmathsStudentId();
     try {
       const [progress, attempts] = await Promise.all([
-        fetch(`${AGMATHS_API_BASE}/api/progress?studentId=${encodeURIComponent(studentId)}`, { headers: { accept: "application/json" } }).then((res) => res.ok ? res.json() : []),
-        fetch(`${AGMATHS_API_BASE}/api/attempts?studentId=${encodeURIComponent(studentId)}`, { headers: { accept: "application/json" } }).then((res) => res.ok ? res.json() : [])
+        fetch(`${AGMATHS_API_BASE}/api/progress?studentId=${encodeURIComponent(studentId)}`, { headers: { accept: "application/json" } }).then((res) => { if (!res.ok) throw new Error("Progress unavailable"); return res.json(); }),
+        fetch(`${AGMATHS_API_BASE}/api/attempts?studentId=${encodeURIComponent(studentId)}`, { headers: { accept: "application/json" } }).then((res) => { if (!res.ok) throw new Error("Attempts unavailable"); return res.json(); })
       ]);
       const progressByTopic = new Map((Array.isArray(progress) ? progress : []).map((item) => [agTopicId(item), item]).filter(([topicId]) => topicId));
       const attemptsByTopic = new Map();
@@ -787,8 +799,8 @@
       updateWinterPathWindow(cards);
     } catch {
       cards.forEach((card) => {
-        updateAgStatus(card, "training", false, "Done", "Open AGMaths");
-        updateAgStatus(card, "test", false, "Taken", "Open AGMaths");
+        updateAgStatus(card, "training", false, "Done", "Unable to refresh");
+        updateAgStatus(card, "test", false, "Taken", "Open AGMaths to check");
       });
       updateWinterPathWindow(cards);
     }
@@ -942,7 +954,7 @@
     const route = parentRoute().split("/")[0] || "overview";
     header.innerHTML = `
       <div class="cockpit-title-block">
-        <p class="eyebrow">Parent Cockpit</p>
+        <p class="eyebrow">Bright Quest · For parents</p>
         <h2>${parentRouteTitle()}</h2>
       </div>
       ${uplift ? `<nav class="bq-parent-nav" aria-label="Parent navigation">
@@ -958,15 +970,7 @@
             ${profiles.map((item) => `<option value="${escapeAttr(item.id)}" ${item.id === profile?.id ? "selected" : ""}>${escapeHtml(item.name)}</option>`).join("")}
           </select>
         </label>
-        <div class="parent-options-wrap">
-          <button class="button button-soft" type="button" data-parent-options>Options</button>
-          <div class="parent-options-menu hidden">
-            ${window.BrightQuestFamilyAuth?.enabled ? `<button type="button" data-parent-shell-action="manage-children">Manage children</button>` : ""}
-            <button type="button" data-parent-shell-action="refresh">Refresh data</button>
-            <button type="button" data-parent-shell-action="reset">Reset all data</button>
-            <button type="button" data-parent-shell-action="logout">Log out</button>
-          </div>
-        </div>
+        <button class="button button-soft bq-return-child" type="button" data-parent-return-child>Return to child</button>
       </div>
     `;
 
@@ -982,11 +986,30 @@
     header.querySelectorAll("[data-parent-route]").forEach((button) => {
       button.addEventListener("click", () => parentNavigate(button.dataset.parentRoute));
     });
+    header.querySelector("[data-parent-return-child]")?.addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      button.disabled = true;
+      if (window.BrightQuestFamilyAuth?.enabled) {
+        await window.BrightQuestFamilyAuth.returnToChild();
+      } else {
+        state.selectedRole = "kid";
+        renderProfileScreen();
+        showScreen("profile");
+      }
+      button.disabled = false;
+    });
   }
 
   function parentNavButton(route, label, activeRoute) {
-    const active = route === activeRoute || (route === "learning" && ["exam-results", "focus", "training", "chemistry", "physics", "icas", "winter-2026", "beacon-brigade", "sparkbound"].includes(activeRoute)) || (route === "evidence" && ["writing", "records"].includes(activeRoute));
+    const active = route === parentActiveSection(activeRoute);
     return `<button type="button" class="${active ? "active" : ""}" data-parent-route="${route}" ${active ? 'aria-current="page"' : ""}>${label}</button>`;
+  }
+
+  function parentActiveSection(route = parentRoute().split("/")[0]) {
+    if (["overview", "learning", "evidence", "settings"].includes(route)) return route;
+    const origin = new URLSearchParams(window.location.hash.split("?")[1] || "").get("from");
+    if (["learning", "evidence"].includes(origin)) return origin;
+    return ["exam-results", "focus", "writing", "records", "icas", "beacon-brigade", "sparkbound"].includes(route) ? "evidence" : "learning";
   }
 
   function renderParentRoute(profile) {
@@ -1008,7 +1031,8 @@
       parentRecommendation.innerHTML = `
         <section class="bq-parent-page">
           <h3>No child profile yet.</h3>
-          <p>Create a child profile from Kid Adventure first. Parent signup and managed child registration are planned for the next layer.</p>
+          <p>Add a child to start a separate learning journey with its own progress and records.</p>
+          ${window.BrightQuestFamilyAuth?.enabled ? '<button class="button button-primary" type="button" data-parent-shell-action="manage-children">Manage children</button>' : ''}
         </section>
       `;
       return;
@@ -1047,26 +1071,34 @@
     const latest = metrics.latest;
     const previous = metrics.previous;
     const trend = latest && previous ? latest.percent - previous.percent : null;
-    const focus = metrics.focus[0];
+    const focus = metrics.focus.find((item) => item.missed > 0);
+    const unanswered = metrics.choices.filter((question) => questionStatus(question) === "unanswered").length;
     const attentionRoute = focus ? "focus" : latest ? "exam-results" : "learning";
-    const attentionTitle = focus ? `${focus.skill} needs a closer look` : latest ? "Review the latest result" : "Start the first learning record";
-    const attentionCopy = focus ? `${focus.missed} missed answer${focus.missed === 1 ? "" : "s"} in the saved evidence.` : latest ? `${latest.levelName} was ${latest.percent}%.` : "No saved exam result exists yet.";
+    const attentionTitle = focus ? `Take a closer look at ${focus.skill}` : latest ? "A little time to reflect" : "A new learning journey awaits";
+    const attentionCopy = focus ? `${focus.missed} incorrect answer${focus.missed === 1 ? "" : "s"} saved for this skill. Open the original work to see what happened.` : latest ? `${latest.levelName} is ready to review.${unanswered ? ` ${unanswered} unanswered question${unanswered === 1 ? " is" : "s are"} shown separately.` : ""}` : "After the first activity, you can explore the work and choose a useful next step together.";
     const recentCopy = latest ? `${latest.levelName}: ${latest.percent}% on ${latest.displayDate}.` : "No recent saved activity.";
-    const changeCopy = trend === null ? "A second result will reveal a trend." : trend > 0 ? `Improved by ${trend} points.` : trend < 0 ? `Down ${Math.abs(trend)} points from the previous result.` : "Score is unchanged from the previous result.";
+    const changeCopy = trend === null ? "Your latest saved activity" : trend > 0 ? `${trend} percentage points higher` : trend < 0 ? `${Math.abs(trend)} percentage points lower` : "The same percentage as last time";
     return parentPageShell("overview", `
+      <section class="bq-parent-stat-strip" aria-label="Saved learning at a glance">
+        ${metric("Saved attempts", metrics.attempts.length + metrics.icasAttempts.length)}
+        ${metric("Writing samples", metrics.writing.length)}
+        ${metric("Practice completed", metrics.training.completed.length)}
+        ${metric("Stars collected", metrics.profile.stars || 0)}
+      </section>
       <section class="bq-parent-attention ${focus ? "needs-attention" : "steady"}">
-        <div><p class="eyebrow">Attention</p><h3>${escapeHtml(attentionTitle)}</h3><p>${escapeHtml(attentionCopy)}</p></div>
-        <button class="button button-primary" type="button" data-parent-route="${attentionRoute}">Review evidence</button>
+        <span class="bq-parent-attention-art" aria-hidden="true"><img src="assets/ui/illustrated-worlds/focus-studio.webp" alt="" width="144" height="108" loading="lazy" decoding="async" /></span>
+        <div><p class="eyebrow">A useful next step</p><h3>${escapeHtml(attentionTitle)}</h3><p>${escapeHtml(attentionCopy)}</p></div>
+        <button class="button button-primary" type="button" data-parent-route="${attentionRoute}">${latest ? "Review evidence" : "Explore learning"}</button>
       </section>
       <section class="bq-parent-decision-grid">
-        <article><p class="eyebrow">Recent change</p><h3>${escapeHtml(changeCopy)}</h3><p>${escapeHtml(recentCopy)}</p></article>
-        <article><p class="eyebrow">Next action</p><h3>${focus ? `Practise ${escapeHtml(focus.skill)}` : "Keep the routine moving"}</h3><p>${focus ? "Open the evidence first, then choose one short practice activity." : "Choose a learning area and complete one focused activity."}</p></article>
+        <article><p class="eyebrow">Recent activity</p><h3>${escapeHtml(changeCopy)}</h3><p>${escapeHtml(recentCopy)}</p>${trend === null ? "" : '<small>These are separate attempts; their topics and difficulty may differ.</small>'}${latest ? '<button class="button button-soft" type="button" data-parent-route="exam-results">See saved attempts</button>' : ""}</article>
+        <article><p class="eyebrow">Choose together</p><h3>Make room for a small next step</h3><p>${focus ? "Look at the original answer together, then choose a lesson or practice that fits." : "Browse the learning areas and follow your child's curiosity."}</p><button class="button button-soft" type="button" data-parent-route="learning">Browse learning</button></article>
       </section>
       <section class="bq-parent-subject-rows" aria-label="Learning summary">
         ${parentHubRow("learning", "Learning", `${metrics.attempts.length + metrics.icasAttempts.length} saved attempts`, metrics.attempts.length ? `${metrics.average}% exam average` : "No exam baseline", "chart")}
         ${parentHubRow("icas", "ICAS Challenge Lab", `${metrics.icasAttempts.length} attempts`, metrics.icasAttempts.length ? `${metrics.icasAttempts.at(-1).percent}% latest` : "No result yet", "clipboard")}
         ${parentHubRow("chemistry", "Chemistry", `${chemistryProgress(metrics.profile).completed} of 11 chapters`, "Chapter tests and wrong answers", "chemistry")}
-        ${parentHubRow("physics", "Physics", `${physicsProgress(metrics.profile).completed} of ${physicsProgress(metrics.profile).total} chapters`, "Cockpit Checks and wrong answers", "focus")}
+        ${parentHubRow("physics", "Physics", `${physicsProgress(metrics.profile).completed} of ${physicsProgress(metrics.profile).total} chapters`, "Chapter checks and answer review", "focus")}
         ${parentHubRow("beacon-brigade", "Beacon Brigade", "Five subject expeditions", "HQ and expedition evidence", "chart")}
         ${parentHubRow("sparkbound", "Sparkbound", "Arena training", "Original answers and support used", "chart")}
         ${parentHubRow("evidence", "Evidence", `${metrics.questionStats.length} saved question records`, `${metrics.writing.length} writing samples`, "database")}
@@ -1082,8 +1114,8 @@
         ${parentHubRow("icas", "ICAS Challenge Lab", `${metrics.icasAttempts.length} attempts`, metrics.icasAttempts.length ? `${metrics.icasAttempts.at(-1).percent}% latest` : "Maths and spelling practice", "clipboard")}
         ${parentHubRow("focus", "Focus Areas", `${metrics.focus.length} signals`, metrics.focus[0]?.skill || "No focus flagged", "focus")}
         ${parentHubRow("training", "Bright Quest Training", `${metrics.training.completed.length} complete`, `${metrics.training.untouched.length} available`, "book")}
-        ${parentHubRow("chemistry", "Chemistry 101", `${chemistry.completed} of ${chemistry.total} chapters`, `${chemistry.tested} tests submitted`, "chemistry")}
-        ${parentHubRow("physics", "Physics 101", `${physicsProgress(metrics.profile).completed} of ${physicsProgress(metrics.profile).total} chapters`, `${physicsProgress(metrics.profile).tests} Cockpit Checks submitted`, "focus")}
+        ${parentHubRow("chemistry", "Chemistry 101", `${chemistry.completed} of ${chemistry.chapters.length} chapters`, `${chemistry.tests} tests submitted`, "chemistry")}
+        ${parentHubRow("physics", "Physics 101", `${physicsProgress(metrics.profile).completed} of ${physicsProgress(metrics.profile).total} chapters`, `${physicsProgress(metrics.profile).tests} chapter checks submitted`, "focus")}
         ${parentHubRow("beacon-brigade", "Beacon Brigade", "Five subject expeditions", "HQ and expedition evidence", "chart")}
         ${parentHubRow("sparkbound", "Sparkbound", "Arena training", "Original answers and support used", "chart")}
         ${parentHubLink(agmathsUrl("cockpit", metrics.profile, "parent/learning"), "Winter Maths", "Open linked AGMaths progress", "External course", "snow")}
@@ -1092,22 +1124,25 @@
   }
 
   function renderParentEvidenceHub(metrics) {
-    const missed = metrics.choices.filter((question) => question.correct === false).length;
-    const icasMissed = metrics.icasQuestions.filter((question) => question.correct === false).length;
+    const answers = [...metrics.choices, ...metrics.icasQuestions.filter((question) => question.format !== "writing")];
+    const incorrect = answers.filter((question) => questionStatus(question) === "incorrect").length;
+    const unanswered = answers.filter((question) => questionStatus(question) === "unanswered").length;
     return parentPageShell("evidence", `
       <section class="bq-parent-evidence-summary">
         ${metric("Saved attempts", metrics.attempts.length + metrics.icasAttempts.length)}
-        ${metric("Missed answers", missed + icasMissed)}
+        ${metric("Incorrect answers", incorrect)}
+        ${metric("Unanswered", unanswered)}
         ${metric("Writing samples", metrics.writing.length)}
       </section>
       <section class="bq-parent-hub-list" aria-label="Evidence areas">
-        ${parentHubRow("exam-results", "Attempts and answers", "Wrong answers first in each review", `${metrics.questionStats.length} question records`, "clipboard")}
+        ${parentHubRow("exam-results", "Attempts and answers", "Filter and open the full original work", `${metrics.questionStats.length} question records`, "clipboard")}
         ${parentHubRow("icas", "ICAS answer evidence", "Wrong answers first in a popup", `${metrics.icasQuestions.length} question records`, "clipboard")}
         ${parentHubRow("beacon-brigade", "Beacon Brigade evidence", "Expeditions and original answers", "Corrections and support used", "chart")}
         ${parentHubRow("sparkbound", "Sparkbound evidence", "Wrong answers first", "Original answers, hints and worked support", "chart")}
         ${parentHubRow("writing", "Writing evidence", "Saved responses and writing signals", `${metrics.writing.length} samples`, "writing")}
         ${parentHubRow("records", "All records", "Complete audit view", "Profiles, attempts, questions and training", "database")}
       </section>
+      <section class="bq-evidence-section"><div class="bq-section-caption"><h3>Browse saved exam answers</h3><p>Open a row for the full question and response.</p></div>${evidenceList(metrics.questionStats.slice().reverse(), "Saved exam answers")}</section>
     `);
   }
 
@@ -1385,11 +1420,9 @@
   function renderParentSettingsHub(metrics) {
     return parentPageShell("settings", `
       <section class="bq-parent-settings-list">
-        <div><strong>Current child</strong><span>${escapeHtml(metrics.profile.name)}</span></div>
-        ${window.BrightQuestFamilyAuth?.enabled ? '<button class="button button-soft" type="button" data-parent-shell-action="manage-children">Manage children and PINs</button>' : ""}
-        <button class="button button-soft" type="button" data-parent-shell-action="refresh">Refresh saved data</button>
-        <button class="button button-soft danger" type="button" data-parent-shell-action="reset">Reset all data</button>
-        <button class="button button-soft" type="button" data-parent-shell-action="logout">Log out</button>
+        <div class="bq-setting-group"><span class="bq-parent-row-icon" aria-hidden="true">${icon("book")}</span><div><h3>Your family</h3><p>Viewing ${escapeHtml(metrics.profile.name)}'s learning. Switch children using the selector above.</p>${window.BrightQuestFamilyAuth?.enabled ? '<button class="button button-soft" type="button" data-parent-shell-action="manage-children">Manage children and PINs</button>' : ""}</div></div>
+        <div class="bq-setting-group"><span class="bq-parent-row-icon" aria-hidden="true">${icon("database")}</span><div><h3>Saved data and access</h3><p>Refresh the current view or sign out of this family account.</p><div class="bq-setting-actions"><button class="button button-soft" type="button" data-parent-shell-action="refresh">Refresh saved data</button><button class="button button-soft" type="button" data-parent-shell-action="logout">Log out</button></div></div></div>
+        <details class="bq-advanced-settings"><summary>Advanced data controls</summary><p>Reset removes saved progress. Use this only when you intend to clear the data; the existing confirmation still applies.</p><button class="button button-soft danger" type="button" data-parent-shell-action="reset">Reset all data</button></details>
       </section>
     `);
   }
@@ -1429,6 +1462,9 @@
     let correct = typeof raw.correct === "boolean" ? raw.correct : undefined;
     if (correct === undefined && typeof raw.isCorrect === "boolean") correct = raw.isCorrect;
     if (correct === undefined) correct = matchingAnswer(selected, correctAnswer);
+    const responseFields = ["selectedText", "selectedAnswer", "selected", "answer", "answerText", "writingResponse"];
+    const responseKnown = responseFields.some((key) => Object.prototype.hasOwnProperty.call(raw, key));
+    const responsePresent = responseFields.some((key) => raw[key] !== null && raw[key] !== undefined && String(raw[key]).trim() !== "");
     return {
       ...raw,
       number: raw.number ?? raw.questionNumber ?? raw.questionIndex ?? index + 1,
@@ -1440,8 +1476,22 @@
       correctText: normalText(correctAnswer, "Not captured"),
       answerText: normalText(raw.answerText ?? raw.writingResponse ?? selected, ""),
       secondsSpent: Number(raw.secondsSpent ?? raw.seconds ?? raw.timeSeconds ?? raw.durationSeconds ?? 0) || 0,
-      correct
+      correct,
+      responseKnown,
+      responsePresent
     };
+  }
+
+  function questionStatus(question) {
+    if (question.format === "writing") return "writing";
+    if (question.correct === true) return "correct";
+    if (question.responseKnown && !question.responsePresent) return "unanswered";
+    if (question.correct === false) return "incorrect";
+    return "unmarked";
+  }
+
+  function questionStatusLabel(status) {
+    return ({ incorrect: "Incorrect", unanswered: "Unanswered", correct: "Correct", writing: "Writing", unmarked: "Not marked" })[status] || "Not marked";
   }
 
   function normalizeParentAttempt(rawAttempt, index) {
@@ -1487,7 +1537,25 @@
       (attempt.questionStats || []).map((question) => ({ ...question, attempt }))
     );
     const choices = questionStats.filter((question) => question.format !== "writing");
-    const writing = questionStats.filter((question) => question.format === "writing").reverse();
+    const writing = questionStats.filter((question) => question.format === "writing");
+    (profile.writingSamples || []).forEach((sample, index) => {
+      const response = normalText(sample.response ?? sample.answerText ?? sample.text ?? sample.writingResponse);
+      const prompt = normalText(sample.prompt ?? sample.question, "Writing prompt not captured");
+      const sampleDate = validDate(sample.date ?? sample.createdAt);
+      const alreadyAttached = writing.some((question) => {
+        if (sample.attemptId && String(sample.attemptId) === String(question.attempt?.id) && prompt === question.prompt && response === question.answerText) return true;
+        const attemptDate = validDate(question.attempt?.date);
+        return sample.level !== undefined && String(sample.level) === String(question.attempt?.level)
+          && sampleDate && attemptDate && Math.abs(sampleDate - attemptDate) < 2000
+          && prompt === question.prompt && response === question.answerText;
+      });
+      if (alreadyAttached) return;
+      writing.push({
+        ...normalizeQuestionRecord({ ...sample, format: "writing", prompt, answerText: response }, index),
+        attempt: { id: sample.attemptId || `writing-sample-${index}`, level: sample.level, levelName: sample.levelName || sample.name || "Saved writing sample", date: sample.date ?? sample.createdAt, displayDate: displayDate(sample.date ?? sample.createdAt) }
+      });
+    });
+    writing.sort((left, right) => (validDate(right.attempt?.date)?.getTime() || 0) - (validDate(left.attempt?.date)?.getTime() || 0));
     const icasQuestions = icasAttempts.flatMap((attempt) => (attempt.questionStats || []).map((question) => ({ ...question, attempt })));
     const latest = attempts.at(-1);
     const previous = attempts.at(-2);
@@ -1502,9 +1570,10 @@
   function focusGroups(questions) {
     const groups = questions.reduce((acc, question) => {
       const skill = question.skill || "Mixed skill";
-      acc[skill] ||= { skill, section: question.section || "Mixed", count: 0, missed: 0, seconds: 0, questions: [] };
+      acc[skill] ||= { skill, section: question.section || "Mixed", count: 0, missed: 0, unanswered: 0, seconds: 0, questions: [] };
       acc[skill].count += 1;
-      acc[skill].missed += question.correct === false ? 1 : 0;
+      acc[skill].missed += questionStatus(question) === "incorrect" ? 1 : 0;
+      acc[skill].unanswered += questionStatus(question) === "unanswered" ? 1 : 0;
       acc[skill].seconds += question.secondsSpent || 0;
       acc[skill].questions.push(question);
       return acc;
@@ -1515,7 +1584,7 @@
         averageSeconds: Math.round(item.seconds / Math.max(1, item.count)),
         score: item.missed * 5 + Math.round(item.seconds / 35)
       }))
-      .sort((a, b) => b.score - a.score);
+      .sort((a, b) => b.missed - a.missed || b.unanswered - a.unanswered || b.score - a.score);
   }
 
   function renderParentOverviewPage(metrics) {
@@ -1578,13 +1647,13 @@
 
   function renderExamResultsPage(metrics) {
     const rows = metrics.attempts.slice().reverse().map((attempt) => `
-      <button class="bq-result-row" type="button" data-parent-route="exam-results/${escapeAttr(attempt.id)}">
+      <button class="bq-result-row" type="button" data-parent-route="exam-results/${escapeAttr(attempt.id)}" data-attempt-record data-attempt-search="${escapeAttr(`${attempt.levelName} ${attempt.displayDate}`.toLowerCase())}">
         <span>${escapeHtml(attempt.levelName)}</span>
         <strong>${attempt.percent}%</strong>
         <small>${escapeHtml(attempt.displayDate)} / ${attempt.correct} of ${attempt.total} / ${formatDuration(attempt.secondsUsed || 0)}</small>
       </button>
-    `).join("") || `<div class="empty-state">No City School Exam Prep attempts yet.</div>`;
-    return parentPageShell("exam-results", `<div class="bq-page-list">${rows}</div>`);
+    `).join("") || `<div class="empty-state">No Exam Expedition attempts yet. Saved work will appear here after a test is finished.</div>`;
+    return parentPageShell("exam-results", `<label class="bq-record-search">Find a saved attempt<input type="search" data-attempt-search-input placeholder="Search activity or date" /></label><div class="bq-page-list">${rows}</div><p class="empty-state" data-attempt-no-results hidden>No attempts match that search.</p>`);
   }
 
   function renderAttemptDetailPage(metrics, attemptId) {
@@ -1592,35 +1661,30 @@
     if (!attempt) return parentPageShell("exam-results", `<div class="empty-state">No attempt found.</div>`);
     const questions = attempt.questionStats || [];
     const sorted = [...questions].sort((a, b) => {
-      const priority = (question) => {
-        if (question.correct === false) return 0;
-        if (question.format === "writing") return 1;
-        return 2;
-      };
+      const priority = (question) => ({ incorrect: 0, unanswered: 1, writing: 2, unmarked: 3, correct: 4 })[questionStatus(question)];
       const priorityDiff = priority(a) - priority(b);
       if (priorityDiff) return priorityDiff;
       return (a.number || 0) - (b.number || 0);
     });
-    const wrong = questions.filter((item) => item.correct === false).length;
+    const wrong = questions.filter((item) => questionStatus(item) === "incorrect").length;
+    const unanswered = questions.filter((item) => questionStatus(item) === "unanswered").length;
     return parentPageShell("exam-results", `
       <section class="bq-attempt-hero">
         <div><p class="eyebrow">Attempt detail</p><h3>${escapeHtml(attempt.levelName)}</h3><p>${escapeHtml(attempt.displayDate)}</p></div>
-        <div class="bq-attempt-score"><strong>${attempt.percent}%</strong><span>${attempt.correct}/${attempt.total} correct</span><small>${wrong} to review first</small></div>
+        <div class="bq-attempt-score"><strong>${attempt.percent}%</strong><span>${attempt.correct}/${attempt.total} correct</span><small>${wrong} incorrect · ${unanswered} unanswered</small></div>
       </section>
       <button class="button button-soft bq-page-return-inline" type="button" data-parent-route="exam-results">Back to Exam Results</button>
-      <section class="bq-question-stack">
-        ${sorted.map(questionCard).join("") || `<div class="empty-state">No question records saved for this attempt.</div>`}
-      </section>
+      ${evidenceList(sorted, "Answers in this attempt")}
     `);
   }
 
   function renderFocusPage(metrics) {
     const rows = metrics.focus.map((focus) => `
-      <article class="bq-focus-page-card">
-        <div><h3>${escapeHtml(focus.skill)}</h3><p>${escapeHtml(focus.section)} / ${focus.missed} missed / avg ${formatDuration(focus.averageSeconds)}</p></div>
-        <div class="bq-evidence-list">${focus.questions.slice(0, 5).map(questionCard).join("")}</div>
-      </article>
-    `).join("") || `<div class="empty-state">No recurring weak spots yet.</div>`;
+      <details class="bq-focus-review-group">
+        <summary><span><strong>${escapeHtml(focus.skill)}</strong><small>${escapeHtml(focus.section)} · ${focus.count} saved question${focus.count === 1 ? "" : "s"}</small></span><span class="bq-focus-counts">${focus.missed} incorrect · ${focus.unanswered} unanswered</span></summary>
+        <div class="bq-focus-review-body"><p class="muted">These are saved observations, not a diagnosis of a recurring weakness. Average recorded time: ${formatDuration(focus.averageSeconds)}.</p>${evidenceList(focus.questions, `${focus.skill} evidence`)}</div>
+      </details>
+    `).join("") || `<div class="empty-state">No question evidence yet. Review groups will appear after a saved test.</div>`;
     return parentPageShell("focus", `<div class="bq-page-list">${rows}</div>`);
   }
 
@@ -1634,14 +1698,7 @@
   }
 
   function renderWritingPage(metrics) {
-    const rows = metrics.writing.map((question) => `
-      <article class="bq-writing-record">
-        <p class="eyebrow">${escapeHtml(question.attempt?.levelName || "Writing")}</p>
-        <h3>${escapeHtml(shorten(question.prompt || "Writing prompt", 140))}</h3>
-        <p>${escapeHtml(question.answerText || "No response saved.")}</p>
-      </article>
-    `).join("") || `<div class="empty-state">No writing samples saved yet.</div>`;
-    return parentPageShell("writing", `<div class="bq-page-list">${rows}</div>`);
+    return parentPageShell("writing", `<p class="bq-evidence-intro">Open a sample to read the complete prompt and original response, including its paragraph breaks.</p>${evidenceList(metrics.writing, "Saved writing samples")}`);
   }
 
   function renderGamesPage(metrics) {
@@ -1682,7 +1739,7 @@
         <div>
           <p class="eyebrow">Bright Quest module</p>
           <h3>Course progress</h3>
-          <p>${status.completed}/${totalChapters} chapters watched, ${status.tests}/${totalChapters} chapter tests submitted. Total video runtime is about 74 minutes.</p>
+          <p>${status.completed}/${totalChapters} chapters watched, ${status.tests}/${totalChapters} chapter tests submitted. Total video runtime is about 53 minutes.</p>
         </div>
         <div class="bq-linked-actions">
           <button class="button button-primary" type="button" data-open-game-url="${chemistry101Url(metrics.profile)}">Open Chemistry 101</button>
@@ -1692,6 +1749,7 @@
         ${status.chapters.map((chapter, index) => chemistryTopicCard(chapter, index, metrics.profile)).join("")}
       </section>
       ${chemistryReviewPanel(status)}
+      ${renderDeviceScienceHistory(metrics.profile, "chemistry")}
       <section class="bq-two-column records">
         <article>${recordBlock("Chemistry chapters", rows)}</article>
         <article>${recordBlock("Course summary", [
@@ -1714,18 +1772,19 @@
         <div>
           <p class="eyebrow">Bright Quest module</p>
           <h3>Physics 101 course progress</h3>
-          <p>${status.completed}/${status.total} chapters watched and ${status.tests}/${status.total} Cockpit Checks submitted.</p>
+          <p>${status.completed}/${status.total} chapters watched and ${status.tests}/${status.total} chapter checks submitted.</p>
         </div>
         <div class="bq-linked-actions">
           <button class="button button-primary" type="button" data-open-game-url="${physics101Url(metrics.profile)}">Open Physics 101</button>
         </div>
       </section>
       ${physicsReviewPanel(status)}
+      ${renderDeviceScienceHistory(metrics.profile, "physics")}
       <section class="bq-two-column records">
         <article>${recordBlock("Physics chapters", rows)}</article>
         <article>${recordBlock("Course summary", [
           { label: "Animated chapters", value: `${status.completed}/${status.total} complete` },
-          { label: "Cockpit Checks", value: `${status.tests}/${status.total} submitted` },
+          { label: "Chapter checks", value: `${status.tests}/${status.total} submitted` },
           { label: "Question bank", value: `${status.questionBank} questions` }
         ])}</article>
       </section>
@@ -1741,11 +1800,10 @@
     }
     const profileId = profile?.id || "demo-student";
     const localChapters = saved[profileId]?.chapters || {};
-    const legacyChapters = saved["demo-student"]?.chapters || {};
     const profileChapters = profile?.physics101Progress?.chapters || {};
     const chapterDefinitions = releasedPhysicsChapters(profile);
     const chapters = chapterDefinitions.map(({ id, title }) => {
-      const local = { ...(legacyChapters[id] || {}), ...(localChapters[id] || {}) };
+      const local = { ...(localChapters[id] || {}) };
       const remote = profileChapters[id] || {};
       const chapter = mergePhysicsChapterData(local, remote);
       return {
@@ -1952,10 +2010,9 @@
     const profileId = profile?.id || "demo-student";
     const profileChapters = profile?.chemistry101Progress?.chapters || {};
     const localChapters = saved[profileId]?.chapters || {};
-    const legacyChapters = saved["demo-student"]?.chapters || {};
     const completedMap = profile?.trainingCompleted || {};
     const chapters = ids.map((id, index) => {
-      const chapter = { ...(legacyChapters[id] || {}), ...(localChapters[id] || {}), ...(profileChapters[id] || {}) };
+      const chapter = { ...(localChapters[id] || {}), ...(profileChapters[id] || {}) };
       const completed = Boolean(chapter.completed || completedMap[`chemistry-101-winter-2026:${id}`]);
       return { id, title: titles[index], completed, test: chapter.test || null };
     });
@@ -1964,6 +2021,30 @@
       completed: chapters.filter((chapter) => chapter.completed).length,
       tests: chapters.filter((chapter) => chapter.test).length
     };
+  }
+
+  function renderDeviceScienceHistory(profile, subject) {
+    if (profile?.id === "demo-student") return "";
+    let history;
+    try {
+      const key = subject === "chemistry" ? "brightQuestChemistry101ProgressV1" : "brightQuestPhysics101ProgressV1";
+      history = JSON.parse(localStorage.getItem(key) || "{}")["demo-student"];
+    } catch { return ""; }
+    const entries = Object.entries(history?.chapters || {});
+    if (!entries.length) return "";
+    const definitions = subject === "chemistry" ? chemistryProgress({ id: "demo-student" }).chapters : releasedPhysicsChapters(profile);
+    const rows = entries.map(([id, chapter]) => {
+      const title = definitions.find((item) => item.id === id)?.title || chapter.title || id.replaceAll("-", " ");
+      const rawAnswers = subject === "chemistry" ? chemistryFeedbackItems(chapter) : chapter.test?.answers || [];
+      const answers = rawAnswers.map((item, index) => normalizeQuestionRecord({
+        ...item,
+        selectedText: item.selectedText ?? item.selected,
+        correctText: item.correctText ?? item.correctAnswer,
+        skill: item.concept || item.skill || title
+      }, index));
+      return `<details class="bq-focus-review-group"><summary><span><strong>${escapeHtml(title)}</strong><small>${chapter.completed ? "Chapter completed" : "Chapter started"}${chapter.test ? ` · Saved test: ${escapeHtml(chapter.test.score ?? "—")}/${escapeHtml(chapter.test.total ?? "—")}` : " · No saved test"}</small></span></summary><div class="bq-focus-review-body"><p>Recorded watch time: ${formatDuration(Number(chapter.watchedSeconds) || 0)}</p>${answers.length ? evidenceList(answers, `Device history: ${title}`) : '<p class="muted">No individual answer records were captured for this chapter.</p>'}</div></details>`;
+    }).join("");
+    return `<details class="bq-device-history"><summary>Earlier ${subject === "chemistry" ? "Chemistry" : "Physics"} history on this device <span>${entries.length} chapters</span></summary><p>This history was saved before a child was identified. It is kept here for review and is not included in ${escapeHtml(profile?.name || "this child")}'s progress. Records already saved under this child's own ID stay in their usual place.</p><div class="bq-page-list">${rows}</div></details>`;
   }
 
   function chemistryTopicCard(chapter, index, profile = null) {
@@ -2107,7 +2188,7 @@
     return `
       <article class="bq-question-card bq-chem-answer-card ${missed ? "missed" : "correct"}">
         <p class="eyebrow">${missed ? "Review first" : "Correct"}</p>
-        <h4>Q${escapeHtml(String(item.number))}: ${escapeHtml(shorten(item.prompt, 190))}</h4>
+        <h4 class="bq-full-question">Q${escapeHtml(String(item.number))}: ${escapeHtml(item.prompt)}</h4>
         <p>${escapeHtml(item.concept || "Chemistry")}</p>
         <p><strong>Your answer:</strong> ${escapeHtml(item.selectedText || "Not captured for this earlier attempt")}</p>
         <p><strong>Correct answer:</strong> ${escapeHtml(item.correctText || "See chapter question bank")}</p>
@@ -2162,21 +2243,25 @@
     const attempt = currentParentIcasAttempt(attemptId);
     if (!attempt) return;
     const items = [...(attempt.questionStats || [])].sort((a, b) => Number(a.correct) - Number(b.correct) || Number(a.number) - Number(b.number));
-    const missed = items.filter((item) => item.correct === false);
-    const correct = items.filter((item) => item.correct === true);
+    const missed = items.filter((item) => questionStatus(item) === "incorrect");
+    const unanswered = items.filter((item) => questionStatus(item) === "unanswered");
+    const correct = items.filter((item) => questionStatus(item) === "correct");
+    const other = items.filter((item) => ["unmarked", "writing"].includes(questionStatus(item)));
     const subject = attempt.subject === "spelling" ? "Spelling Bee" : "Mathematics";
     const popup = ensureIcasReviewPopup();
     popup.innerHTML = `
       <div class="bq-chem-review-scrim" data-icas-review-close></div>
       <section class="bq-chem-review-modal" aria-labelledby="bqIcasReviewTitle">
         <header class="bq-chem-review-head">
-          <div><p class="eyebrow">ICAS Challenge Lab / ${escapeHtml(subject)}</p><h3 id="bqIcasReviewTitle">${escapeHtml(attempt.levelName)}</h3><p>${attempt.correct}/${attempt.total} correct. Missed answers are shown first.</p></div>
+          <div><p class="eyebrow">ICAS Challenge Lab / ${escapeHtml(subject)}</p><h3 id="bqIcasReviewTitle">${escapeHtml(attempt.levelName)}</h3><p>${attempt.correct}/${attempt.total} correct. Incorrect and unanswered work is shown separately.</p></div>
           <button class="button button-soft" type="button" data-icas-review-close>Close</button>
         </header>
         <section class="bq-chem-review-section">
-          <div class="bq-chem-review-section-head"><p class="eyebrow">Wrong answers first</p><strong>${missed.length} missed</strong></div>
+          <div class="bq-chem-review-section-head"><p class="eyebrow">Incorrect answers</p><strong>${missed.length} to review</strong></div>
           <div class="bq-chem-review-list">${missed.length ? missed.map((item) => icasAnswerCard(item, true)).join("") : `<div class="empty-state">No missed questions in this attempt.</div>`}</div>
         </section>
+        ${unanswered.length ? `<details class="bq-chem-review-correct"><summary>Unanswered questions (${unanswered.length})</summary><div class="bq-chem-review-list">${unanswered.map((item) => icasAnswerCard(item, false)).join("")}</div></details>` : ""}
+        ${other.length ? `<details class="bq-chem-review-correct"><summary>Other saved responses (${other.length})</summary><div class="bq-chem-review-list">${other.map((item) => icasAnswerCard(item, false)).join("")}</div></details>` : ""}
         ${correct.length ? `<details class="bq-chem-review-correct"><summary>Show correct answers too (${correct.length})</summary><div class="bq-chem-review-list">${correct.map((item) => icasAnswerCard(item, false)).join("")}</div></details>` : ""}
       </section>
     `;
@@ -2194,8 +2279,8 @@
   function icasAnswerCard(item, missed) {
     return `
       <article class="bq-question-card bq-chem-answer-card ${missed ? "missed" : "correct"}">
-        <p class="eyebrow">${missed ? "Review first" : "Correct"} / Q${escapeHtml(String(item.number))}</p>
-        <h4>${escapeHtml(shorten(item.prompt, 220))}</h4>
+        <p class="eyebrow">${questionStatusLabel(questionStatus(item))} / Q${escapeHtml(String(item.number))}</p>
+        <h4 class="bq-full-question">${escapeHtml(item.prompt)}</h4>
         <p>${escapeHtml(item.domain || item.skill || "Saved question")}</p>
         <p><strong>Your answer:</strong> ${escapeHtml(item.selectedText || "No answer")}</p>
         <p><strong>Correct answer:</strong> ${escapeHtml(item.correctText || "Not captured")}</p>
@@ -2209,7 +2294,7 @@
       <section class="bq-two-column records">
         <article>${recordBlock("Profiles", [{ label: metrics.profile.name, value: `${metrics.attempts.length} attempts` }])}</article>
         <article>${recordBlock("Attempts", metrics.attempts.map((item) => ({ label: item.levelName, value: `${item.percent}%` })))}</article>
-        <article>${recordBlock("Questions", metrics.questionStats.map((item) => ({ label: `Q${item.number} ${item.skill || ""}`, value: item.format === "writing" ? "Writing" : item.correct ? "Correct" : "Missed" })))}</article>
+        <article>${recordBlock("Questions", metrics.questionStats.map((item) => ({ label: `Q${item.number} ${item.skill || ""}`, value: questionStatusLabel(questionStatus(item)) })))}</article>
         <article>${recordBlock("Training", [...metrics.training.completed.map((item) => ({ label: item, value: "Completed" })), ...metrics.training.untouched.map((item) => ({ label: item, value: "Untouched" }))])}</article>
       </section>
     `);
@@ -2224,7 +2309,7 @@
             <p class="eyebrow">${escapeHtml(eyebrow)}</p>
             <p>${escapeHtml(copy)}</p>
           </div>
-          ${isOverview ? "" : `<button class="button button-soft" type="button" data-parent-route="overview">Return to Parent Cockpit</button>`}
+          ${["overview", "learning", "evidence", "settings"].includes(route) ? "" : `<button class="button button-soft" type="button" data-parent-route="${parentActiveSection(route)}">Back to ${parentActiveSection(route) === "evidence" ? "Evidence" : "Learning"}</button>`}
         </header>
         ${body}
       </section>
@@ -2233,12 +2318,12 @@
 
   function parentPageMeta(route) {
     return ({
-      overview: ["Parent overview", "Parent Cockpit Overview", "The fast answer page: status, trend, focus, and where to go next."],
+      overview: ["Parent overview", "Your child's learning", "A little perspective on the work, with a useful next step."],
       learning: ["Learning", "Learning", "Exam, Winter Maths, Chemistry and focus areas in one place."],
-      evidence: ["Evidence", "Evidence", "Attempts, wrong answers, writing and complete saved records."],
+      evidence: ["Evidence", "The work behind the progress", "Find a saved attempt or open a question to see the original work."],
       settings: ["Settings", "Settings", "Manage this family, refresh data or sign out."],
       "exam-results": ["City School Exam Prep", "Exam Prep Results", "Saved Bright Quest attempts and answer review pages."],
-      focus: ["Weak spots", "Focus Areas", "Recurring missed or slow skills with evidence."],
+      focus: ["Review by skill", "Focus Areas", "Incorrect, unanswered and correct work grouped by skill. Open a group to inspect every saved question."],
       training: ["Training", "Training Coverage", "Completed, untouched, and recommended Bright Quest training."],
       writing: ["English and writing", "Writing Signals", "Saved writing responses and parent review signals."],
       games: ["Rewards", "Games & Rewards", "Unlocked and recommended Bright Quest game experiences."],
@@ -2253,6 +2338,18 @@
   }
 
   function wireParentPage() {
+    parentRecommendation.querySelectorAll("[data-evidence-list]").forEach(wireEvidenceList);
+    const attemptSearch = parentRecommendation.querySelector("[data-attempt-search-input]");
+    attemptSearch?.addEventListener("input", () => {
+      const term = attemptSearch.value.trim().toLowerCase();
+      let shown = 0;
+      parentRecommendation.querySelectorAll("[data-attempt-record]").forEach((row) => {
+        row.hidden = !row.dataset.attemptSearch.includes(term);
+        if (!row.hidden) shown += 1;
+      });
+      const empty = parentRecommendation.querySelector("[data-attempt-no-results]");
+      if (empty) empty.hidden = shown > 0 || !term;
+    });
     parentRecommendation.querySelectorAll("[data-parent-route]").forEach((button) => {
       button.addEventListener("click", () => parentNavigate(button.dataset.parentRoute));
     });
@@ -2279,14 +2376,18 @@
   }
 
   function parentNavigate(route) {
-    window.location.hash = `parent/${route}`;
+    const section = parentActiveSection();
+    const nested = !["overview", "learning", "evidence", "settings"].includes(route);
+    const origin = nested && ["learning", "evidence"].includes(section) ? `?from=${section}` : "";
+    window.location.hash = `parent/${route}${origin}`;
     renderParentDashboard();
+    window.scrollTo({ top: 0, behavior: "auto" });
   }
 
   function parentRoute() {
     const raw = window.location.hash.replace(/^#\/?/, "");
     if (!raw.startsWith("parent")) return "overview";
-    return raw.replace(/^parent\/?/, "") || "overview";
+    return raw.replace(/^parent\/?/, "").split("?")[0] || "overview";
   }
 
   function parentRouteTitle() {
@@ -2341,16 +2442,66 @@
   }
 
   function questionCard(question) {
+    const status = questionStatus(question);
+    const writing = question.format === "writing";
+    const response = writing ? question.answerText : question.selectedText;
+    const feedback = question.feedback || question.explain || question.explanation;
+    const support = [
+      ["Hint used", question.hintUsed],
+      ["Hints used", question.hintsUsed],
+      ["Worked example used", question.workedExampleUsed],
+      ["Support used", question.supportUsed]
+    ].filter(([, value]) => value !== undefined && value !== null);
     return `
-      <article class="bq-question-card ${question.correct === false ? "missed" : "correct"}">
-        <p class="eyebrow">${escapeHtml(question.correct === false ? "Review first" : question.format === "writing" ? "Writing" : "Correct")}</p>
-        <h4>Q${question.number || "?"}: ${escapeHtml(shorten(question.prompt || "", 190))}</h4>
-        <p>${escapeHtml(question.skill || question.section || "Saved question")} / ${formatDuration(question.secondsSpent || 0)}</p>
-        ${question.format === "writing"
-          ? `<p>Response: ${escapeHtml(shorten(question.answerText || "No response saved.", 260))}</p>`
-          : `<p>Selected: ${escapeHtml(question.selectedText || "No answer")} / Correct: ${escapeHtml(question.correctText || "")}</p>`}
-      </article>
+      <details class="bq-evidence-record status-${status}" data-evidence-record data-evidence-status="${status}">
+        <summary><span class="bq-question-number">${writing ? "Aa" : `Q${escapeHtml(question.number || "?")}`}</span><span class="bq-evidence-preview"><strong>${escapeHtml(question.skill || question.section || (writing ? "Writing" : "Saved question"))}</strong><span>${escapeHtml(shorten(question.prompt || "Question detail not captured", 120))}</span>${question.attempt ? `<small>${escapeHtml(question.attempt.levelName)} · ${escapeHtml(question.attempt.displayDate || displayDate(question.attempt.date))}</small>` : ""}</span><span class="bq-answer-status">${questionStatusLabel(status)}</span></summary>
+        <div class="bq-evidence-detail">
+          <section><h4>${writing ? "Full writing prompt" : "Full question"}</h4><p class="bq-original-text">${escapeHtml(question.prompt || "Question detail not captured")}</p></section>
+          <div class="bq-evidence-answer-grid"><section><h4>${writing ? "Original response" : "Original answer"}</h4><p class="bq-original-text">${escapeHtml(response || (status === "unanswered" ? "No answer was submitted." : "Response not captured in this record."))}</p></section>${writing ? "" : `<section><h4>Expected answer</h4><p class="bq-original-text">${escapeHtml(question.correctText || "Not captured in this record.")}</p></section>`}</div>
+          ${feedback ? `<section><h4>Saved explanation</h4><p class="bq-original-text">${escapeHtml(feedback)}</p></section>` : ""}
+          <dl class="bq-evidence-meta"><div><dt>Recorded time</dt><dd>${formatDuration(question.secondsSpent || 0)}</dd></div><div><dt>Learning area</dt><dd>${escapeHtml(question.section || "Not captured")}</dd></div>${support.map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(typeof value === "boolean" ? value ? "Yes" : "No" : Array.isArray(value) ? value.join(", ") : String(value))}</dd></div>`).join("")}</dl>
+          ${writing && question.writingScore ? `<section><h4>Saved writing signals</h4><dl class="bq-evidence-meta">${Object.entries(question.writingScore).filter(([, value]) => typeof value === "number" || typeof value === "string").map(([label, value]) => `<div><dt>${escapeHtml(writingSignalLabel(label))}</dt><dd>${escapeHtml(value)}</dd></div>`).join("")}</dl></section>` : ""}
+        </div>
+      </details>
     `;
+  }
+
+  function writingSignalLabel(label) {
+    const labels = { nextStep: "Next step", ideas: "Ideas", total: "Total", structure: "Structure", vocabulary: "Vocabulary", accuracy: "Accuracy", band: "Band", feedback: "Feedback" };
+    if (labels[label]) return labels[label];
+    const words = String(label).replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/[_-]+/g, " ").toLowerCase();
+    return words.charAt(0).toUpperCase() + words.slice(1);
+  }
+
+  const parentEvidenceViews = new Map();
+
+  function evidenceList(questions, label) {
+    if (!questions.length) return `<div class="empty-state">No ${escapeHtml(label.toLowerCase())} yet. Saved records will appear here.</div>`;
+    const statuses = ["all", "incorrect", "unanswered", "correct", "writing", "unmarked"];
+    return `<section class="bq-evidence-browser" data-evidence-list="${escapeAttr(label)}" aria-label="${escapeAttr(label)}"><div class="bq-evidence-toolbar"><label class="bq-record-search">Search the original work<input type="search" data-evidence-search placeholder="Question, skill, answer or activity" /></label><div class="bq-evidence-filters" role="group" aria-label="Filter answers">${statuses.filter((status) => status !== "unmarked" || questions.some((question) => questionStatus(question) === status)).map((status) => `<button type="button" data-evidence-filter="${status}" aria-pressed="${status === "all"}">${status === "all" ? "All" : questionStatusLabel(status)} <span>${status === "all" ? questions.length : questions.filter((question) => questionStatus(question) === status).length}</span></button>`).join("")}</div><p class="bq-evidence-count" data-evidence-count role="status" aria-live="polite">${questions.length} records</p></div><div class="bq-evidence-rows">${questions.map(questionCard).join("")}</div><p class="empty-state" data-evidence-empty hidden>No records match these filters. Choose All or change your search.</p></section>`;
+  }
+
+  function wireEvidenceList(container) {
+    const key = `${state.parentProfileId}|${parentRoute()}|${container.dataset.evidenceList}`;
+    const view = parentEvidenceViews.get(key) || { filter: "all", search: "" };
+    const input = container.querySelector("[data-evidence-search]");
+    const records = [...container.querySelectorAll("[data-evidence-record]")];
+    input.value = view.search;
+    const apply = () => {
+      const term = view.search.trim().toLowerCase();
+      let shown = 0;
+      records.forEach((record) => {
+        record.hidden = (view.filter !== "all" && record.dataset.evidenceStatus !== view.filter) || !record.textContent.toLowerCase().includes(term);
+        if (!record.hidden) shown += 1;
+      });
+      container.querySelectorAll("[data-evidence-filter]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.evidenceFilter === view.filter)));
+      container.querySelector("[data-evidence-count]").textContent = `${shown} of ${records.length} records`;
+      container.querySelector("[data-evidence-empty]").hidden = shown !== 0;
+      parentEvidenceViews.set(key, view);
+    };
+    container.querySelectorAll("[data-evidence-filter]").forEach((button) => button.addEventListener("click", () => { view.filter = button.dataset.evidenceFilter; apply(); }));
+    input.addEventListener("input", () => { view.search = input.value; apply(); });
+    apply();
   }
 
   function recordBlock(title, rows) {
@@ -2426,12 +2577,15 @@
       action.disabled = true;
       await pullCloudProfiles();
       renderParentDashboard();
-      showToast("Parent view refreshed from Bright Quest.");
+      showToast("Showing available saved data. A connection is needed to receive new activity.");
       action.disabled = false;
     }
     if (action.dataset.parentShellAction === "manage-children") window.BrightQuestFamilyAuth?.openFamilySettings();
     if (action.dataset.parentShellAction === "reset") parentResetButton.click();
-    if (action.dataset.parentShellAction === "logout") parentExitButton.click();
+    if (action.dataset.parentShellAction === "logout") {
+      if (window.BrightQuestFamilyAuth?.enabled) window.BrightQuestFamilyAuth.logout();
+      else parentExitButton.click();
+    }
   });
 
   document.addEventListener("keydown", (event) => {

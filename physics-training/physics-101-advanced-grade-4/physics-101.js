@@ -387,7 +387,7 @@
       const previous = progress.test;
       elements.testBody.innerHTML = `
         ${previous ? `<p class="result-score">${previous.score}/${previous.total || total}</p><p class="result-copy">Latest attempt saved ${formatDate(previous.submittedAt)}. Your best score is ${progress.bestScore || previous.score}/${total}.</p>` : `<p class="test-lock">Ten questions, one at a time. Each answer asks you to identify the interaction and use evidence—not just recall a label.</p>`}
-        <button class="primary-button test-action" id="beginTestButton" type="button"><span>${previous ? "Try a fresh version" : "Begin Cockpit Check"}</span><span aria-hidden="true">→</span></button>
+        <button class="primary-button test-action" id="beginTestButton" type="button"><span>${previous ? "Try a fresh version" : "Begin chapter check"}</span><span aria-hidden="true">→</span></button>
       `;
       document.querySelector("#beginTestButton")?.addEventListener("click", beginTest);
       return;

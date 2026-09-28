@@ -6,6 +6,7 @@
   let autosaveTimer = null;
   let lastCloudSaveAt = 0;
   let resuming = false;
+  let activeDraftSession = false;
   const resumedProfiles = new Set();
   const resumeAllowedProfiles = new Set();
 
@@ -13,19 +14,31 @@
   const optionsGrid = document.querySelector("#optionsGrid");
   const writingBox = document.querySelector("#writingBox");
 
-  const originalStartLevel = startLevel;
+  const originalStartQuest = startQuest;
   const originalFinishTest = finishTest;
   const originalRenderDashboard = renderDashboard;
   const originalActivateProfile = activateProfile;
 
-  startLevel = function autosavedStartLevel(levelNumber) {
-    originalStartLevel(levelNumber);
+  startQuest = function autosavedStartQuest(level) {
+    if (!level || !state.profile) return;
+    const existing = state.profile.activeDraft;
+    if (existing) {
+      if (String(existing.level) === String(level.level) && findDraftLevel(existing)) {
+        resumeDraft(existing);
+      } else {
+        showSavedTestChoice(existing);
+      }
+      return;
+    }
+    originalStartQuest(level);
+    activeDraftSession = true;
     createFreshDraft();
     startAutosaveTimer();
     saveActiveDraft("started", { cloud: true });
   };
 
   finishTest = function autosavedFinishTest(timedOut) {
+    activeDraftSession = false;
     clearActiveDraft();
     stopAutosaveTimer();
     originalFinishTest(timedOut);
@@ -44,6 +57,7 @@
 
   exitTestButton?.addEventListener("click", () => {
     saveActiveDraft("paused", { cloud: true, keepalive: true });
+    activeDraftSession = false;
     stopAutosaveTimer();
   }, true);
 
@@ -100,6 +114,7 @@
   }
 
   function saveActiveDraft(reason = "autosave", options = {}) {
+    if (!activeDraftSession) return;
     if (!state.profile || !state.activeLevel || !Array.isArray(state.answers)) return;
     if (screens.test.classList.contains("hidden") && reason !== "paused" && reason !== "hidden" && reason !== "pagehide") return;
 
@@ -155,10 +170,10 @@
 
   function resumeDraft(draft) {
     if (!state.profile || !draft || resuming) return;
-    const level = getAllLevels().find((item) => item.level === Number(draft.level));
+    const level = findDraftLevel(draft);
     if (!level) {
-      clearActiveDraft();
-      return;
+      showToast("Your saved test is safe. Its original content is not available here yet.");
+      return false;
     }
 
     resuming = true;
@@ -170,18 +185,54 @@
     state.answers = normalizeAnswers(draft.answers, level.questions.length);
     state.questionTimes = normalizeQuestionTimes(draft.questionTimes, level.questions.length);
     state.startedAt = Number(draft.startedAtMs) || Date.now();
-    state.remainingSeconds = clamp(Number(draft.remainingSeconds) || level.minutes * 60, 0, level.minutes * 60);
+    const remaining = Number(draft.remainingSeconds);
+    state.remainingSeconds = clamp(Number.isFinite(remaining) ? remaining : level.minutes * 60, 0, level.minutes * 60);
     state.questionStartedAt = Date.now();
 
-    testLevelLabel.textContent = level.level === 8 ? `Level ${level.level} / Final` : `Level ${level.level} / 7`;
+    testLevelLabel.textContent = level.family === "international" || String(level.level).startsWith("intl-")
+      ? `${level.challengeLabel || "International"} / World Challenge`
+      : `Level ${level.level} / ${getAllLevels().length}`;
     testName.textContent = level.name;
     renderQuestion();
     startTimer();
     showScreen("test");
+    activeDraftSession = true;
     startAutosaveTimer();
     showToast(`Resumed ${level.name} from question ${state.activeQuestion + 1}.`);
     resuming = false;
+    return true;
   }
+
+  function findDraftLevel(draft) {
+    if (!draft) return null;
+    return [...getAllLevels(), ...(window.BrightQuestInternationalTests || [])]
+      .find((level) => String(level.level) === String(draft.level)) || null;
+  }
+
+  function showSavedTestChoice(draft) {
+    let dialog = document.querySelector("#bqSavedTestChoice");
+    if (!dialog) {
+      dialog = document.createElement("dialog");
+      dialog.id = "bqSavedTestChoice";
+      dialog.className = "bq-saved-test-dialog";
+      document.body.append(dialog);
+    }
+    const canResume = Boolean(findDraftLevel(draft));
+    dialog.innerHTML = `<h2>A saved test is waiting</h2><p>${escapeHtml(draft.levelName || "Your unfinished test")} still has your answers. Finish it before starting a different test, or keep it saved and choose a lesson or game.</p><div class="bq-dialog-actions">${canResume ? '<button class="button button-primary" type="button" data-resume-saved>Resume saved test</button>' : '<p>Your original test content is unavailable. The saved answers have been kept.</p>'}<button class="button button-soft" type="button" data-keep-saved>Keep saved and go back</button></div>`;
+    dialog.querySelector("[data-resume-saved]")?.addEventListener("click", () => {
+      dialog.close();
+      resumeDraft(state.profile.activeDraft);
+    });
+    dialog.querySelector("[data-keep-saved]").addEventListener("click", () => dialog.close());
+    if (!dialog.open) dialog.showModal();
+  }
+
+  window.BrightQuestDrafts = Object.freeze({
+    get: (profile = state.profile) => profile?.activeDraft || null,
+    canResume: (draft = state.profile?.activeDraft) => Boolean(findDraftLevel(draft)),
+    resume: () => resumeDraft(state.profile?.activeDraft),
+    start: (level) => startQuest(level)
+  });
 
   function clearActiveDraft() {
     if (!state.profile?.activeDraft) return;
@@ -200,21 +251,9 @@
   }
 
   function sendProfileKeepalive() {
-    try {
-      const payload = JSON.stringify({ profile: state.profile });
-      if (!window.BrightQuestFamilyAuth?.enabled && navigator.sendBeacon) {
-        const blob = new Blob([payload], { type: "application/json" });
-        if (navigator.sendBeacon(`${apiBase}/profiles`, blob)) return;
-      }
-      fetch(`${apiBase}/profiles`, {
-        method: "POST",
-        headers: { "content-type": "application/json", ...(window.BrightQuestFamilyAuth?.requestHeaders?.() || {}) },
-        body: payload,
-        keepalive: true
-      });
-    } catch {
-      // Local storage still has the draft if the network save cannot complete.
-    }
+    // Use the same per-profile queue as normal saves so an older pause cannot
+    // race a finished result or send an out-of-date cloud version.
+    syncProfileToCloud(state.profile, true, { keepalive: true });
   }
 
   function cloneAnswers(answers) {

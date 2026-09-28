@@ -1,0 +1,9 @@
+import { completeFamilyPasswordRecovery, passwordRecoveryErrorResponse } from "../../_lib/family-password-recovery.js";
+
+export async function onRequestPost(context) {
+  try {
+    return await completeFamilyPasswordRecovery(context);
+  } catch (error) {
+    return passwordRecoveryErrorResponse(error);
+  }
+}

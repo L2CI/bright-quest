@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -15,10 +15,14 @@
     <link rel="stylesheet" href="mechshift-launch.css?v=mechshift-rescue-001" />
     <link rel="stylesheet" href="bright-quest-quality-uplift.css?v=20260618b" />
     <link rel="stylesheet" href="bright-quest-shell-merge.css?v=20260810a" />
-    <link rel="stylesheet" href="bright-quest-family-auth.css?v=20260711a" />
+    <link rel="stylesheet" href="bright-quest-family-auth.css?v=20260928c" />
     <link rel="stylesheet" href="bright-quest-experience-uplift.css?v=20260810b" />
+    <link rel="stylesheet" href="bright-quest-child-uplift.css?v=20260928b" />
+    <link rel="stylesheet" href="parent-experience-uplift.css?v=20260928b" />
+    <link rel="stylesheet" href="learning-experience-uplift.css?v=20260928b" />
   </head>
-  <body>
+  <body class="bq-app-opening">
+    <div class="bq-opening-status" role="status" aria-live="polite"><strong>Bright Quest</strong><span>Opening Bright Quest…</span></div>
     <div class="ambient" aria-hidden="true">
       <span class="shape shape-one"></span>
       <span class="shape shape-two"></span>
@@ -40,11 +44,7 @@
                 <span>Create a family account, then nominate your kid.</span>
               </div>
             </div>
-            <div class="bq-family-worlds" aria-hidden="true">
-              <span class="exam"><img src="assets/ui/winter-2026/place-value.png" alt="" /></span>
-              <span class="winter"><img src="assets/ui/winter-2026/multiplication.png" alt="" /></span>
-              <span class="chemistry"><img src="chemistry-training/chemistry-101-winter-2026/assets/ui/chapter-08-card.png" alt="" /></span>
-            </div>
+            <div class="bq-family-worlds" aria-hidden="true"></div>
           </section>
           <section class="bq-family-panel">
             <div class="bq-family-panel-head">
@@ -440,9 +440,9 @@
     <script src="app-data.js"></script>
     <script src="final-test-data.js"></script>
     <script src="international-tests-data.js"></script>
-    <script src="app.js?v=mechshift-rescue-001"></script>
-    <script src="international-academy.js?v=20260810a"></script>
-    <script src="autosave-upgrade.js?v=20260614a"></script>
+    <script src="app.js?v=20260928b"></script>
+    <script src="international-academy.js?v=20260928b"></script>
+    <script src="autosave-upgrade.js?v=20260928b"></script>
     <script src="writing-parent-upgrade.js"></script>
     <script src="parent-dashboard-upgrade.js?v=20260605a"></script>
     <script src="parent-cockpit-redesign.js?v=20260630f"></script>
@@ -450,8 +450,10 @@
     <script src="bright-quest-world-section.js?v=20260616b"></script>
     <script src="bright-quest-reference-dashboard.js?v=20260618a"></script>
     <script src="bright-quest-quality-uplift.js?v=20260618b"></script>
-    <script src="bright-quest-shell-merge.js?v=20260810b"></script>
-    <script src="bright-quest-family-auth.js?v=20260719a"></script>
+    <script src="bright-quest-child-experience.js?v=20260928b"></script>
+    <script src="bright-quest-shell-merge.js?v=20260928b"></script>
+    <script src="bright-quest-family-auth.js?v=20260928c" onerror="document.body.classList.remove('bq-app-opening')"></script>
+    <script src="learning-experience-uplift.js?v=20260928b"></script>
   </body>
 </html>
 

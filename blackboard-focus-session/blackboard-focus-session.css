@@ -995,3 +995,19 @@ body {
     animation-iteration-count: 1 !important;
   }
 }
+
+/* September 2026: match the catalogue name and leave room for the board. */
+.classroom-topbar, .lesson-layout { max-width: 1280px; }
+.classroom-topbar h1 { font-size: clamp(1.25rem, 2.4vw, 1.8rem); }
+.back-button, .student-pill, .primary-control, .cc-control { border-radius: 12px; box-shadow: none; }
+.back-button, .primary-control, .cc-control { min-height: 44px; }
+@media (max-width: 720px) {
+  .classroom-topbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; margin-bottom: 12px; padding-block: 10px; }
+  .lesson-brand { grid-column: 1; grid-row: 1; gap: 8px; }
+  .lesson-brand .brand-mark { width: 36px; height: 36px; }
+  .classroom-topbar p { font-size: .57rem; letter-spacing: .05em; }
+  .classroom-topbar h1 { font-size: 1.04rem; }
+  .classroom-topbar .header-actions { display: contents; }
+  .classroom-topbar .back-button { grid-column: 2; grid-row: 1; width: auto; max-width: 145px; padding: 8px 10px; font-size: .7rem; }
+  .classroom-topbar .student-pill { grid-column: 1 / -1; grid-row: 2; width: auto; justify-self: start; min-height: 0; padding: 7px 10px; font-size: .7rem; }
+}

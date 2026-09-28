@@ -3,6 +3,7 @@ const finalTest = window.BrightQuestFinalTest;
 const internationalTests = window.BrightQuestInternationalTests || [];
 const storageKey = "brightQuestProfilesV2";
 const apiBase = "/api";
+const profileSyncQueues = new Map();
 const gameCatalogue = [
   { level: 1, name: "Mechshift Rescue", className: "mechshift-rescue", mode: "mission", icon: "R7", targetLabel: "systems", url: "mechshift-rescue/", description: "Transform Relay-7 into three rescue forms, solve city systems, and bridge a storm-lit sky gap.", help: "Drive, transform, and build three rescue plans." }
 ];
@@ -252,13 +253,15 @@ function saveProfiles() {
   if (state.profileId) localStorage.setItem("brightQuestActiveProfile", state.profileId);
 }
 
-async function pullCloudProfiles() {
+async function pullCloudProfiles({ render = true } = {}) {
+  const profileStore = state.profiles;
   try {
     const response = await fetch(`${apiBase}/profiles`, {
       headers: { accept: "application/json", ...(window.BrightQuestFamilyAuth?.requestHeaders?.() || {}) }
     });
     if (!response.ok) return;
     const body = await response.json();
+    if (state.profiles !== profileStore) return;
     if (!Array.isArray(body.profiles)) return;
 
     body.profiles.forEach((remote) => {
@@ -273,38 +276,68 @@ async function pullCloudProfiles() {
 
     if (state.profileId && state.profiles[state.profileId]) state.profile = state.profiles[state.profileId];
     saveProfiles();
-    if (!screens.dashboard.classList.contains("hidden")) renderDashboard();
-    if (!screens.parent.classList.contains("hidden")) renderParentDashboard();
+    if (render && !screens.dashboard.classList.contains("hidden")) renderDashboard();
+    if (render && !screens.parent.classList.contains("hidden")) renderParentDashboard();
   } catch {
     // Static local hosting has no API. The app remains local-first.
   }
 }
 
-async function syncProfileToCloud(profile = state.profile, canRetry = true) {
-  if (!profile?.id) return;
+function syncProfileToCloud(profile = state.profile, canRetry = true, options = {}) {
+  if (!profile?.id) return Promise.resolve(false);
+  const id = profile.id;
+  const profileStore = state.profiles;
+  const snapshot = JSON.parse(JSON.stringify(profile));
+  const previous = profileSyncQueues.get(id) || Promise.resolve();
+  const pending = previous.catch(() => {}).then(() => saveCloudProfileSnapshot(snapshot, canRetry, options, profileStore));
+  profileSyncQueues.set(id, pending);
+  return pending.finally(() => {
+    if (profileSyncQueues.get(id) === pending) profileSyncQueues.delete(id);
+  });
+}
+
+async function saveCloudProfileSnapshot(snapshot, canRetry, options, profileStore) {
+  const id = snapshot.id;
+  // Authentication replaces this map. A late response must not restore a
+  // profile after logout, deletion or a different authorised session loads.
+  if (state.profiles !== profileStore || !state.profiles[id]) return false;
+  // A queued autosave must use the newest local work and the version returned by
+  // the preceding request, rather than sending its older in-flight snapshot.
+  const profile = mergeCloudProfile(state.profiles[id] || snapshot, snapshot, false);
+  if (state.profiles[id]?.cloudVersion) profile.cloudVersion = state.profiles[id].cloudVersion;
   try {
     const response = await fetch(`${apiBase}/profiles`, {
       method: "POST",
       headers: { "content-type": "application/json", ...(window.BrightQuestFamilyAuth?.requestHeaders?.() || {}) },
-      body: JSON.stringify({ profile })
+      body: JSON.stringify({ profile }),
+      ...(options.keepalive ? { keepalive: true } : {})
     });
+    if (state.profiles !== profileStore || !state.profiles[id]) return false;
     if (response.status === 409) {
-      await pullCloudProfiles();
-      const merged = state.profiles[profile.id];
-      if (canRetry && merged) await syncProfileToCloud(merged, false);
-      showToast("Progress changed on another device. Bright Quest merged and saved the latest copy.");
-      return;
+      await pullCloudProfiles({ render: false });
+      if (state.profiles !== profileStore || !state.profiles[id]) return false;
+      const merged = mergeCloudProfile(state.profiles[id] || profile, profile, false);
+      state.profiles[id] = merged;
+      if (state.profileId === id) state.profile = merged;
+      saveProfiles();
+      // Retry inside this queue item; enqueueing behind ourselves would deadlock.
+      if (canRetry) return saveCloudProfileSnapshot(merged, false, options, profileStore);
+      showToast("Your work is saved on this device. Refresh to finish syncing it.");
+      return false;
     }
-    if (!response.ok) return;
+    if (!response.ok) return false;
     const body = await response.json();
-    const latest = state.profiles[profile.id] || profile;
+    if (state.profiles !== profileStore || !state.profiles[id]) return false;
+    const latest = mergeCloudProfile(state.profiles[id] || profile, profile, false);
     latest.cloudSyncedAt = body.syncedAt || new Date().toISOString();
     if (body.version) latest.cloudVersion = body.version;
     state.profiles[profile.id] = latest;
     if (state.profileId === profile.id) state.profile = latest;
     saveProfiles();
+    return true;
   } catch {
     // Cloud sync is best-effort; local progress is still saved.
+    return false;
   }
 }
 
@@ -335,10 +368,26 @@ async function purgeCloudData() {
 }
 
 function mergeCloudProfile(localProfile, remoteProfile, preferRemote) {
-  if (!localProfile) return { ...remoteProfile };
+  if (!localProfile) localProfile = {};
+  if (!remoteProfile) remoteProfile = {};
   const merged = preferRemote
     ? { ...localProfile, ...remoteProfile }
     : { ...remoteProfile, ...localProfile };
+  // Completed records are append-only evidence. A newer cloud timestamp does
+  // not imply that its snapshot contains work just completed on this device.
+  for (const key of ["attempts", "icasAttempts", "writingSamples"]) {
+    if (localProfile[key] || remoteProfile[key]) merged[key] = mergeSavedRecords(remoteProfile[key], localProfile[key]);
+  }
+  merged.stars = Math.max(Number(localProfile.stars) || 0, Number(remoteProfile.stars) || 0);
+  const drafts = [localProfile.activeDraft, remoteProfile.activeDraft].filter((draft) => draft && !draftHasCompletedAttempt(draft, merged.attempts || []));
+  if (drafts.length) {
+    const preferred = preferRemote ? remoteProfile.activeDraft : localProfile.activeDraft;
+    drafts.sort((a, b) => draftSavedAt(b) - draftSavedAt(a) || (b === preferred ? 1 : a === preferred ? -1 : 0));
+    merged.activeDraft = { ...drafts[0] };
+  } else delete merged.activeDraft;
+  if (remoteProfile.chemistry101Progress || localProfile.chemistry101Progress) {
+    merged.chemistry101Progress = mergeChemistryCourseProgress(remoteProfile.chemistry101Progress, localProfile.chemistry101Progress);
+  }
   if (remoteProfile?.physics101Progress || localProfile?.physics101Progress) {
     merged.physics101Progress = mergePhysicsCourseProgress(
       remoteProfile?.physics101Progress,
@@ -350,6 +399,48 @@ function mergeCloudProfile(localProfile, remoteProfile, preferRemote) {
     localProfile?.trainingCompleted
   );
   return merged;
+}
+
+function mergeSavedRecords(remote = [], local = []) {
+  const records = new Map();
+  for (const record of [...(Array.isArray(remote) ? remote : []), ...(Array.isArray(local) ? local : [])]) {
+    const id = record?.id || record?.attemptId;
+    const key = id ? `id:${id}` : `snapshot:${JSON.stringify(record)}`;
+    const previous = records.get(key);
+    const merged = record && typeof record === "object" ? { ...(previous || {}), ...record } : record;
+    if (previous?.questionStats || record?.questionStats) merged.questionStats = mergeSavedRecords(previous?.questionStats, record?.questionStats);
+    records.set(key, merged);
+  }
+  return [...records.values()].sort((a, b) => {
+    const first = Date.parse(a?.date || a?.submittedAt || a?.completedAt || "");
+    const second = Date.parse(b?.date || b?.submittedAt || b?.completedAt || "");
+    return Number.isFinite(first) && Number.isFinite(second) ? first - second : 0;
+  });
+}
+
+function draftSavedAt(draft) {
+  return Date.parse(draft?.lastSavedAt || "") || Number(draft?.startedAtMs) || Date.parse(draft?.startedAt || "") || 0;
+}
+
+function draftHasCompletedAttempt(draft, attempts) {
+  const started = Number(draft.startedAtMs) || Date.parse(draft.startedAt || "");
+  if (!Number.isFinite(started) || started <= 0) return false;
+  return attempts.some((attempt) => String(attempt.level) === String(draft.level)
+    && Date.parse(attempt.date || attempt.completedAt || attempt.finishedAt || "") >= started);
+}
+
+function mergeChemistryCourseProgress(remote = {}, local = {}) {
+  const chapters = {};
+  const remoteChapters = remote?.chapters || {};
+  const localChapters = local?.chapters || {};
+  for (const id of new Set([...Object.keys(remoteChapters), ...Object.keys(localChapters)])) {
+    const first = remoteChapters[id] || {};
+    const second = localChapters[id] || {};
+    const newerTest = (Date.parse(second.test?.submittedAt || "") || 0) >= (Date.parse(first.test?.submittedAt || "") || 0) ? second.test || first.test : first.test;
+    chapters[id] = { ...first, ...second, watchedSeconds: Math.max(Number(first.watchedSeconds) || 0, Number(second.watchedSeconds) || 0),
+      completed: Boolean(first.completed || second.completed), completedAt: latestProfileDate(first.completedAt, second.completedAt), test: newerTest || null };
+  }
+  return { ...remote, ...local, chapters };
 }
 
 function mergePhysicsCourseProgress(remoteCourse = {}, localCourse = {}) {

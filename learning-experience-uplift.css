@@ -1,0 +1,115 @@
+/* Focused activity surfaces. Existing saves, content and scoring are unchanged. */
+body.bq-learning-uplift #testScreen,
+body.bq-learning-uplift #resultScreen,
+body.bq-learning-uplift #trainingScreen { max-width: 1040px; margin-inline: auto; }
+body.bq-learning-uplift #testScreen .test-topbar { position: sticky; top: 0; z-index: 8; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px; margin: 0 0 14px; padding: 12px 0; border-radius: 0 !important; background: rgba(247, 250, 253, .97) !important; box-shadow: none !important; }
+body.bq-learning-uplift #testScreen .test-title h2 { margin: 0; font-size: clamp(1.2rem, 2.2vw, 1.75rem); line-height: 1.2; }
+body.bq-learning-uplift #testScreen .test-title .eyebrow { margin: 0 0 4px; font-size: .7rem; }
+body.bq-learning-uplift #testScreen #exitTestButton { min-height: 44px; padding: 10px 14px; white-space: nowrap; }
+body.bq-learning-uplift #testScreen .timer { min-width: 86px !important; padding: 8px 12px; border: 1px solid #cbdfe5 !important; border-radius: 14px !important; background: #effaf7 !important; box-shadow: none !important; }
+body.bq-learning-uplift #testScreen .timer::before,
+body.bq-learning-uplift #testScreen .timer::after { display: none !important; content: none !important; background: none !important; }
+body.bq-learning-uplift #testScreen .timer span { font-size: 1.4rem; font-variant-numeric: tabular-nums; line-height: 1.2; }
+body.bq-learning-uplift #testScreen .timer small { font-size: .65rem; }
+body.bq-learning-uplift #testScreen .timer.urgent { background: #fff0ed !important; border-color: #d88b77 !important; animation: none; }
+body.bq-learning-uplift #testScreen .test-progress { height: 6px; margin-bottom: 10px; background: #e3eaf2; box-shadow: none; }
+body.bq-learning-uplift #testScreen .test-progress span { background: #2469ba; }
+body.bq-learning-uplift #testScreen .question-stage { border: 1px solid #dce5ee !important; border-radius: 22px !important; padding: clamp(18px, 3vw, 32px) !important; background: #fff !important; box-shadow: 0 8px 30px rgba(31, 58, 89, .045) !important; overflow: visible; }
+body.bq-learning-uplift #testScreen .question-stage::before,
+body.bq-learning-uplift #testScreen .option-card::before,
+body.bq-learning-uplift #testScreen .test-focus-beam { display: none !important; }
+body.bq-learning-uplift #testScreen .question-meta { margin-bottom: 14px; gap: 6px; }
+body.bq-learning-uplift #testScreen .question-meta span { padding: 6px 9px; border-radius: 8px !important; color: #365775 !important; background: #f0f5fa !important; font-size: .7rem; box-shadow: none !important; }
+body.bq-learning-uplift #testScreen #questionPrompt { margin: 0 0 22px; color: #20354e; font-size: clamp(1.25rem, 2.4vw, 1.8rem); line-height: 1.45; overflow-wrap: anywhere; }
+body.bq-learning-uplift #testScreen .options-grid { gap: 10px; }
+body.bq-learning-uplift #testScreen .option-card { min-height: 70px; padding: 12px 14px !important; gap: 12px !important; border: 1.5px solid #d5e1ed !important; border-radius: 14px; background: #fbfdff !important; box-shadow: none; transform: none; }
+body.bq-learning-uplift #testScreen .option-card span { width: 34px !important; height: 34px !important; border: 0 !important; border-radius: 10px !important; color: #24568e !important; background: #e9f1fa !important; box-shadow: none !important; }
+body.bq-learning-uplift #testScreen .option-card strong { font-size: 1rem; font-weight: 750; line-height: 1.4; }
+body.bq-learning-uplift #testScreen .option-card:hover { border-color: #7d9ebf !important; }
+body.bq-learning-uplift #testScreen .option-card.selected { border-color: #226ac0 !important; background: #eef6ff !important; box-shadow: inset 0 0 0 1px #226ac0; }
+body.bq-learning-uplift #testScreen .option-card.selected span { background: #226ac0 !important; color: #fff !important; }
+body.bq-learning-uplift #testScreen .writing-box { min-height: 230px; width: 100%; margin: 0; padding: 16px; border: 1.5px solid #c9d8e8; border-radius: 14px; font: inherit; line-height: 1.7; }
+body.bq-learning-uplift #testScreen .test-actions { margin-top: 20px; }
+.focused-question-navigation { margin-bottom: 16px; border: 1px solid #dce5ee; border-radius: 14px; background: #fff; }
+.focused-question-navigation > summary { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 10px 15px; color: #284d74; cursor: pointer; font-size: .88rem; font-weight: 750; list-style: none; }
+.focused-question-navigation > summary::after { content: "+"; margin-left: 3px; font-size: 1.2rem; }
+.focused-question-navigation[open] > summary::after { content: "−"; }
+.question-navigation-count { margin-left: auto; color: #627286; font-size: .78rem; font-weight: 550; }
+.question-navigation-help { margin: 0 15px 8px; color: #617082; font-size: .8rem; line-height: 1.5; }
+body.bq-learning-uplift #testScreen .question-stepper { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 7px; padding: 8px 14px 16px; margin: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+body.bq-learning-uplift #testScreen .question-stepper button { width: 100%; min-height: 44px; border-radius: 50%; padding: 7px; }
+body.bq-learning-uplift #testScreen .question-stepper button::after { display: none; }
+body.bq-learning-uplift #resultScreen .result-hero { padding: clamp(22px, 4vw, 42px) !important; border: 1px solid #dce5ee !important; border-radius: 24px !important; background: linear-gradient(135deg, #f0f7ff, #fff 65%, #fff8e9) !important; box-shadow: 0 8px 30px rgba(31, 58, 89, .04) !important; }
+body.bq-learning-uplift #resultScreen .result-hero::before { display: none; content: none; background: none; }
+body.bq-learning-uplift #resultScreen .result-hero h2 { font-size: clamp(1.65rem, 3vw, 2.4rem); }
+body.bq-learning-uplift #resultScreen .result-score { width: auto !important; min-height: 0 !important; aspect-ratio: auto; gap: 10px; padding: 16px; margin: 16px 0; border: 0; border-radius: 0 !important; background: none !important; box-shadow: none !important; }
+body.bq-learning-uplift #resultScreen .result-score::before { display: none; }
+body.bq-learning-uplift #resultScreen .result-score strong { font-size: 3.4rem; color: #2469ba; text-shadow: none; }
+body.bq-learning-uplift #resultScreen .result-score span { color: #526a81; text-shadow: none; }
+body.bq-learning-uplift #resultScreen .result-actions { justify-content: center; flex-wrap: wrap; margin-top: 12px; }
+body.bq-learning-uplift #resultScreen .result-actions .button { min-height: 46px; }
+body.bq-learning-uplift :is(#testScreen, #resultScreen, #trainingScreen) .button { border-radius: 12px !important; }
+body.bq-learning-uplift :is(#testScreen, #resultScreen, #trainingScreen) .button-primary { background: #2469ba !important; box-shadow: none !important; }
+body.bq-learning-uplift :is(#testScreen, #resultScreen, #trainingScreen) .button-soft { border: 1px solid #bed2e6 !important; background: #fff !important; box-shadow: none !important; }
+body.bq-learning-uplift #resultScreen #playRewardButton { color: #24568e !important; border: 1px solid #bed2e6 !important; background: #fff !important; box-shadow: none !important; }
+.focused-review { display: block; margin-top: 24px; }
+.focused-review-heading { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 16px; }
+.focused-review-heading h2 { margin: 0 0 6px; font-size: 1.5rem; }
+.focused-review-heading p { margin: 0; color: #617082; font-size: .9rem; line-height: 1.5; }
+.focused-review-heading .eyebrow { margin-bottom: 5px; color: #2469ba; font-size: .68rem; }
+.focused-review-total { flex-shrink: 0; padding: 8px 12px; border-radius: 20px; background: #edf3fa; color: #496882; font-size: .8rem; }
+.focused-review-filters { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 16px; }
+.focused-review-filters button { min-height: 44px; display: inline-flex; align-items: center; gap: 9px; padding: 9px 12px; border: 1px solid #d3dfeb; border-radius: 12px; color: #3c5977; background: #fff; font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; }
+.focused-review-filters button[aria-pressed="true"] { color: #fff; border-color: #2369ba; background: #2369ba; }
+.focused-review-filters button span { opacity: .75; font-variant-numeric: tabular-nums; }
+.focused-review-records { display: grid; gap: 8px; }
+.focused-review-record { border: 1px solid #dbe4ed; border-radius: 14px; background: #fff; overflow: hidden; }
+.focused-review-record[hidden], .focused-review-empty[hidden] { display: none; }
+.focused-review-record > summary { display: flex; align-items: center; gap: 12px; min-height: 74px; padding: 14px; list-style: none; cursor: pointer; }
+.focused-review-record > summary::after { content: "+"; color: #386591; font-size: 1.2rem; }
+.focused-review-record[open] > summary::after { content: "−"; }
+.focused-review-number { display: grid; place-items: center; flex: 0 0 32px; height: 32px; border-radius: 10px; background: #eef4fa; color: #3d5f7f; font-size: .85rem; font-weight: 750; }
+.focused-review-summary { display: grid; gap: 5px; min-width: 0; flex: 1; }
+.focused-review-summary strong { color: #294766; font-size: .86rem; }
+.focused-review-summary > span { color: #63778a; font-size: .8rem; line-height: 1.45; }
+.focused-review-status { padding: 5px 8px; border-radius: 7px; font-size: .68rem; font-weight: 750; background: #edf2f7; color: #51687e; }
+.focused-review-status.correct { background: #eaf6ef; color: #256346; }
+.focused-review-status.incorrect { background: #fff0e7; color: #965c2d; }
+.focused-review-status.writing { background: #f0edfa; color: #6a548b; }
+.focused-review-detail { padding: 18px; border-top: 1px solid #e5ecf3; }
+.focused-review-detail h3 { margin: 10px 0 16px; color: #263f5b; font-size: 1.08rem; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+.focused-review-detail .eyebrow { margin: 0; color: #657a8c; font-size: .66rem; }
+.focused-review-response { padding: 14px; border-radius: 10px; background: #f5f8fb; }
+.focused-review-response > strong, .focused-correct-answer > strong { display: block; margin-bottom: 5px; color: #526e87; font-size: .75rem; }
+.focused-review-response p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: .93rem; line-height: 1.65; }
+.focused-correct-answer, .focused-explanation { margin: 16px 0; font-size: .93rem; line-height: 1.6; white-space: pre-wrap; }
+.focused-review-empty { padding: 24px; border: 1px dashed #bfd0e1; border-radius: 14px; color: #617082; text-align: center; }
+body.bq-learning-uplift :is(#testScreen, #resultScreen) :is(button, summary, textarea):focus-visible { outline: 3px solid #d6a33b; outline-offset: 3px; }
+@media (max-width: 600px) {
+  body.bq-learning-uplift #testScreen .test-topbar { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 8px 0; }
+  body.bq-learning-uplift #testScreen #exitTestButton { grid-row: 1; justify-self: start; font-size: .78rem; min-height: 44px; }
+  body.bq-learning-uplift #testScreen .timer { grid-column: 2; grid-row: 1 / 3; align-self: center; }
+  body.bq-learning-uplift #testScreen .test-title { grid-column: 1; grid-row: 2; }
+  body.bq-learning-uplift #testScreen .test-title h2 { font-size: 1.12rem; }
+  body.bq-learning-uplift #testScreen .test-title .eyebrow { font-size: .62rem; }
+  body.bq-learning-uplift #testScreen .question-stage { padding: 17px !important; border-radius: 18px !important; }
+  body.bq-learning-uplift #testScreen .question-meta { gap: 5px; margin-bottom: 12px; }
+  body.bq-learning-uplift #testScreen .question-meta span { padding: 5px 7px; font-size: .63rem; }
+  body.bq-learning-uplift #testScreen #questionPrompt { font-size: 1.18rem; margin-bottom: 18px; line-height: 1.45; }
+  body.bq-learning-uplift #testScreen .options-grid { grid-template-columns: 1fr; gap: 8px; }
+  body.bq-learning-uplift #testScreen .option-card { min-height: 58px; padding: 10px 12px !important; }
+  body.bq-learning-uplift #testScreen .option-card strong { font-size: .96rem; }
+  body.bq-learning-uplift #testScreen .test-actions .button { min-width: 105px; }
+  .focused-review-heading { align-items: start; }
+  .focused-review-total { display: none; }
+  .focused-review-record > summary { gap: 9px; padding: 12px; flex-wrap: wrap; }
+  .focused-review-summary { flex-basis: calc(100% - 70px); }
+  .focused-review-status { margin-left: 41px; }
+  .focused-review-record > summary::after { margin-left: auto; }
+  .focused-review-detail { padding: 15px; }
+  body.bq-learning-uplift #resultScreen .result-actions { display: grid; grid-template-columns: 1fr; }
+  body.bq-learning-uplift #resultScreen .result-score strong { font-size: 2.8rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.bq-learning-uplift :is(#testScreen, #resultScreen) *, body.bq-learning-uplift :is(#testScreen, #resultScreen) *::before { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

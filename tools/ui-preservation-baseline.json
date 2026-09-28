@@ -1,0 +1,63 @@
+{
+  "baselineCommit": "62e75ec",
+  "normalisedText": true,
+  "authorisedAmendments": {
+    "functions/api/auth/config.js": {
+      "sha256": "dc0779afe1b22b0f39df6ec2336ce937901a21c3c2d5db98b446db450c5989b9",
+      "scope": "P07 UI feature flag, user-authorised P13 parent PIN recovery and R02 family-password recovery availability flags. The original hash remains recorded below; existing account, profile and learning API contracts stay unchanged."
+    }
+  },
+  "files": {
+    "app-data.js": "c9f57c21ef25fa748b122fdb2f3ae3840749bdee7bad1fbf6ba789587ce30cf0",
+    "beacon-brigade/content.js": "2b4d8c9078879b3a75c137ecb309947b0fdf52ec64e1a8945fe8a1b94510656b",
+    "chemistry-training/chemistry-101-winter-2026/data/chemistry-101-course.json": "e462009a05c6e37381d78af253b279fb6f55c120bd5e22f054ecf88eca3475f0",
+    "chemistry-training/lesson-1/lesson-1.js": "887d1502ccfc33747fbd4b3f03db7849764bf7e2f0998b8837eadd9e5c4120e3",
+    "final-test-data.js": "61e90a3d478e0385fb1dee03a620139de792e0326be802e312094958cbdbb642",
+    "functions/_lib/beacon-brigade.js": "100130e61ad9aa1bf10022a1e8db7653d47aff935a9990c0a61fa0ae9bdf6774",
+    "functions/_lib/family-auth.js": "bbc7fc9cb173b8b92bcd00f708ed1688d52092a4751b1b23f07ee78279c000e8",
+    "functions/_lib/sparkbound-content.js": "859763a6869885b0a45c77adcadf6c8379bd6bb4b4204c46e26b2b89932f0d92",
+    "functions/_lib/sparkbound-expansion-content.js": "ae109beebe3055355ceb2b0389a48ed026de16dfb4a41c051d7aa11efd124257",
+    "functions/_lib/sparkbound.js": "ac8a2896d96b6119a976fb87251a965efafd062dee5dcfb5bbe8cf3948d57803",
+    "functions/api/auth/children.js": "37102df48ec1051960779f60418d429630d91cfafb75a16ece9998e9089b1ab6",
+    "functions/api/auth/config.js": "8cd8adbdb4663ee76debb3a4de6e751ac76111da7843d25c61bccd6b772b3349",
+    "functions/api/auth/login.js": "e565f911aae30b1051a232d1119be009c472ddc315036e7f7980d032a68f04c1",
+    "functions/api/auth/parent-lock.js": "a6abe503a98db7308e1132c826d7dd0060e62f57f4976a8f1086efc2c326f260",
+    "functions/api/auth/parent-unlock.js": "f166423604878ce09343149a790b39a1dbb57549396cf2faea826cd347c0ee80",
+    "functions/api/auth/select-child.js": "6bf026476c6396fca32eca7266e47c82a08f52fb69d64967910691d297103471",
+    "functions/api/auth/session.js": "8552939c744e72d4b347d442cea71c458eb9834993d59044262e7b39c6cb4723",
+    "functions/api/auth/signup.js": "ae628685b74ccd2e6633f48f9df6312063b061c20c007197a8f351805c6b88da",
+    "functions/api/beacon-brigade.js": "4b3e83cbadb6d1d18340b53d6562d3d6d093898544bc0ef14ff373df3f63d913",
+    "functions/api/blackboard-teacher.js": "59a52f1b9a499119541cffb04b575d155de84b997df4e33a644203534ae19353",
+    "functions/api/blackboard-voice-sample.js": "24e32d14eb9e4e845d9c39d13615820fd516fc8bef5892027b90fcca159d2ec3",
+    "functions/api/blackboard-voice.js": "bc4e0b5dfeedf1d25522f35e5fc1665f1d75090c68415603e4df5cce42c1c5b7",
+    "functions/api/events.js": "e05bffa8267ab2f4d193a7619a2aa20559dff70ed703e9c7a9decd1eff4d25b9",
+    "functions/api/profiles.js": "ba5bc37c91fcdce8dd92913f698aab5c98dfedd17df675df8a62f6d4eed4a40c",
+    "functions/api/sparkbound.js": "84510986205e679e549172760fe23bbcd149c76b2a95770c8a27325156b2c640",
+    "icas-prep/data/icas-question-bank.json": "574483085a907a8b476cda6dda59f67ac76fa265d565b3976f1529eba7d10e83",
+    "international-tests-data.js": "7cd373ec6756a9a5de9b5d6d41e930c5cbf2374e3991d9d3729ba83eed8c03f1",
+    "migrations/0001_bright_quest.sql": "9e38079bfe388adb8b3b967b881aa245fe11f0b30c6f78c089c37478254274b0",
+    "migrations/0002_family_auth.sql": "627d1292fcb96bbea355e3e4f3db6e82617d95446ee3bba7b22f9349673190bf",
+    "migrations/0003_beacon_brigade.sql": "2b84bf3d11a11e80a9fab919934198325d5b08c3b44dd6b24c0afbf2cf3876bc",
+    "migrations/0004_sparkbound.sql": "6d8d167bb6e70055267208e99a81c5567b66d40fb9405d452e3286ab9339e233",
+    "physics-training/physics-101-advanced-grade-4/data/physics-101-course.json": "fc3ecc49c9e1583937b9b8e5856b8923a939d25c929b7067834e4e76d8911b09",
+    "sparkbound/roster.js": "c755862e1db5df49b07f3377decc62258c2122a488b1f5fe6c442aea62422093"
+  },
+  "routes": [
+    "",
+    "icas-prep/",
+    "maths-training/",
+    "english-grammar/",
+    "blackboard-focus-session/",
+    "chemistry-training/chemistry-101-winter-2026/",
+    "physics-training/physics-101-advanced-grade-4/",
+    "chemistry-training/lesson-1/",
+    "chemistry-training/secret-alphabet-session/",
+    "mechshift-rescue/",
+    "mechshift-rescue/level-2/",
+    "beacon-brigade/",
+    "sparkbound/",
+    "cave-river-quest/",
+    "street-smart-rescue/",
+    "treasure-quest/"
+  ]
+}

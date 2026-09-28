@@ -813,6 +813,9 @@ ladderTabs.addEventListener("click", (event) => {
   const button = event.target.closest("[data-step]");
   if (!button) return;
   switchStep(Number(button.dataset.step), false);
+  // Re-rendering the ladder removes its focused button. Keep keyboard focus
+  // within the open lesson chooser, on the newly selected step.
+  ladderTabs.querySelector(`[data-step="${activeStep}"]`)?.focus();
 });
 
 closeQuizButton.addEventListener("click", () => {

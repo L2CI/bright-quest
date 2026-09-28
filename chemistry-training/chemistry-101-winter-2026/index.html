@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Chemistry 101 Winter 2026 | Bright Quest</title>
-    <link rel="stylesheet" href="./chemistry-101.css?v=20260719a" />
+    <link rel="stylesheet" href="./chemistry-101.css?v=20260928a" />
   </head>
   <body>
     <main class="chem-app landing-view">
@@ -35,7 +35,7 @@
           <div class="course-copy">
             <p class="eyebrow">Chemistry 101 Winter 2026</p>
             <h2>Continue the chemistry lab</h2>
-            <p>Video chapters with cockpit checks for materials, states, particles, heat, melting, dissolving, and reaction clues.</p>
+            <p>Explore materials, particles and reactions. Watch a chapter, then try its questions when you are ready.</p>
             <div class="course-actions">
               <button class="button button-primary" id="courseStartButton" type="button">Continue next chapter</button>
             </div>
@@ -49,7 +49,7 @@
             </svg>
           </span>
           <strong>Chapters</strong>
-          <small>11 chapters, about 74 minutes</small>
+          <small id="courseRuntimeSummary">11 chapters</small>
         </article>
         <article class="mini-course-card">
           <span class="chem-icon-chip" aria-hidden="true">
@@ -59,14 +59,17 @@
             </svg>
           </span>
           <strong>Questions</strong>
-          <small>110 questions with cockpit progress</small>
+          <small>110 questions with saved progress</small>
         </article>
       </section>
 
       <section class="chapter-map" id="chapterMap" aria-label="Chemistry lab path"></section>
       <button class="button button-soft map-toggle" id="mapToggleButton" type="button" aria-expanded="false">View full lab map</button>
 
-      <nav class="chapter-tabs" id="chapterTabs" aria-label="Chemistry chapters"></nav>
+      <details class="chapter-picker" id="chapterPicker">
+        <summary><span>Chapters</span><span id="chapterPickerCurrent">Choose a chapter</span></summary>
+        <nav class="chapter-tabs" id="chapterTabs" aria-label="Chemistry chapters"></nav>
+      </details>
 
       <section class="lesson-stage" aria-label="Chemistry video lesson">
         <div class="video-shell">
@@ -91,32 +94,31 @@
               <span id="totalTime">0:00 total</span>
             </div>
             <input id="timeline" class="timeline" type="range" min="0" max="100" value="0" step="0.1" aria-label="Chapter timeline" />
+            <section class="control-card" aria-label="Playback controls">
+              <button class="button button-primary primary-control icon-control" id="playButton" type="button" aria-label="Play chapter">
+                <span class="control-icon play-icon" aria-hidden="true"></span>
+                <span class="control-label">Play</span>
+              </button>
+              <button class="button button-soft control-button icon-control" id="rewindButton" type="button" aria-label="Rewind 15 seconds">
+                <span class="control-icon rewind-icon" aria-hidden="true"></span>
+                <span class="control-label">15s</span>
+              </button>
+              <button class="button button-soft control-button icon-control" id="stopButton" type="button" aria-label="Stop chapter">
+                <span class="control-icon stop-icon" aria-hidden="true"></span>
+                <span class="control-label">Stop</span>
+              </button>
+              <button class="cc-button" id="ccButton" type="button" aria-label="Captions" aria-pressed="false">CC</button>
+            </section>
           </footer>
         </div>
 
         <aside class="lesson-side" aria-label="Lesson controls and test">
           <section class="side-card current-card">
             <div class="lesson-card-top">
-              <p class="eyebrow">Now Teaching</p>
-              <button class="cc-button" id="ccButton" type="button" aria-pressed="false">CC</button>
+              <p class="eyebrow">In this chapter</p>
             </div>
             <h3 id="lessonPoint">Explain what ordinary matter is made from.</h3>
             <p class="caption-readout hidden" id="captionReadout">Captions are off.</p>
-          </section>
-
-          <section class="control-card">
-            <button class="button button-primary primary-control icon-control" id="playButton" type="button" aria-label="Play chapter">
-              <span class="control-icon play-icon" aria-hidden="true"></span>
-              <span class="control-label">Play</span>
-            </button>
-            <button class="button button-soft control-button icon-control" id="rewindButton" type="button" aria-label="Rewind 15 seconds">
-              <span class="control-icon rewind-icon" aria-hidden="true"></span>
-              <span class="control-label">15s</span>
-            </button>
-            <button class="button button-soft control-button icon-control" id="stopButton" type="button" aria-label="Stop chapter">
-              <span class="control-icon stop-icon" aria-hidden="true"></span>
-              <span class="control-label">Stop</span>
-            </button>
           </section>
 
           <section class="side-card test-card" id="testCard">
@@ -131,6 +133,6 @@
 
     </main>
 
-    <script src="./chemistry-101.js?v=20260719b"></script>
+    <script src="./chemistry-101.js?v=20260928a"></script>
   </body>
 </html>

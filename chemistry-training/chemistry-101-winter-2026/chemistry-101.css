@@ -1034,3 +1034,82 @@ body {
     width: 100%;
   }
 }
+
+/* September 2026: keep the chapter and playback together. */
+body { background: #f4f7fb; }
+.chem-app { width: min(1280px, 100%); margin: 0 auto; gap: 16px; }
+.chem-app::before { display: none; }
+.lesson-header { padding-block: 12px; gap: 12px; }
+.brand-link small { font-weight: 550; }
+.nav-button { min-height: 44px; border-radius: 12px; }
+.course-feature-card { border-radius: 22px; background: linear-gradient(130deg, #eaf5ff, #fff 65%, #eef9f4); }
+.mini-course-card { border-radius: 18px; box-shadow: none; }
+.course-feature-card .chem-icon-chip { background: #e0effc; color: #2473a3; }
+.course-copy h2 { font-size: clamp(1.4rem, 2.8vw, 2rem); line-height: 1.2; }
+.chapter-card { border-radius: 16px; box-shadow: 0 4px 14px rgba(20, 33, 61, .035); }
+.chapter-picker { border: 1px solid #d7e2ee; border-radius: 14px; background: #fff; }
+.chapter-picker > summary { min-height: 50px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; list-style: none; color: #2c526f; font-size: .88rem; font-weight: 750; }
+.chapter-picker > summary::after { content: '+'; font-size: 1.2rem; }
+.chapter-picker[open] > summary::after { content: '−'; }
+#chapterPickerCurrent { margin-left: auto; color: #657b8d; font-size: .76rem; font-weight: 550; }
+.chem-app.landing-view .chapter-picker, .chem-app.player-view .map-toggle { display: none; }
+.chapter-picker .chapter-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 8px 14px 14px; }
+.chapter-picker .chapter-tab { min-height: 80px; border: 1px solid #e1e8f0; border-radius: 12px; box-shadow: none; background: #f9fbfd; }
+.chapter-picker .chapter-tab strong { font-size: .85rem; line-height: 1.4; }
+.chapter-picker .chapter-tab small { font-size: .7rem; font-weight: 600; }
+.chapter-picker .chapter-tab.active { border-color: #2774bc; background: #edf6ff; box-shadow: inset 0 0 0 1px #2774bc; }
+.lesson-stage { grid-template-columns: minmax(0, 1.8fr) minmax(280px, .8fr); gap: 18px; }
+.video-shell { border: 1px solid #dce5ee; border-radius: 20px; padding: 16px; background: #fff; overflow: hidden; }
+.video-topline { padding-bottom: 14px; }
+.video-topline h2 { font-size: clamp(1.2rem, 2.5vw, 1.7rem); line-height: 1.25; }
+.video-topline .eyebrow { font-size: .67rem; }
+.chapter-badge { min-width: auto; font-size: .85rem; font-variant-numeric: tabular-nums; }
+.video-frame { border: 0; border-radius: 12px; box-shadow: none; }
+.timeline-wrap { padding: 12px 0 0; border: 0; background: transparent; box-shadow: none; }
+.timeline { min-height: 32px; }
+.timeline-wrap .control-card { grid-template-columns: 1.25fr repeat(3, 1fr); gap: 8px; padding: 8px 0 0; border: 0; background: transparent; }
+.timeline-wrap .control-card > button { width: 100%; min-width: 0; min-height: 50px; height: auto; border-radius: 12px; box-shadow: none; padding: 8px; font-size: .8rem; }
+.timeline-wrap .control-card > .primary-control { background: #2469ba; }
+.timeline-wrap .control-card .control-icon { width: 24px; height: 24px; transform: scale(.8); }
+.timeline-wrap #rewindButton.control-button.button-soft,
+.timeline-wrap #stopButton.control-button.button-soft { grid-column: auto; grid-row: auto; justify-self: stretch; width: 100%; min-width: 0; height: auto; min-height: 50px; padding: 8px; border: 1px solid #cdddeb; border-radius: 12px; color: #315675; background: #f6f9fc; box-shadow: none; }
+.timeline-wrap #rewindButton .control-label { margin-left: 0; font-size: .8rem; }
+.timeline-wrap #rewindButton .control-icon { margin-right: 0; }
+.lesson-side { padding: 0; border: 0; background: transparent; box-shadow: none; }
+.side-card { padding: 18px; border: 1px solid #dce5ee; border-radius: 18px; background: #fff; }
+.current-card { border-top: 4px solid #77bfb2; }
+.current-card h3 { font-size: 1.04rem; line-height: 1.45; }
+.caption-readout { line-height: 1.6; font-weight: 500; max-height: none; }
+.chapter-picker summary:focus-visible, button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #d7a640; outline-offset: 3px; }
+@media (max-width: 980px) {
+  .lesson-stage { grid-template-columns: 1fr; }
+  .lesson-side { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); align-items: start; }
+  .chapter-picker .chapter-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .chem-app { gap: 12px; padding: 12px; }
+  .lesson-header { grid-template-columns: minmax(0, 1fr) auto; margin: -12px -12px 0; padding: 12px; }
+  .brand-link { min-width: 0; }
+  .brand-link small { font-size: .62rem; }
+  .lesson-stat { min-width: 64px; padding: 6px; }
+  .lesson-stat strong { font-size: 1.05rem; }
+  .lesson-stat span { font-size: .62rem; }
+  .lesson-nav { grid-column: 1 / -1; grid-row: 2; gap: 8px; }
+  .lesson-nav .nav-button { font-size: .76rem; }
+  .course-landing { grid-template-columns: 1fr 1fr; }
+  .course-feature-card { grid-column: 1 / -1; }
+  .mini-course-card { grid-column: auto; padding: 14px; }
+  .mini-course-card .chem-icon-chip { width: 34px; height: 34px; }
+  .chapter-picker .chapter-tabs { grid-template-columns: 1fr; max-height: 55vh; overflow-y: auto; }
+  .chapter-picker .chapter-tab { min-height: 70px; }
+  .video-shell { padding: 12px; border-radius: 16px; }
+  .video-topline { gap: 10px; }
+  .video-topline h2 { font-size: 1.16rem; }
+  .timeline-wrap .control-card { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .timeline-wrap .control-card > button { gap: 4px; font-size: .7rem; padding: 6px 3px; }
+  .lesson-side { grid-template-columns: 1fr; }
+  .chapter-status-row { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}

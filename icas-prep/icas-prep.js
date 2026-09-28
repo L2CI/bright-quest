@@ -132,20 +132,23 @@
     main.innerHTML = `
       <section class="runner-shell">
         <aside class="runner-side">
-          <p class="eyebrow">${modeLabel(state.test.mode)}</p><h2>${escapeHtml(state.test.title)}</h2><p>${answered} of ${state.test.questions.length} answered</p>
+          <div class="runner-overview"><p class="eyebrow">${modeLabel(state.test.mode)}</p><h2>${escapeHtml(state.test.title)}</h2></div>
           <div class="timer-box" id="timerBox"><small>${state.test.timing === "countdown" ? "Time remaining" : "Time used"}</small><strong id="timerValue">00:00</strong></div>
-          <div class="question-palette" aria-label="Question navigation">${state.test.questions.map((item, index) => paletteButton(item, index)).join("")}</div>
-          <div class="palette-key"><span class="key-answered">Answered</span><span class="key-flagged">Flagged</span></div>
+          <details class="runner-question-navigation">
+            <summary><span>Questions</span><span data-answered-count>${answered} of ${state.test.questions.length} answered</span></summary>
+            <div class="question-palette" aria-label="Question navigation">${state.test.questions.map((item, index) => paletteButton(item, index)).join("")}</div>
+            <div class="palette-key"><span class="key-answered">Answered</span><span class="key-flagged">Flagged</span></div>
+          </details>
         </aside>
         <article class="question-panel">
           <div class="question-top"><p class="eyebrow">Question ${state.index + 1} of ${state.test.questions.length} / ${escapeHtml(question.domain)}</p><span class="difficulty">Demand ${question.difficulty} of 4</span></div>
-          <h1>${escapeHtml(question.prompt)}</h1>
+          <h1 id="icasQuestionPrompt" tabindex="-1">${escapeHtml(question.prompt)}</h1>
           ${renderStimulus(question)}
           ${renderResponse(question)}
           <div class="question-actions">
             <button class="button button-soft" type="button" data-prev ${state.index === 0 ? "disabled" : ""}>Previous</button>
             <button class="button button-soft flag-action" type="button" data-flag>${state.flagged.has(question.id) ? "Remove flag" : "Flag for review"}</button>
-            <button class="button button-warn" type="button" data-exit>Exit</button>
+            <button class="button button-warn" type="button" data-exit>Save &amp; leave</button>
             <button class="button button-primary" type="button" data-next>${state.index === state.test.questions.length - 1 ? "Submit set" : "Next"}</button>
           </div>
         </article>
@@ -160,7 +163,7 @@
     if (index === state.index) classes.push("current");
     if (isAnswered(state.answers[question.id])) classes.push("answered");
     if (state.flagged.has(question.id)) classes.push("flagged");
-    return `<button class="${classes.join(" ")}" type="button" data-jump="${index}" aria-label="Question ${index + 1}${isAnswered(state.answers[question.id]) ? ", answered" : ""}${state.flagged.has(question.id) ? ", flagged" : ""}">${index + 1}</button>`;
+    return `<button class="${classes.join(" ")}" type="button" data-jump="${index}" ${index === state.index ? 'aria-current="step"' : ""} aria-label="Question ${index + 1}${isAnswered(state.answers[question.id]) ? ", answered" : ""}${state.flagged.has(question.id) ? ", flagged" : ""}">${index + 1}</button>`;
   }
 
   function renderResponse(question) {
@@ -176,7 +179,10 @@
   }
 
   function wireRunner(question) {
-    main.querySelectorAll("[data-jump]").forEach((button) => button.addEventListener("click", () => moveTo(Number(button.dataset.jump))));
+    main.querySelectorAll("[data-jump]").forEach((button) => button.addEventListener("click", () => {
+      moveTo(Number(button.dataset.jump));
+      main.querySelector("#icasQuestionPrompt")?.focus({ preventScroll: true });
+    }));
     main.querySelectorAll("[data-answer-index]").forEach((button) => button.addEventListener("click", () => {
       state.answers[question.id] = Number(button.dataset.answerIndex);
       renderRunner();
@@ -203,7 +209,10 @@
     state.test.questions.forEach((question, index) => {
       const button = main.querySelector(`[data-jump="${index}"]`);
       button?.classList.toggle("answered", isAnswered(state.answers[question.id]));
+      button?.setAttribute("aria-label", `Question ${index + 1}${isAnswered(state.answers[question.id]) ? ", answered" : ""}${state.flagged.has(question.id) ? ", flagged" : ""}`);
     });
+    const count = main.querySelector("[data-answered-count]");
+    if (count) count.textContent = `${answeredCount(state.answers)} of ${state.test.questions.length} answered`;
   }
 
   function nextQuestion() {

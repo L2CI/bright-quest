@@ -69,6 +69,8 @@
       chapter.captions = withAssetVersion(`./assets/captions/chapter-${n}.vtt`);
       chapter.poster = withAssetVersion(`./assets/posters/chapter-${n}.jpg`);
     });
+    const runtimeSummary = document.querySelector("#courseRuntimeSummary");
+    if (runtimeSummary) runtimeSummary.textContent = `${state.course.chapters.length} chapters · about ${Math.round(state.course.chapters.reduce((total, chapter) => total + chapterRuntime(chapter), 0) / 60)} minutes of video`;
 
     const params = new URLSearchParams(location.search);
     const requestedChapter = Math.max(1, Number(params.get("chapter")) || 1);
@@ -127,7 +129,8 @@
       }
       saveProgress();
     }
-    preserveLegacyDemoProgress(id);
+    // An unassigned device history does not identify its learner. Keep the
+    // demo-student bucket intact instead of copying it into a named child.
     return state.progress[id];
   }
 
@@ -185,17 +188,6 @@
     } catch {
       // The merged device record remains available if profile sync is unavailable.
     }
-  }
-
-  function preserveLegacyDemoProgress(id) {
-    if (id === "demo-student") return;
-    const active = state.progress[id];
-    const legacy = state.progress["demo-student"];
-    if (!active || !legacy?.chapters) return;
-    if (Object.keys(active.chapters || {}).length) return;
-    active.chapters = { ...legacy.chapters };
-    active.migratedFromDemoStudentAt ||= new Date().toISOString();
-    saveProgress();
   }
 
   function chapterProgress(chapter) {
@@ -258,9 +250,9 @@
       const done = progress.completed;
       const tested = Boolean(progress.test);
       return `
-        <button class="chapter-tab ${index === state.activeIndex ? "active" : ""} ${tested ? "tested" : done ? "done" : ""}" type="button" data-chapter-index="${index}">
+        <button class="chapter-tab ${index === state.activeIndex ? "active" : ""} ${tested ? "tested" : done ? "done" : ""}" type="button" data-chapter-index="${index}" ${index === state.activeIndex ? 'aria-current="step"' : ""}>
           <span class="chem-icon-chip" aria-hidden="true">${chemistryIcon(chapterIconNames[index])}</span>
-          <strong>${escapeHtml(chapter.shortTitle || chapter.title)}</strong>
+          <strong>${index + 1}. ${escapeHtml(chapter.title)}</strong>
           <small>${tested ? `Test ${progress.test.score}/${progress.test.total || 10}` : done ? "Test ready" : formatTime(chapterRuntime(chapter))}</small>
         </button>
       `;
@@ -445,7 +437,7 @@
     els.testStatus.textContent = progress.test ? `${progress.test.score}/10` : progress.completed ? "Ready" : "Locked";
     els.testStatus.className = `status-pill ${progress.test ? "done" : progress.completed ? "ready" : ""}`;
     if (!progress.completed) {
-      els.testPanel.innerHTML = `<div class="test-intro"><p>Watch this chapter to unlock the 10-question cockpit check.</p></div>`;
+      els.testPanel.innerHTML = `<div class="test-intro"><p>Watch this chapter to unlock its 10-question check.</p></div>`;
       return;
     }
     if (progress.test) {
@@ -525,7 +517,7 @@
   }
 
   function scoreCopy(score) {
-    if (score >= 9) return "Strong cockpit check. The chapter ideas are landing.";
+    if (score >= 9) return "Strong chapter check. The chapter ideas are landing.";
     if (score >= 7) return "Solid pass. Review the missed explanations before moving on.";
     return "Retake after replaying the chapter. The feedback points to what to repair.";
   }
@@ -549,9 +541,15 @@
   }
 
   function showPlayer(index = state.activeIndex) {
+    const fromPicker = Boolean(document.activeElement?.closest("#chapterPicker"));
     loadChapter(index);
+    const picker = document.querySelector("#chapterPicker");
+    if (picker) picker.open = false;
+    const pickerCurrent = document.querySelector("#chapterPickerCurrent");
+    if (pickerCurrent) pickerCurrent.textContent = `Chapter ${state.activeIndex + 1} of ${state.course.chapters.length}`;
     els.app.classList.remove("landing-view");
     els.app.classList.add("player-view");
+    if (fromPicker) picker.querySelector("summary")?.focus({ preventScroll: true });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 

@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import { Miniflare } from "miniflare";
 import { createSession, hashSecret, randomHex, sha256 } from "../functions/_lib/family-auth.js";
 import * as sparkbound from "../functions/api/sparkbound.js";
+import * as beacon from "../functions/api/beacon-brigade.js";
 import * as profiles from "../functions/api/profiles.js";
 import * as events from "../functions/api/events.js";
 import * as authConfig from "../functions/api/auth/config.js";
@@ -17,14 +18,20 @@ import * as authChildren from "../functions/api/auth/children.js";
 import * as selectChild from "../functions/api/auth/select-child.js";
 import * as parentUnlock from "../functions/api/auth/parent-unlock.js";
 import * as parentLock from "../functions/api/auth/parent-lock.js";
+import * as parentPinResetRequest from "../functions/api/auth/parent-pin-reset-request.js";
+import * as parentPinResetConfirm from "../functions/api/auth/parent-pin-reset-confirm.js";
+import * as passwordResetRequest from "../functions/api/auth/password-reset-request.js";
+import * as passwordResetConfirm from "../functions/api/auth/password-reset-confirm.js";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const HOST = "127.0.0.1";
 const ROUTES = new Map([
-  ["/api/sparkbound", sparkbound], ["/api/profiles", profiles], ["/api/events", events],
+  ["/api/sparkbound", sparkbound], ["/api/beacon-brigade", beacon], ["/api/profiles", profiles], ["/api/events", events],
   ["/api/auth/config", authConfig], ["/api/auth/session", authSession], ["/api/auth/login", authLogin],
   ["/api/auth/children", authChildren], ["/api/auth/select-child", selectChild],
-  ["/api/auth/parent-unlock", parentUnlock], ["/api/auth/parent-lock", parentLock]
+  ["/api/auth/parent-unlock", parentUnlock], ["/api/auth/parent-lock", parentLock],
+  ["/api/auth/parent-pin-reset-request", parentPinResetRequest], ["/api/auth/parent-pin-reset-confirm", parentPinResetConfirm],
+  ["/api/auth/password-reset-request", passwordResetRequest], ["/api/auth/password-reset-confirm", passwordResetConfirm]
 ]);
 const MIME = new Map(Object.entries({
   ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".mjs": "text/javascript; charset=utf-8",
@@ -45,12 +52,19 @@ export async function startSparkboundQa({ port = 4194 } = {}) {
   let server;
   try {
     const db = await mf.getD1Database("DB");
-    for (const name of ["0001_bright_quest.sql", "0002_family_auth.sql", "0004_sparkbound.sql"]) {
+    for (const name of ["0001_bright_quest.sql", "0002_family_auth.sql", "0003_beacon_brigade.sql", "0004_sparkbound.sql", "0005_parent_pin_recovery.sql", "0006_family_password_recovery.sql"]) {
       const sql = await readFile(join(ROOT, "migrations", name), "utf8");
       await db.exec(sql.replace(/--[^\r\n]*/g, "").replace(/\r?\n/g, " "));
     }
+    const recoveryMail = { messages: [], fail: false };
     const env = { DB: db, BQ_FAMILY_AUTH_ENABLED: "true", BQ_FAMILY_AUTH_MIGRATION_READY: "true",
-      BQ_EXPERIENCE_UPLIFT_ENABLED: "true", BQ_SIGNUP_ENABLED: "false", BQ_LEGACY_API_ENABLED: "false" };
+      BQ_EXPERIENCE_UPLIFT_ENABLED: "true", BQ_SIGNUP_ENABLED: "false", BQ_LEGACY_API_ENABLED: "false",
+      BQ_PARENT_PIN_RECOVERY_ENABLED: "true", BQ_PARENT_PIN_RECOVERY_MIGRATION_READY: "true",
+      BQ_PASSWORD_RECOVERY_ENABLED: "true", BQ_PASSWORD_RECOVERY_MIGRATION_READY: "true",
+      BQ_PIN_RECOVERY_MAILER: async (message) => {
+        if (recoveryMail.fail) throw new Error("Synthetic mail failure");
+        recoveryMail.messages.push({ ...message, capturedAt: new Date().toISOString() });
+      } };
     const seeded = await seedSyntheticFamily(env);
     const otherFamily = await seedSyntheticFamily(env, "other");
     const controlToken = randomHex(32);
@@ -84,6 +98,11 @@ export async function startSparkboundQa({ port = 4194 } = {}) {
           if (incoming.method !== "GET") return sendJson(outgoing, 405, { error: "GET required" });
           if (incoming.headers["x-bq-qa-control"] !== controlToken) return sendJson(outgoing, 403, { error: "Local QA control token required" });
           return sendJson(outgoing, 200, fixture);
+        }
+        if (url.pathname === "/__sparkbound-qa__/recovery-inbox") {
+          if (incoming.method !== "GET") return sendJson(outgoing, 405, { error: "GET required" });
+          if (incoming.headers["x-bq-qa-control"] !== controlToken) return sendJson(outgoing, 403, { error: "Local QA control token required" });
+          return sendJson(outgoing, 200, { synthetic: true, messages: recoveryMail.messages });
         }
         if (url.pathname === "/__sparkbound-qa__/preview") {
           if (incoming.method !== "GET" || url.searchParams.get("token") !== previewToken)
@@ -135,9 +154,10 @@ export async function startSparkboundQa({ port = 4194 } = {}) {
       }
     }
     origin = `http://${HOST}:${server.address().port}`;
+    env.BQ_APP_ORIGIN = origin;
     fixture = { synthetic: true, origin, ...seeded, cookie: { ...seeded.cookie, url: origin },
       otherFamily: { ...otherFamily, cookie: { ...otherFamily.cookie, url: origin } } };
-    return { origin, fixture, controlToken, previewUrl: `${origin}/__sparkbound-qa__/preview?token=${previewToken}`, db, async close() {
+    return { origin, fixture, controlToken, recoveryMail, previewUrl: `${origin}/__sparkbound-qa__/preview?token=${previewToken}`, db, async close() {
       await new Promise((resolveClose) => {
         server.close(resolveClose);
         server.closeAllConnections();
@@ -221,6 +241,17 @@ async function serveStatic(root, url, incoming, outgoing) {
     path = await realpath(path);
   } catch { return sendJson(outgoing, 404, { error: "Not found" }); }
   if (!inside(root, path) || !info.isFile() || !MIME.has(extname(path).toLowerCase())) return sendJson(outgoing, 404, { error: "Not found" });
+  // Label only the synthetic portal response. The shipped HTML and production
+  // app never receive this banner, and no real credentials are needed here.
+  if (path === join(root, "index.html")) {
+    const source = await readFile(path, "utf8");
+    const banner = `<aside aria-label="Local test preview" style="position:sticky;top:0;z-index:2147483647;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 14px;padding:9px 16px;background:#fff2ce;color:#503a13;border-bottom:1px solid #ddc88b;font:14px/1.4 system-ui,sans-serif;text-align:center"><span><strong>Local test preview</strong> · Fictional accounts only. Your real login will not work here.</span><a href="https://bright-quest.pages.dev/" style="color:#164f95;font-weight:700;text-decoration:underline">Open live Bright Quest</a></aside>`;
+    const html = source.replace(/<title>([\s\S]*?)<\/title>/i, "<title>Local test preview — $1</title>")
+      .replace(/(<body\b[^>]*>)/i, `$1${banner}`);
+    outgoing.writeHead(200, { "content-type": "text/html; charset=utf-8", "content-length": Buffer.byteLength(html) });
+    outgoing.end(incoming.method === "HEAD" ? undefined : html);
+    return;
+  }
   const headers = { "content-type": MIME.get(extname(path).toLowerCase()), "accept-ranges": "bytes" };
   let start = 0;
   let end = info.size - 1;

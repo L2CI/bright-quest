@@ -99,8 +99,9 @@
     const latest = latestAttemptsByLevel();
     list.innerHTML = tests.map((test, index) => {
       const attempt = latest[test.level];
-      const status = attempt ? scoreLabel(attempt.percent) : "Not started";
-      const score = attempt ? `${attempt.percent}%` : "New";
+      const saved = String(state.profile?.activeDraft?.level) === String(test.level);
+      const status = saved ? "Saved for later" : attempt ? scoreLabel(attempt.percent) : "Not started";
+      const score = attempt ? `${attempt.percent}%` : saved ? "In progress" : "New";
       const sections = [...new Set(test.questions.map((question) => question.section))].slice(0, 4).join(" / ");
       const game = ["World Rally Drift", "Skyline Balloon Burst", "Logic Lab Battle"][index] || "World Arcade";
       return `
@@ -117,7 +118,7 @@
           </div>
           <div class="international-footer">
             <strong>${score}<small>${status}</small></strong>
-            <button class="button button-primary" type="button" data-international-test="${escapeAttr(test.level)}">${attempt ? "Retry" : "Start"}</button>
+            <button class="button button-primary" type="button" data-international-test="${escapeAttr(test.level)}">${saved ? "Resume" : attempt ? "Retry" : "Start"}</button>
           </div>
         </article>
       `;
@@ -131,6 +132,10 @@
     const test = tests.find((item) => item.level === testId);
     if (!test) {
       showToast("That world challenge is not ready yet.");
+      return;
+    }
+    if (window.BrightQuestDrafts) {
+      window.BrightQuestDrafts.start(test);
       return;
     }
     state.activeLevel = test;
