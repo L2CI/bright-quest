@@ -1,0 +1,12 @@
+{
+  "checks": 21,
+  "errors": [
+    "Failed to load resource: net::ERR_INTERNET_DISCONNECTED"
+  ],
+  "viewports": [
+    1440,
+    834,
+    390
+  ],
+  "synthetic": true
+}

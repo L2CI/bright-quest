@@ -40,6 +40,7 @@ async function logFamilyEvent(context) {
     const eventType = String(body.eventType || "").trim();
     const eventId = String(body.eventId || "").trim();
     if (!eventType || !eventId) return json({ error: "eventType and eventId are required" }, 400);
+    if (eventType.toLowerCase().startsWith("skyforge.") || eventId.toLowerCase().startsWith("skyforge:")) return json({ error: "Reserved game event namespace" }, 403);
     if (eventType.length > 80 || eventId.length > 100) return json({ error: "Event metadata is too long" }, 400);
     const payloadJson = JSON.stringify(body.payload || {});
     if (payloadJson.length > 100000) return json({ error: "Event payload is too large" }, 413);

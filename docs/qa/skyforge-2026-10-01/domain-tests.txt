@@ -1,0 +1,14 @@
+✔ all 12 mission operands obey 2×2 to 4×3 bounds with exact whole-number marking (5.23445ms)
+✔ answers accept thousands separators and reject decimals, exponents, negatives and coercion (0.261444ms)
+✔ photo requirement, wrong-first evidence, hint persistence, no early forge or repeated rewards (1.548725ms)
+✔ every legal loadout can complete each mission with informed strategy (69.481998ms)
+✔ blind strike fails some bosses; loss supports retry/refit without erasing maths (1.090183ms)
+✔ invalid equipment, unavailable charge and corrupted versions fail safely (0.67016ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 165.087508

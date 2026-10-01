@@ -1,0 +1,9 @@
+// Public production reads only. Never supplies family cookies or modifies real learner data.
+import {readFile,writeFile} from 'node:fs/promises';import {createHash} from 'node:crypto';import assert from 'node:assert/strict';
+const origin=process.env.BQ_VERIFY_ORIGIN||'https://bright-quest.pages.dev';
+const assets=['index.html','bright-quest-child-experience.js','bright-quest-shell-merge.js','skyforge/index.html','skyforge/game.js','skyforge/world.js','skyforge/storage.js','skyforge/audio.js','skyforge/skyforge.css','skyforge/assets/key-art.webp'];
+const sha=b=>createHash('sha256').update(b).digest('hex'),rows=[];
+for(const path of assets){const r=await fetch(`${origin}/${path}?release=skyforge-20261001`,{cache:'no-store',signal:AbortSignal.timeout(20000)});assert(r.ok,`${path}: HTTP ${r.status}`);const remote=Buffer.from(await r.arrayBuffer()),local=await readFile(new URL('../'+path,import.meta.url));const normalise=b=>path.endsWith('.webp')?b:Buffer.from(b.toString('utf8').replace(/\r\n/g,'\n'));assert.equal(sha(normalise(remote)),sha(normalise(local)),`${path}: committed bytes differ`);rows.push({path,sha256:sha(normalise(remote)),status:r.status});}
+for(const path of ['/api/skyforge','/api/skyforge?childId=unauthorised']){const r=await fetch(origin+path,{signal:AbortSignal.timeout(20000)});assert.equal(r.status,401,`${path} must require a session`);rows.push({path,status:r.status});}
+const config=await(await fetch(origin+'/api/auth/config',{signal:AbortSignal.timeout(20000)})).json();assert.equal(config.enabled,true);assert.equal(config.parentPinRecoveryEnabled,false);assert.equal(config.familyPasswordRecoveryEnabled,false);
+await writeFile(new URL('../outputs/skyforge/live-verification.json',import.meta.url),JSON.stringify({origin,verifiedAt:new Date().toISOString(),publicOnly:true,assets:rows,config},null,2));console.log(`Live verification passed: ${assets.length} matching assets, auth-gated Skyforge API, recovery flags preserved.`);

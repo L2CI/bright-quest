@@ -1,0 +1,532 @@
+TAP version 13
+# Subtest: Initial access remains gated until config resolves, then feature-disabled legacy content renders before release
+ok 1 - Initial access remains gated until config resolves, then feature-disabled legacy content renders before release
+  ---
+  duration_ms: 6.84037
+  type: 'test'
+  ...
+# Subtest: Unavailable configuration releases the initial gate to the existing fallback without changing saved learning
+ok 2 - Unavailable configuration releases the initial gate to the existing fallback without changing saved learning
+  ---
+  duration_ms: 3.170749
+  type: 'test'
+  ...
+# Subtest: Session failure shows sign-in before releasing the initial gate
+ok 3 - Session failure shows sign-in before releasing the initial gate
+  ---
+  duration_ms: 1.789277
+  type: 'test'
+  ...
+# Subtest: Authenticated startup renders the selected child before release and later actions do not restore the gate
+ok 4 - Authenticated startup renders the selected child before release and later actions do not restore the gate
+  ---
+  duration_ms: 8.862838
+  type: 'test'
+  ...
+# Subtest: An emailed token is cleared from the fragment immediately and never stored or rendered
+ok 5 - An emailed token is cleared from the fragment immediately and never stored or rendered
+  ---
+  duration_ms: 1.590918
+  type: 'test'
+  ...
+# Subtest: Malformed recovery fragments are removed without allowing a confirmation request
+ok 6 - Malformed recovery fragments are removed without allowing a confirmation request
+  ---
+  duration_ms: 1.859142
+  type: 'test'
+  ...
+# Subtest: Recovery verifies the password and shows only the server-selected masked email
+ok 7 - Recovery verifies the password and shows only the server-selected masked email
+  ---
+  duration_ms: 2.124202
+  type: 'test'
+  ...
+# Subtest: PIN mismatch and invalid digits cannot send a reset confirmation
+ok 8 - PIN mismatch and invalid digits cannot send a reset confirmation
+  ---
+  duration_ms: 1.612871
+  type: 'test'
+  ...
+# Subtest: A failed confirmation preserves saved learner data and does not report success
+ok 9 - A failed confirmation preserves saved learner data and does not report success
+  ---
+  duration_ms: 1.63199
+  type: 'test'
+  ...
+# Subtest: Expired links return to sign-in without accepting another PIN submission
+ok 10 - Expired links return to sign-in without accepting another PIN submission
+  ---
+  duration_ms: 1.871681
+  type: 'test'
+  ...
+# Subtest: Successful recovery clears access capabilities but retains every learner record and draft
+ok 11 - Successful recovery clears access capabilities but retains every learner record and draft
+  ---
+  duration_ms: 1.754345
+  type: 'test'
+  ...
+# Subtest: Unavailable recovery and cancelled email links make no reset request
+ok 12 - Unavailable recovery and cancelled email links make no reset request
+  ---
+  duration_ms: 4.611871
+  type: 'test'
+  ...
+# Subtest: Forgot family password is available from login and the parent PIN password check
+ok 13 - Forgot family password is available from login and the parent PIN password check
+  ---
+  duration_ms: 2.703345
+  type: 'test'
+  ...
+# Subtest: Password link credentials are cleared before config and never appear in markup or device storage
+ok 14 - Password link credentials are cleared before config and never appear in markup or device storage
+  ---
+  duration_ms: 1.145497
+  type: 'test'
+  ...
+# Subtest: Valid password requests use the same acknowledgement for registered and unregistered addresses
+ok 15 - Valid password requests use the same acknowledgement for registered and unregistered addresses
+  ---
+  duration_ms: 3.321185
+  type: 'test'
+  ...
+# Subtest: Password request validation, unavailable service and rate limiting keep honest retry paths
+ok 16 - Password request validation, unavailable service and rate limiting keep honest retry paths
+  ---
+  duration_ms: 7.488287
+  type: 'test'
+  ...
+# Subtest: New family passwords enforce signup length and exact confirmation before requesting reset
+ok 17 - New family passwords enforce signup length and exact confirmation before requesting reset
+  ---
+  duration_ms: 1.509145
+  type: 'test'
+  ...
+# Subtest: Password confirmation failures retain access and drafts, and expired tokens cannot be submitted twice
+ok 18 - Password confirmation failures retain access and drafts, and expired tokens cannot be submitted twice
+  ---
+  duration_ms: 3.955512
+  type: 'test'
+  ...
+# Subtest: Successful password reset clears access, keeps all learner data and asks for normal sign-in
+ok 19 - Successful password reset clears access, keeps all learner data and asks for normal sign-in
+  ---
+  duration_ms: 2.46795
+  type: 'test'
+  ...
+# Subtest: Malformed, cancelled and cross-purpose links never send the wrong credential reset
+ok 20 - Malformed, cancelled and cross-purpose links never send the wrong credential reset
+  ---
+  duration_ms: 3.647258
+  type: 'test'
+  ...
+# Subtest: Recovery links arriving during learning pause and save first, keeping the token available after a failed save
+ok 21 - Recovery links arriving during learning pause and save first, keeping the token available after a failed save
+  ---
+  duration_ms: 2.575762
+  type: 'test'
+  ...
+# Subtest: Both reset confirmations await current learning saves and can retry with the original token after failure
+ok 22 - Both reset confirmations await current learning saves and can retry with the original token after failure
+  ---
+  duration_ms: 6.931788
+  type: 'test'
+  ...
+# Subtest: Confirmation keeps cancel and navigation disabled in flight and ignores duplicate submissions
+ok 23 - Confirmation keeps cancel and navigation disabled in flight and ignores duplicate submissions
+  ---
+  duration_ms: 6.214827
+  type: 'test'
+  ...
+# Subtest: A newer cloud draft cannot overwrite a completed local attempt, writing or earned stars
+ok 24 - A newer cloud draft cannot overwrite a completed local attempt, writing or earned stars
+  ---
+  duration_ms: 7.66264
+  type: 'test'
+  ...
+# Subtest: A genuine retake draft newer than the completed attempt remains resumable
+ok 25 - A genuine retake draft newer than the completed attempt remains resumable
+  ---
+  duration_ms: 4.142564
+  type: 'test'
+  ...
+# Subtest: Independent cloud/local records and science chapters are retained without recalculating scores
+ok 26 - Independent cloud/local records and science chapters are retained without recalculating scores
+  ---
+  duration_ms: 2.042188
+  type: 'test'
+  ...
+# Subtest: Overlapping autosave and completion writes serialize and carry the latest version and completed data
+ok 27 - Overlapping autosave and completion writes serialize and carry the latest version and completed data
+  ---
+  duration_ms: 3.903704
+  type: 'test'
+  ...
+# Subtest: A409 retry merges the older cloud snapshot and saves completed local work without a draft resurrection
+ok 28 - A409 retry merges the older cloud snapshot and saves completed local work without a draft resurrection
+  ---
+  duration_ms: 2.564736
+  type: 'test'
+  ...
+# Subtest: Repeated conflict stops retrying and keeps full local work rather than claiming a successful save
+ok 29 - Repeated conflict stops retrying and keeps full local work rather than claiming a successful save
+  ---
+  duration_ms: 2.404464
+  type: 'test'
+  ...
+# Subtest: Logout while a save is in flight cannot restore cleared profiles or send the queued snapshot
+ok 30 - Logout while a save is in flight cannot restore cleared profiles or send the queued snapshot
+  ---
+  duration_ms: 2.378234
+  type: 'test'
+  ...
+# Subtest: An old response cannot merge into a newly authorised session with a matching legacy profile ID
+ok 31 - An old response cannot merge into a newly authorised session with a matching legacy profile ID
+  ---
+  duration_ms: 1.5653
+  type: 'test'
+  ...
+# Subtest: A cloud read started before logout cannot repopulate the cleared profile map
+ok 32 - A cloud read started before logout cannot repopulate the cleared profile map
+  ---
+  duration_ms: 1.593552
+  type: 'test'
+  ...
+# Subtest: all 12 mission operands obey 2×2 to 4×3 bounds with exact whole-number marking
+ok 33 - all 12 mission operands obey 2×2 to 4×3 bounds with exact whole-number marking
+  ---
+  duration_ms: 14.529871
+  type: 'test'
+  ...
+# Subtest: answers accept thousands separators and reject decimals, exponents, negatives and coercion
+ok 34 - answers accept thousands separators and reject decimals, exponents, negatives and coercion
+  ---
+  duration_ms: 0.382868
+  type: 'test'
+  ...
+# Subtest: photo requirement, wrong-first evidence, hint persistence, no early forge or repeated rewards
+ok 35 - photo requirement, wrong-first evidence, hint persistence, no early forge or repeated rewards
+  ---
+  duration_ms: 2.404304
+  type: 'test'
+  ...
+# Subtest: every legal loadout can complete each mission with informed strategy
+ok 36 - every legal loadout can complete each mission with informed strategy
+  ---
+  duration_ms: 115.053696
+  type: 'test'
+  ...
+# Subtest: blind strike fails some bosses; loss supports retry/refit without erasing maths
+ok 37 - blind strike fails some bosses; loss supports retry/refit without erasing maths
+  ---
+  duration_ms: 1.068481
+  type: 'test'
+  ...
+# Subtest: invalid equipment, unavailable charge and corrupted versions fail safely
+ok 38 - invalid equipment, unavailable charge and corrupted versions fail safely
+  ---
+  duration_ms: 1.237245
+  type: 'test'
+  ...
+# Subtest: Protected content and contracts match baseline with the documented config flag amendment
+ok 39 - Protected content and contracts match baseline with the documented config flag amendment
+  ---
+  duration_ms: 33.348024
+  type: 'test'
+  ...
+# Subtest: All retained activity routes and required module assets still exist
+ok 40 - All retained activity routes and required module assets still exist
+  ---
+  duration_ms: 16.740892
+  type: 'test'
+  ...
+# Subtest: Existing device storage and session capability names remain compatible
+ok 41 - Existing device storage and session capability names remain compatible
+  ---
+  duration_ms: 15.157657
+  type: 'test'
+  ...
+# Subtest: Parent navigation keeps same-name identities and every original profile field
+ok 42 - Parent navigation keeps same-name identities and every original profile field
+  ---
+  duration_ms: 68.153376
+  type: 'test'
+  ...
+# Subtest: Child confirmation never merges profiles that share a display name
+ok 43 - Child confirmation never merges profiles that share a display name
+  ---
+  duration_ms: 8.80415
+  type: 'test'
+  ...
+# Subtest: Parent evidence keeps complete long prompts, original writing and recorded answers
+ok 44 - Parent evidence keeps complete long prompts, original writing and recorded answers
+  ---
+  duration_ms: 8.177004
+  type: 'test'
+  ...
+# Subtest: Legacy standalone writing remains accessible even without an attached question record
+ok 45 - Legacy standalone writing remains accessible even without an attached question record
+  ---
+  duration_ms: 8.951532
+  type: 'test'
+  ...
+# Subtest: ICAS and Chemistry answer details retain full original prompts
+ok 46 - ICAS and Chemistry answer details retain full original prompts
+  ---
+  duration_ms: 8.163725
+  type: 'test'
+  ...
+# Subtest: Presentation distinguishes incorrect, unanswered, first-choice zero and missing legacy evidence
+ok 47 - Presentation distinguishes incorrect, unanswered, first-choice zero and missing legacy evidence
+  ---
+  duration_ms: 8.772493
+  type: 'test'
+  ...
+# Subtest: Chemistry learning summary has correct chapter denominator and submitted-test count
+ok 48 - Chemistry learning summary has correct chapter denominator and submitted-test count
+  ---
+  duration_ms: 9.361721
+  type: 'test'
+  ...
+# Subtest: Resume restores first-choice index zero, full writing, elapsed timing and unknown metadata
+ok 49 - Resume restores first-choice index zero, full writing, elapsed timing and unknown metadata
+  ---
+  duration_ms: 15.85654
+  type: 'test'
+  ...
+# Subtest: Unknown or retired saved test is retained without starting or deleting it
+ok 50 - Unknown or retired saved test is retained without starting or deleting it
+  ---
+  duration_ms: 20.238834
+  type: 'test'
+  ...
+# Subtest: An exhausted draft cannot regain the original full timer on resume
+ok 51 - An exhausted draft cannot regain the original full timer on resume
+  ---
+  duration_ms: 19.275844
+  type: 'test'
+  ...
+# Subtest: International draft resumes the same content ID and original selected answer
+ok 52 - International draft resumes the same content ID and original selected answer
+  ---
+  duration_ms: 13.058482
+  type: 'test'
+  ...
+# Subtest: Opening another exam cannot silently replace an unfinished draft
+ok 53 - Opening another exam cannot silently replace an unfinished draft
+  ---
+  duration_ms: 19.98288
+  type: 'test'
+  ...
+# Subtest: International start guard also protects a paused core exam
+ok 54 - International start guard also protects a paused core exam
+  ---
+  duration_ms: 16.737417
+  type: 'test'
+  ...
+# Subtest: Fresh international attempts receive a draft through the normal start path
+ok 55 - Fresh international attempts receive a draft through the normal start path
+  ---
+  duration_ms: 8.461153
+  type: 'test'
+  ...
+# Subtest: Finishing a test prevents later page-hide saves from recreating its draft
+ok 56 - Finishing a test prevents later page-hide saves from recreating its draft
+  ---
+  duration_ms: 4.614955
+  type: 'test'
+  ...
+# Subtest: Save and leave retains responses and prevents background rewriting after return home
+ok 57 - Save and leave retains responses and prevents background rewriting after return home
+  ---
+  duration_ms: 5.268351
+  type: 'test'
+  ...
+# Subtest: Learn and Play give retained learning and older game capabilities a visible entry
+ok 58 - Learn and Play give retained learning and older game capabilities a visible entry
+  ---
+  duration_ms: 6.339996
+  type: 'test'
+  ...
+# Subtest: Child screens, search and filters never mutate learning records or active draft
+ok 59 - Child screens, search and filters never mutate learning records or active draft
+  ---
+  duration_ms: 7.496539
+  type: 'test'
+  ...
+# Subtest: All artwork referenced by the new child screens resolves to an existing local asset
+ok 60 - All artwork referenced by the new child screens resolves to an existing local asset
+  ---
+  duration_ms: 37.881667
+  type: 'test'
+  ...
+# Subtest: Nine illustrated worlds are local WebP assets, all referenced and together below 3.3 MiB
+ok 61 - Nine illustrated worlds are local WebP assets, all referenced and together below 3.3 MiB
+  ---
+  duration_ms: 21.600999
+  type: 'test'
+  ...
+# Subtest: Today points to a real draft and uses the actual exam duration when no draft exists
+ok 62 - Today points to a real draft and uses the actual exam duration when no draft exists
+  ---
+  duration_ms: 6.042768
+  type: 'test'
+  ...
+# Subtest: Focused result review preserves full answers, writing, statuses and counts without changing the attempt
+ok 63 - Focused result review preserves full answers, writing, statuses and counts without changing the attempt
+  ---
+  duration_ms: 6.413226
+  type: 'test'
+  ...
+# Subtest: Result Back to Today uses the child destination and preserves the completed record
+ok 64 - Result Back to Today uses the child destination and preserves the completed record
+  ---
+  duration_ms: 8.35902
+  type: 'test'
+  ...
+# Subtest: Return to child retains parent access and data when the lock request fails
+ok 65 - Return to child retains parent access and data when the lock request fails
+  ---
+  duration_ms: 6.252734
+  type: 'test'
+  ...
+# Subtest: Return to child locks first, clears the capability and reads the reduced session before navigation
+ok 66 - Return to child locks first, clears the capability and reads the reduced session before navigation
+  ---
+  duration_ms: 5.920524
+  type: 'test'
+  ...
+# Subtest: A failed session refresh after locking never opens a child view with stale parent history
+ok 67 - A failed session refresh after locking never opens a child view with stale parent history
+  ---
+  duration_ms: 4.840376
+  type: 'test'
+  ...
+# Subtest: Same-family hydration preserves unsynced records and a genuine newer draft
+ok 68 - Same-family hydration preserves unsynced records and a genuine newer draft
+  ---
+  duration_ms: 9.767762
+  type: 'test'
+  ...
+# Subtest: Hydration never attaches another family's cached work to a matching legacy ID
+ok 69 - Hydration never attaches another family's cached work to a matching legacy ID
+  ---
+  duration_ms: 6.502611
+  type: 'test'
+  ...
+# Subtest: A redacted sibling payload never receives local private history during hydration
+ok 70 - A redacted sibling payload never receives local private history during hydration
+  ---
+  duration_ms: 5.452238
+  type: 'test'
+  ...
+# Subtest: Reload restores cached work only with matching family, database child and profile ownership
+ok 71 - Reload restores cached work only with matching family, database child and profile ownership
+  ---
+  duration_ms: 8.226779
+  type: 'test'
+  ...
+# Subtest: Missing or mismatched cache ownership never attributes device history by a legacy profile ID
+ok 72 - Missing or mismatched cache ownership never attributes device history by a legacy profile ID
+  ---
+  duration_ms: 37.869289
+  type: 'test'
+  ...
+# Subtest: Malformed and JSON-null cache metadata cannot break authorised cloud profile loading
+ok 73 - Malformed and JSON-null cache metadata cannot break authorised cloud profile loading
+  ---
+  duration_ms: 31.947694
+  type: 'test'
+  ...
+# Subtest: Unowned or differently owned device history is archived verbatim before authorised hydration replaces its cache
+ok 74 - Unowned or differently owned device history is archived verbatim before authorised hydration replaces its cache
+  ---
+  duration_ms: 20.403284
+  type: 'test'
+  ...
+# Subtest: Repeated archive candidates differing only in sync metadata or object key order retain one original copy
+ok 75 - Repeated archive candidates differing only in sync metadata or object key order retain one original copy
+  ---
+  duration_ms: 10.698205
+  type: 'test'
+  ...
+# Subtest: Archive comparison preserves changes to answers, drafts, nested or unknown fields and family ownership
+ok 76 - Archive comparison preserves changes to answers, drafts, nested or unknown fields and family ownership
+  ---
+  duration_ms: 28.310581
+  type: 'test'
+  ...
+# Subtest: Malformed archive candidates use exact original bytes for comparison
+ok 77 - Malformed archive candidates use exact original bytes for comparison
+  ---
+  duration_ms: 20.114367
+  type: 'test'
+  ...
+# Subtest: A failed recovery archive keeps the original cache and owner and never opens the replacement child
+ok 78 - A failed recovery archive keeps the original cache and owner and never opens the replacement child
+  ---
+  duration_ms: 8.296475
+  type: 'test'
+  ...
+# Subtest: Reloading an unselected family retires stale active pointers and preserves private cached history before choosing a child
+ok 79 - Reloading an unselected family retires stale active pointers and preserves private cached history before choosing a child
+  ---
+  duration_ms: 12.252958
+  type: 'test'
+  ...
+# Subtest: An unsuccessful cloud save stops parent, child and logout transitions before authentication changes
+ok 80 - An unsuccessful cloud save stops parent, child and logout transitions before authentication changes
+  ---
+  duration_ms: 8.303465
+  type: 'test'
+  ...
+# Subtest: Switch child retires the saved active context so chooser selection, parent access and logout can continue
+ok 81 - Switch child retires the saved active context so chooser selection, parent access and logout can continue
+  ---
+  duration_ms: 31.68967
+  type: 'test'
+  ...
+# Subtest: Parent Chemistry never attributes unmapped demo history to a named child
+ok 82 - Parent Chemistry never attributes unmapped demo history to a named child
+  ---
+  duration_ms: 8.007068
+  type: 'test'
+  ...
+# Subtest: Chemistry course keeps unmapped demo progress separate from a new named child
+ok 83 - Chemistry course keeps unmapped demo progress separate from a new named child
+  ---
+  duration_ms: 11.354139
+  type: 'test'
+  ...
+# Subtest: Chemistry retains already attributed legacy history and merges only the same named child's records
+ok 84 - Chemistry retains already attributed legacy history and merges only the same named child's records
+  ---
+  duration_ms: 7.594186
+  type: 'test'
+  ...
+# Subtest: Physics ignores unmapped demo history while preserving a named child's own results
+ok 85 - Physics ignores unmapped demo history while preserving a named child's own results
+  ---
+  duration_ms: 6.146644
+  type: 'test'
+  ...
+# Subtest: Unmapped science history remains fully reviewable without being assigned or rewritten
+ok 86 - Unmapped science history remains fully reviewable without being assigned or rewritten
+  ---
+  duration_ms: 7.803111
+  type: 'test'
+  ...
+# Subtest: Browser-history navigation during a test uses Save and leave before showing the library
+ok 87 - Browser-history navigation during a test uses Save and leave before showing the library
+  ---
+  duration_ms: 11.014261
+  type: 'test'
+  ...
+1..87
+# tests 87
+# suites 0
+# pass 87
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 899.308698

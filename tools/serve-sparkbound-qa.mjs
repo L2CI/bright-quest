@@ -7,6 +7,7 @@ import { pipeline } from "node:stream/promises";
 import { fileURLToPath } from "node:url";
 import { Miniflare } from "miniflare";
 import { createSession, hashSecret, randomHex, sha256 } from "../functions/_lib/family-auth.js";
+import * as skyforge from "../functions/api/skyforge.js";
 import * as sparkbound from "../functions/api/sparkbound.js";
 import * as beacon from "../functions/api/beacon-brigade.js";
 import * as profiles from "../functions/api/profiles.js";
@@ -26,7 +27,7 @@ import * as passwordResetConfirm from "../functions/api/auth/password-reset-conf
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const HOST = "127.0.0.1";
 const ROUTES = new Map([
-  ["/api/sparkbound", sparkbound], ["/api/beacon-brigade", beacon], ["/api/profiles", profiles], ["/api/events", events],
+  ["/api/skyforge", skyforge], ["/api/sparkbound", sparkbound], ["/api/beacon-brigade", beacon], ["/api/profiles", profiles], ["/api/events", events],
   ["/api/auth/config", authConfig], ["/api/auth/session", authSession], ["/api/auth/login", authLogin],
   ["/api/auth/children", authChildren], ["/api/auth/select-child", selectChild],
   ["/api/auth/parent-unlock", parentUnlock], ["/api/auth/parent-lock", parentLock],

@@ -516,6 +516,7 @@
 
   function handleKidAction(action) {
     if (document.body.classList.contains("bq-child-uplift") && window.BrightQuestChildExperience?.handleAction(action)) return;
+    if (action === "skyforge") { window.location.href = "/skyforge/"; return; }
     if (action === "sparkbound") {
       const url = new URL("/sparkbound/", window.location.href);
       if (state.profile?.id) url.searchParams.set("profileId", state.profile.id);
@@ -1009,7 +1010,7 @@
     if (["overview", "learning", "evidence", "settings"].includes(route)) return route;
     const origin = new URLSearchParams(window.location.hash.split("?")[1] || "").get("from");
     if (["learning", "evidence"].includes(origin)) return origin;
-    return ["exam-results", "focus", "writing", "records", "icas", "beacon-brigade", "sparkbound"].includes(route) ? "evidence" : "learning";
+    return ["exam-results", "focus", "writing", "records", "icas", "beacon-brigade", "sparkbound", "skyforge"].includes(route) ? "evidence" : "learning";
   }
 
   function renderParentRoute(profile) {
@@ -1059,6 +1060,7 @@
       physics: () => renderPhysicsPage(metrics),
       "beacon-brigade": () => renderBeaconPage(metrics),
       sparkbound: () => renderSparkboundPage(metrics),
+      skyforge: () => parentPageShell("skyforge", `<section class="bq-chemistry-review-panel"><h2>Skyforge training</h2><p>Paper multiplication answers, corrections and hint use. Photos are available on the device that captured them.</p><a class="button button-primary" href="/skyforge/?childId=${encodeURIComponent(metrics.profile.id)}">Review power codes</a></section>`),
       icas: () => renderIcasPage(metrics),
       "winter-2026": () => renderWinterPage(metrics),
       records: () => renderRecordsPage(metrics)
@@ -1138,6 +1140,7 @@
         ${parentHubRow("exam-results", "Attempts and answers", "Filter and open the full original work", `${metrics.questionStats.length} question records`, "clipboard")}
         ${parentHubRow("icas", "ICAS answer evidence", "Wrong answers first in a popup", `${metrics.icasQuestions.length} question records`, "clipboard")}
         ${parentHubRow("beacon-brigade", "Beacon Brigade evidence", "Expeditions and original answers", "Corrections and support used", "chart")}
+        ${parentHubRow("skyforge", "Skyforge evidence", "Paper multiplication and tactical expeditions", "Original answers, corrections and hint use", "chart")}
         ${parentHubRow("sparkbound", "Sparkbound evidence", "Wrong answers first", "Original answers, hints and worked support", "chart")}
         ${parentHubRow("writing", "Writing evidence", "Saved responses and writing signals", `${metrics.writing.length} samples`, "writing")}
         ${parentHubRow("records", "All records", "Complete audit view", "Profiles, attempts, questions and training", "database")}
@@ -2330,6 +2333,7 @@
       chemistry: ["Bright Quest module", "Chemistry 101 Winter 2026", "Video chapter progress and chapter-test results."],
       physics: ["Bright Quest module", "Physics 101: Advanced Grade 4", "Six animated force chapters, Cockpit Checks and saved evidence reasoning."],
       "beacon-brigade": ["Bright Quest module", "Beacon Brigade", "Five subject expeditions"],
+      skyforge: ["Bright Quest module", "Skyforge", "Written multiplication and tactical expeditions"],
       sparkbound: ["Bright Quest module", "Sparkbound", "Original training answers and support used"],
       icas: ["Bright Quest module", "ICAS Challenge Lab", "Grade 3 maths and spelling attempts with wrong-answer-first evidence."],
       "winter-2026": ["Linked module", "Winter 2026 Training 1", "Open AGMaths without moving its data."],

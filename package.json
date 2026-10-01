@@ -15,7 +15,9 @@
     "cf:d1:create": "wrangler d1 create bright-quest-db",
     "cf:d1:migrate:local": "wrangler d1 migrations apply bright-quest-db --local",
     "cf:d1:migrate:remote": "wrangler d1 migrations apply bright-quest-db --remote",
-    "cf:deploy": "wrangler pages deploy . --project-name bright-quest"
+    "cf:deploy": "wrangler pages deploy . --project-name bright-quest",
+    "test:skyforge": "node --test tools/test-skyforge-domain.mjs && node tools/test-skyforge-api.mjs",
+    "qa:skyforge": "node tools/qa-skyforge.mjs"
   },
   "devDependencies": {
     "esbuild": "0.27.3",

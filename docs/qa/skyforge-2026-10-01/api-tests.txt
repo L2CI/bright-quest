@@ -1,0 +1,1 @@
+Skyforge API QA passed: 81 assertions; ephemeral two-family D1, real SQL replay/concurrency, reserved namespace, auth/child isolation, five session races, rollback and preservation.
