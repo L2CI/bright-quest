@@ -29,6 +29,8 @@ try {
     });
     for(const fragment of ['', '#parent/evidence']) {
       await page.goto(origin+'/'+fragment);
+      await page.waitForFunction(()=>!document.body.classList.contains('bq-app-opening')&&window.BrightQuestFamilyAuth?.enabled);
+      await page.waitForLoadState('networkidle');
       await page.locator('#familyLoginEmail').waitFor({state:'visible'});
       assert(await page.locator('#familyLoginPassword').isVisible());
       assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
@@ -41,6 +43,7 @@ try {
     findings.checks.push(`${device}: Skyforge requires sign-in`);
     await page.screenshot({path:fileURLToPath(new URL(`live-${device}-skyforge-gate.png`,out)),fullPage:true});
     await page.getByRole('link',{name:'Open Bright Quest'}).click();
+    await page.waitForFunction(()=>!document.body.classList.contains('bq-app-opening')&&window.BrightQuestFamilyAuth?.enabled);
     await page.locator('#familyLoginEmail').waitFor({state:'visible'});
     findings.checks.push(`${device}: Skyforge returns to family sign-in`);
     await context.close();
