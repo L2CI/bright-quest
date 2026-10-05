@@ -102,6 +102,13 @@
     const current = await api("/api/auth/session", { silent: true });
     if (current?.authenticated) {
       session = current;
+      if (window.location.hash === "#parent/evidence") {
+        // The session endpoint validates the tab's parent capability and expiry.
+        // Returning from a review must not implicitly switch back to the child.
+        if (session.parentUnlocked) return returnToParent("evidence");
+        if (!hydrateProfiles()) return false;
+        return openParent({ skipSave: true });
+      }
       await continueFromSession();
     } else {
       showGateway();
@@ -502,16 +509,16 @@
     }
   }
 
-  function returnToParent() {
+  function returnToParent(destination = "overview") {
     if (!hydrateProfiles()) return false;
     state.selectedRole = "parent";
     state.parentProfileId = state.parentProfileId && state.profiles[state.parentProfileId]
       ? state.parentProfileId
       : Object.keys(state.profiles)[0] || "";
+    window.location.hash = destination === "evidence" ? "parent/evidence" : "parent/overview";
     renderParentDashboard();
     authScreen.classList.add("hidden");
     showScreen("parent");
-    window.location.hash = "parent/overview";
     window.scrollTo({ top: 0, behavior: "auto" });
   }
 
@@ -927,7 +934,7 @@
     sessionStorage.setItem(parentCapabilityKey, result.parentCapability);
     session = await api("/api/auth/session");
     if (!session?.authenticated) return;
-    returnToParent();
+    returnToParent(window.location.hash === "#parent/evidence" ? "evidence" : "overview");
   }
 
   async function logout() {

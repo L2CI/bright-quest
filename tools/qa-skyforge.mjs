@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 import {mkdir,writeFile} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
 import {startSparkboundQa} from './serve-sparkbound-qa.mjs';
 const require=createRequire(import.meta.url),{chromium}=require(`${process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES}/playwright`);
-const out=new URL('../outputs/skyforge/',import.meta.url).pathname;await mkdir(out,{recursive:true});
+const out=fileURLToPath(new URL('../outputs/skyforge/',import.meta.url));await mkdir(out,{recursive:true});
 const harness=await startSparkboundQa({port:0});const browser=await chromium.launch({executablePath:process.env.BQ_CHROMIUM_PATH||undefined,headless:true,args:['--no-sandbox','--mute-audio','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});let checks=0;const errors=[];let latest;
 const context=await browser.newContext({viewport:{width:1440,height:900}});await context.addCookies([harness.fixture.cookie]);await context.addInitScript(({cap,parent})=>{sessionStorage.setItem('brightQuestChildCapability',cap);sessionStorage.setItem('brightQuestParentCapability',parent);localStorage.setItem('bqSkyforgeSettingsV1',JSON.stringify({sound:false,music:false,reduced:true}));},{cap:harness.fixture.childCapability,parent:harness.fixture.parentCapability});
 const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
@@ -35,7 +36,13 @@ try{
  });
  await page.reload();await page.getByRole('button',{name:'Start a new expedition'}).waitFor();check((await current()).victories.length===12,'full campaign complete');await snap('09-phone-finale');await page.setViewportSize({width:1440,height:900});await page.waitForTimeout(350);await snap('10-desktop-finale');
  await page.goto(harness.origin+'/skyforge/?childId='+harness.fixture.legacyId);await page.getByText('Your power-code journal.',{exact:true}).waitFor();check(await page.locator('.journal-item').count()===37,'parent sees all original and corrected answers');
+ check((await page.locator('.exit').getAttribute('href'))==='../#parent/evidence','parent header returns to Evidence');
+ await page.getByRole('link',{name:'Return to parent dashboard'}).click();await page.waitForURL('**/#parent/evidence');await page.getByText('Skyforge evidence',{exact:true}).waitFor();check(true,'parent review returns to the Evidence page');
+ await page.getByText('Skyforge evidence',{exact:true}).click();await page.getByRole('link',{name:'Review power codes'}).click();await page.getByText('Your power-code journal.',{exact:true}).waitFor();check(await page.locator('.journal-item').count()===37,'parent portal reopens complete Skyforge evidence');
  await page.goto(harness.origin+'/#child/play');await page.getByText('Skyforge: Titan Command',{exact:true}).waitFor();check(true,'portal Play entry reachable');await snap('11-portal-play');
+ await page.getByText('Skyforge: Titan Command',{exact:true}).click();await page.getByRole('button',{name:'Start a new expedition'}).waitFor();check((await current()).victories.length===12,'portal launches the saved campaign');
+ await page.locator('#helpButton').click();await page.getByRole('heading',{name:'Think. Forge. Command.'}).waitFor();await page.locator('.dialog-close').click();check(!(await page.locator('#dialog').isVisible()),'help opens and closes');
+ await page.getByRole('link',{name:'Return to Bright Quest'}).click();await page.waitForURL('**/#child/play');await page.getByText('Skyforge: Titan Command',{exact:true}).waitFor();check(true,'child returns to Play');
  // The deliberate offline POST emits a network console error; no unexpected runtime failures allowed.
  const unexpected=errors.filter(e=>!e.includes('ERR_INTERNET_DISCONNECTED')&&!e.includes('net::ERR_FAILED'));
  check(unexpected.length===0,`no unexpected browser errors: ${unexpected.join('; ')}`);

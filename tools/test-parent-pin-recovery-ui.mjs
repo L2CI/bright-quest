@@ -136,6 +136,34 @@ test("An emailed token is cleared from the fragment immediately and never stored
   f.assertLearnerStorage();
 });
 
+for (const parentUnlocked of [true, false]) {
+  test(`Returning to Evidence ${parentUnlocked ? "resumes server-verified parent access" : "requires PIN despite a cached capability"}`, async () => {
+    const f = await fixture({ fragment: "#parent/evidence", startupSession: {
+      authenticated: true, family: { id: "synthetic-family" }, parentUnlocked, activeChildId: "database-child",
+      children: [{ id: "database-child", legacyProfileId: fixtureProfile.id, name: "Explorer", version: 7, payload: structuredClone(fixtureProfile) }]
+    } });
+    assert.equal(f.renders.length, 0, "Never render the child dashboard on a parent return");
+    assert.equal(f.calls.filter(call => call.method !== "GET").length, 0, "Returning does not grant or revoke authority");
+    if (parentUnlocked) {
+      assert.equal(f.context.location.hash, "parent/evidence");
+      assert.equal(f.state.selectedRole, "parent");
+      assert.equal(f.node("#familyAuthScreen").classList.contains("hidden"), true);
+    } else {
+      assert.equal(f.context.location.hash, "#parent/evidence");
+      assert.equal(f.startupView.authView, "parent");
+      assert.match(f.next.innerHTML, /Enter the parent PIN/);
+    }
+  });
+}
+
+test("An unauthenticated Evidence return still requires family sign-in", async () => {
+  const f = await fixture({ fragment: "#parent/evidence", startupSession: { authenticated: false } });
+  assert.equal(f.startupView.authView, "gateway");
+  assert.equal(f.capabilities.has("brightQuestParentCapability"), false);
+  assert.equal(f.renders.length, 0);
+  f.assertLearnerStorage();
+});
+
 test("Malformed recovery fragments are removed without allowing a confirmation request", async () => {
   const f = await fixture({ fragment: "#parent-pin-reset=malformed" });
   assert.equal(f.immediateFragment, "");
