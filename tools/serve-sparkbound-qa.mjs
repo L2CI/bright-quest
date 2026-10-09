@@ -8,6 +8,8 @@ import { fileURLToPath } from "node:url";
 import { Miniflare } from "miniflare";
 import { createSession, hashSecret, randomHex, sha256 } from "../functions/_lib/family-auth.js";
 import * as skyforge from "../functions/api/skyforge.js";
+import * as dragonGrove from "../functions/api/dragon-grove.js";
+import { onRequest as guardPrivateAssets } from "../functions/_middleware.js";
 import * as sparkbound from "../functions/api/sparkbound.js";
 import * as beacon from "../functions/api/beacon-brigade.js";
 import * as profiles from "../functions/api/profiles.js";
@@ -27,6 +29,7 @@ import * as passwordResetConfirm from "../functions/api/auth/password-reset-conf
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const HOST = "127.0.0.1";
 const ROUTES = new Map([
+  ["/api/dragon-grove", dragonGrove],
   ["/api/skyforge", skyforge], ["/api/sparkbound", sparkbound], ["/api/beacon-brigade", beacon], ["/api/profiles", profiles], ["/api/events", events],
   ["/api/auth/config", authConfig], ["/api/auth/session", authSession], ["/api/auth/login", authLogin],
   ["/api/auth/children", authChildren], ["/api/auth/select-child", selectChild],
@@ -35,6 +38,7 @@ const ROUTES = new Map([
   ["/api/auth/password-reset-request", passwordResetRequest], ["/api/auth/password-reset-confirm", passwordResetConfirm]
 ]);
 const MIME = new Map(Object.entries({
+  ".md": "text/markdown; charset=utf-8", ".txt": "text/plain; charset=utf-8",
   ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".mjs": "text/javascript; charset=utf-8",
   ".css": "text/css; charset=utf-8", ".json": "application/json", ".webmanifest": "application/manifest+json",
   ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".avif": "image/avif",
@@ -111,6 +115,14 @@ export async function startSparkboundQa({ port = 4194 } = {}) {
           outgoing.writeHead(200, { "content-type": "text/html; charset=utf-8",
             "set-cookie": `bq_session=${fixture.cookie.value}; Path=/; HttpOnly; SameSite=Lax` });
           outgoing.end(`<!doctype html><title>Local Sparkbound preview</title><script>sessionStorage.setItem('brightQuestChildCapability',${JSON.stringify(fixture.childCapability)});localStorage.setItem('bqSparkSettings',JSON.stringify({sound:false,volume:.55,reduced:false}));location.replace('/sparkbound/?preview=1');</script>`);
+          return;
+        }
+        // Token-protected local fixture endpoints above remain available only in this
+        // ephemeral harness. All app/API/static paths use the production source guard.
+        const guarded = await guardPrivateAssets({ request: new Request(url, { method: incoming.method }), next: () => null });
+        if (guarded) {
+          outgoing.writeHead(guarded.status, Object.fromEntries(guarded.headers));
+          outgoing.end(incoming.method === "HEAD" ? undefined : await guarded.text());
           return;
         }
         if (url.pathname.startsWith("/api/")) {

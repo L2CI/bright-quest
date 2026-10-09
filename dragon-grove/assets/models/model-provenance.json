@@ -1,0 +1,68 @@
+{
+  "name": "European Dragon",
+  "author": "Regina Cachoa",
+  "originalPackagedAuthor": "Nonexistent 101",
+  "source": "https://sketchfab.com/3d-models/european-dragon-82f393a2e6c048ad80c171ce3b3a7b87",
+  "downloadMirror": "https://huggingface.co/datasets/fernandotonon/QtMeshEditor-motion-corpus/tree/main/raw/sketchfab/European_Dragon_82f393a2",
+  "license": "CC-BY-4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "verifiedOn": "2026-10-09",
+  "modifications": "Original geometry, skeleton and animation samples preserved. Body colour and normal maps resized to 2K; packed roughness to 1K; eye and teeth maps to 512; colour maps encoded JPEG. Original glTF bundled to GLB and gzip. Runtime adds growth proportions, elemental material appearance, lighting and ability animation.",
+  "bytes": 10234980,
+  "gzipBytes": 6382057,
+  "sha256": "740711f997b75c93c1146d24e9b5002d8590daf83c0f525fad5b6cb11b78500c",
+  "gzipSha256": "73a247978a9b1127d6651392587b9e2f0548b5077649173d7d4be41bf35158de",
+  "clips": [
+    "Fly",
+    "Walk",
+    "Run",
+    "Idle Stand",
+    "Idle Sit"
+  ],
+  "joints": 169,
+  "meshes": 5,
+  "textures": [
+    {
+      "source": "textures/Low_Poly_Bake_baseColor.png",
+      "width": 2048,
+      "height": 2048,
+      "format": "JPEG",
+      "bytes": 403315
+    },
+    {
+      "source": "textures/Low_Poly_Bake_metallicRoughness.png",
+      "width": 1024,
+      "height": 1024,
+      "format": "PNG",
+      "bytes": 468271
+    },
+    {
+      "source": "textures/Low_Poly_Bake_normal.png",
+      "width": 2048,
+      "height": 2048,
+      "format": "PNG",
+      "bytes": 3022150
+    },
+    {
+      "source": "textures/Material.002_baseColor.png",
+      "width": 512,
+      "height": 512,
+      "format": "JPEG",
+      "bytes": 52969
+    },
+    {
+      "source": "textures/Material.003_baseColor.png",
+      "width": 512,
+      "height": 512,
+      "format": "JPEG",
+      "bytes": 49721
+    },
+    {
+      "source": "textures/Material.001_baseColor.png",
+      "width": 512,
+      "height": 512,
+      "format": "JPEG",
+      "bytes": 20682
+    }
+  ]
+}

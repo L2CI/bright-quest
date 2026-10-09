@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en-AU">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#142923"><title>Dragon Grove: Emberwild · Bright Quest</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ctext y='32' font-size='32'%3E🐉%3C/text%3E%3C/svg%3E"><link rel="stylesheet" href="grove.css?v=20261009"><script type="module" src="game.js?v=20261009"></script></head>
+<body>
+<a class="skip-link" href="#app">Skip to your adventure</a>
+<header class="topbar"><a class="exit" href="../#child/play" aria-label="Return to Bright Quest">‹ <span>Bright Quest</span></a><a class="wordmark" href="./">DRAGON GROVE <span>EMBERWILD</span></a><nav aria-label="Game tools"><button id="journalButton">Journal</button><button id="galleryButton">Growth</button><button id="soundButton" aria-pressed="false">Effects off</button><button id="settingsButton" aria-label="Sound and motion settings">Settings</button><button id="helpButton" aria-label="How to play">?</button></nav></header>
+<div class="game-layout">
+<section class="world-pane" aria-label="Your dragon in Emberwild"><canvas id="world" aria-label="Animated dragon in the woodland sanctuary"></canvas><div class="world-top"><p class="eyebrow">A BRIGHT QUEST ADVENTURE</p><h1 id="dragonName">A little spark.<br>A great adventure.</h1><p id="dragonDescription">Meet your dragon in the heart of Emberwild.</p></div><div id="worldLoading" class="world-loading" role="status">Opening the grove…</div><div id="worldNotice" class="world-notice" role="status" hidden></div><div class="dragon-summary" id="dragonSummary" hidden></div><button id="returnGrowth" class="return-growth" hidden>Return to your dragon</button><div id="chapterMap" class="chapter-map" aria-label="Ten growth chapters"></div></section>
+<main id="app" tabindex="-1"><section class="panel loading"><p class="eyebrow">WELCOME TO EMBERWILD</p><h2>Your dragon is waiting.</h2><p>Opening your saved adventure…</p></section></main>
+</div>
+<footer class="statusbar"><span id="saveStatus" role="status">Connecting to Bright Quest</span><button id="creditsButton">Art & music credits</button></footer>
+<div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+<dialog id="dialog" aria-labelledby="dialogTitle"><button class="dialog-close" aria-label="Close dialog">×</button><div id="dialogBody"></div></dialog>
+<noscript><p class="panel">Enable JavaScript to explore Dragon Grove.</p></noscript>
+</body></html>

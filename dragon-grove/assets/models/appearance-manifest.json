@@ -1,0 +1,181 @@
+{
+  "version": 1,
+  "created": "2026-10-09",
+  "title": "Dragon Grove: Emberwild — dragon appearance",
+  "source": {
+    "title": "European Dragon",
+    "author": "Regina Cachoa",
+    "packagedAlias": "Nonexistent 101",
+    "url": "https://sketchfab.com/3d-models/european-dragon-82f393a2e6c048ad80c171ce3b3a7b87",
+    "licence": "CC BY 4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "details": "model-provenance.json"
+  },
+  "modifications": [
+    "2K body colour/normal textures, 1K roughness and 512px eye/teeth maps, embedded in GLB; original mesh, skeleton and animation clips preserved.",
+    "Eleven body states: an initial newborn and ten earned evolutions. Stage-specific head, neck, wing, chest, limb and tail proportions are applied after the animation sampler.",
+    "A shared-topology juvenile crown morph shortens the existing head horns; larger eye/lid bone proportions fade as the dragon matures.",
+    "Independent Fire, Storm, Nature and Astral skin masks, with additional inherited chest, wing and tail proportions.",
+    "Three-quarter camera, soft contact shadow, image-based forest scene, warm key and cool rim lighting."
+  ],
+  "stages": [
+    {
+      "stage": 0,
+      "name": "Newborn",
+      "stature": 0.37,
+      "head": 1.68,
+      "wing": 0.36,
+      "neck": 0.92,
+      "chest": 1.19,
+      "limb": 0.79,
+      "tail": 0.925
+    },
+    {
+      "stage": 1,
+      "name": "Hatchling",
+      "stature": 0.46,
+      "head": 1.52,
+      "wing": 0.48,
+      "neck": 0.94,
+      "chest": 1.14,
+      "limb": 0.84,
+      "tail": 0.94
+    },
+    {
+      "stage": 2,
+      "name": "Nest explorer",
+      "stature": 0.55,
+      "head": 1.43,
+      "wing": 0.55,
+      "neck": 0.955,
+      "chest": 1.12,
+      "limb": 0.87,
+      "tail": 0.95
+    },
+    {
+      "stage": 3,
+      "name": "Young drake",
+      "stature": 0.65,
+      "head": 1.34,
+      "wing": 0.64,
+      "neck": 0.965,
+      "chest": 1.09,
+      "limb": 0.9,
+      "tail": 0.96
+    },
+    {
+      "stage": 4,
+      "name": "Glider",
+      "stature": 0.77,
+      "head": 1.26,
+      "wing": 0.74,
+      "neck": 0.975,
+      "chest": 1.06,
+      "limb": 0.93,
+      "tail": 0.975
+    },
+    {
+      "stage": 5,
+      "name": "Adolescent",
+      "stature": 0.9,
+      "head": 1.18,
+      "wing": 0.85,
+      "neck": 0.985,
+      "chest": 1.03,
+      "limb": 0.97,
+      "tail": 0.99
+    },
+    {
+      "stage": 6,
+      "name": "Sky guardian",
+      "stature": 1.03,
+      "head": 1.11,
+      "wing": 0.94,
+      "neck": 0.995,
+      "chest": 1.03,
+      "limb": 1,
+      "tail": 1
+    },
+    {
+      "stage": 7,
+      "name": "Elder aspirant",
+      "stature": 1.16,
+      "head": 1.065,
+      "wing": 1.01,
+      "neck": 1,
+      "chest": 1.065,
+      "limb": 1.015,
+      "tail": 1.005
+    },
+    {
+      "stage": 8,
+      "name": "Great guardian",
+      "stature": 1.31,
+      "head": 1.035,
+      "wing": 1.055,
+      "neck": 1.005,
+      "chest": 1.105,
+      "limb": 1.025,
+      "tail": 1.01
+    },
+    {
+      "stage": 9,
+      "name": "Ancient guardian",
+      "stature": 1.46,
+      "head": 1.02,
+      "wing": 1.09,
+      "neck": 1.01,
+      "chest": 1.145,
+      "limb": 1.035,
+      "tail": 1.015
+    },
+    {
+      "stage": 10,
+      "name": "Emberwild sovereign",
+      "stature": 1.62,
+      "head": 1.01,
+      "wing": 1.125,
+      "neck": 1.015,
+      "chest": 1.19,
+      "limb": 1.045,
+      "tail": 1.02
+    }
+  ],
+  "inheritance": {
+    "fire": "Warm crest markings and broader chest.",
+    "storm": "Cool wing membrane markings and longer wings.",
+    "nature": "Forest scale markings and a longer tail.",
+    "astral": "Violet wing and crest markings, and broader wing proportions.",
+    "combination": "All four channels accumulate independently; none replaces another."
+  },
+  "animation": {
+    "authoredClips": [
+      "Fly",
+      "Walk",
+      "Run",
+      "Idle Stand",
+      "Idle Sit"
+    ],
+    "runtime": "Source Idle Stand is sampled by a 169-joint skeleton. Breath adds an animated jaw/head overlay. Growth proportions are reapplied after animation sampling.",
+    "limits": "The source does not include a bespoke fire-breath animation. The runtime supplements it with a jaw/head pose and mouth-attached effects."
+  },
+  "generatedTextures": [
+    {
+      "path": "textures/dragon-fire.webp",
+      "bytes": 67892,
+      "sha256": "028bc710cb0e8c4fadcb1ce19a7bbd134077f8e0933b73a079f8fd8da121d013",
+      "creator": "Original asset created for Bright Quest with OpenAI image generation",
+      "created": "2026-10-09",
+      "transparent": true,
+      "prompt": "A realistic dragon fire-breath VFX plume on transparent background, left narrow nozzle expanding right into turbulent orange/amber flames, pale yellow core, wispy irregular tongues and translucent smoke edges. Entire plume visible with clear padding; no scenery, text, border or black background."
+    }
+  ],
+  "runtimeBudget": {
+    "compressedModelBytes": 6382057,
+    "uncompressedModelBytes": 10234980,
+    "modelTriangles": 42338,
+    "maxDevicePixelRatio": 1.5,
+    "maxFramesPerSecond": 30,
+    "shadowResolution": 1024
+  }
+}

@@ -180,6 +180,9 @@ verify("Protected content and contracts match baseline with the documented confi
       const guard = '    if (eventType.toLowerCase().startsWith("skyforge.") || eventId.toLowerCase().startsWith("skyforge:")) return json({ error: "Reserved game event namespace" }, 403);\n';
       assert.equal(content.split(guard).length, 2, "Exactly one reviewed Skyforge namespace guard");
       content = content.replace(guard, "");
+      const dragonGuard = '    if (eventType.toLowerCase().startsWith("dragon-grove.") || eventId.toLowerCase().startsWith("dragon-grove:")) return json({ error: "Reserved game event namespace" }, 403);\n';
+      assert.equal(content.split(dragonGuard).length, 2, "Exactly one reviewed Dragon Grove namespace guard");
+      content = content.replace(dragonGuard, "");
     }
     const amendment = baseline.authorisedAmendments?.[path];
     if (amendment) assert.equal(path, "functions/api/auth/config.js", "Only the reviewed config availability flags are exempt from the original baseline");

@@ -17,7 +17,12 @@
     "cf:d1:migrate:remote": "wrangler d1 migrations apply bright-quest-db --remote",
     "cf:deploy": "wrangler pages deploy . --project-name bright-quest",
     "test:skyforge": "node --test tools/test-skyforge-domain.mjs && node tools/test-skyforge-api.mjs",
-    "qa:skyforge": "node tools/qa-skyforge.mjs"
+    "qa:skyforge": "node tools/qa-skyforge.mjs",
+    "test:dragon-grove": "node --test tools/test-dragon-grove-content.mjs tools/test-dragon-grove-domain.mjs && node tools/test-dragon-grove-api.mjs",
+    "qa:dragon-grove": "node tools/qa-dragon-grove.mjs",
+    "qa:dragon-graphics": "node tools/qa-dragon-renderer.mjs",
+    "qa:dragon-audio": "node tools/qa-dragon-audio.mjs",
+    "test:private-routes": "node tools/test-pages-private-routes.mjs"
   },
   "devDependencies": {
     "esbuild": "0.27.3",
