@@ -27,7 +27,7 @@ try{
  for(const stage of Array.from({length:11},(_,i)=>i)){
   await page.evaluate(s=>world.setGrowth({stage:s,paths:{fire:Math.floor((s+3)/4),storm:Math.floor((s+2)/4),nature:Math.floor((s+1)/4),astral:Math.floor(s/4)}}),stage);await page.waitForTimeout(150);
   const file=`stage-${stage}.png`;await page.screenshot({path:resolve(out,file)});snapshots.push(file);
-  const check=await page.evaluate(()=>({...world.diagnostics(),crown:world.juvenileMesh.morphTargetInfluences[0]}));assert.equal(check.stage,stage);assert.ok(check.bounds.min.every(Number.isFinite));assert.ok(check.bounds.max.every(Number.isFinite));assert.equal(Object.values(check.paths).reduce((a,b)=>a+b),stage);stages.push(check);
+  const check=await page.evaluate(()=>{const b=world.currentBounds,ys=[];for(const x of [b.min.x,b.max.x])for(const y of [b.min.y,b.max.y])for(const z of [b.min.z,b.max.z])ys.push(b.min.clone().set(x,y,z).project(world.camera).y);return {...world.diagnostics(),crown:world.juvenileMesh.morphTargetInfluences[0],projectedY:[Math.min(...ys),Math.max(...ys)]};});assert.equal(check.stage,stage);assert.ok(check.bounds.min.every(Number.isFinite));assert.ok(check.bounds.max.every(Number.isFinite));assert.equal(Object.values(check.paths).reduce((a,b)=>a+b),stage);assert.ok(check.projectedY[0]>-.98&&check.projectedY[1]<.98,`Stage ${stage} stays in frame`);stages.push(check);
  }
  assert.ok(stages[10].stature>stages[0].stature*4);assert.equal(stages[0].crown,1);assert.equal(stages[10].crown,0);
  await page.setViewportSize({width:1000,height:625});
@@ -42,6 +42,12 @@ try{
  }
  await page.setViewportSize({width:390,height:380});await page.waitForTimeout(150);await page.screenshot({path:resolve(out,'phone-stage-10.png')});
  await page.evaluate(()=>world.setGrowth({stage:0,paths:{}}));await page.waitForTimeout(150);await page.screenshot({path:resolve(out,'phone-stage-0.png')});
+ // Match the actual phone scene: 500px backdrop with an inset 290px canvas.
+ await page.setViewportSize({width:390,height:500});
+ await page.evaluate(()=>{document.querySelector('.label').hidden=true;document.querySelector('.scene').style.backgroundPosition='35% 58%';Object.assign(world.canvas.style,{position:'absolute',top:'80px',height:'290px'});world.resize();});
+ for(const stage of [0,1,2,3,4,10]){await page.evaluate(s=>world.setGrowth({stage:s,paths:{}}),stage);await page.waitForTimeout(150);await page.screenshot({path:resolve(out,`phone-grounding-stage-${stage}.png`)});}
+ await page.evaluate(()=>{Object.assign(world.canvas.style,{position:'',top:'',height:''});document.querySelector('.scene').style.backgroundPosition='';document.querySelector('.label').hidden=false;world.resize();});
+ await page.setViewportSize({width:390,height:380});
  await page.evaluate(()=>world.setGrowth({stage:10,paths:{fire:3,storm:3,nature:2,astral:2}}));
  result=await page.evaluate(()=>({diagnostics:world.diagnostics(),boneNames:[...world.bones.keys()].slice(0,28),mouth:world._mouth().position.toArray(),camera:world.camera.position.toArray(),size:world.baseSpan.toArray()}));
  result.probe=await page.evaluate(async()=>{
@@ -60,5 +66,22 @@ try{
  result.resources=await page.evaluate(()=>performance.getEntriesByType('resource').map(r=>({url:new URL(r.name).pathname,encodedBytes:r.encodedBodySize,decodedBytes:r.decodedBodySize})));
  result.reducedPower=await page.evaluate(async()=>{world.setReducedMotion(true);return await world.playPower('astral');});assert.equal(result.reducedPower,true);
  result.disposed=await page.evaluate(()=>{world.dispose();return world.disposed&&!world.ready;});assert.equal(result.disposed,true);
+ // Use the production HTML and CSS with renderer-only fictional state. This
+ // verifies title/HUD clearance without connecting to or writing learner APIs.
+ await page.route('**/dragon-grove/game.js*',route=>route.fulfill({contentType:'text/javascript',body:`import {DragonWorld} from '/dragon-grove/world.js';window.world=new DragonWorld({canvas:document.querySelector('#world'),reducedMotion:true});await world.init();document.querySelector('#worldLoading').hidden=true;document.querySelector('#dragonName').textContent='Willow';document.querySelector('#app').innerHTML='<section class="panel"><p class="eyebrow">CHAPTER 1 · LIVING THINGS</p><h2>A world to discover.<br>A dragon to grow.</h2><p>Explore Emberwild with your dragon.</p></section>';document.querySelector('#chapterMap').innerHTML=Array.from({length:10},(_,i)=>'<span>'+String(i+1).padStart(2,'0')+'</span>').join('');window.worldReady=true;`}));
+ await page.setViewportSize({width:1440,height:900});await page.goto(origin+'/dragon-grove/index.html');await page.waitForFunction(()=>window.worldReady);
+ result.hudClearance=[];
+ for(const [device,width,height]of [['desktop',1440,900],['phone',390,844]]){
+  await page.setViewportSize({width,height});
+  for(const stage of [0,1,2,3,4,10]){
+   await page.evaluate(s=>{world.setGrowth({stage:s,paths:s===10?{fire:3,storm:3,nature:2,astral:2}:{}});document.querySelector('#dragonDescription').textContent=s?'Guardian of Emberwild · The dawn of the guardian':'Newborn · A spark in the hollow';const summary=document.querySelector('#dragonSummary');summary.hidden=false;summary.innerHTML='<div><strong>'+s+' / 10</strong><small>Growth stages</small></div><div><strong>'+(s===10?'6.45':'0.35')+' m</strong><small>Stature</small></div><div><strong>'+(s===10?'180':'10')+'</strong><small>Strength</small></div>'+(s===10?'<div class="path-chips"><span class="path-chip">Fire 3</span><span class="path-chip">Storm 3</span><span class="path-chip">Nature 2</span><span class="path-chip">Astral 2</span></div>':'');},stage);
+   await page.waitForTimeout(150);
+   const clearance=await page.evaluate(()=>{const canvas=world.canvas.getBoundingClientRect(),hud=document.querySelector('#dragonSummary').getBoundingClientRect(),chapter=document.querySelector('#chapterMap').getBoundingClientRect(),texts=[...document.querySelectorAll('#dragonSummary strong,#dragonSummary small,#dragonSummary .path-chip')].map(e=>e.getBoundingClientRect());let lowest=-Infinity,textOverlapVertices=0;world.model.traverse(mesh=>{if(!mesh.isMesh)return;for(let i=0;i<mesh.geometry.attributes.position.count;i++){const p=mesh.getVertexPosition(i,world.look.clone()).applyMatrix4(mesh.matrixWorld).project(world.camera),x=canvas.left+(p.x+1)*canvas.width/2,y=canvas.top+(1-p.y)*canvas.height/2;lowest=Math.max(lowest,y);if(texts.some(r=>x>r.left-3&&x<r.right+3&&y>r.top-3&&y<r.bottom+3))textOverlapVertices++;}});return {stage:world.stage,canvas:{top:canvas.top,height:canvas.height},dragonBottom:lowest,hudTop:hud.top,gap:hud.top-lowest,chapterGap:chapter.top-lowest,textOverlapVertices};});
+   result.hudClearance.push({device,...clearance});
+   if([0,10].includes(stage))await page.screenshot({path:resolve(out,`game-${device}-grounding-stage-${stage}.png`),fullPage:true});
+  }
+ }
+ for(const c of result.hudClearance){assert.equal(c.textOverlapVertices,0,`${c.device} stage ${c.stage} clears HUD text`);assert.ok(c.chapterGap>8,`${c.device} stage ${c.stage} clears the chapter map`);}
+ await page.evaluate(()=>world.dispose());
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve));await writeFile(resolve(out,'report.json'),JSON.stringify({errors,snapshots,stages,result},null,2));}
 console.log(JSON.stringify({errors,snapshots,stages:stages.length,renderer:result?.diagnostics.renderer,resources:result?.resources},null,2));if(errors.length)process.exitCode=1;

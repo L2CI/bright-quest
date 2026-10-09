@@ -278,6 +278,12 @@ export class DragonWorld {
       let overflow=0;for(const x of [this.currentBounds.min.x,this.currentBounds.max.x])for(const y of [this.currentBounds.min.y,this.currentBounds.max.y])for(const z of [this.currentBounds.min.z,this.currentBounds.max.z]){const p=V(x,y,z).project(this.camera);overflow=Math.max(overflow,Math.abs(p.x)/.86,Math.abs(p.y)/.83);}
       if(overflow<=1)break;distance*=1.08;
     }
+    // Small dragons must stand on the same photographed foreground as adults.
+    // A projection shift preserves their physical scale and the shadow contact;
+    // it fades out before the mature stages, whose framing already fits.
+    const juvenileGrounding=(this.canvas.clientHeight<=450?.34:.27)*(1-smooth(this.stage/5));
+    this.camera.projectionMatrix.elements[9]+=juvenileGrounding;
+    this.camera.projectionMatrixInverse.copy(this.camera.projectionMatrix).invert();
   }
 
   resize() {

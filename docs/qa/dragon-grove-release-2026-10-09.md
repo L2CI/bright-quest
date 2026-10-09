@@ -26,6 +26,15 @@ The real D1 suite includes non-empty legacy profiles/events, child profiles, Bea
 | Graphics | All eleven body states, four powers, authored animation, newborn/adult mobile frames, reduced motion and disposal checked. No shader or browser errors in the renderer proof. Screenshots inspected and lighting, crown proportions, framing and phone spacing refined. |
 | Audio | 23 real Chrome checks. Recorded soundtrack and all eight effects produce finite, nonzero audio. Maximum sampled post-master peak 0.280009, zero clipped samples; independent controls, mute and lifecycle pass. |
 
+## Deployed verification
+
+Cloudflare Pages successfully deployed game commit `2e33f3286efe207aa19f18adab36d8fc963a1d8c` through GitHub main. The deployment ID is `a2baf876-a126-4560-bb82-b1b4e22c70f7`.
+
+- All 35 published assets matched their local hashes. Sixteen public, protected and existing-game routes passed.
+- The complete browser journey passed 59 checks using deployed assets at desktop, tablet and phone sizes. There were no script errors or missing assets. All gameplay and parent API traffic was served by ephemeral local D1; production learner writes were zero.
+- The live test proxy now follows local session-cookie rotation, including the return from parent review to Play. Its lost-response simulation also stays inside local D1. Screenshots wait for the renderer or family gateway to finish opening.
+- An additional visual pass corrected early-stage camera projection so the newborn stands on the photographed stone platform. The offset fades out by stage five. The final follow-up deployment and its checks are recorded in `outputs/dragon-grove/release-receipt.json`.
+
 ## Visual and sound limits
 
 This is a detailed, freely licensed 3D dragon within an original panoramic woodland scene. It uses one coherent sculpt and skeleton with staged proportions and a juvenile crown morph. The source has no bespoke breath clip; the game adds a jaw/head overlay and mouth-attached effects. It is a chapter-based learning adventure with target choices, not a freely explorable open world.

@@ -26,8 +26,8 @@ Sparkbound is the visual reference: detailed, realistic creature artwork and cin
 - [x] Prove wrong-answer retention, reload/retry, conflict and profile isolation.
 - [x] Inspect desktop/tablet/phone screenshots, growth and power-effect frames.
 - [x] Run preservation checks and review the final diff.
-- [ ] Publish by the authorised GitHub main → Cloudflare Pages path.
-- [ ] Verify the deployment and live asset hashes, routes and browser behaviour.
+- [x] Publish by the authorised GitHub main → Cloudflare Pages path.
+- [x] Verify the deployment and live asset hashes, routes and browser behaviour.
 
 ## Data and release boundaries
 
