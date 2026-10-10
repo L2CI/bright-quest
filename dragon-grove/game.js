@@ -24,7 +24,7 @@ async function boot(){applySettings();try{const data=await api();state=data.stat
 async function initialiseWorld(){
  let candidate;
  try{
-  const {DragonWorld}=await import('./world.js');if(!authenticated)return;
+  const {DragonWorld}=await import('./world.js?v=20261010-growth');if(!authenticated)return;
   candidate=new DragonWorld({canvas:$('#world'),reducedMotion:settings.reduced,onError:showWorldError});world=candidate;await candidate.init();
   if(!authenticated||world!==candidate){candidate.dispose();return;}
   updateWorld(state);$('#worldLoading').hidden=true;

@@ -21,6 +21,7 @@
     "test:dragon-grove": "node --test tools/test-dragon-grove-content.mjs tools/test-dragon-grove-domain.mjs && node tools/test-dragon-grove-api.mjs",
     "qa:dragon-grove": "node tools/qa-dragon-grove.mjs",
     "qa:dragon-graphics": "node tools/qa-dragon-renderer.mjs",
+    "qa:dragon-resume": "node tools/test-dragon-visual-resume.mjs",
     "qa:dragon-audio": "node tools/qa-dragon-audio.mjs",
     "test:private-routes": "node tools/test-pages-private-routes.mjs"
   },

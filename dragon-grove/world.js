@@ -11,17 +11,17 @@ const ASSETS = new URL('./assets/',import.meta.url);
 // These states alter the existing organically sculpted, skinned creature.
 // The absolute stature and the body proportions are independent of camera fit.
 export const GROWTH_STAGES = [
-  {stage:0,name:'Newborn',stature:.37,head:1.68,wing:.36,neck:.92,chest:1.19,limb:.79,tail:.925},
-  {stage:1,name:'Hatchling',stature:.46,head:1.52,wing:.48,neck:.94,chest:1.14,limb:.84,tail:.94},
-  {stage:2,name:'Nest explorer',stature:.55,head:1.43,wing:.55,neck:.955,chest:1.12,limb:.87,tail:.95},
-  {stage:3,name:'Young drake',stature:.65,head:1.34,wing:.64,neck:.965,chest:1.09,limb:.90,tail:.96},
-  {stage:4,name:'Glider',stature:.77,head:1.26,wing:.74,neck:.975,chest:1.06,limb:.93,tail:.975},
-  {stage:5,name:'Adolescent',stature:.90,head:1.18,wing:.85,neck:.985,chest:1.03,limb:.97,tail:.99},
-  {stage:6,name:'Sky guardian',stature:1.03,head:1.11,wing:.94,neck:.995,chest:1.03,limb:1.0,tail:1},
-  {stage:7,name:'Elder aspirant',stature:1.16,head:1.065,wing:1.01,neck:1.0,chest:1.065,limb:1.015,tail:1.005},
-  {stage:8,name:'Great guardian',stature:1.31,head:1.035,wing:1.055,neck:1.005,chest:1.105,limb:1.025,tail:1.01},
-  {stage:9,name:'Ancient guardian',stature:1.46,head:1.02,wing:1.09,neck:1.01,chest:1.145,limb:1.035,tail:1.015},
-  {stage:10,name:'Emberwild sovereign',stature:1.62,head:1.01,wing:1.125,neck:1.015,chest:1.19,limb:1.045,tail:1.02},
+  {stage:0,name:'Newborn',stature:.37,head:1.72,wing:.27,wingFan:.72,wingOpen:0,neck:.90,chest:1.24,limb:.72,paw:1.08,tail:.915,crown:1,crest:.02,frame:.36},
+  {stage:1,name:'Hatchling',stature:.46,head:1.58,wing:.36,wingFan:.79,wingOpen:.015,neck:.925,chest:1.18,limb:.79,paw:1.10,tail:.93,crown:.93,crest:.05,frame:.405},
+  {stage:2,name:'Nest explorer',stature:.55,head:1.45,wing:.46,wingFan:.86,wingOpen:.03,neck:.95,chest:1.10,limb:.87,paw:1.12,tail:.945,crown:.80,crest:.09,frame:.455},
+  {stage:3,name:'Young drake',stature:.65,head:1.33,wing:.57,wingFan:.92,wingOpen:.05,neck:.975,chest:1.08,limb:.94,paw:1.16,tail:.96,crown:.62,crest:.15,frame:.515},
+  {stage:4,name:'Glider',stature:.77,head:1.23,wing:.70,wingFan:.97,wingOpen:.075,neck:.99,chest:1.15,limb:1.0,paw:1.20,tail:.975,crown:.36,crest:.25,frame:.585},
+  {stage:5,name:'Adolescent',stature:.90,head:1.17,wing:.86,wingFan:1.08,wingOpen:.17,neck:1.015,chest:1.34,limb:1.06,paw:1.31,tail:.99,crown:-.08,crest:.52,frame:.67},
+  {stage:6,name:'Sky guardian',stature:1.03,head:1.12,wing:1.02,wingFan:1.20,wingOpen:.29,neck:1.035,chest:1.53,limb:1.13,paw:1.43,tail:1.005,crown:-.50,crest:.76,frame:.765},
+  {stage:7,name:'Elder aspirant',stature:1.16,head:1.09,wing:1.10,wingFan:1.235,wingOpen:.315,neck:1.045,chest:1.66,limb:1.18,paw:1.52,tail:1.012,crown:-.68,crest:.84,frame:.835,viewTurn:.1375},
+  {stage:8,name:'Great guardian',stature:1.31,head:1.06,wing:1.18,wingFan:1.255,wingOpen:.33,neck:1.055,chest:1.80,limb:1.23,paw:1.62,tail:1.019,crown:-.87,crest:.91,frame:.895,viewTurn:.275},
+  {stage:9,name:'Ancient guardian',stature:1.46,head:1.035,wing:1.26,wingFan:1.277,wingOpen:.345,neck:1.065,chest:1.94,limb:1.28,paw:1.72,tail:1.026,crown:-1.05,crest:.97,frame:.95,viewTurn:.4125},
+  {stage:10,name:'Emberwild sovereign',stature:1.62,head:1.02,wing:1.34,wingFan:1.30,wingOpen:.36,neck:1.075,chest:2.08,limb:1.34,paw:1.82,tail:1.033,crown:-1.24,crest:1,frame:1,viewTurn:.55},
 ];
 
 function pathCounts(paths) {
@@ -102,6 +102,11 @@ export class DragonWorld {
         for(const material of mats)if(material.name==='Material.001'){material.color.setHex(0xffcc78);material.roughness=.26;material.emissive.setHex(0x8a4009);material.emissiveIntensity=.18;}
       }
     });
+    this.wingSpreadPose=new Map();
+    for(const track of gltf.animations.find(clip=>clip.name==='Fly').tracks){
+      const name=track.name.replace(/\.quaternion$/,'');
+      if(track.name.endsWith('.quaternion')&&/DEF-Wing_/.test(name))this.wingSpreadPose.set(name,new THREE.Quaternion().fromArray(track.createInterpolant().evaluate(.32)));
+    }
     this.model.updateMatrixWorld(true);
     const sourceBounds=this._bounds();
     this.normalise=3.8/Math.max(sourceBounds.getSize(V()).y,.001);
@@ -127,12 +132,13 @@ export class DragonWorld {
     if(head<0)return;
     const toHead=mesh.skeleton.boneInverses[head].clone().multiply(mesh.bindMatrix),fromHead=toHead.clone().invert();
     const position=mesh.geometry.attributes.position,weights=mesh.geometry.attributes.skinWeight,indices=mesh.geometry.attributes.skinIndex;
-    const delta=new Float32Array(position.count*3);
+    const delta=new Float32Array(position.count*3),crownMask=new Float32Array(position.count);
     for(let i=0;i<position.count;i++){
       let weight=0;for(let j=0;j<4;j++)if(/^DEF-neck\.?00[34]_/.test(mesh.skeleton.bones[indices.getComponent(i,j)]?.name||''))weight+=weights.getComponent(i,j);
       if(weight<.05)continue;
       const original=V().fromBufferAttribute(position,i),p=original.clone().applyMatrix4(toHead);
       const crown=smooth((.08-p.z)/.3)*(1-smooth((p.y-.14)/.4))*clamp(weight*2);
+      crownMask[i]=crown;
       p.x=lerp(p.x,p.x*.38,crown);
       p.z=lerp(p.z,.04+(p.z-.04)*.18,crown);
       if(p.y<.1)p.y=lerp(p.y,.1+(p.y-.1)*.22,crown);
@@ -141,6 +147,7 @@ export class DragonWorld {
     mesh.geometry.morphTargetsRelative=true;
     mesh.geometry.morphAttributes.position=[new THREE.BufferAttribute(delta,3)];
     mesh.geometry.morphAttributes.position[0].name='Juvenile crown';mesh.updateMorphTargets();
+    mesh.geometry.setAttribute('aCrownMask',new THREE.BufferAttribute(crownMask,1));
     this.juvenileMesh=mesh;
   }
 
@@ -154,12 +161,12 @@ export class DragonWorld {
       if(/Spine|tail/i.test(bone))mask[i*3+2]+=w;
     }
     mesh.geometry.setAttribute('aElementMask',new THREE.BufferAttribute(mask,3));
-    this.elementUniforms={uElements:{value:V()},uAstral:{value:0},uAge:{value:0},uPulse:{value:0}};
+    this.elementUniforms={uElements:{value:V()},uAstral:{value:0},uAge:{value:0},uCrest:{value:0},uPulse:{value:0}};
     material.onBeforeCompile=shader=>{
       Object.assign(shader.uniforms,this.elementUniforms);
-      shader.vertexShader='attribute vec3 aElementMask; varying vec3 vElementMask;\n'+shader.vertexShader;
-      shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvElementMask=aElementMask;');
-      shader.fragmentShader='varying vec3 vElementMask; uniform vec3 uElements; uniform float uAstral; uniform float uAge; uniform float uPulse;\n'+shader.fragmentShader;
+      shader.vertexShader='attribute vec3 aElementMask; attribute float aCrownMask; varying vec3 vElementMask; varying float vCrownMask;\n'+shader.vertexShader;
+      shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvElementMask=aElementMask;vCrownMask=aCrownMask;');
+      shader.fragmentShader='varying vec3 vElementMask; varying float vCrownMask; uniform vec3 uElements; uniform float uAstral; uniform float uAge; uniform float uCrest; uniform float uPulse;\n'+shader.fragmentShader;
       shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>',`#include <map_fragment>
         float skinLight=dot(diffuseColor.rgb,vec3(.299,.587,.114));
         diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.50,.73,.42)*(pow(skinLight,.68)*1.7),.64);
@@ -172,6 +179,13 @@ export class DragonWorld {
         tint+=uAstral*(vec3(1.13,.62,1.38)-1.)*(.12+.5*wing+.45*crest);
         diffuseColor.rgb*=clamp(tint,vec3(.35),vec3(1.7));
         diffuseColor.rgb*=mix(vec3(1.18,1.05,.87),vec3(.92,1.02,1.04),uAge);
+        // The original scale texture drives maturing markings, preserving its
+        // irregular organic detail as the crown and wing edges gain contrast.
+        float raisedScale=smoothstep(.055,.25,skinLight);
+        diffuseColor.rgb*=1.+uCrest*raisedScale*(.26*body+.16*crest);
+        vec3 hornColour=mix(vec3(.68,.83,.40),vec3(1.12,.72,.27),uCrest);
+        diffuseColor.rgb=mix(diffuseColor.rgb,hornColour*(.25+pow(skinLight,.58)*1.6),vCrownMask*(.22+.70*uCrest));
+        diffuseColor.rgb*=mix(vec3(1.),vec3(.76,.92,1.03),uCrest*wing*.6);
       `);
       shader.fragmentShader=shader.fragmentShader.replace('#include <emissivemap_fragment>',`#include <emissivemap_fragment>
         totalEmissiveRadiance+=vec3(1.,.20,.035)*uElements.x*vElementMask.y*(.012+uPulse*.10);
@@ -180,7 +194,7 @@ export class DragonWorld {
         totalEmissiveRadiance+=vec3(.45,.12,.62)*uAstral*vElementMask.x*.025;
       `);
     };
-    material.customProgramCacheKey=()=> 'emberwild-elements-v1';
+    material.customProgramCacheKey=()=> 'emberwild-elements-v2';
     material.needsUpdate=true;
   }
 
@@ -194,23 +208,27 @@ export class DragonWorld {
   }
 
   setGrowth({stage=0,paths=this.paths,growth}={}) {
+    const nextStage=clamp(Math.floor(Number(stage)||0),0,10),nextPaths=pathCounts(paths);
+    const signature=[nextStage,...Object.values(nextPaths)].join(':');
+    if(this.ready&&this._growthSignature===signature&&this.framingPoints?.length)return;
     const previous=this.stage;
-    this.stage=clamp(Math.floor(Number(stage)||0),0,10);this.paths=pathCounts(paths);
+    this.stage=nextStage;this.paths=nextPaths;
     this.growth={...GROWTH_STAGES[this.stage]};
     if(!this.ready)return;
-    const counts=this.paths,den=Math.max(3,counts.fire,counts.storm,counts.nature,counts.astral);
+    const counts=this.paths;
     // Each inherited affinity also changes the existing anatomy. They combine
     // independently, so choosing another path never removes an earlier trait.
     this.growth.wing*=1+.11*clamp(counts.storm/6)+.05*clamp(counts.astral/6);
     this.growth.chest*=1+.08*clamp(counts.fire/6);
     this.growth.tail*=1+.007*clamp(counts.nature/6);
-    if(this.juvenileMesh)this.juvenileMesh.morphTargetInfluences[0]=1-smooth(this.stage/7);
-    this.elementUniforms?.uElements.value.set(clamp(counts.fire/den),clamp(counts.storm/den),clamp(counts.nature/den));
-    if(this.elementUniforms){this.elementUniforms.uAge.value=this.stage/10;this.elementUniforms.uAstral.value=clamp(counts.astral/den);}
+    if(this.juvenileMesh)this.juvenileMesh.morphTargetInfluences[0]=this.growth.crown-.08*clamp(counts.nature/6);
+    const affinity=n=>1-Math.exp(-n*.38);
+    this.elementUniforms?.uElements.value.set(affinity(counts.fire),affinity(counts.storm),affinity(counts.nature));
+    if(this.elementUniforms){this.elementUniforms.uAge.value=this.stage/10;this.elementUniforms.uCrest.value=this.growth.crest;this.elementUniforms.uAstral.value=affinity(counts.astral);}
     if(previous!==this.stage)this.growthReveal=this.reducedMotion?0:1;
     this.stageScale=this.growth.stature;
     this._playClip(this.stage<2?'Idle Sit':'Idle Stand',0);
-    this._updatePose(.001);this._groundAndFrame();
+    this._updatePose(.001);this._groundAndFrame();this._growthSignature=signature;
   }
 
   setEnvironment(level=1) {
@@ -237,9 +255,12 @@ export class DragonWorld {
       else if(/^DEF-eye_master/.test(name))bone.scale.multiplyScalar(1+.24*(1-smooth(this.stage/7)));
       else if(/^DEF-neck/.test(name))bone.scale.multiply(V(1,g.neck,1));
       else if(/DEF-Wing_Base/.test(name))bone.scale.multiplyScalar(g.wing);
+      else if(/DEF-Wing_Fold_[34][LR]_/.test(name))bone.scale.y*=g.wingFan;
       else if(name==='DEF-Spine_02')bone.scale.multiply(V(g.chest,1,g.chest));
       else if(/^DEF-thigh\.?[LR]_/.test(name)||/^DEF-upper_arm\.?[LR]_/.test(name))bone.scale.multiply(V(1,g.limb,1));
+      else if(/^DEF-(?:foot|hand|palm)/.test(name))bone.scale.multiply(V(g.paw,1,g.paw));
       else if(/^DEF-tail/.test(name))bone.scale.y*=g.tail;
+      if(this.wingSpreadPose?.has(name)){this.poseOverlay.set(bone,bone.quaternion.clone());bone.quaternion.slerp(this.wingSpreadPose.get(name),g.wingOpen);}
     }
     this.dragon.scale.setScalar(this.stageScale);
     // A small authored jaw/neck pose supplements the source idle during abilities.
@@ -258,32 +279,38 @@ export class DragonWorld {
     if(!this.ready)return;
     this.dragon.position.y=0;this.dragon.updateMatrixWorld(true);
     const bounds=this._bounds();this.dragon.position.y=-bounds.min.y;
-    this.dragon.updateMatrixWorld(true);this.currentBounds=this._bounds();this._fitCamera();
+    this.dragon.updateMatrixWorld(true);this.currentBounds=this._bounds();
+    this.framingPoints=[];this.model.traverse(mesh=>{if(mesh.isMesh)for(let i=0;i<mesh.geometry.attributes.position.count;i++)this.framingPoints.push(mesh.getVertexPosition(i,V()).applyMatrix4(mesh.matrixWorld));});
+    this._fitCamera();
   }
 
   _fitCamera() {
     if(!this.ready)return;
     const size=this.currentBounds.getSize(V()),centre=this.currentBounds.getCenter(V());
-    const aspect=this.camera.aspect;
-    const vertical=Math.max(size.y,2.25),horizontal=Math.max(size.x,size.z*.85,2.2);
+    const aspect=this.camera.aspect,inset=this.canvas.clientHeight<=450;
+    const heightBudget=inset?.66:.56,widthBudget=.82;
+    const targetHeight=heightBudget*this.growth.frame,targetWidth=widthBudget*this.growth.frame;
     const fov=THREE.MathUtils.degToRad(this.camera.fov);
-    // Keep a minimum viewing distance so a hatchling visibly occupies less space.
-    let distance=Math.max(4.6,vertical/(2*Math.tan(fov/2)),horizontal/(2*Math.tan(fov/2)*aspect))*1.42;
-    const azimuth=-1.04+this.yaw;
-    this.look.copy(centre);this.look.y-=vertical*.025;this.camera.lookAt(this.look);
+    // A growing screen-size budget prevents auto-fit from making every age the
+    // same size. Frame the actual sculpted surface, keeping the ground fixed.
+    let distance=Math.max(size.y/(2*Math.tan(fov/2)*targetHeight),size.x/(2*Math.tan(fov/2)*aspect*targetWidth));
+    // Mature guardians gradually present their chest between the growing wings.
+    const azimuth=-1.04+(this.growth.viewTurn||0)+this.yaw;
+    this.look.copy(centre);
     this.camera.near=.05;this.camera.far=Math.max(90,distance*5);this.camera.updateProjectionMatrix();
-    for(let iteration=0;iteration<8;iteration++){
+    let left,right,bottom,top;const projected=V();
+    for(let iteration=0;iteration<10;iteration++){
       this.camera.position.set(centre.x+Math.sin(azimuth)*distance,centre.y+distance*this.elevation,centre.z+Math.cos(azimuth)*distance);
       this.camera.lookAt(this.look);this.camera.updateMatrixWorld(true);
-      let overflow=0;for(const x of [this.currentBounds.min.x,this.currentBounds.max.x])for(const y of [this.currentBounds.min.y,this.currentBounds.max.y])for(const z of [this.currentBounds.min.z,this.currentBounds.max.z]){const p=V(x,y,z).project(this.camera);overflow=Math.max(overflow,Math.abs(p.x)/.86,Math.abs(p.y)/.83);}
-      if(overflow<=1)break;distance*=1.08;
+      left=bottom=Infinity;right=top=-Infinity;
+      for(const point of this.framingPoints){const p=projected.copy(point).project(this.camera);left=Math.min(left,p.x);right=Math.max(right,p.x);bottom=Math.min(bottom,p.y);top=Math.max(top,p.y);}
+      const fit=Math.max((top-bottom)/(targetHeight*2),(right-left)/(targetWidth*2));
+      if(Math.abs(fit-1)<.002)break;distance*=fit;
     }
-    // Small dragons must stand on the same photographed foreground as adults.
-    // A projection shift preserves their physical scale and the shadow contact;
-    // it fades out before the mature stages, whose framing already fits.
-    const juvenileGrounding=(this.canvas.clientHeight<=450?.34:.27)*(1-smooth(this.stage/5));
-    this.camera.projectionMatrix.elements[9]+=juvenileGrounding;
+    this.camera.projectionMatrix.elements[8]+=(left+right)/2;
+    this.camera.projectionMatrix.elements[9]+=bottom-(inset?-.60:-.56);
     this.camera.projectionMatrixInverse.copy(this.camera.projectionMatrix).invert();
+    this.projectedFrame={height:(top-bottom)/2,width:(right-left)/2,ground:inset?.80:.78};
   }
 
   resize() {
@@ -420,7 +447,7 @@ export class DragonWorld {
 
   diagnostics() {
     const bounds=this.currentBounds;
-    return {ready:this.ready,stage:this.stage,paths:{...this.paths},stature:this.stageScale,growth:{...this.growth},clips:[...this.actions.keys()],bones:this.bones.size,
+    return {ready:this.ready,stage:this.stage,paths:{...this.paths},stature:this.stageScale,growth:{...this.growth},frame:this.projectedFrame?{...this.projectedFrame}:null,clips:[...this.actions.keys()],bones:this.bones.size,
       effect:this.effect?.path||null,renderer:this.renderer?{calls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,textures:this.renderer.info.memory.textures}:null,
       bounds:bounds?{min:bounds.min.toArray(),max:bounds.max.toArray()}:null,errors:[...this.errors]};
   }
@@ -439,6 +466,6 @@ export class DragonWorld {
     this.canvas.removeEventListener('pointerdown',this._pointerDown);this.canvas.removeEventListener('pointermove',this._pointerMove);
     this.canvas.removeEventListener('pointerup',this._pointerUp);this.canvas.removeEventListener('pointercancel',this._pointerUp);
     this._disposeObject(this.scene);this.fireTexture?.dispose();this.moteTexture?.dispose();this.scene?.clear();this.renderer?.renderLists.dispose();this.renderer?.dispose();
-    this.particles.length=0;this.bones.clear();this.binds.clear();this.sampledScales.clear();this.poseOverlay.clear();this.actions.clear();
+    this.particles.length=0;this.framingPoints=[];this.wingSpreadPose?.clear();this.bones.clear();this.binds.clear();this.sampledScales.clear();this.poseOverlay.clear();this.actions.clear();
   }
 }
