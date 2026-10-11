@@ -1061,7 +1061,7 @@
       physics: () => renderPhysicsPage(metrics),
       "beacon-brigade": () => renderBeaconPage(metrics),
       sparkbound: () => renderSparkboundPage(metrics),
-      "dragon-grove": () => parentPageShell("dragon-grove", `<section class="bq-chemistry-review-panel"><h2>Dragon Grove learning</h2><p>Maths and science answers, corrections, hints and your child’s dragon growth story.</p><a class="button button-primary" href="/dragon-grove/?childId=${encodeURIComponent(metrics.profile.id)}">Review dragon journey</a></section>`),
+      "dragon-grove": () => parentPageShell("dragon-grove", `<section class="bq-chemistry-review-panel"><h2>Dragon Grove learning</h2><p>Maths and science answers, corrections, hints, your child’s dragon growth and the Skybound Trials.</p><a class="button button-primary" href="/dragon-grove/?childId=${encodeURIComponent(metrics.profile.id)}">Review dragon journey</a><a class="button button-secondary" href="/dragon-grove/chapter-two/?childId=${encodeURIComponent(metrics.profile.id)}">Review Skybound Trials</a></section>`),
       skyforge: () => parentPageShell("skyforge", `<section class="bq-chemistry-review-panel"><h2>Skyforge training</h2><p>Paper multiplication answers, corrections and hint use. Photos are available on the device that captured them.</p><a class="button button-primary" href="/skyforge/?childId=${encodeURIComponent(metrics.profile.id)}">Review power codes</a></section>`),
       icas: () => renderIcasPage(metrics),
       "winter-2026": () => renderWinterPage(metrics),
@@ -1142,7 +1142,7 @@
         ${parentHubRow("exam-results", "Attempts and answers", "Filter and open the full original work", `${metrics.questionStats.length} question records`, "clipboard")}
         ${parentHubRow("icas", "ICAS answer evidence", "Wrong answers first in a popup", `${metrics.icasQuestions.length} question records`, "clipboard")}
         ${parentHubRow("beacon-brigade", "Beacon Brigade evidence", "Expeditions and original answers", "Corrections and support used", "chart")}
-        ${parentHubRow("dragon-grove", "Dragon Grove evidence", "Maths, science and ten stages of growth", "Original answers, corrections and choices", "chart")}
+        ${parentHubRow("dragon-grove", "Dragon Grove evidence", "Growth, discoveries and guardian trials", "Answers, choices and saved challenge results", "chart")}
         ${parentHubRow("skyforge", "Skyforge evidence", "Paper multiplication and tactical expeditions", "Original answers, corrections and hint use", "chart")}
         ${parentHubRow("sparkbound", "Sparkbound evidence", "Wrong answers first", "Original answers, hints and worked support", "chart")}
         ${parentHubRow("writing", "Writing evidence", "Saved responses and writing signals", `${metrics.writing.length} samples`, "writing")}

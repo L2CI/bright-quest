@@ -241,6 +241,34 @@ export class DragonWorld {
 
   setReducedMotion(value){this.reducedMotion=!!value;this.growthReveal=0;this._finishPower();}
 
+  /** Opt-in Chapter II flight presentation. Ordinary growth scenes never use it. */
+  setTrialMode(enabled=true) {
+    this.trialMode=!!enabled;this.trialPosition={x:.23,y:.52};this.trialPaused=false;
+    if(!this.ready)return;
+    this.shadow.visible=!enabled;this.ambient.visible=!enabled;
+    this._playClip(enabled?'Fly':this.stage<2?'Idle Sit':'Idle Stand',0);
+    this._updatePose(enabled?.32:0);this._groundAndFrame();
+    if(enabled){
+      // Frame the whole authored wingbeat once, rather than clipping a later flap.
+      const reduced=this.reducedMotion;this.reducedMotion=false;
+      const interval=this.actions.get('Fly').getClip().duration/8;
+      for(let sample=0;sample<8;sample++){this._updatePose(interval);this.currentBounds.union(this._bounds());this.model.traverse(mesh=>{if(mesh.isMesh)for(let i=0;i<mesh.geometry.attributes.position.count;i++)this.framingPoints.push(mesh.getVertexPosition(i,V()).applyMatrix4(mesh.matrixWorld));});}
+      this.reducedMotion=reduced;this._fitCamera();
+    }
+    this.renderer.render(this.scene,this.camera);
+  }
+
+  setTrialPosition(x=.23,y=.52) {
+    if(!this.trialMode||!this.trialProjection)return;
+    this.trialPosition={x:clamp(x,.08,.82),y:clamp(y,.15,.85)};
+    this.camera.projectionMatrix.elements[8]=this.trialProjection.x-(this.trialPosition.x*2-1);
+    this.camera.projectionMatrix.elements[9]=this.trialProjection.y-(1-this.trialPosition.y*2);
+    this.camera.projectionMatrixInverse.copy(this.camera.projectionMatrix).invert();
+    if(this.trialPaused)this.renderer.render(this.scene,this.camera);
+  }
+
+  setTrialPaused(paused=true){this.trialPaused=!!paused;this.lastTime=performance.now();if(paused){this._finishPower();if(this.ready&&this.trialMode)this.renderer.render(this.scene,this.camera);}}
+
   _updatePose(dt) {
     // Animation always samples before growth, preventing cumulative bone scaling.
     // Scale tracks overwrite every affected joint on each mixer update; explicitly
@@ -260,7 +288,7 @@ export class DragonWorld {
       else if(/^DEF-thigh\.?[LR]_/.test(name)||/^DEF-upper_arm\.?[LR]_/.test(name))bone.scale.multiply(V(1,g.limb,1));
       else if(/^DEF-(?:foot|hand|palm)/.test(name))bone.scale.multiply(V(g.paw,1,g.paw));
       else if(/^DEF-tail/.test(name))bone.scale.y*=g.tail;
-      if(this.wingSpreadPose?.has(name)){this.poseOverlay.set(bone,bone.quaternion.clone());bone.quaternion.slerp(this.wingSpreadPose.get(name),g.wingOpen);}
+      if(!this.trialMode&&this.wingSpreadPose?.has(name)){this.poseOverlay.set(bone,bone.quaternion.clone());bone.quaternion.slerp(this.wingSpreadPose.get(name),g.wingOpen);}
     }
     this.dragon.scale.setScalar(this.stageScale);
     // A small authored jaw/neck pose supplements the source idle during abilities.
@@ -288,19 +316,19 @@ export class DragonWorld {
     if(!this.ready)return;
     const size=this.currentBounds.getSize(V()),centre=this.currentBounds.getCenter(V());
     const aspect=this.camera.aspect,inset=this.canvas.clientHeight<=450;
-    const heightBudget=inset?.66:.56,widthBudget=.82;
-    const targetHeight=heightBudget*this.growth.frame,targetWidth=widthBudget*this.growth.frame;
+    const heightBudget=this.trialMode?.38:inset?.66:.56,widthBudget=this.trialMode?(aspect<1?.46:.32):.82;
+    const targetHeight=heightBudget*(this.trialMode?1:this.growth.frame),targetWidth=widthBudget*(this.trialMode?1:this.growth.frame);
     const fov=THREE.MathUtils.degToRad(this.camera.fov);
     // A growing screen-size budget prevents auto-fit from making every age the
     // same size. Frame the actual sculpted surface, keeping the ground fixed.
     let distance=Math.max(size.y/(2*Math.tan(fov/2)*targetHeight),size.x/(2*Math.tan(fov/2)*aspect*targetWidth));
     // Mature guardians gradually present their chest between the growing wings.
-    const azimuth=-1.04+(this.growth.viewTurn||0)+this.yaw;
+    const azimuth=this.trialMode?-1.25:-1.04+(this.growth.viewTurn||0)+this.yaw;
     this.look.copy(centre);
     this.camera.near=.05;this.camera.far=Math.max(90,distance*5);this.camera.updateProjectionMatrix();
     let left,right,bottom,top;const projected=V();
     for(let iteration=0;iteration<10;iteration++){
-      this.camera.position.set(centre.x+Math.sin(azimuth)*distance,centre.y+distance*this.elevation,centre.z+Math.cos(azimuth)*distance);
+      this.camera.position.set(centre.x+Math.sin(azimuth)*distance,centre.y+distance*(this.trialMode?.18:this.elevation),centre.z+Math.cos(azimuth)*distance);
       this.camera.lookAt(this.look);this.camera.updateMatrixWorld(true);
       left=bottom=Infinity;right=top=-Infinity;
       for(const point of this.framingPoints){const p=projected.copy(point).project(this.camera);left=Math.min(left,p.x);right=Math.max(right,p.x);bottom=Math.min(bottom,p.y);top=Math.max(top,p.y);}
@@ -308,9 +336,10 @@ export class DragonWorld {
       if(Math.abs(fit-1)<.002)break;distance*=fit;
     }
     this.camera.projectionMatrix.elements[8]+=(left+right)/2;
-    this.camera.projectionMatrix.elements[9]+=bottom-(inset?-.60:-.56);
+    this.camera.projectionMatrix.elements[9]+=this.trialMode?(top+bottom)/2:bottom-(inset?-.60:-.56);
     this.camera.projectionMatrixInverse.copy(this.camera.projectionMatrix).invert();
     this.projectedFrame={height:(top-bottom)/2,width:(right-left)/2,ground:inset?.80:.78};
+    if(this.trialMode){this.trialProjection={x:this.camera.projectionMatrix.elements[8],y:this.camera.projectionMatrix.elements[9]};this.setTrialPosition(this.trialPosition.x,this.trialPosition.y);}
   }
 
   resize() {
@@ -323,7 +352,7 @@ export class DragonWorld {
 
   _installControls() {
     this.canvas.style.touchAction='pan-y';
-    this._pointerDown=e=>{if(e.button!==0||this.effect)return;this.drag={id:e.pointerId,x:e.clientX,y:e.clientY,yaw:this.yaw,elevation:this.elevation};this.canvas.setPointerCapture(e.pointerId);};
+    this._pointerDown=e=>{if(this.trialMode||e.button!==0||this.effect)return;this.drag={id:e.pointerId,x:e.clientX,y:e.clientY,yaw:this.yaw,elevation:this.elevation};this.canvas.setPointerCapture(e.pointerId);};
     this._pointerMove=e=>{if(this.drag?.id!==e.pointerId)return;this.yaw=clamp(this.drag.yaw+(e.clientX-this.drag.x)*.007,-1.3,1.3);this.elevation=clamp(this.drag.elevation+(e.clientY-this.drag.y)*.002,.12,.6);this._fitCamera();};
     this._pointerUp=e=>{if(this.drag?.id!==e.pointerId)return;this.drag=null;if(this.canvas.hasPointerCapture(e.pointerId))this.canvas.releasePointerCapture(e.pointerId);};
     this.canvas.addEventListener('pointerdown',this._pointerDown);this.canvas.addEventListener('pointermove',this._pointerMove);
@@ -375,7 +404,7 @@ export class DragonWorld {
     const duration=this.reducedMotion?1.0:3.15;
     return new Promise(resolve=>{
       this.effect={path,age:0,duration,targetIndex:clamp(Number(targetIndex)||0,0,2),resolve};
-      this.effectRoot.visible=true;this.resetView();
+      this.effectRoot.visible=true;if(!this.trialMode)this.resetView();
       // Finishes even when requestAnimationFrame is suspended by the browser.
       this.effectTimeout=setTimeout(()=>this._finishPower(),duration*1000+250);
     });
@@ -436,7 +465,7 @@ export class DragonWorld {
     this.raf=requestAnimationFrame(this._frame);
     if(now-this.lastTime<(this.reducedMotion&&!this.effect?100:1000/30))return;
     const dt=Math.min(.05,Math.max(0,(now-this.lastTime)/1000));this.lastTime=now;
-    if(document.hidden||this.contextLost)return;
+    if(document.hidden||this.contextLost||(this.trialMode&&this.trialPaused))return;
     this.elapsed+=dt;this.frameCount++;
     this._updatePose(dt);this._updateEffect(dt);
     if(this.growthReveal>0){this.growthReveal=Math.max(0,this.growthReveal-dt*.4);this.rim.intensity=2.5+Math.sin(this.growthReveal*Math.PI)*1.6;}

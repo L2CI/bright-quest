@@ -9,6 +9,7 @@ import { Miniflare } from "miniflare";
 import { createSession, hashSecret, randomHex, sha256 } from "../functions/_lib/family-auth.js";
 import * as skyforge from "../functions/api/skyforge.js";
 import * as dragonGrove from "../functions/api/dragon-grove.js";
+import * as dragonExpedition from "../functions/api/dragon-expedition.js";
 import { onRequest as guardPrivateAssets } from "../functions/_middleware.js";
 import * as sparkbound from "../functions/api/sparkbound.js";
 import * as beacon from "../functions/api/beacon-brigade.js";
@@ -30,6 +31,7 @@ const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const HOST = "127.0.0.1";
 const ROUTES = new Map([
   ["/api/dragon-grove", dragonGrove],
+  ["/api/dragon-expedition", dragonExpedition],
   ["/api/skyforge", skyforge], ["/api/sparkbound", sparkbound], ["/api/beacon-brigade", beacon], ["/api/profiles", profiles], ["/api/events", events],
   ["/api/auth/config", authConfig], ["/api/auth/session", authSession], ["/api/auth/login", authLogin],
   ["/api/auth/children", authChildren], ["/api/auth/select-child", selectChild],

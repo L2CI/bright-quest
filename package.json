@@ -23,6 +23,9 @@
     "qa:dragon-graphics": "node tools/qa-dragon-renderer.mjs",
     "qa:dragon-resume": "node tools/test-dragon-visual-resume.mjs",
     "qa:dragon-audio": "node tools/qa-dragon-audio.mjs",
+    "test:dragon-chapter-two": "node --test tools/test-dragon-expedition-content.mjs tools/test-dragon-expedition-domain.mjs && node tools/test-dragon-expedition-api.mjs",
+    "qa:dragon-chapter-two": "node tools/qa-dragon-expedition.mjs",
+    "qa:dragon-trials": "node tools/qa-dragon-trials.mjs",
     "test:private-routes": "node tools/test-pages-private-routes.mjs"
   },
   "devDependencies": {

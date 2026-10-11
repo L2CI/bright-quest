@@ -15,6 +15,7 @@ const denied = [
   '/TOOLS%5csecret.js', '//tools///secret.js', '/public%2f..%2ftools%2fsecret.js',
   '/public%252f..%252ftools%252fsecret.js', '/tools%2F.%2Fsecret.js',
   '/functions/_lib/dragon-grove-content.js', '/functions%2F_lib%2Fdragon-grove-content.js',
+  '/functions/_lib/dragon-expedition-content.js', '/functions%2F_lib%2Fdragon-expedition-content.js',
   '/_lib/dragon-grove-content', '/%5flib/dragon-grove-content',
   '/__sparkbound-qa__/health', '/__skyforge-graphics-test', '/__beacon-qa__/fixture',
   '/__dragon-grove-qa__/state', '/__dragon-qa__/state',
@@ -24,10 +25,11 @@ const denied = [
 const allowed = [
   '/', '/index.html', '/dragon-grove/', '/dragon-grove/game.js', '/dragon-grove/storage.js',
   '/dragon-grove/assets/dragon.glb', '/dragon-grove/assets/audio/enchanted-valley.mp3',
+  '/dragon-grove/chapter-two/', '/dragon-grove/chapter-two/trials.js', '/dragon-grove/chapter-two/assets/trial-sprites.webp',
   '/skyforge/', '/skyforge/assets/key-art.webp', '/beacon-brigade/',
   '/sparkbound/', '/sparkbound/roster.js', '/sparkbound/assets/heroes/helio-2.jpg',
   '/docs/design/dragon-grove-plan-2026-10-09.md', '/docs/my%20notes.md', '/docs/100%25-complete.md',
-  '/toolsmith/game.js', '/api/dragon-grove', '/api/skyforge', '/api/auth/config'
+  '/toolsmith/game.js', '/api/dragon-grove', '/api/dragon-expedition', '/api/skyforge', '/api/auth/config'
 ];
 let unitChecks = 0, compiledChecks = 0;
 for (const path of denied) {
@@ -70,7 +72,7 @@ try {
     const response = await mf.dispatchFetch('http://localhost' + path);
     assert.equal(response.status, 200, path); assert.equal(await response.text(), 'public-static-asset', path); compiledChecks += 2;
   }
-  for (const path of ['/api/dragon-grove', '/api/skyforge', '/api/sparkbound', '/api/beacon-brigade']) {
+  for (const path of ['/api/dragon-grove', '/api/dragon-expedition', '/api/skyforge', '/api/sparkbound', '/api/beacon-brigade']) {
     const response = await mf.dispatchFetch('http://localhost' + path);
     assert.equal(response.status, 401, path); assert((await response.json()).error); compiledChecks += 2;
   }

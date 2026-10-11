@@ -1,0 +1,44 @@
+{
+  "title": "Dragon Grove Chapter II original artwork",
+  "created": "2026-10-11",
+  "creator": "OpenAI image generation for Bright Quest",
+  "generation": "Built-in image generation, no paid Fal services",
+  "processing": "WebP export at quality 88; alpha preserved",
+  "promptBriefs": "credits.md",
+  "files": [
+    {
+      "file": "canyon-flight.webp",
+      "bytes": 471360,
+      "sha256": "e5e26bc5cf83800e1b57412eae9885b79dfb372d47aa49e409d3718857fb68f0",
+      "width": 1672,
+      "height": 941,
+      "transparent": false
+    },
+    {
+      "file": "forest-sanctuary.webp",
+      "bytes": 637210,
+      "sha256": "21f5359ee3e2432d40e910c25742a92e5ae9f2b2f828a0e328f2a9226d53739e",
+      "width": 1672,
+      "height": 941,
+      "transparent": false
+    },
+    {
+      "file": "storm-coast.webp",
+      "bytes": 425434,
+      "sha256": "5ea4406ec0a6d70e64a054e5c89eb239ce891b660bdc00c37122cd84c59dc1a6",
+      "width": 1672,
+      "height": 941,
+      "transparent": false
+    },
+    {
+      "file": "trial-sprites.webp",
+      "bytes": 556040,
+      "sha256": "f1141e2cde0642084e81eb51c6e222aff5df37f46d6353abbbde98db62a020c9",
+      "width": 1536,
+      "height": 1024,
+      "transparent": true
+    }
+  ],
+  "inheritedCredits": "../../assets/credits.md",
+  "promptSet": "prompts.json"
+}
