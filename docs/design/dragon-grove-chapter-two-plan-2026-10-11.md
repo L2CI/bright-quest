@@ -21,7 +21,7 @@ Use the same Bright Quest navigation, account flow and quiet learning panels. Qu
 - [x] Create and integrate the new landscape and organic target art. Review hero frames and animation on desktop, tablet and phone.
 - [x] Connect the finale to Chapter II, add the learning and challenge screens, carry audio/settings across, and provide parent evidence and return paths.
 - [x] Verify the complete second adventure, every five-question boundary, full five-minute timing, pause/reload/retry, controls, access boundaries and original-game regressions.
-- [ ] Release through the established GitHub main to Cloudflare Pages path, verify deployed files and routes, and replay the key flows with fictional local learner records.
+- [x] Release through the established GitHub main to Cloudflare Pages path, verify deployed files and routes, and replay the key flows with fictional local learner records.
 
 ## Preservation and test boundaries
 
@@ -34,3 +34,7 @@ Browser tests use fictional local D1 records. Released files may be read for fin
 Every fifth correctly solved question opens the next challenge; a question never bypasses its preceding challenge. Each challenge gives five minutes of active play, with explicit pause, readable remaining time and a saved result. The next question group continues from that result. The final challenge completes the new adventure.
 
 Quality checks include actual rendered early, middle and final scenes, all earned powers, desktop/tablet/phone framing, keyboard/touch controls, animation frame pacing, audio controls and reduced motion. At least one full five-minute challenge runs in real browser time; deterministic simulation tests cover the remaining boundary and resume cases efficiently.
+
+## Completion evidence
+
+The published chapter passed 116 checks using live assets, with all 30 questions and six five-minute results completed. The deployed 46 asset hashes and 21 route checks matched the tested release. A genuine browser trial ran for 300,000 active milliseconds. Existing saves remained unchanged, and no production learner data was written by QA. Full results are in [the verification report](../qa/dragon-grove-chapter-two-2026-10-11.md).

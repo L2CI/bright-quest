@@ -93,6 +93,7 @@ const originalRows = async () => (await h.db.prepare('SELECT * FROM family_profi
 const eventCount = async () => (await h.db.prepare('SELECT COUNT(*) AS n FROM family_profile_events WHERE event_type=?').bind(expeditionApi.TYPE).first()).n;
 async function layout(name, { width, height }) {
   await page.setViewportSize({ width, height });
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForFunction(() => { const d = window.dragonExpeditionDiagnostics?.(); return d?.review || !d?.authenticated || d?.trial?.ready || d?.graphics?.ready; }, {}, { timeout: 60000 });
   await page.waitForTimeout(180);
   ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${name}: no horizontal overflow`);
@@ -140,6 +141,10 @@ async function checkDeepJournalClose() {
   const visible = await page.evaluate(() => { const dialog = document.querySelector('#dialog'), button = dialog.querySelector('.dialog-close'), d = dialog.getBoundingClientRect(), b = button.getBoundingClientRect();
     return dialog.scrollTop > 500 && b.top >= d.top && b.bottom <= d.bottom && b.left >= d.left && b.right <= d.right && button.contains(document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2)); });
   ok(visible, 'journal Close stays visible and unobstructed after deep scroll with disclosure open');
+  ok(await page.evaluate(() => { const toolbar = document.querySelector('.dialog-toolbar'), button = toolbar.querySelector('.dialog-close').getBoundingClientRect(), bar = toolbar.getBoundingClientRect(), body = document.querySelector('#dialogBody').getBoundingClientRect();
+    return bar.width >= body.width - 1 && button.left >= bar.left && button.right <= bar.right && button.top >= bar.top && button.bottom <= bar.bottom && !['transparent', 'rgba(0, 0, 0, 0)'].includes(getComputedStyle(toolbar).backgroundColor); }), 'Close sits within an opaque full-width toolbar instead of covering individual words');
+  ok(await page.evaluate(() => { const dialog = document.querySelector('#dialog'), d = dialog.getBoundingClientRect(), bar = dialog.querySelector('.dialog-toolbar').getBoundingClientRect();
+    return Math.abs(bar.top - d.top - dialog.clientTop) <= 1 && bar.left <= d.left + dialog.clientLeft + 1 && bar.right >= d.right - dialog.clientLeft - 1; }), 'sticky toolbar meets dialog edges so scrolling text cannot appear above it');
   await page.screenshot({ path: `${out}${live ? 'live-' : ''}journal-deep-phone.png`, fullPage: false });
   await page.getByRole('button', { name: 'Close dialog' }).click(); equal(await page.locator('#dialog').evaluate(el => el.open), false, 'sticky Close button closes long journal');
 }
@@ -150,10 +155,13 @@ try {
   if (process.env.BQ_QA_REVIEW_ONLY === '1') {
     const complete = await seedReview(original), count = await eventCount();
     await page.setViewportSize({ width: 390, height: 844 }); await page.goto(url); await page.getByRole('heading', { name: 'A guardian of land and sky.' }).waitFor();
+    await page.waitForFunction(() => window.dragonExpeditionDiagnostics?.().graphics?.renderer?.triangles > 1000, {}, { timeout: 60000 });
+    await layout('finale-phone', { width: 390, height: 844 });
+    await page.screenshot({ path: `${out}${live ? 'live-' : ''}finale-phone-top.png`, fullPage: false });
     await page.locator('#journalButton').click(); await page.locator('#evidenceItems').waitFor();
     while (await page.locator('#moreEvidence').count()) { const n = await page.locator('.journal-item').count(); await page.locator('#moreEvidence').click(); await page.waitForFunction(n => document.querySelectorAll('.journal-item').length > n, n); }
     equal(await page.locator('.journal-item').count(), complete.version, 'focused journal preserves all seeded validated history');
-    await page.locator('#dialog').evaluate(el => { el.scrollTop = 0; }); await page.screenshot({ path: `${out}${live ? 'live-' : ''}journal-phone.png`, fullPage: false });
+    await page.locator('#dialog').evaluate(el => { el.scrollTop = 0; }); await page.waitForTimeout(120); await page.screenshot({ path: `${out}${live ? 'live-' : ''}journal-phone.png`, fullPage: false });
     await checkDeepJournalClose();
     await page.goto(url + '?childId=' + f.legacyId); await page.getByRole('heading', { name: 'Our Skybound story.' }).waitFor(); await layout('parent-phone', { width: 390, height: 844 });
     equal(await page.locator('.flight-save-details[open]').count(), 0, 'parent saves collapsed on entry');
@@ -243,6 +251,7 @@ try {
   equal(await page.locator('#evidenceItems > .journal-item[data-kind="answer"]').count(), 31, 'learning answers remain directly visible outside save details');
   equal(await page.locator('#evidenceItems > .journal-item[data-kind="minigame-complete"]').count(), 6, 'all trial results remain directly visible');
   await page.evaluate(() => { document.querySelector('#dialog').scrollTop = 0; document.querySelector('#dialogBody').scrollTop = 0; window.scrollTo(0, 0); });
+  await page.waitForTimeout(120);
   await page.screenshot({ path: `${out}${live ? 'live-' : ''}journal-phone.png`, fullPage: false });
   await page.locator('.flight-save-details summary').first().click(); ok(await page.locator('.flight-save-details[open] .journal-item').first().isVisible(), 'all saved flight details remain accessible');
   await checkDeepJournalClose();
