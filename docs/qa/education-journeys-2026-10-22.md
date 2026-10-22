@@ -2,7 +2,7 @@
 
 ## Recommendation
 
-**GO for publication.** Astra independently signed off the science, artwork labels, feature anchors and responsive presentation. The complete local browser replay passed 278 checks with no unexpected runtime errors or failed assets. Production verification is the final release gate.
+**RELEASED AND VERIFIED.** Astra independently signed off the science, artwork labels, feature anchors and responsive presentation. The complete local and live browser replays each passed 278 checks with no unexpected runtime errors or failed assets. The production verification gate passed.
 
 ## Delivered scope
 
@@ -36,3 +36,13 @@ All authenticated browser traffic goes to a locally created ephemeral D1 fixture
 ## Evidence files and publication
 
 Local screenshots and reports: `outputs/education-journeys-2026-10-22/`. Final file fingerprints, source URLs, licences and exact generation prompts: `education-journeys/assets/`. The approved publication route is a scoped commit to GitHub `main`, automatic Cloudflare Pages build, exact live hash checks and live browser replay. The release receipt records the final deployed commit and verification results.
+
+### Production result
+
+Feature commit `c6d3c2721f286df77d6e4d55d57b0c8264a40249` deployed successfully to [Education Journeys](https://bright-quest.pages.dev/education-journeys/). Cloudflare build `386b3967-66b2-483c-9491-bf8a8298e1e1` completed successfully at 07:14:08 UTC on 22 October 2026.
+
+- **45 file hashes matched** the actual deployed content, including all twenty images, both real models, actual scan posters, recordings, decoder and entry scripts.
+- **14 public/protected routes passed**; the complete existing public authentication configuration remained unchanged.
+- **278 live browser checks passed**, using production static files with all authenticated/API traffic intercepted into ephemeral local D1. No production learner writes occurred.
+- **15 additional focused live controls checks passed**: Origins entry, family choice, timeline/earlier navigation, actual pointer image panning, dialog focus restoration, all four 3D direction controls, more than a full orbit with four distinct views, exact reset, native emulated touch drag rotating geometry and restored vertical scrolling. This public exploration made no learner API calls.
+- All nine plan items are complete. The final release receipt identifies the documentation close-out commit and its successful Cloudflare deployment separately from the feature commit.

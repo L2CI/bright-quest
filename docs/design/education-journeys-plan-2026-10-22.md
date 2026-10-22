@@ -16,7 +16,11 @@ The visual direction is a cinematic natural-history theatre: realistic habitat r
 - [x] Add optional labelled real sound recordings with visible playback controls, plus mute, motion controls, keyboard/touch support and reliable image fallback.
 - [x] Integrate Education Journeys into Learn and My Journey without changing existing learner data. Use isolated profile-scoped device bookmarks, explicitly labelled as device-only; no migrations or production learner writes.
 - [x] Test content, chronology, all routes/buttons, 360 controls, sound, persistence, storage failure, keyboard, reduced motion, offline asset failure, responsive desktop/tablet/phone and original entry flows.
-- [ ] Review rendered representative frames, fix defects, record QA evidence, then publish and verify the actual live files and primary interactions.
+- [x] Review rendered representative frames, fix defects, record QA evidence, then publish and verify the actual live files and primary interactions.
+
+## Completion
+
+All nine acceptance items completed. Feature commit `c6d3c2721f286df77d6e4d55d57b0c8264a40249` was published through GitHub main and automatic Cloudflare Pages. Local and deployed browser journeys each passed 278 checks; a further 15 focused live controls checks verified primary entry, full 3D orbit and native emulated touch drag. Forty-five deployed file hashes and fourteen routes matched the release, with authentication unchanged and zero production learner writes. See the QA record and local release receipt for the final documentation commit and deployment evidence.
 
 ## Scientific guardrails
 

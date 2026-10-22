@@ -8,6 +8,8 @@ Review date: 22 October 2026. Scope: science copy, source spot-checks, all 20 ge
 
 This is the independent design/science review sign-off, not a statement that deployment is complete. The implementation agent must finish the shell integration/failure-case run, reconcile the final browser report, and verify the authorised live release. At the final review, the earlier run had recorded 263 successful checks before a parent-PIN selector timeout; `browser-report.json` had been restarted and contained only four checks. That incomplete reporting state must not be presented as the final release receipt.
 
+**Subsequent release evidence, recorded by the implementation owner:** the completed local replay passed 278 checks, the deployed replay passed another 278, and 15 focused live pointer/touch/orbit checks passed. The final reports replace the incomplete review-time run as the release evidence. Forty-five deployed hashes and fourteen routes passed, authentication remained unchanged and production learner writes were zero. See [the final QA record](education-journeys-2026-10-22.md). Astra's independent scope remains the design/science review above.
+
 ## Required fixes identified
 
 | ID | Finding | Required resolution | Final status |
