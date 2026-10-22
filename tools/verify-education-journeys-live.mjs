@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import {readFile,readdir,mkdir,writeFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
-const origin=process.env.BQ_VERIFY_ORIGIN||'https://bright-quest.pages.dev',root=new URL('../',import.meta.url),out=new URL('../outputs/education-journeys-2026-10-22/',import.meta.url);await mkdir(out,{recursive:true});
+const origin=process.env.BQ_VERIFY_ORIGIN||'https://bright-quest.pages.dev',root=new URL('../',import.meta.url),out=new URL(`../outputs/${process.env.BQ_RELEASE_OUTPUT||'education-journeys-2026-10-22'}/`,import.meta.url);await mkdir(out,{recursive:true});
 if(process.argv.includes('--capture-auth-baseline')){const response=await fetch(origin+'/api/auth/config',{signal:AbortSignal.timeout(20000)});assert.equal(response.status,200);await writeFile(new URL('auth-baseline.json',out),JSON.stringify(await response.json(),null,2));console.log('Captured existing public auth configuration; no credentials or learner records.');}else{
 const paths=['index.html','bright-quest-child-experience.js','bright-quest-shell-merge.js'],assets=[],routes=[];
 async function list(path){for(const entry of await readdir(new URL(path,root),{withFileTypes:true})){const file=path+entry.name;if(entry.isDirectory())await list(file+'/');else paths.push(file);}}await list('education-journeys/');
