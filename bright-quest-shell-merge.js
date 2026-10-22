@@ -1122,6 +1122,7 @@
         ${parentHubRow("physics", "Physics 101", `${physicsProgress(metrics.profile).completed} of ${physicsProgress(metrics.profile).total} chapters`, `${physicsProgress(metrics.profile).tests} chapter checks submitted`, "focus")}
         ${parentHubRow("beacon-brigade", "Beacon Brigade", "Five subject expeditions", "HQ and expedition evidence", "chart")}
         ${parentHubRow("sparkbound", "Sparkbound", "Arena training", "Original answers and support used", "chart")}
+        ${parentHubLink(`/education-journeys/?profileId=${encodeURIComponent(metrics.profile.id)}`, "Education Journeys", "Animal evolution · four family stories", "Device bookmarks · explore together", "book")}
         ${parentHubLink(agmathsUrl("cockpit", metrics.profile, "parent/learning"), "Winter Maths", "Open linked AGMaths progress", "External course", "snow")}
       </section>
     `);

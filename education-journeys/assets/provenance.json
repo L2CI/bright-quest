@@ -1,0 +1,340 @@
+{
+  "generatedAt": "2026-10-22T07:06:25.073Z",
+  "generator": "Built-in OpenAI image generation",
+  "assets": [
+    {
+      "file": "art/origins-0.webp",
+      "bytes": 107656,
+      "width": 768,
+      "height": 512,
+      "sha256": "f1254a99a3b960a5965bd8f4f6025827b331305f194303d50c7fc5aa0e997f77",
+      "promptId": "origins",
+      "sourceSha256": "b50fcde93e34fb2215033059854f1349fa841dce350a7cc3f2c2c596c3814d25",
+      "kind": "Original artistic reconstruction; colours and soft tissues partly speculative"
+    },
+    {
+      "file": "art/origins-1.webp",
+      "bytes": 134050,
+      "width": 768,
+      "height": 512,
+      "sha256": "13cd3de7d3da0782be56f959154f6794edf46f49bf085ca9e23150212bf6c573",
+      "promptId": "origins",
+      "sourceSha256": "b50fcde93e34fb2215033059854f1349fa841dce350a7cc3f2c2c596c3814d25",
+      "kind": "Original artistic reconstruction; colours and soft tissues partly speculative"
+    },
+    {
+      "file": "art/origins-2.webp",
+      "bytes": 181538,
+      "width": 768,
+      "height": 512,
+      "sha256": "0559cf2ec315ee3b4709ca60ea6358103192567053e9bb994600f6ebeb09ebe1",
+      "promptId": "origins",
+      "sourceSha256": "b50fcde93e34fb2215033059854f1349fa841dce350a7cc3f2c2c596c3814d25",
+      "kind": "Original artistic reconstruction; colours and soft tissues partly speculative"
+    },
+    {
+      "file": "art/origins-3.webp",
+      "bytes": 152160,
+      "width": 768,
+      "height": 512,
+      "sha256": "edb7578b9d0982a17313283751ba9bda55783555068a2a340a49e5b8df8526f7",
+      "promptId": "origins",
+      "sourceSha256": "b50fcde93e34fb2215033059854f1349fa841dce350a7cc3f2c2c596c3814d25",
+      "kind": "Original artistic reconstruction; colours and soft tissues partly speculative"
+    },
+    {
+      "file": "art/whales-0.webp",
+      "bytes": 162628,
+      "width": 768,
+      "height": 512,
+      "sha256": "af463d088105cf3331b325480d51228eb2e6aa5a2000344166a83241dbc4939b",
+      "promptId": "whales",
+      "sourceSha256": "db2513dc309cd6e7526e8e4cb954c758f52941b5a5c6c0360208b7a847d71aa8",
+      "kind": "Original artistic reconstruction; colours and soft tissues partly speculative"
+    },
+    {
+      "file": "art/whales-1.webp",
+      "bytes": 178462,
+      "width": 768,
+      "height": 512,
+      "sha256": "5bdc8dd6f3de9552e97ec7c7be4b2737e506790e6fe425909ff94fa13bdf68c5",
+      "promptId": "whales",
+      "sourceSha256": "db2513dc309cd6e7526e8e4cb954c758f52941b5a5c6c0360208b7a847d71aa8",
+      "kind": "Original artistic reconstruction; colours and soft tissues partly speculative"
+    },
+    {
+      "file": "art/whales-2.webp",
+      "bytes": 104416,
+      "width": 768,
+      "height": 512,
+      "sha256": "c3551bf4b68aab821805bfc339665b39a91eb1a69c491c472c5cc0a06a4d02fb",
+      "promptId": "whales",
+      "sourceSha256": "db2513dc309cd6e7526e8e4cb954c758f52941b5a5c6c0360208b7a847d71aa8",
+      "kind": "Original artistic reconstruction; colours and soft tissues partly speculative"
+    },
+    {
+      "file": "art/whales-3.webp",
+      "bytes": 69158,
+      "width": 768,
+      "height": 512,
+      "sha256": "646fcc0cf9aeb23bd6135f24dd15749267b4cbcecfbb961d3ab5d127e8312edf",
+      "promptId": "whales",
+      "sourceSha256": "db2513dc309cd6e7526e8e4cb954c758f52941b5a5c6c0360208b7a847d71aa8",
+      "kind": "Original artistic reconstruction; colours and soft tissues partly speculative"
+    },
+    {
+      "file": "art/birds-0.webp",
+      "bytes": 168710,
+      "width": 768,
+      "height": 512,
+      "sha256": "1043b55067b97ce754a5e2c765a51391cf8cd127d7a3e2e110105201a614ab6a",
+      "promptId": "birds",
+      "sourceSha256": "b12c205c48cf399c1ed46a7c14a2dcb0ebb6279234376971ee52d280ae6b3433",
+      "kind": "Original artistic reconstruction; colours and soft tissues partly speculative"
+    },
+    {
+      "file": "art/birds-1.webp",
+      "bytes": 133574,
+      "width": 768,
+      "height": 512,
+      "sha256": "fd0836b1bbe5d9eb5fca3259cd03c49230686bb9ce56dd64e3d09e8c9413a6f0",
+      "promptId": "birds",
+      "sourceSha256": "b12c205c48cf399c1ed46a7c14a2dcb0ebb6279234376971ee52d280ae6b3433",
+      "kind": "Original artistic reconstruction; colours and soft tissues partly speculative"
+    },
+    {
+      "file": "art/birds-2.webp",
+      "bytes": 75302,
+      "width": 768,
+      "height": 512,
+      "sha256": "eafa75a972cdcce74a2409417b72bb367411d922c1fbf6227b6f47047fa50fbf",
+      "promptId": "birds",
+      "sourceSha256": "b12c205c48cf399c1ed46a7c14a2dcb0ebb6279234376971ee52d280ae6b3433",
+      "kind": "Original artistic reconstruction; colours and soft tissues partly speculative"
+    },
+    {
+      "file": "art/birds-3.webp",
+      "bytes": 123262,
+      "width": 768,
+      "height": 512,
+      "sha256": "4cbcdbbdaf27446f44bbad30777ee1a691473e2f7775f00c84977922d102859f",
+      "promptId": "birds",
+      "sourceSha256": "b12c205c48cf399c1ed46a7c14a2dcb0ebb6279234376971ee52d280ae6b3433",
+      "kind": "Original artistic reconstruction; colours and soft tissues partly speculative"
+    },
+    {
+      "file": "art/horses-0.webp",
+      "bytes": 144206,
+      "width": 768,
+      "height": 512,
+      "sha256": "dbd948ee660ec7bbc52fa3abc46382c63a6401d3e8dcc37d05c7528c5254f3d8",
+      "promptId": "horses",
+      "sourceSha256": "fc57ff2722226a2fba3b34e96bfcd77ac430457f0bf2a22225b1fd65ab488af7",
+      "kind": "Original artistic reconstruction; colours and soft tissues partly speculative"
+    },
+    {
+      "file": "art/horses-1.webp",
+      "bytes": 149080,
+      "width": 768,
+      "height": 512,
+      "sha256": "383ce3664ad98012a6a675853bb64bd6ad45e022c02332d3b679034cdc5c61c4",
+      "promptId": "horses",
+      "sourceSha256": "fc57ff2722226a2fba3b34e96bfcd77ac430457f0bf2a22225b1fd65ab488af7",
+      "kind": "Original artistic reconstruction; colours and soft tissues partly speculative"
+    },
+    {
+      "file": "art/horses-2.webp",
+      "bytes": 139780,
+      "width": 768,
+      "height": 512,
+      "sha256": "3312be79a0608c06ae27d6270614e18c0571e54f8afd031f45853e70d701d0ee",
+      "promptId": "horses",
+      "sourceSha256": "fc57ff2722226a2fba3b34e96bfcd77ac430457f0bf2a22225b1fd65ab488af7",
+      "kind": "Original artistic reconstruction; colours and soft tissues partly speculative"
+    },
+    {
+      "file": "art/horses-3.webp",
+      "bytes": 107254,
+      "width": 768,
+      "height": 512,
+      "sha256": "7361524a9cb6fcdf86ea4a363c41e7313bc623b6b1cc0fcd96a792ddeacdffd2",
+      "promptId": "horses",
+      "sourceSha256": "fc57ff2722226a2fba3b34e96bfcd77ac430457f0bf2a22225b1fd65ab488af7",
+      "kind": "Original artistic reconstruction; colours and soft tissues partly speculative"
+    },
+    {
+      "file": "art/elephants-0.webp",
+      "bytes": 141296,
+      "width": 768,
+      "height": 512,
+      "sha256": "d9a0ef53b59fc6dbe6a2ef903b0f21b33c5b08bacf87a29f2f1246a30521445c",
+      "promptId": "elephants",
+      "sourceSha256": "e101b72dc54e2087260a2b1770a6b89806eca02544d9a91699afcccc1d42173a",
+      "kind": "Original artistic reconstruction; colours and soft tissues partly speculative"
+    },
+    {
+      "file": "art/elephants-1.webp",
+      "bytes": 143844,
+      "width": 768,
+      "height": 512,
+      "sha256": "758d2634b71fcecf6c60cad929f3eb54bd93ed80a321445acbf28b83246107bb",
+      "promptId": "elephants",
+      "sourceSha256": "e101b72dc54e2087260a2b1770a6b89806eca02544d9a91699afcccc1d42173a",
+      "kind": "Original artistic reconstruction; colours and soft tissues partly speculative"
+    },
+    {
+      "file": "art/elephants-2.webp",
+      "bytes": 153566,
+      "width": 768,
+      "height": 512,
+      "sha256": "b13d3af11727a49d99c37f2d5c880c7bcffc2473bb943cd4130c510c15da695b",
+      "promptId": "elephants",
+      "sourceSha256": "e101b72dc54e2087260a2b1770a6b89806eca02544d9a91699afcccc1d42173a",
+      "kind": "Original artistic reconstruction; colours and soft tissues partly speculative"
+    },
+    {
+      "file": "art/elephants-3.webp",
+      "bytes": 118020,
+      "width": 768,
+      "height": 512,
+      "sha256": "ec6ddbe279c78c4c53e27bc1c8e0ebd085bbe049f4eaf02a290a8b8187fd3fa7",
+      "promptId": "elephants",
+      "sourceSha256": "e101b72dc54e2087260a2b1770a6b89806eca02544d9a91699afcccc1d42173a",
+      "kind": "Original artistic reconstruction; colours and soft tissues partly speculative"
+    }
+  ],
+  "models": [
+    {
+      "id": "mammoth",
+      "file": "models/mammoth.glb",
+      "url": "https://3d-api.si.edu/content/document/3d_package:341c96cd-f967-4540-8ed1-d3fc56d31f12/woolly-mammoth-150k-2048-medium.glb",
+      "source": "https://3d.si.edu/object/3d/mammuthus-primigenius-blumbach%3A341c96cd-f967-4540-8ed1-d3fc56d31f12",
+      "author": "Smithsonian Institution",
+      "license": "CC0-1.0 / public-domain media, verified on official item page",
+      "licenseUrl": "https://www.si.edu/openaccess",
+      "bytes": 1953824,
+      "sha256": "1d0706ff68a3b97e706c2f7fab087527d7302d40c7b421e74092f41e1fb77b46",
+      "extensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "modifications": "Unmodified original museum scan; runtime orientation, lighting and framing only"
+    },
+    {
+      "id": "whale",
+      "file": "models/whale.glb",
+      "url": "https://3d-api.si.edu/content/document/3d_package:a4068a00-9712-4c8e-8948-a9e2ea27fe0a/whale-mpc-677-150k-2048-medium.glb",
+      "source": "https://3d.si.edu/object/3d/fossil-whale-excavation-site-mpc-677%3Aa4068a00-9712-4c8e-8948-a9e2ea27fe0a",
+      "author": "Smithsonian Institution",
+      "license": "CC0-1.0 / public-domain media, verified on official item page",
+      "licenseUrl": "https://www.si.edu/openaccess",
+      "bytes": 2679232,
+      "sha256": "4964634594685a578caa28552062fa1843edd970078cf6aff2c19334673ddc8a",
+      "extensions": [
+        "KHR_draco_mesh_compression"
+      ],
+      "modifications": "Unmodified original museum scan; runtime orientation, lighting and framing only"
+    }
+  ],
+  "vendor": [
+    {
+      "file": "vendor/DRACOLoader.js",
+      "url": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/loaders/DRACOLoader.js",
+      "version": "0.165.0",
+      "license": "MIT (Three.js)",
+      "bytes": 13680,
+      "sha256": "38ceac0297ca45a45f85768eb62d38f4c9fc48e112781f84859fdfdff3886dbb"
+    },
+    {
+      "file": "vendor/draco_wasm_wrapper.js",
+      "url": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/libs/draco/gltf/draco_wasm_wrapper.js",
+      "version": "0.165.0",
+      "license": "Apache-2.0 (Draco)",
+      "bytes": 58456,
+      "sha256": "8bb2952d2ba7d67e1414f8df819410cb0434a666be53f671fff75f68843d76f6"
+    },
+    {
+      "file": "vendor/draco_decoder.wasm",
+      "url": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/libs/draco/gltf/draco_decoder.wasm",
+      "version": "0.165.0",
+      "license": "Apache-2.0 (Draco)",
+      "bytes": 192420,
+      "sha256": "a680d927bed9cb864ddbd63521868891af2bfbe755092761b4837487618df8ac"
+    },
+    {
+      "file": "vendor/draco_decoder.js",
+      "url": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/libs/draco/gltf/draco_decoder.js",
+      "version": "0.165.0",
+      "license": "Apache-2.0 (Draco)",
+      "bytes": 512465,
+      "sha256": "8625489da79a805f4f2a7d511c3e52d8b4085608a9d2a4d5f4f9de5db0aea04f"
+    },
+    {
+      "file": "vendor/LICENSE-three.txt",
+      "url": "https://cdn.jsdelivr.net/npm/three@0.165.0/LICENSE",
+      "version": "0.165.0",
+      "license": "MIT (Three.js)",
+      "bytes": 1081,
+      "sha256": "4c40a1ef62450b857c3b2aaf294936304cd552d965fbcd9d32d4c5bcf4ba4454"
+    }
+  ],
+  "audio": [
+    {
+      "id": "humpback",
+      "file": "audio/humpback.mp3",
+      "source": "https://www.nps.gov/subjects/sound/sounds-humpback-whale.htm",
+      "url": "https://www.nps.gov/nps-audiovideo/legacy/mp3/nri/avElement/nri-HumpbackGLBA.mp3",
+      "author": "US National Park Service",
+      "license": "Public domain; downloadable per official gallery",
+      "licenseSource": "https://www.nps.gov/subjects/sound/gallery.htm",
+      "modifications": "Unmodified recording",
+      "bytes": 123513,
+      "sha256": "c37f52a54583a8c7012cdc6f38059811524484b670070f8693cc72bc2b03670a"
+    },
+    {
+      "id": "raven",
+      "file": "audio/raven.mp3",
+      "source": "https://www.nps.gov/subjects/sound/sounds-common-raven.htm",
+      "url": "https://www.nps.gov/nps-audiovideo/legacy/mp3/nri/avElement/nri-CommonRavenGRTE.mp3",
+      "author": "US National Park Service",
+      "license": "Public domain; downloadable per official gallery",
+      "licenseSource": "https://www.nps.gov/subjects/sound/gallery.htm",
+      "modifications": "Unmodified recording",
+      "bytes": 94610,
+      "sha256": "50ac94bd9cb8ad26e8857cf75545416e2a43ebc5888e451657a2c8aaf18d4a32"
+    }
+  ],
+  "photos": [
+    {
+      "file": "models/mesohippus-forelimbs.jpg",
+      "url": "https://www.floridamuseum.ufl.edu/wp-content/uploads/sites/83/2019/12/Mesohippus-forelimbs.jpg",
+      "source": "https://www.floridamuseum.ufl.edu/fossil-horses/gallery/mesohippus/",
+      "author": "H. Zell / Wikimedia Commons",
+      "license": "CC-BY-SA-3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "modifications": "Unmodified source photograph; displayed at responsive size",
+      "subject": "Replica Mesohippus forelimbs at American Museum of Natural History",
+      "bytes": 101937,
+      "sha256": "79924c96a8d35c7d5d8204f6c291feba4703fbf4bb453c4822d9cd420d829f84"
+    }
+  ],
+  "posters": [
+    {
+      "file": "models/mammoth-poster.webp",
+      "bytes": 16602,
+      "width": 1000,
+      "height": 700,
+      "sha256": "84d965a63a703881f24cebff3f670f55cf3a9e3f1e70d1289b01442d3a56ba52",
+      "kind": "Local browser render of the real Smithsonian public-domain scan",
+      "model": "models/mammoth.glb"
+    },
+    {
+      "file": "models/whale-poster.webp",
+      "bytes": 11690,
+      "width": 1000,
+      "height": 700,
+      "sha256": "e3533b8ddec6380db8d5270e0a53320c2ae8b337a0d7dcd973563d8fac32ff06",
+      "kind": "Local browser render of the real Smithsonian public-domain scan",
+      "model": "models/whale.glb"
+    }
+  ]
+}

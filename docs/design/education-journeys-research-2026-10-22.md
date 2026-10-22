@@ -1,0 +1,35 @@
+# Education Journeys research and content decisions
+
+Research checked 22 October 2026, before implementation. Audience: approximately Grade 4. This launch contains a shared four-stop Origins prologue and four four-stop animal-family journeys. Scientific source links remain accessible beside each stop and in Sources & credits.
+
+## Scientific foundations
+
+| Topic | Evidence and decision | Primary reference |
+| --- | --- | --- |
+| Cosmic beginning | Universe about 13.8 billion years old; the hot early universe expanded and cooled. Stars and galaxies formed later. The prologue artwork compresses later cosmic history and says so. | [NASA](https://science.nasa.gov/exoplanets/what-is-the-universe/), [NASA Space Place](https://spaceplace.nasa.gov/big-bang/en/) |
+| Earth | Use the rounded selected moment 4.5 billion years ago. Earth did not exist at the beginning of the universe. | [NASA](https://science.nasa.gov/exoplanets/what-is-the-universe/) |
+| Early life | Stromatolites provide evidence of microbial communities at least about 3.5 billion years ago. Do not call this the exact date life began. Separate research into the origin of life from subsequent biological evolution. | [Smithsonian](https://naturalhistory.si.edu/education/teaching-resources/life-science/early-life-earth-animal-origins), [Natural History Museum](https://www.nhm.ac.uk/discover/origin-of-life-on-earth.html) |
+| Animal diversification | Select 520 million years ago within the Cambrian, rather than claiming all animal life began then. Describe diversification over time; animal life existed earlier. | [Smithsonian](https://naturalhistory.si.edu/education/teaching-resources/life-science/early-life-earth-animal-origins) |
+| Whale relatives | Pakicetus about 50 Ma, Ambulocetus about 48 Ma, Basilosaurus about 37 Ma, modern humpback. These are representative relatives, not a proven direct chain. Fossil ear anatomy, changes in limbs and modern mammalian features support the story. | [NHM](https://www.nhm.ac.uk/discover/when-whales-walked-on-four-legs.html), [Smithsonian teaching guide](https://www.naturalhistory.si.edu/sites/default/files/media/file/whale-evolution-activity-facilitation-guide-v2.pdf), [University of Michigan](https://lsa.umich.edu/paleontology/resources/beyond-exhibits/basilosaurus-isis.html), [Smithsonian Ocean](https://ocean.si.edu/ocean-life/marine-mammals/whales), [NOAA](https://www.fisheries.noaa.gov/species/humpback-whale) |
+| Bird relatives | A generic feathered theropod scene around 160 Ma is explicitly not a named ancestral species. Archaeopteryx at 150 Ma, Ichthyornis at 85 Ma, and red junglefowl today demonstrate a mosaic of features. Birds are living dinosaurs; avoid pterosaurs and a T. rex-to-chicken ladder. | [NHM](https://www.nhm.ac.uk/discover/how-dinosaurs-evolved-into-birds.html), [Australian Museum](https://australian.museum/learn/dinosaurs/the-first-birds/), [Yale research](https://news.yale.edu/2018/05/02/scientists-find-first-bird-beak-right-under-their-noses), [Cornell Lab](https://www.allaboutbirds.org/guide/Red_Junglefowl/id) |
+| Horse relatives | Early forms at 55 Ma, Mesohippus at 35 Ma, Merychippus at 15 Ma, Equus today. Mesohippus at the chosen 35 Ma moment is Late Eocene; avoid assigning it Oligocene merely because its genus continued into that epoch. Evolution branched, including forms that retained toes and some that decreased in size. | [Florida Museum early forms](https://www.floridamuseum.ufl.edu/fossil-horses/gallery/hyracotherium/), [Mesohippus](https://www.floridamuseum.ufl.edu/fossil-horses/gallery/mesohippus/), [Merychippus](https://www.floridamuseum.ufl.edu/fossil-horses/gallery/merychippus/), [Equus](https://www.floridamuseum.ufl.edu/fossil-horses/gallery/equus/), [AMNH](https://www.amnh.org/exhibitions/permanent/advanced-mammals/evolution-of-horses) |
+| Elephant relatives | Moeritherium at 35 Ma, Gomphotherium at 15 Ma, woolly mammoth during the selected 20 ka moment, African savanna elephant today. Mammoths are extinct cousins, not ancestors that became modern elephants. The short snout of Moeritherium is not a modern elephant trunk. | [SANParks](https://www.sanparks.org/conservation/parks/kruger/letaba-elephant-hall/about-elephants/evolution), [Florida Museum Tusks guide](https://www.floridamuseum.ufl.edu/wp-content/uploads/sites/16/2017/03/TUSKS-Exhibit-Guide.pdf), [NHM](https://www.nhm.ac.uk/discover/were-all-mammoths-woolly.html), [Smithsonian family tree](https://naturalhistory.si.edu/education/teaching-resources/paleontology/elephant-evolution) |
+
+## Representation decisions
+
+- Every timeline says selected moments, rounded dates, not to scale. Chapters are freely selectable. Dates describe selected examples, not exact first appearances or species origins.
+- No transformation/morph animation between species. A brief scene reveal marks a chapter change. No implication that an individual grows into another species.
+- Twenty scene images are AI-created artistic visualisations, including modern animals. None is called a photograph. Colour and soft-tissue uncertainty is stated.
+- Image pins locate visible anatomy only. Hidden structures, fossil tooth/ear evidence and conceptual family relationships remain labelled evidence buttons. They do not imply visible anatomy in the artwork.
+- Horse feet in the landscape illustrations are simplified. Toe claims come from fossil references. The Mesohippus stop additionally shows an unmodified photograph of replica forelimbs with proper attribution and CC BY-SA 3.0 licence. No discovery question asks a learner to count toes in generated art.
+- A branch group summary is explicitly a selection of family groups, not a cladogram asserting direct ancestors. Several branches can coexist.
+
+## Verified freely reusable media
+
+The Smithsonian mammoth mounted skeleton and whale MPC 677 excavation scan have verified public-domain media on their official item pages. Self-host the actual GLBs, with their original surfaces; use a local matching Three r165 Draco decoder. Generate fallback posters from actual rendered scans. The Miocene whale fossil is separately dated 7–9 Ma and is not used to depict an early Eocene species. The mammoth is not relabelled as an African elephant.
+
+The candidate Limnofregata bird scan was rejected because its official media restrictions did not clearly permit reuse despite CC0 metadata. The launch therefore supplies four complete image-based family journeys and two honest real-geometry 360 inspection exhibits.
+
+NPS publishes its Sound Gallery clips as public domain and downloadable with credit. Bundle unmodified humpback and common raven recordings. The raven is explicitly a different living bird from the illustrated red junglefowl. Playback is opt-in, exclusive between clips, and stops on close, navigation or hidden page. Do not invent an authentic extinct-animal voice or airborne space sounds.
+
+Exact prompts, final file fingerprints, original museum URLs, licences and recording URLs are in `education-journeys/assets/prompts.json` and `provenance.json`.

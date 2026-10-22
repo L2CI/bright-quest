@@ -26,7 +26,9 @@
     "test:dragon-chapter-two": "node --test tools/test-dragon-expedition-content.mjs tools/test-dragon-expedition-domain.mjs && node tools/test-dragon-expedition-api.mjs",
     "qa:dragon-chapter-two": "node tools/qa-dragon-expedition.mjs",
     "qa:dragon-trials": "node tools/qa-dragon-trials.mjs",
-    "test:private-routes": "node tools/test-pages-private-routes.mjs"
+    "test:private-routes": "node tools/test-pages-private-routes.mjs",
+    "test:education-journeys": "node --test tools/test-education-journeys.mjs",
+    "qa:education-journeys": "node tools/qa-education-journeys.mjs"
   },
   "devDependencies": {
     "esbuild": "0.27.3",
