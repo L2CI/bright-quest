@@ -17,8 +17,10 @@ Motion: a brief scene reveal, a soft drawer slide and slow cover-backdrop moveme
 - [x] Preserve image zoom/pan and real 3D view while toggling details; keep scene hotspots correctly aligned during resize.
 - [x] Retain sources, sound controls, science labels, bookmark keys/profile identity and reliable failure recovery.
 - [x] Run full learning regression plus desktop/tablet/phone/landscape, 200% text, keyboard, fullscreen, touch, exit and failure-case QA. Inspect rendered hero and chapter states.
-- [ ] Publish through GitHub main to automatic Cloudflare Pages and verify live files, interactions and unchanged authentication/data.
+- [x] Publish through GitHub main to automatic Cloudflare Pages and verify live files, interactions and unchanged authentication/data.
 
 ## QA and preservation
 
 Use ephemeral local D1 for original shell integration and intercepted API calls when testing production static assets. Never write production learner data. Capture screenshots and reports under `outputs/education-journeys-immersive-2026-10-22/`. Native fullscreen changes browser display; it does not unlock, reset or migrate progress. Exit stops audio and returns to Bright Quest Learn with the learner identity retained. Browser Back from a fossil returns to the current family moment. Internal panel scrolling is allowed; the main scene should stay in the viewport at supported sizes.
+
+All eight items are complete. Final experience commit `59d2ab8719ec770dd94bf58dde81233fb3e0d7e7` deployed successfully. Production static assets passed 314 learning checks and 81 focused immersive checks; 47 file hashes and 14 route checks matched, authentication configuration stayed identical, and no production learner writes or migrations occurred. See the immersive QA report and `outputs/education-journeys-immersive-2026-10-22/release-receipt.json` for the final documentation deployment and consolidated evidence.
