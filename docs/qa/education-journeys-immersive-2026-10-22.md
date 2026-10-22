@@ -9,13 +9,15 @@ The refinement keeps all 20 time stops, all features and questions, original ill
 ## Local evidence
 
 - Full fixture-backed browser replay: 314 checks, no unexpected browser errors or asset failures. All 20 scenes and discovery checks; comparison, sounds, 3D rotation/zoom/reset, device bookmark isolation, parent/child shell entry and network/storage failure recovery.
-- Focused presentation replay: genuine fullscreen entry/toggle/browser-event exit; rejected and unsupported fullscreen; profile-preserving Exit; image zoom/pan and exact 3D view retained across notes; real CDP touch rotation; visible image-coordinate pin alignment; hidden controls inert while covered; Escape, restored focus, internal panel scrolling and large-text cover access.
+- Focused presentation replay: 81 checks covering genuine fullscreen entry/toggle/browser-event exit; rejected and unsupported fullscreen; profile-preserving Exit; image zoom/pan and exact 3D view retained across notes; real CDP touch rotation; visible image-coordinate pin alignment; hidden controls inert while covered; Escape, restored focus, internal panel scrolling and large-text cover access. Camera preservation compares raw WebGL canvas pixels, with screenshots retained separately, so other visual layers cannot change the comparison.
 - Rendered review: desktop 1440×900, tablet 834×1194, phone 390×844, small phone 320×568 and landscape 844×390. Phone notes leave an animal image visible above the sheet. Desktop and phone 200% text checks preserve access through internal scrolling.
 - 7 content/storage/provenance tests passed.
 - Private route guard: 145 canonicalisation assertions and 141 compiled Pages runtime assertions passed.
 - Astra independently reviewed the design and implementation. Its keyboard occlusion finding was fixed by removing covered controls from focus and restoring them when the panel closes. Complete image captions remain in Discover, including in short viewports.
 
 Browser replay uses fictional records in ephemeral local D1. Live replay intercepts every API request into that fixture. The journey itself sends no learner writes. Original game-event history and learner content were compared with their starting fixture values; portal sync timestamps/version metadata are the only excluded fields after returning to the existing shell.
+
+The initial live focused pass identified a focus-scroll offset after returning from a panel at phone text zoom. The stage now uses `overflow: clip`, which cannot scroll programmatically, while Discover and the large-text cover keep their own scrolling. The focused suite asserts that the large-text cover starts beneath the HUD and the main scene remains at scroll offset zero.
 
 Evidence folder: `outputs/education-journeys-immersive-2026-10-22/`. Local reports: `browser-report.json`, `focused-browser-report.json`; screenshots include `library-desktop.png`, `whales-2-phone.png`, `focused-discover-phone.png`, `focused-discover-landscape.png`, `focused-phone-text-200.png` and the two camera-state screenshots.
 

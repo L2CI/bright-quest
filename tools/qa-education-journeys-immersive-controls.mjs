@@ -1,6 +1,8 @@
 // Focused presentation checks; called by the fixture-backed journey browser harness.
+import {createHash} from 'node:crypto';
 export async function verifyImmersiveControls({page,context,origin,navigate,imageReady,layout,discover,closePanel,loadedModel,modelShot,ok,eq}){
  const settle=()=>page.waitForTimeout(350);
+ const modelPixels=async()=>createHash('sha256').update(await page.locator('#specimenCanvas').evaluate(c=>c.toDataURL('image/png'))).digest('hex');
  await navigate();
  await page.getByRole('button',{name:'Start with Origins'}).click();
  await page.waitForFunction(()=>Boolean(document.fullscreenElement));
@@ -24,10 +26,10 @@ export async function verifyImmersiveControls({page,context,origin,navigate,imag
  await navigate('#fossil/mammoth');await loadedModel();await settle();
  for(let i=0;i<3;i++)await page.locator('[data-action="3d-right"]').click();await page.locator('[data-action="3d-zoom-in"]').click();
  await page.evaluate(()=>{window.__qaCanvas=document.querySelector('#specimenCanvas');});
- const cameraShot=await modelShot('mammoth','camera-before-notes');
+ await modelShot('mammoth','camera-before-notes');const cameraShot=await modelPixels();
  await discover();await settle();await closePanel();await settle();
  eq(await page.evaluate(()=>window.__qaCanvas===document.querySelector('#specimenCanvas')),true,'Notes retain the same live 3D renderer');
- eq(await modelShot('mammoth','camera-after-notes'),cameraShot,'Notes preserve the exact 3D camera view');
+ await modelShot('mammoth','camera-after-notes');eq(await modelPixels(),cameraShot,'Notes preserve the exact 3D camera view');
  await page.setViewportSize({width:390,height:844});await navigate('#fossil/mammoth');await loadedModel();
  await page.locator('[data-action="3d-activate"]').click();
  const touchBefore=await modelShot('mammoth','touch-before'),box=await page.locator('#specimenCanvas').boundingBox();
